@@ -30,12 +30,14 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         {/* Google Material Symbols - 기능적 UI 아이콘용 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
         />
       </head>
-      <body className="min-h-screen bg-white">
+      <body className="min-h-screen" style={{ backgroundColor: '#fdfbf7' }}>
         <main className="max-w-md mx-auto min-h-screen">
           {children}
         </main>

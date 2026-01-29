@@ -1,5 +1,13 @@
 import type { Config } from 'tailwindcss'
 
+/**
+ * Tailwind CSS 설정
+ *
+ * 색상 관리:
+ * - 브랜드 컬러는 globals.css의 CSS 변수에서 정의
+ * - Tailwind에서는 extend.colors로 CSS 변수를 참조
+ * - 사용법: text-green, bg-orange 등
+ */
 const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -9,19 +17,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 사우나 로그 브랜드 컬러 (나중에 수정 가능)
-        primary: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-        },
+        // 브랜드 컬러 - CSS 변수 참조
+        green: 'var(--color-green)',
+        'green-light': 'var(--color-green-light)',
+        orange: 'var(--color-orange)',
+        'orange-light': 'var(--color-orange-light)',
+        bather: 'var(--color-bather)',
+        sauner: 'var(--color-sauner)',
+        jimi: 'var(--color-jimi)',
+      },
+      borderWidth: {
+        '3': '3px',
+      },
+      ringWidth: {
+        '3': '3px',
       },
     },
   },

@@ -26,6 +26,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# Sensitive docs
+docs/keys.md
+
 # Vercel
 .vercel
 

@@ -2,22 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * ============================================
+ * 사우나 로그 - CSS 변수 (색상 시스템)
+ * ============================================
+ * 브랜드 컬러를 수정하려면 이 파일에서 수정하세요.
+ * tailwind.config.ts에서 이 변수들을 참조합니다.
+ */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+  /* 베이스 컬러 */
+  --foreground-rgb: 68, 64, 60;
+  --background-rgb: 250, 249, 247;
+
+  /* Primary (그린) */
+  --color-green: #2d8a6e;
+  --color-green-light: #e6f4ef;
+
+  /* Secondary (오렌지) */
+  --color-orange: #e07b3c;
+  --color-orange-light: #fef3eb;
+
+  /* 타입별 포인트 컬러 */
+  --color-bather: #3B82F6;    /* 목욕파 = 파랑 */
+  --color-sauner: #F97316;    /* 사우너파 = 오렌지 */
+  --color-jimi: #22C55E;      /* 찜질파 = 초록 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 10, 10, 10;
-  }
-}
-
+/* 기본 body 스타일 */
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 목욕탕 타일 느낌의 배경 */
+.bath-tile-bg {
+  background: linear-gradient(135deg, #faf9f7 0%, #f5f2ed 100%);
 }
 
 /* 모바일 최적화 */
@@ -52,7 +72,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--color-orange);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
@@ -61,7 +81,7 @@ input[type="range"]::-moz-range-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--color-orange);
   cursor: pointer;
   border: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -78,14 +98,6 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* 아이콘 크기 유틸리티 */
-.icon-sm {
-  font-size: 18px;
-}
-
-.icon-md {
-  font-size: 24px;
-}
-
-.icon-lg {
-  font-size: 32px;
-}
+.icon-sm { font-size: 18px; }
+.icon-md { font-size: 24px; }
+.icon-lg { font-size: 32px; }
