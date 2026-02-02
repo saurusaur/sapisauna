@@ -392,7 +392,7 @@ export const DEEP_LOG = {
 // ============================================
 export const TYPE_DEFAULTS = {
   bather: {
-    greeting: '오늘도 깨끗한 물에서 힐링하세요 🛁',
+    greeting: '오늘도 따뜻한 물에서 힐링하세요 🛁',
     quickLogFields: ['WATER_QUALITY', 'HOT_BATH_TEMP', 'REVISIT'],
     emoji: '🛁',
   },
@@ -500,25 +500,36 @@ export const STORY_TEMPLATES = {
     name: 'MINIMAL',
     nameKo: '미니멀',
     description: '깔끔하고 심플한 디자인',
+    bg: '/images/templates/minimal.svg',
   },
   DARK: {
     id: 'dark',
     name: 'DARK',
     nameKo: '다크',
     description: '어두운 배경의 세련된 디자인',
+    bg: '/images/templates/dark.svg',
   },
   GRADIENT: {
     id: 'gradient',
     name: 'GRADIENT',
     nameKo: '그라데이션',
     description: '부드러운 그라데이션 배경',
+    bg: '/images/templates/gradient.svg',
   },
   RETRO: {
     id: 'retro',
     name: 'RETRO',
     nameKo: '레트로',
     description: '빈티지한 감성의 디자인',
+    bg: '/images/templates/retro.svg',
   },
+}
+
+// 타입별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
+export const TYPE_ICON_MAP: Record<string, string> = {
+  bather: 'water_drop',
+  sauner: 'local_fire_department',
+  jimi: 'spa',
 }
 
 // ============================================

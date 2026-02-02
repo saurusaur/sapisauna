@@ -57,7 +57,7 @@ export default function QuickLog() {
     }
 
     localStorage.setItem('currentLog', JSON.stringify(logData))
-    router.push('/log/nudge')
+    router.push('/story')
   }
 
   // 슬라이더 컴포넌트
