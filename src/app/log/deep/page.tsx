@@ -325,7 +325,7 @@ export default function DeepLog() {
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm">☆</span>
+                      <span className="text-xs text-stone-400">낮음</span>
                       <input
                         type="range"
                         min={1}
@@ -334,7 +334,7 @@ export default function DeepLog() {
                         onChange={(e) => setStoreScore(Number(e.target.value))}
                         className="flex-1"
                       />
-                      <span className="text-sm">★</span>
+                      <span className="text-xs text-stone-400">높음</span>
                     </div>
                   </div>
 

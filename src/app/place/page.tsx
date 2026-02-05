@@ -5,10 +5,23 @@ import { useRouter } from 'next/navigation'
 import { MESSAGES } from '@/constants/content'
 
 // 더미 장소 데이터
+// facilities: PLACE_SPECS 기반 시설 태그 (icon: Material Symbol, label: 표시명)
 const DUMMY_PLACES = [
-  { id: '1', name: '스파랜드', address: '서울 강남구', distance: '350m', facilities: ['🛁', '♨️', '🔥'] },
-  { id: '2', name: '실로암사우나', address: '서울 중구', distance: '1.2km', facilities: ['♨️', '🔥'] },
-  { id: '3', name: '드래곤힐스파', address: '서울 용산구', distance: '2.5km', facilities: ['🛁', '♨️', '🔥', '🥚'] },
+  { id: '1', name: '스파랜드', address: '서울 강남구', distance: '350m', facilities: [
+    { icon: 'hot_tub', label: '온탕' },
+    { icon: 'ac_unit', label: '냉탕' },
+    { icon: 'local_fire_department', label: '건식' },
+  ]},
+  { id: '2', name: '실로암사우나', address: '서울 중구', distance: '1.2km', facilities: [
+    { icon: 'local_fire_department', label: '건식' },
+    { icon: 'water', label: '습식' },
+  ]},
+  { id: '3', name: '드래곤힐스파', address: '서울 용산구', distance: '2.5km', facilities: [
+    { icon: 'hot_tub', label: '온탕' },
+    { icon: 'ac_unit', label: '냉탕' },
+    { icon: 'local_fire_department', label: '건식' },
+    { icon: 'grain', label: '소금방' },
+  ]},
 ]
 
 export default function PlaceSelection() {
@@ -71,9 +84,12 @@ export default function PlaceSelection() {
             >
               <div className="font-semibold text-stone-700 mb-1">{place.name}</div>
               <div className="text-sm text-stone-400 mb-2">{place.address} · {place.distance}</div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {place.facilities.map((facility, idx) => (
-                  <span key={idx} className="text-lg">{facility}</span>
+                  <span key={idx} className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-stone-100 rounded-full text-xs text-stone-500">
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>{facility.icon}</span>
+                    {facility.label}
+                  </span>
                 ))}
               </div>
             </button>

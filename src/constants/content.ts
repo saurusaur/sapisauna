@@ -125,8 +125,8 @@ export const ONBOARDING = {
   },
   // Step 2: 타입 선택
   TYPE: {
-    TITLE: '나의 목욕 스타일은?',
-    SUBTITLE: '1개 이상 선택해주세요 (선택 순서 = 우선순위)',
+    TITLE: '나의 사우나 라이프스타일은?',
+    SUBTITLE: '좋아하는 순서대로 선택해주세요',
   },
   // 공통
   NEXT_BUTTON: '다음',
@@ -141,15 +141,15 @@ export const QUICK_LOG = {
   // 공통 항목
   COMMON: {
     REVISIT: {
-      label: '또 올래요',
+      label: '또 갈래요',
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '별로', emoji: '😐' },
-        { value: 2, label: '글쎄', emoji: '🙁' },
-        { value: 3, label: '괜찮아', emoji: '🙂' },
-        { value: 4, label: '좋아', emoji: '😊' },
-        { value: 5, label: '최고', emoji: '😍' },
+        { value: 1, label: '절대로 안가요' },
+        { value: 2, label: '대안 없다면 가요' },
+        { value: 3, label: '근처면 갈만 해요' },
+        { value: 4, label: '찾아갈만 해요' },
+        { value: 5, label: '꼭 가야해요!' },
       ],
     },
   },
@@ -161,22 +161,22 @@ export const QUICK_LOG = {
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '탁함' },
-        { value: 2, label: '조금탁함' },
+        { value: 1, label: '매우 탁함' },
+        { value: 2, label: '조금 탁함' },
         { value: 3, label: '보통' },
-        { value: 4, label: '맑음' },
+        { value: 4, label: '청량' },
         { value: 5, label: '미끈미끈' },
       ],
     },
     HOT_BATH_TEMP: {
-      label: '목욕 온탕 온도',
+      label: '목욕물 온도',
       min: 35,
       max: 46,
       unit: '°C',
       steps: [
         { value: 35, label: '미지근' },
         { value: 38, label: '따뜻' },
-        { value: 42, label: '뜨거움' },
+        { value: 42, label: '뜨끈' },
         { value: 46, label: '펄펄' },
       ],
     },
@@ -192,8 +192,8 @@ export const QUICK_LOG = {
       steps: [
         { value: 40, label: '미지근' },
         { value: 70, label: '따뜻' },
-        { value: 90, label: '뜨거움' },
-        { value: 110, label: '극한' },
+        { value: 90, label: '후끈' },
+        { value: 110, label: '화끈' },
         { value: 140, label: '지옥' },
       ],
     },
@@ -203,9 +203,10 @@ export const QUICK_LOG = {
       max: 30,
       unit: '°C',
       steps: [
-        { value: 0, label: '얼음' },
-        { value: 8, label: '극강' },
-        { value: 15, label: '시원' },
+        { value: 0, label: '북극' },
+        { value: 8, label: '얼음' },
+        { value: 15, label: '차갑' },
+        { value: 20, label: '시원' },
         { value: 25, label: '미지근' },
       ],
     },
@@ -221,8 +222,8 @@ export const QUICK_LOG = {
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '그냥저냥' },
-        { value: 2, label: '나쁘지않음' },
+        { value: 1, label: '없음' },
+        { value: 2, label: '미약' },
         { value: 3, label: '좋음' },
         { value: 4, label: '최고' },
         { value: 5, label: '승천' },
@@ -237,11 +238,11 @@ export const QUICK_LOG = {
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '별로' },
-        { value: 2, label: '그냥저냥' },
-        { value: 3, label: '괜찮음' },
-        { value: 4, label: '편안함' },
-        { value: 5, label: '꿀잠' },
+        { value: 1, label: '아쉬움' },
+        { value: 2, label: '무난' },
+        { value: 3, label: '평온' },
+        { value: 4, label: '개운' },
+        { value: 5, label: '황홀' },
       ],
     },
     CLEANLINESS: {
@@ -280,16 +281,6 @@ export const PLACE_SPECS = {
       { id: '건식', label: '건식', icon: 'local_fire_department', tempRange: [70, 110] },
       { id: '습식', label: '습식', icon: 'water', tempRange: [50, 80] },
       { id: '아로마', label: '아로마', icon: 'spa', tempRange: [50, 80] },
-    ],
-  },
-  BASIC_AMENITIES: {
-    label: '편의시설',
-    options: [
-      { id: 'dryer-free', label: '드라이기 무료', field: 'is_dryer_free' },
-      { id: 'towel', label: '수건 무제한', field: 'has_towel_unlimited' },
-      { id: 'shampoo-bodywash', label: '샴푸/바디워시', field: 'has_shampoo_bodywash' },
-      { id: 'charging', label: '충전 스테이션', field: 'has_charging' },
-      { id: 'workspace', label: '작업 공간', field: 'has_workspace' },
     ],
   },
   STORE: {
@@ -377,7 +368,7 @@ export const DEEP_LOG = {
     label: '세신',
     satisfaction: {
       label: '만족도',
-      options: ['😞', '😐', '🙂', '😊', '🤩'],
+      options: ['별로', '보통', '괜찮음', '좋음', '최고'],
     },
     price: {
       label: '가격',

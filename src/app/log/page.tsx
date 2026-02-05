@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
-import { getRevisitEmoji } from '@/lib/utils'
 
 type LogType = 'bather' | 'sauner' | 'jimi'
 
@@ -291,13 +290,10 @@ export default function QuickLog() {
           <div className="py-4">
             <div className="flex justify-between items-center mb-3">
               <span className="font-medium text-stone-700">또 올래요</span>
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{getRevisitEmoji(revisit)}</span>
-                <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>{revisit}/5</span>
-              </div>
+              <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>{revisit}/5</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-lg">😐</span>
+              <span className="text-xs text-stone-400">별로</span>
               <input
                 type="range"
                 min={1}
@@ -306,7 +302,7 @@ export default function QuickLog() {
                 onChange={(e) => setRevisit(Number(e.target.value))}
                 className="flex-1"
               />
-              <span className="text-lg">😍</span>
+              <span className="text-xs text-stone-400">최고</span>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
-import { formatDateTime, formatShortDate, getTotonoLabel, getRevisitEmoji, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
+import { formatDateTime, formatShortDate, getTotonoLabel, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
 
 // 레이블 맵 상수
@@ -195,7 +195,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               <span className="text-stone-500">또 올래요</span>
               <div className="flex items-center gap-2">
                 {renderRevisitScore(log.revisit_score)}
-                <span className="text-lg">{getRevisitEmoji(log.revisit_score)}</span>
               </div>
             </div>
           </div>
