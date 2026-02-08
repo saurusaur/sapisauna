@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS places (
   -- 위치 정보 (위도, 경도)
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
-  -- 외부 API 연동 (네이버/구글)
-  source TEXT DEFAULT 'manual' CHECK (source IN ('manual', 'naver', 'google')),
-  external_id TEXT,  -- 외부 API 고유 ID (중복 방지용)
-  category TEXT CHECK (category IN ('목욕탕', '찜질방', '사우나')),
+  -- 카테고리는 장소가 아닌 logs 테이블의 log_type으로 관리
+  -- (한 장소에서 사우나/목욕/찜질 모두 가능할 수 있음)
+  -- 외부 API 연동은 place_sources 테이블에서 1:N으로 관리
+  -- (같은 장소가 Naver/Google 양쪽에서 등록될 수 있음)
 
   -- ========== 시설 스펙 (정적 정보) ==========
   -- ※ 사용자가 처음 Deep Log 작성 시 장소 정보도 함께 등록 (크라우드소싱)
@@ -82,10 +82,7 @@ CREATE TABLE IF NOT EXISTS places (
   -- 메타 정보
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-
-  -- 동일 외부 ID 중복 방지
-  UNIQUE(source, external_id)
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE places ENABLE ROW LEVEL SECURITY;
@@ -99,6 +96,37 @@ CREATE POLICY "Authenticated users can add places" ON places
   FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
 -- ============================================
+-- 2-1. PLACE_SOURCES 테이블 - 외부 API 연동 정보
+-- ============================================
+-- 하나의 장소가 Naver/Google 양쪽에서 등록될 수 있음
+-- 좌표 기반 매칭으로 같은 장소면 하나의 place에 여러 source 연결
+CREATE TABLE IF NOT EXISTS place_sources (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+  source TEXT NOT NULL CHECK (source IN ('naver', 'google', 'manual')),
+  external_id TEXT,  -- 외부 API 고유 ID
+  name_original TEXT,  -- 해당 소스에서 가져온 원본 이름
+  address_original TEXT,  -- 해당 소스에서 가져온 원본 주소
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  -- 동일 소스+외부ID 중복 방지
+  UNIQUE(source, external_id)
+);
+
+ALTER TABLE place_sources ENABLE ROW LEVEL SECURITY;
+
+-- 모든 로그인 사용자가 조회 가능
+CREATE POLICY "Anyone can view place_sources" ON place_sources
+  FOR SELECT USING (true);
+
+-- 로그인 사용자만 추가 가능
+CREATE POLICY "Authenticated users can add place_sources" ON place_sources
+  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
+-- place_sources 인덱스
+CREATE INDEX IF NOT EXISTS idx_place_sources_place_id ON place_sources(place_id);
+
+-- ============================================
 -- 3. LOGS 테이블 - Quick Log (기본 기록)
 -- ============================================
 CREATE TABLE IF NOT EXISTS logs (
@@ -109,6 +137,8 @@ CREATE TABLE IF NOT EXISTS logs (
   logged_at TIMESTAMPTZ DEFAULT NOW(),
   -- 공통: 재방문 의사 (1-5)
   revisit_score INT CHECK (revisit_score BETWEEN 1 AND 5),
+  -- 기록 타입 (이 기록이 어떤 활동인지)
+  log_type TEXT CHECK (log_type IN ('bather', 'saunner', 'jimi')),
 
   -- 목욕파 전용
   water_quality INT CHECK (water_quality BETWEEN 1 AND 5),
@@ -215,8 +245,13 @@ CREATE INDEX IF NOT EXISTS idx_deep_logs_log_id ON deep_logs(log_id);
 --
 -- [places] - "이 곳에 무엇이 있는가?" (정적 스펙)
 --   ※ 사용자가 처음 Deep Log 작성 시 함께 등록 (크라우드소싱)
---   - 기본 정보: 이름, 주소, 좌표, 카테고리
---   - 외부 API: source, external_id (중복 방지)
+--   - 기본 정보: 이름, 주소, 좌표
+--   - 카테고리 없음: 한 장소에서 사우나/목욕/찜질 모두 가능할 수 있으므로 logs.log_type으로 관리
+--
+-- [place_sources] - 외부 API 연동 (1:N)
+--   - 같은 장소가 Naver/Google 양쪽에서 등록될 수 있음
+--   - 좌표 기반 매칭 (반경 50m)으로 같은 장소면 하나의 place에 여러 source 연결
+--   - 각 소스별 원본 이름/주소 보존
 --   - 탕 구성 (JSONB): {"냉탕": {"temp": 15}, "온탕": {"temp": 42}, ...}
 --     → 냉탕, 급냉탕, 미온탕, 온탕, 열탕, 노천탕
 --   - 사우나 (JSONB): {"건식": {"temp": 90}, "습식": {"temp": 70}, ...}
@@ -228,6 +263,7 @@ CREATE INDEX IF NOT EXISTS idx_deep_logs_log_id ON deep_logs(log_id);
 --   - 수면실: has_sleep_room
 --
 -- [logs] - Quick Log (그날의 수치 - 동적)
+--   - log_type: 기록 타입 (bather/saunner/jimi)
 --   - 재방문 의사, 오늘 측정한 온도, 세트수, 토토노이 등
 --
 -- [deep_logs] - "오늘 거기서 무엇을 했고, 어땠는가?" (동적 경험)

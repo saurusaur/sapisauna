@@ -35,7 +35,7 @@ export const APP = {
 // ============================================
 export const TYPE_COLORS = {
   bather: '#3B82F6',  // 파랑
-  sauner: '#F97316',  // 오렌지
+  saunner: '#F97316',  // 오렌지
   jimi: '#22C55E',    // 초록
 } as const
 
@@ -62,13 +62,13 @@ export const USER_TYPES = {
     color: TYPE_COLORS.bather,
   },
   SAUNER: {
-    id: 'sauner',
+    id: 'saunner',
     category: '사우나',
     persona: 'Saunner',
     name: '사우나파',
     emoji: '🔥',
     description: '사우나, 냉탕, 휴식의 반복으로 완성하는 나의 루틴',
-    color: TYPE_COLORS.sauner,
+    color: TYPE_COLORS.saunner,
   },
   JIMI: {
     id: 'jimi',
@@ -84,28 +84,28 @@ export const USER_TYPES = {
 // 타입 ID로 빠르게 조회할 수 있는 맵
 export const TYPE_EMOJI_MAP: Record<string, string> = {
   bather: '🛁',
-  sauner: '🔥',
+  saunner: '🔥',
   jimi: '🥚',
 }
 
 // Category 이름 (한국어, 기록 타입/장소 표시용)
 export const TYPE_CATEGORY_MAP: Record<string, string> = {
   bather: '목욕탕',
-  sauner: '사우나',
+  saunner: '사우나',
   jimi: '찜질방',
 }
 
 // Persona 이름 (영어, 유저 레이블 표시용)
 export const TYPE_PERSONA_MAP: Record<string, string> = {
   bather: 'Bather',
-  sauner: 'Saunner',
+  saunner: 'Saunner',
   jimi: 'Jimi',
 }
 
 // 한국어 타입명 (UI 표시용)
 export const TYPE_NAME_MAP: Record<string, string> = {
   bather: '목욕탕파',
-  sauner: '사우나파',
+  saunner: '사우나파',
   jimi: '찜질방파',
 }
 
@@ -192,8 +192,8 @@ export const QUICK_LOG = {
       steps: [
         { value: 40, label: '미지근' },
         { value: 70, label: '따뜻' },
-        { value: 90, label: '후끈' },
-        { value: 110, label: '화끈' },
+        { value: 90, label: '뜨끈' },
+        { value: 110, label: '후끈' },
         { value: 140, label: '지옥' },
       ],
     },
@@ -270,16 +270,16 @@ export const PLACE_SPECS = {
       { id: '냉탕', label: '냉탕', icon: 'ac_unit', tempRange: [5, 20] },
       { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', tempRange: [1, 10] },
       { id: '미온탕', label: '미온탕', icon: 'thermostat', tempRange: [35, 39] },
-      { id: '온탕', label: '온탕', icon: 'hot_tub', tempRange: [40, 43] },
-      { id: '열탕', label: '열탕', icon: 'local_fire_department', tempRange: [43, 47] },
+      { id: '온탕', label: '온탕', icon: 'heat', tempRange: [40, 43] },
+      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', tempRange: [43, 47] },
       { id: '노천탕', label: '노천탕', icon: 'park', tempRange: [38, 45] },
     ],
   },
   SAUNAS: {
     label: '사우나 종류',
     options: [
-      { id: '건식', label: '건식', icon: 'local_fire_department', tempRange: [70, 110] },
-      { id: '습식', label: '습식', icon: 'water', tempRange: [50, 80] },
+      { id: '건식', label: '건식', icon: 'sauna', tempRange: [70, 110] },
+      { id: '습식', label: '습식', icon: 'water_voc', tempRange: [50, 80] },
       { id: '아로마', label: '아로마', icon: 'spa', tempRange: [50, 80] },
     ],
   },
@@ -291,16 +291,12 @@ export const PLACE_SPECS = {
   ROOMS: {
     label: '찜질방 종류',
     options: [
-      { id: '불한증막', label: '불한증막', icon: 'local_fire_department', tempRange: [60, 90], hasTemp: true },
+      { id: '불한증막', label: '불한증막', icon: 'warehouse', tempRange: [60, 140], hasTemp: true },
       { id: '소금방', label: '소금방', icon: 'grain' },
-      { id: '아이스방', label: '아이스방', icon: 'ac_unit' },
-      { id: '황토방', label: '황토방', icon: 'landscape' },
-      { id: '토굴방', label: '토굴방', icon: 'holiday_village' },
+      { id: '아이스방', label: '아이스방', icon: 'iceream' },
+      { id: '황토방', label: '황토방', icon: 'foundation' },
+      { id: '토굴방', label: '토굴방', icon: 'location_home' },
     ],
-  },
-  SLEEP_ROOM: {
-    label: '수면실',
-    field: 'has_sleep_room',
   },
 }
 
@@ -319,7 +315,7 @@ export const DEEP_LOG = {
       { id: 'alone', label: '혼자', icon: 'person' },
       { id: 'friend', label: '친구', icon: 'group' },
       { id: 'family', label: '가족', icon: 'family_restroom' },
-      { id: 'partner', label: '연인', icon: 'favorite' },
+      { id: 'partner', label: '연인', icon: 'partner_heart' },
     ],
   },
   PURPOSE: {
@@ -328,7 +324,7 @@ export const DEEP_LOG = {
     options: [
       { id: 'healing', label: '힐링', icon: 'self_improvement' },
       { id: 'after-workout', label: '운동후', icon: 'fitness_center' },
-      { id: 'hangover', label: '숙취해소', icon: 'local_bar' },
+      { id: 'hangover', label: '숙취해소', icon: 'beer_meal' },
       { id: 'date', label: '데이트', icon: 'favorite' },
       { id: 'work', label: '작업', icon: 'laptop' },
       { id: 'sleep', label: '수면', icon: 'bedtime' },
@@ -345,10 +341,11 @@ export const DEEP_LOG = {
     options: [
       { id: 'dryer-free', label: '드라이기 무료', icon: 'air' },
       { id: 'towel', label: '수건 무제한', icon: 'dry_cleaning' },
-      { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'soap' },
+      { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'clean_hands' },
       { id: 'charging', label: '충전 스테이션', icon: 'battery_charging_full' },
       { id: 'workspace', label: '작업 공간', icon: 'laptop' },
       { id: 'gym', label: '운동시설', icon: 'fitness_center' },
+      { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat' },
     ],
   },
   MEMO: {
@@ -358,10 +355,10 @@ export const DEEP_LOG = {
   CROWD: {
     label: '혼잡도',
     options: [
-      { id: 'empty', label: '쾌적', icon: 'sentiment_satisfied' },
-      { id: 'moderate', label: '적당', icon: 'groups' },
-      { id: 'busy', label: '북적', icon: 'density_medium' },
-      { id: 'full', label: '자리없음', icon: 'density_large' },
+      { id: 'empty', label: '쾌적', icon: 'hot_tub' },
+      { id: 'moderate', label: '적당', icon: 'bath_private' },
+      { id: 'busy', label: '북적', icon: 'bath_public_large' },
+      { id: 'full', label: '자리없음', icon: 'crowdsource' },
     ],
   },
   SCRUB: {
@@ -387,7 +384,7 @@ export const TYPE_DEFAULTS = {
     quickLogFields: ['WATER_QUALITY', 'HOT_BATH_TEMP', 'REVISIT'],
     emoji: '🛁',
   },
-  sauner: {
+  saunner: {
     greeting: '오늘의 토토노이를 기록해보세요 🔥',
     quickLogFields: ['SAUNA_TEMP', 'COLD_BATH_TEMP', 'SETS', 'TOTONO', 'REVISIT'],
     emoji: '🔥',
@@ -400,7 +397,7 @@ export const TYPE_DEFAULTS = {
 } as const
 
 export function getTypeDefaults(primaryType: keyof typeof TYPE_DEFAULTS | null) {
-  return primaryType ? TYPE_DEFAULTS[primaryType] : TYPE_DEFAULTS.sauner
+  return primaryType ? TYPE_DEFAULTS[primaryType] : TYPE_DEFAULTS.saunner
 }
 
 // ============================================
@@ -418,7 +415,7 @@ export const MESSAGES = {
     SEARCH_PLACEHOLDER: '사우나 검색...',
     NEARBY: '내 주변',
     ADD_PLACE: '직접 장소 추가',
-    DEEP_LOG_BUTTON: '더 기록하기 (Deep Log)',
+    DEEP_LOG_BUTTON: '자세히 기록하기',
     SAVING: '저장 중...',
   },
   COMPLETE: {
@@ -479,48 +476,21 @@ export const ICONS = {
   CHEVRON_DOWN: 'expand_more',
   INFO: 'info',
   STAR: 'star',
-  THERMOMETER: 'thermostat',
+  THERMOMETER: 'device_thermostat',
 }
 
-// ============================================
-// 스토리 템플릿
-// ============================================
-export const STORY_TEMPLATES = {
-  MINIMAL: {
-    id: 'minimal',
-    name: 'MINIMAL',
-    nameKo: '미니멀',
-    description: '깔끔하고 심플한 디자인',
-    bg: '/images/templates/minimal.svg',
-  },
-  DARK: {
-    id: 'dark',
-    name: 'DARK',
-    nameKo: '다크',
-    description: '어두운 배경의 세련된 디자인',
-    bg: '/images/templates/dark.svg',
-  },
-  GRADIENT: {
-    id: 'gradient',
-    name: 'GRADIENT',
-    nameKo: '그라데이션',
-    description: '부드러운 그라데이션 배경',
-    bg: '/images/templates/gradient.svg',
-  },
-  RETRO: {
-    id: 'retro',
-    name: 'RETRO',
-    nameKo: '레트로',
-    description: '빈티지한 감성의 디자인',
-    bg: '/images/templates/retro.svg',
-  },
+// 타입별 스토리 템플릿 배경 (타입별 고정)
+export const TYPE_TEMPLATE_MAP: Record<string, string> = {
+  bather: '/images/templates/bather_template.svg',
+  saunner: '/images/templates/saunner_template.svg',
+  jimi: '/images/templates/jimi_template.svg',
 }
 
 // 타입별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
 export const TYPE_ICON_MAP: Record<string, string> = {
-  bather: 'water_drop',
-  sauner: 'local_fire_department',
-  jimi: 'spa',
+  bather: 'bath_outdoor',
+  saunner: 'local_fire_department',
+  jimi: 'egg',
 }
 
 // ============================================

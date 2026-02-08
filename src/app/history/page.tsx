@@ -53,7 +53,7 @@ export default function History() {
   // 상세 정보 텍스트
   const getDetailText = (log: DummyLog) => {
     switch (log.log_type) {
-      case 'sauner':
+      case 'saunner':
         return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.sets}세트`
       case 'bather':
         return `수질 ${getWaterQualityLabel(log.water_quality || 3)} · 온탕 ${log.hot_bath_temp}°C`

@@ -65,7 +65,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   // 상세 정보 텍스트 (과거 기록 카드용)
   const getDetailText = (item: DummyLog) => {
     switch (item.log_type) {
-      case 'sauner':
+      case 'saunner':
         return `사우나 ${item.sauna_temp}°C · 냉탕 ${item.cold_bath_temp}°C · ${item.sets}세트`
       case 'bather':
         return `수질 ${getWaterQualityLabel(item.water_quality || 3)} · 온탕 ${item.hot_bath_temp}°C`
@@ -139,7 +139,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           </h2>
 
           <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
-            {log.log_type === 'sauner' && (
+            {log.log_type === 'saunner' && (
               <>
                 <div className="flex justify-between">
                   <span className="text-stone-500">사우나 온도</span>

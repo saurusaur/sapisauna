@@ -8,7 +8,7 @@ import { MESSAGES, BUTTONS, NAV, ICONS, TYPE_DEFAULTS, TYPE_EMOJI_MAP, TYPE_PERS
 type UserData = {
   nickname: string
   user_types: string[]
-  primary_type: 'bather' | 'sauner' | 'jimi'
+  primary_type: 'bather' | 'saunner' | 'jimi'
 }
 
 // 최근 기록 타입
@@ -16,7 +16,7 @@ type RecentLog = {
   id: string
   place_name: string
   date: string
-  log_type: 'bather' | 'sauner' | 'jimi'
+  log_type: 'bather' | 'saunner' | 'jimi'
   revisit_score: number
 }
 
@@ -34,12 +34,12 @@ export default function Home() {
 
     // 더미 데이터 (MVP)
     setRecentLogs([
-      { id: '1', place_name: '스파랜드', date: '1/25 (토)', log_type: 'sauner', revisit_score: 4 },
+      { id: '1', place_name: '스파랜드', date: '1/25 (토)', log_type: 'saunner', revisit_score: 4 },
       { id: '2', place_name: '청학동목욕탕', date: '1/20 (월)', log_type: 'bather', revisit_score: 3 },
     ])
   }, [])
 
-  const primaryType = user?.primary_type || 'sauner'
+  const primaryType = user?.primary_type || 'saunner'
   const typeDefaults = TYPE_DEFAULTS[primaryType]
 
   // 또올래요 점수 표시

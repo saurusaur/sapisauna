@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
 
-type LogType = 'bather' | 'sauner' | 'jimi'
+type LogType = 'bather' | 'saunner' | 'jimi'
 
 export default function QuickLog() {
   const router = useRouter()
   const [placeName, setPlaceName] = useState('장소')
-  const [logType, setLogType] = useState<LogType>('sauner')
+  const [logType, setLogType] = useState<LogType>('saunner')
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
   // 슬라이더 값들
@@ -50,7 +50,7 @@ export default function QuickLog() {
       created_at: new Date().toISOString(),
       // 타입별 데이터
       ...(logType === 'bather' && { water_quality: waterQuality, hot_bath_temp: hotBathTemp }),
-      ...(logType === 'sauner' && { sauna_temp: saunaTemp, cold_bath_temp: coldBathTemp, sets, totono }),
+      ...(logType === 'saunner' && { sauna_temp: saunaTemp, cold_bath_temp: coldBathTemp, sets, totono }),
       ...(logType === 'jimi' && { rest_quality: restQuality, cleanliness }),
       revisit_score: revisit,
     }
@@ -177,7 +177,7 @@ export default function QuickLog() {
 
           {showTypeDropdown && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
-              {(['bather', 'sauner', 'jimi'] as LogType[]).map((type) => (
+              {(['bather', 'saunner', 'jimi'] as LogType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => {
@@ -227,7 +227,7 @@ export default function QuickLog() {
           )}
 
           {/* 사우너파 입력 항목 */}
-          {logType === 'sauner' && (
+          {logType === 'saunner' && (
             <>
               <Slider
                 label="건식 사우나 온도"

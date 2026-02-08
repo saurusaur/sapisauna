@@ -1,108 +1,161 @@
 /**
- * Jimi 원형 프로그레스 바 SVG 컴포넌트
- * - restQuality 점수를 0~100%로 환산하여 원형 프로그레스
- * - 채워진 영역 내부에 입자(particle) 효과
- * - 중앙에 휴식 완충률(%) 수치 강조
+ * Jimi 프로그레스 링 SVG 컴포넌트
+ * - 링: 얇은 흰색 테두리, 바깥으로 넓게 퍼지는 세련된 디퓨즈 글로우
+ * - 내부: 액체가 아래에서 위로 차오르는 느낌 (출렁이는 두 겹의 반투명 물 표면)
  */
 
 interface JimiGraphProps {
-  restQuality: number  // 1-5
-  cleanliness: number  // 1-5
+  restQuality: number
+  cleanliness: number
 }
 
-// 시드 기반 의사 난수 (렌더링 안정성 위해)
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed * 9301 + 49297) * 49297
-  return x - Math.floor(x)
-}
-
-export default function JimiGraph({ restQuality }: JimiGraphProps) {
-  const size = 300
+export default function JimiGraph({ restQuality, cleanliness }: JimiGraphProps) {
+  const size = 280
   const center = size / 2
-  const radius = 120
-  const strokeWidth = 12
-  const percentage = (restQuality / 5) * 100
+  const ringRadius = 90
+  const strokeWidth = 1.2 // 얇은 테두리
 
-  // 원형 프로그레스 계산
-  const circumference = 2 * Math.PI * radius
-  const strokeDasharray = circumference
-  const strokeDashoffset = circumference - (percentage / 100) * circumference
+  // 청결도에 따른 글로우 색상 (링은 흰색, 글로우만 색상)
+  // 1: 탁한 올리브 → 5: 빛나는 에메랄드
+  const getGlowColor = (clean: number) => {
+    const colors = [
+      { glow: '#9AA87A', blur: 12 },   // 1: 탁함
+      { glow: '#A4BA84', blur: 16 },   // 2
+      { glow: '#AEDA8C', blur: 20 },   // 3: 중간
+      { glow: '#90EAB2', blur: 26 },   // 4
+      { glow: '#88FFB8', blur: 35 },   // 5: 빛남
+    ]
+    return colors[clean - 1] || colors[2]
+  }
 
-  // 입자 효과: percentage에 비례하는 개수
-  const particleCount = Math.floor(percentage / 5) // 0~20개
-  const particles = Array.from({ length: particleCount }).map((_, i) => {
-    // 프로그레스 영역 내부에 배치 (원 안쪽)
-    const angle = seededRandom(i * 13 + 7) * Math.PI * 2
-    const dist = seededRandom(i * 17 + 3) * (radius - strokeWidth - 10) * 0.8
-    const x = center + Math.cos(angle) * dist
-    const y = center + Math.sin(angle) * dist
-    const r = 2 + seededRandom(i * 23 + 11) * 2 // 2~4px
-    const opacity = 0.3 + seededRandom(i * 31 + 5) * 0.4 // 0.3~0.7
+  const glowStyle = getGlowColor(cleanliness)
 
-    return { x, y, r, opacity }
-  })
+  // 글로우 강도 (크기가 아닌 짙기로 표현)
+  const glowIntensity = 0.15 + cleanliness * 0.12 // 0.27 ~ 0.75
+
+  // 물 채워짐 높이 (restQuality 1~5 → 20%~100%)
+  const fillRatio = restQuality / 5 // 0.2 ~ 1.0
+  // 아래에서 위로 채워짐: fillRatio가 높을수록 waterTopY가 위로 올라감
+  // fillRatio 0.2 → waterTopY = center + ringRadius * 0.6 (아래쪽 20%만 채움)
+  // fillRatio 1.0 → waterTopY = center - ringRadius (거의 꽉 참)
+  const waterTopY = center + ringRadius * (1 - fillRatio * 2)
+
+  // 출렁이는 물결 경로 생성 - 아래에서 위로 채워지는 방식
+  const generateWavePath = (topY: number, phase: number, amplitude: number): string => {
+    const innerRadius = ringRadius - 2
+    const points: string[] = []
+    const segments = 80
+
+    // 물 표면의 좌우 끝점 계산 (원과 수평선의 교점)
+    // topY가 원 안에 있는 경우에만 물 표시
+    const clampedTopY = Math.max(center - innerRadius, Math.min(center + innerRadius, topY))
+    const dy = clampedTopY - center
+    const halfWidth = Math.sqrt(Math.max(0, innerRadius * innerRadius - dy * dy))
+
+    if (halfWidth <= 0) {
+      return '' // 물이 없음
+    }
+
+    const leftX = center - halfWidth
+    const rightX = center + halfWidth
+
+    // 물결 표면 그리기 (왼쪽에서 오른쪽으로)
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments
+      const x = leftX + t * (rightX - leftX)
+      const waveOffset = Math.sin(t * Math.PI * 3 + phase) * amplitude
+      const y = clampedTopY + waveOffset
+
+      if (i === 0) {
+        points.push(`M ${x} ${y}`)
+      } else {
+        points.push(`L ${x} ${y}`)
+      }
+    }
+
+    // 원의 아래쪽 호를 따라 닫기 (오른쪽 교점 → 아래 → 왼쪽 교점)
+    // 아래쪽 반원 호 그리기
+    const startAngle = Math.acos((rightX - center) / innerRadius)
+    const endAngle = Math.PI - startAngle
+
+    // 큰 호로 아래쪽을 감싸기
+    points.push(`A ${innerRadius} ${innerRadius} 0 1 1 ${leftX} ${clampedTopY}`)
+    points.push('Z')
+
+    return points.join(' ')
+  }
+
+  // 물결 진폭 (채워진 양이 적을수록 더 많이 출렁임)
+  const waveAmplitude = 4 + (1 - fillRatio) * 6
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
-      {/* 배경 트랙 */}
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        {/* 세련된 디퓨즈 글로우 */}
+        <filter id="jimi-diffuse-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation={12} result="blur1" />
+          <feGaussianBlur stdDeviation={5} result="blur2" />
+          <feMerge>
+            <feMergeNode in="blur1" />
+            <feMergeNode in="blur2" />
+          </feMerge>
+        </filter>
+
+        {/* 원 안쪽만 보이도록 클리핑 */}
+        <clipPath id="jimi-clip">
+          <circle cx={center} cy={center} r={ringRadius - 2} />
+        </clipPath>
+
+        {/* 물 그라데이션 (청결도 색상 기반) - 위에서 아래로 진해짐 */}
+        <linearGradient id="jimi-water-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={glowStyle.glow} stopOpacity="0.5" />
+          <stop offset="100%" stopColor={glowStyle.glow} stopOpacity="0.7" />
+        </linearGradient>
+
+        {/* 글로우 그라데이션 - 더 넓게 퍼짐 (짙기로 표현) */}
+        <radialGradient id="jimi-glow-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="60%" stopColor={glowStyle.glow} stopOpacity="0" />
+          <stop offset="75%" stopColor={glowStyle.glow} stopOpacity={glowIntensity * 0.7} />
+          <stop offset="88%" stopColor={glowStyle.glow} stopOpacity={glowIntensity * 0.35} />
+          <stop offset="100%" stopColor={glowStyle.glow} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* 디퓨즈 글로우 - 더 넓게 */}
       <circle
         cx={center}
         cy={center}
-        r={radius}
-        fill="none"
-        stroke="#e5e5e5"
-        strokeWidth={strokeWidth}
+        r={ringRadius + 35}
+        fill="url(#jimi-glow-grad)"
+        filter="url(#jimi-diffuse-glow)"
       />
 
-      {/* 프로그레스 바 */}
-      <circle
-        cx={center}
-        cy={center}
-        r={radius}
-        fill="none"
-        stroke="#22C55E"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeDasharray={strokeDasharray}
-        strokeDashoffset={strokeDashoffset}
-        transform={`rotate(-90 ${center} ${center})`}
-      />
-
-      {/* 입자 효과 */}
-      {particles.map((p, i) => (
-        <circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r={p.r}
-          fill="#22C55E"
-          fillOpacity={p.opacity}
+      {/* 물 채워짐 - 뒤쪽 레이어 (더 진하고 느린 물결) */}
+      <g clipPath="url(#jimi-clip)">
+        <path
+          d={generateWavePath(waterTopY + 4, 0, waveAmplitude * 0.6)}
+          fill={glowStyle.glow}
+          fillOpacity={0.4}
         />
-      ))}
+      </g>
 
-      {/* 중앙 퍼센트 수치 */}
-      <text
-        x={center}
-        y={center - 6}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontFamily="system-ui, -apple-system, sans-serif"
-      >
-        <tspan fontSize="36" fontWeight="bold" fill="#1f2937">
-          {Math.round(percentage)}
-        </tspan>
-        <tspan fontSize="16" fill="#6b7280">%</tspan>
-      </text>
-      <text
-        x={center}
-        y={center + 22}
-        textAnchor="middle"
-        fontSize="10"
-        fill="#6b7280"
-        fontFamily="system-ui, -apple-system, sans-serif"
-      >
-        휴식 완충률
-      </text>
+      {/* 물 채워짐 - 앞쪽 레이어 (더 연하고 빠른 물결) */}
+      <g clipPath="url(#jimi-clip)">
+        <path
+          d={generateWavePath(waterTopY, Math.PI * 0.7, waveAmplitude)}
+          fill="url(#jimi-water-grad)"
+        />
+      </g>
+
+      {/* 메인 링 (얇고 흰색) */}
+      <circle
+        cx={center}
+        cy={center}
+        r={ringRadius}
+        fill="none"
+        stroke="rgba(255, 255, 255, 0.95)"
+        strokeWidth={strokeWidth}
+      />
     </svg>
   )
 }

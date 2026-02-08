@@ -8,7 +8,7 @@ export interface DummyLog {
   date: string
   log_type: UserTypeId
   revisit_score: number
-  // sauner
+  // saunner
   sauna_temp?: number
   cold_bath_temp?: number
   sets?: number
@@ -34,7 +34,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     place_name: '스파랜드',
     address: '서울 강남구',
     date: '2025-01-27T20:30:00',
-    log_type: 'sauner',
+    log_type: 'saunner',
     revisit_score: 5,
     sauna_temp: 95,
     cold_bath_temp: 15,
@@ -51,7 +51,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     place_name: '스파랜드',
     address: '서울 강남구',
     date: '2025-01-25T18:00:00',
-    log_type: 'sauner',
+    log_type: 'saunner',
     revisit_score: 4,
     sauna_temp: 92,
     cold_bath_temp: 14,
@@ -81,7 +81,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     place_name: '스파랜드',
     address: '서울 강남구',
     date: '2025-01-15T21:00:00',
-    log_type: 'sauner',
+    log_type: 'saunner',
     revisit_score: 4,
     sauna_temp: 90,
     cold_bath_temp: 16,
@@ -112,7 +112,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     place_name: '스파랜드',
     address: '서울 강남구',
     date: '2024-12-20T19:00:00',
-    log_type: 'sauner',
+    log_type: 'saunner',
     revisit_score: 5,
     sauna_temp: 98,
     cold_bath_temp: 13,

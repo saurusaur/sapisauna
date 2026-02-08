@@ -3,7 +3,7 @@
  */
 
 // 사용자 타입 ID
-export type UserTypeId = 'bather' | 'sauner' | 'jimi'
+export type UserTypeId = 'bather' | 'saunner' | 'jimi'
 
 // 사용자 프로필
 export interface UserProfile {

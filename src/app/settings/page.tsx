@@ -7,7 +7,7 @@ import { NAV, ICONS, APP, SETTINGS, TYPE_EMOJI_MAP, TYPE_PERSONA_MAP } from '@/c
 type UserData = {
   nickname: string
   user_types: string[]
-  primary_type: 'bather' | 'sauner' | 'jimi'
+  primary_type: 'bather' | 'saunner' | 'jimi'
 }
 
 export default function SettingsPage() {
@@ -101,12 +101,12 @@ export default function SettingsPage() {
               className="w-full flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xl">{TYPE_EMOJI_MAP[user?.primary_type || 'sauner']}</span>
+                <span className="text-xl">{TYPE_EMOJI_MAP[user?.primary_type || 'saunner']}</span>
                 <span className="font-medium text-stone-700">나의 타입</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
-                  {TYPE_PERSONA_MAP[user?.primary_type || 'sauner']}
+                  {TYPE_PERSONA_MAP[user?.primary_type || 'saunner']}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>

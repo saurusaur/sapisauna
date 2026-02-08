@@ -2,16 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP, TYPE_ICON_MAP, TYPE_CATEGORY_MAP, STORY_TEMPLATES } from '@/constants/content'
-import { formatDate } from '@/lib/utils'
+import { APP } from '@/constants/content'
 import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
-import SaunerGraph from '@/components/svg/sauner-graph'
+import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
 
 type LogData = {
   place_name: string
-  log_type: 'bather' | 'sauner' | 'jimi'
+  log_type: 'bather' | 'saunner' | 'jimi'
   created_at: string
   sauna_temp?: number
   cold_bath_temp?: number
@@ -22,6 +21,20 @@ type LogData = {
   rest_quality?: number
   cleanliness?: number
   revisit_score: number
+}
+
+// 타입별 배경색 (CSS 변수 참조)
+const TYPE_BG_COLORS: Record<string, string> = {
+  saunner: 'var(--story-bg-saunner)',
+  bather: 'var(--story-bg-bather)',
+  jimi: 'var(--story-bg-jimi)',
+}
+
+// 타입별 표시 이름 (이탤릭 세리프)
+const TYPE_DISPLAY_NAMES: Record<string, string> = {
+  saunner: 'Saunner',
+  bather: 'Bather',
+  jimi: 'Jimi',
 }
 
 export default function Story() {
@@ -37,7 +50,6 @@ export default function Story() {
     }
   }, [])
 
-  // 이미지 공유
   const handleShare = async () => {
     if (!cardRef.current || !log) return
     setIsExporting(true)
@@ -45,13 +57,12 @@ export default function Story() {
       const blob = await captureCard(cardRef.current)
       await shareImage(blob, `sauna-log-${log.place_name}`)
     } catch {
-      // 공유 실패 시 무시 (사용자가 취소한 경우 포함)
+      // 공유 실패
     } finally {
       setIsExporting(false)
     }
   }
 
-  // 이미지 저장
   const handleDownload = async () => {
     if (!cardRef.current || !log) return
     setIsExporting(true)
@@ -66,19 +77,39 @@ export default function Story() {
     }
   }
 
-  // Deep Log로 이동
   const handleDeepLog = () => {
     router.push('/log/deep')
   }
 
-  // 타입별 SVG 그래프 렌더링
+  // 타입별 메인 수치
+  const getMainMetric = () => {
+    if (!log) return { value: '', unit: '', label: '' }
+
+    switch (log.log_type) {
+      case 'saunner': {
+        const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
+        return { value: String(deltaT), unit: '°C', label: 'temperature gap' }
+      }
+      case 'bather': {
+        const temp = log.hot_bath_temp || 40
+        return { value: String(temp), unit: '°C', label: 'water temp' }
+      }
+      case 'jimi': {
+        const percentage = Math.round(((log.rest_quality || 3) / 5) * 100)
+        return { value: String(percentage), unit: '%', label: 'rest quality' }
+      }
+      default:
+        return { value: '', unit: '', label: '' }
+    }
+  }
+
   const renderGraph = () => {
     if (!log) return null
 
     switch (log.log_type) {
-      case 'sauner':
+      case 'saunner':
         return (
-          <SaunerGraph
+          <SaunnerGraph
             saunaTemp={log.sauna_temp || 80}
             coldBathTemp={log.cold_bath_temp || 15}
             sets={log.sets || 3}
@@ -104,9 +135,6 @@ export default function Story() {
     }
   }
 
-  // 배경 이미지 (minimal 고정)
-  const templateBg = STORY_TEMPLATES.MINIMAL.bg
-
   if (!log) {
     return (
       <div className="min-h-screen bath-tile-bg flex items-center justify-center">
@@ -114,6 +142,10 @@ export default function Story() {
       </div>
     )
   }
+
+  const bgColor = TYPE_BG_COLORS[log.log_type] || TYPE_BG_COLORS.saunner
+  const displayName = TYPE_DISPLAY_NAMES[log.log_type] || 'Saunner'
+  const metric = getMainMetric()
 
   return (
     <div className="min-h-screen bath-tile-bg">
@@ -135,49 +167,81 @@ export default function Story() {
         <div className="flex justify-center mb-6">
           <div
             ref={cardRef}
-            className="relative w-full max-w-[280px] rounded-2xl overflow-hidden shadow-lg"
-            style={{ aspectRatio: '9 / 16' }}
+            className="relative w-full max-w-[280px] rounded-2xl overflow-hidden shadow-xl"
+            style={{
+              aspectRatio: '9 / 16',
+              backgroundColor: bgColor,
+            }}
           >
-            {/* 배경 이미지 */}
-            <img
-              src={templateBg}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-
-            {/* 콘텐츠 오버레이 */}
-            <div className="relative z-10 h-full flex flex-col justify-between p-6">
-              {/* 상단: 타입 + 장소 + 날짜 */}
-              <div className="text-center pt-4">
-                <div className="flex items-center justify-center gap-1.5 mb-2">
-                  <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '20px' }}>
-                    {TYPE_ICON_MAP[log.log_type]}
+            <div className="h-full flex flex-col px-6 py-8">
+              {/* 상단: 장소명 + 날짜 */}
+              <div className="text-center">
+                <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-md px-2.5 py-1">
+                  <span
+                    className="material-symbols-outlined text-white/50 leading-none"
+                    style={{ fontSize: '12px' }}
+                  >
+                    onsen
                   </span>
-                  <span className="text-sm font-semibold text-stone-600 tracking-wide uppercase">
-                    {TYPE_CATEGORY_MAP[log.log_type]}
-                  </span>
+                  <h2
+                    className="text-white/50 text-xs font-normal"
+                    style={{ fontFamily: 'var(--font-sans)' }}
+                  >
+                    {log.place_name}
+                  </h2>
                 </div>
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '16px' }}>
-                    location_on
-                  </span>
-                  <span className="text-base font-bold text-stone-800">{log.place_name}</span>
-                </div>
-                <p className="text-xs text-stone-500">
-                  {formatDate(new Date(log.created_at))}
+                <p
+                  className="text-white/50 text-[12.5px] mt-1.5 italic"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  {new Date(log.created_at).toISOString().slice(0, 10).replace(/-/g, '.')}
                 </p>
               </div>
 
-              {/* 중앙: SVG 그래프 */}
-              <div className="flex-1 flex items-center justify-center px-2">
-                <div className="w-full max-w-[220px]">
+              {/* 중앙: 숫자 + 그래프 (겹침) */}
+              <div className="flex-1 flex flex-col items-center justify-center relative">
+                {/* 메인 수치 (그래프 위로 겹침) */}
+                <div className="text-center z-10 mb-[-40px]">
+                  <p
+                    className="text-white/40 text-[10px] tracking-[0.2em] uppercase mb-2"
+                    style={{ fontFamily: 'var(--font-serif)' }}
+                  >
+                    {metric.label}
+                  </p>
+                  <div className="flex items-baseline justify-center">
+                    <span
+                      className="text-white text-8xl font-light tracking-tight"
+                      style={{ fontFamily: 'var(--font-serif)' }}
+                    >
+                      {metric.value}
+                    </span>
+                    <span
+                      className="text-white/70 text-2xl font-light ml-1"
+                      style={{ fontFamily: 'var(--font-serif)' }}
+                    >
+                      {metric.unit}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 그래프 */}
+                <div className="w-full h-[200px]">
                   {renderGraph()}
                 </div>
               </div>
 
-              {/* 하단: 워터마크 */}
-              <div className="text-center pb-2">
-                <p className="text-[10px] text-stone-400 tracking-widest uppercase">
+              {/* 하단: 타입태그 + 워터마크 */}
+              <div className="text-center">
+                <p
+                  className="text-white/60 text-xs italic mb-1"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  {displayName}
+                </p>
+                <p
+                  className="text-white/20 text-[9px] tracking-[0.25em] uppercase"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
                   {APP.NAME}
                 </p>
               </div>
@@ -187,7 +251,6 @@ export default function Story() {
 
         {/* 액션 버튼 */}
         <div className="space-y-3">
-          {/* 공유 + 저장 (가로 배치) */}
           <div className="flex gap-3">
             <button
               onClick={handleShare}
@@ -209,7 +272,6 @@ export default function Story() {
             </button>
           </div>
 
-          {/* 상세 기록 */}
           <button
             onClick={handleDeepLog}
             className="w-full py-4 rounded-2xl font-semibold text-stone-600 bg-white border border-stone-200 flex items-center justify-center gap-2 hover:bg-stone-50 transition-all"
@@ -218,7 +280,6 @@ export default function Story() {
             상세 기록 추가하기
           </button>
 
-          {/* 홈으로 */}
           <button
             onClick={() => router.push('/home')}
             className="w-full py-3 text-sm text-stone-400 hover:text-stone-600 transition-colors"
