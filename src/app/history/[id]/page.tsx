@@ -2,28 +2,31 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
-import { formatDateTime, formatShortDate, getTotonoLabel, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
+import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
 
-// 레이블 맵 상수
-const COMPANION_LABELS: Record<string, string> = {
-  alone: '🧍 혼자',
-  friend: '👯 친구',
-  family: '👨‍👩‍👧 가족',
-  partner: '💑 연인',
+// steps 배열에서 현재 value에 맞는 descriptor를 찾는 헬퍼
+function getStepLabel(steps: readonly { value: number; label: string }[], value: number): string {
+  return [...steps].filter(s => s.value <= value).sort((a, b) => b.value - a.value)[0]?.label
+    ?? steps[0]?.label ?? ''
 }
-const PURPOSE_LABELS: Record<string, string> = {
-  healing: '🧘 힐링',
-  'after-workout': '💪 운동후',
-  hangover: '🍺 숙취해소',
-  work: '💻 작업',
+
+// DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
+function findOption(options: readonly { id: string; label: string; icon: string }[], id: string) {
+  return options.find(o => o.id === id)
 }
-const CROWD_LABELS: Record<string, string> = {
-  empty: '😌 쾌적',
-  moderate: '🙂 적당',
-  busy: '😅 북적',
-  full: '😵 자리없음',
+
+// Material Symbols 아이콘 + 라벨 표시 컴포넌트
+function OptionLabel({ options, id }: { options: readonly { id: string; label: string; icon: string }[]; id: string }) {
+  const option = findOption(options, id)
+  if (!option) return <span>{id}</span>
+  return (
+    <span className="flex items-center gap-1">
+      <span className="material-symbols-outlined text-xs">{option.icon}</span>
+      {option.label}
+    </span>
+  )
 }
 
 export default function HistoryDetail({ params }: { params: { id: string } }) {
@@ -121,7 +124,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         {/* 장소 정보 */}
         <div className="bg-white rounded-xl shadow-sm p-6 text-center">
           <div className="flex items-center justify-center gap-1 text-stone-500 mb-1">
-            <span className="material-symbols-outlined text-sm">location_on</span>
+            <span className="material-symbols-outlined text-xs">{ICONS.PLACE}</span>
             <span className="font-semibold text-lg text-stone-700">{log.place_name}</span>
           </div>
           <p className="text-sm text-stone-400 mb-2">{log.address}</p>
@@ -156,10 +159,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">토토노이 강도</span>
                   <div className="flex items-center gap-2">
-                    {renderRevisitScore(log.totono || 0)}
                     <span className="text-sm text-stone-400">
-                      {getTotonoLabel(log.totono || 0)}
+                      {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono || 0)}
                     </span>
+                    {renderRevisitScore(log.totono || 0)}
                   </div>
                 </div>
               </>
@@ -191,11 +194,11 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               </>
             )}
 
-            <div className="pt-3 border-t border-stone-100 flex justify-between items-center">
-              <span className="text-stone-500">또 올래요</span>
-              <div className="flex items-center gap-2">
-                {renderRevisitScore(log.revisit_score)}
-              </div>
+            <div className="pt-3 border-t border-stone-100 flex justify-end items-center gap-2">
+              <span className="text-sm text-stone-400">
+                {getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, log.revisit_score)}
+              </span>
+              {renderRevisitScore(log.revisit_score)}
             </div>
           </div>
         </div>
@@ -213,13 +216,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {log.companion && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">동행자</span>
-                  <span className="font-medium text-stone-700">{COMPANION_LABELS[log.companion]}</span>
+                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.COMPANION.options} id={log.companion} /></span>
                 </div>
               )}
               {log.purpose && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">방문 목적</span>
-                  <span className="font-medium text-stone-700">{PURPOSE_LABELS[log.purpose]}</span>
+                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.PURPOSE.options} id={log.purpose} /></span>
                 </div>
               )}
               {log.cost && (
@@ -231,7 +234,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {log.crowd && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">혼잡도</span>
-                  <span className="font-medium text-stone-700">{CROWD_LABELS[log.crowd]}</span>
+                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.CROWD.options} id={log.crowd} /></span>
                 </div>
               )}
             </div>
@@ -252,7 +255,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
               <span className="w-full h-px bg-stone-200"></span>
               <span className="whitespace-nowrap px-2 flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">location_on</span>
+                <span className="material-symbols-outlined text-xs">{ICONS.PLACE}</span>
                 {log.place_name}에서의 기록
               </span>
               <span className="w-full h-px bg-stone-200"></span>
@@ -275,7 +278,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs text-stone-400">{getDetailText(item)}</p>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-stone-400">또올래요</span>
+                      <span className="text-xs text-stone-400">
+                        {getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, item.revisit_score)}
+                      </span>
                       {renderSmallRevisitScore(item.revisit_score)}
                     </div>
                   </div>

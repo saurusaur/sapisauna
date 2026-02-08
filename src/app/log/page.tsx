@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
+import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
+import { Slider, Counter } from '@/components/slider'
 
 type LogType = 'bather' | 'saunner' | 'jimi'
 
@@ -58,86 +59,6 @@ export default function QuickLog() {
     localStorage.setItem('currentLog', JSON.stringify(logData))
     router.push('/story')
   }
-
-  // 슬라이더 컴포넌트
-  const Slider = ({
-    label,
-    value,
-    min,
-    max,
-    unit = '',
-    leftLabel,
-    rightLabel,
-    onChange,
-  }: {
-    label: string
-    value: number
-    min: number
-    max: number
-    unit?: string
-    leftLabel?: string
-    rightLabel?: string
-    onChange: (v: number) => void
-  }) => (
-    <div className="py-4 border-b border-stone-100">
-      <div className="flex justify-between items-center mb-3">
-        <span className="font-medium text-stone-700">{label}</span>
-        <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
-          {value}{unit}
-        </span>
-      </div>
-      <div className="flex items-center gap-3">
-        {leftLabel && <span className="text-xs text-stone-400 w-12">{leftLabel}</span>}
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="flex-1"
-        />
-        {rightLabel && <span className="text-xs text-stone-400 w-12 text-right">{rightLabel}</span>}
-      </div>
-    </div>
-  )
-
-  // 카운터 컴포넌트
-  const Counter = ({
-    label,
-    value,
-    min,
-    max,
-    onChange,
-  }: {
-    label: string
-    value: number
-    min: number
-    max: number
-    onChange: (v: number) => void
-  }) => (
-    <div className="py-4 border-b border-stone-100">
-      <div className="flex justify-between items-center">
-        <span className="font-medium text-stone-700">{label}</span>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => onChange(Math.max(min, value - 1))}
-            className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
-          >
-            <span className="material-symbols-outlined">remove</span>
-          </button>
-          <span className="text-xl font-bold w-8 text-center" style={{ color: 'var(--color-orange)' }}>
-            {value}
-          </span>
-          <button
-            onClick={() => onChange(Math.min(max, value + 1))}
-            className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
-          >
-            <span className="material-symbols-outlined">add</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 
   return (
     <div className="min-h-screen bath-tile-bg">
@@ -205,22 +126,20 @@ export default function QuickLog() {
           {logType === 'bather' && (
             <>
               <Slider
-                label="수질"
+                label={QUICK_LOG.BATHER.WATER_QUALITY.label}
                 value={waterQuality}
-                min={1}
-                max={5}
-                leftLabel="탁함"
-                rightLabel="맑음"
+                min={QUICK_LOG.BATHER.WATER_QUALITY.min}
+                max={QUICK_LOG.BATHER.WATER_QUALITY.max}
+                steps={QUICK_LOG.BATHER.WATER_QUALITY.steps}
                 onChange={setWaterQuality}
               />
               <Slider
-                label="목욕 온탕 온도"
+                label={QUICK_LOG.BATHER.HOT_BATH_TEMP.label}
                 value={hotBathTemp}
-                min={35}
-                max={46}
-                unit="°C"
-                leftLabel="미지근"
-                rightLabel="뜨거움"
+                min={QUICK_LOG.BATHER.HOT_BATH_TEMP.min}
+                max={QUICK_LOG.BATHER.HOT_BATH_TEMP.max}
+                unit={QUICK_LOG.BATHER.HOT_BATH_TEMP.unit}
+                steps={QUICK_LOG.BATHER.HOT_BATH_TEMP.steps}
                 onChange={setHotBathTemp}
               />
             </>
@@ -230,33 +149,30 @@ export default function QuickLog() {
           {logType === 'saunner' && (
             <>
               <Slider
-                label="건식 사우나 온도"
+                label={QUICK_LOG.SAUNER.SAUNA_TEMP.label}
                 value={saunaTemp}
-                min={40}
-                max={140}
-                unit="°C"
-                leftLabel="미지근"
-                rightLabel="극한"
+                min={QUICK_LOG.SAUNER.SAUNA_TEMP.min}
+                max={QUICK_LOG.SAUNER.SAUNA_TEMP.max}
+                unit={QUICK_LOG.SAUNER.SAUNA_TEMP.unit}
+                steps={QUICK_LOG.SAUNER.SAUNA_TEMP.steps}
                 onChange={setSaunaTemp}
               />
               <Slider
-                label="냉탕 온도"
+                label={QUICK_LOG.SAUNER.COLD_BATH_TEMP.label}
                 value={coldBathTemp}
-                min={0}
-                max={30}
-                unit="°C"
-                leftLabel="얼음"
-                rightLabel="미지근"
+                min={QUICK_LOG.SAUNER.COLD_BATH_TEMP.min}
+                max={QUICK_LOG.SAUNER.COLD_BATH_TEMP.max}
+                unit={QUICK_LOG.SAUNER.COLD_BATH_TEMP.unit}
+                steps={QUICK_LOG.SAUNER.COLD_BATH_TEMP.steps}
                 onChange={setColdBathTemp}
               />
-              <Counter label="세트 수" value={sets} min={1} max={10} onChange={setSets} />
+              <Counter label={QUICK_LOG.SAUNER.SETS.label} value={sets} min={QUICK_LOG.SAUNER.SETS.min} max={QUICK_LOG.SAUNER.SETS.max} onChange={setSets} />
               <Slider
-                label="토토노이 강도"
+                label={QUICK_LOG.SAUNER.TOTONO.label}
                 value={totono}
-                min={1}
-                max={5}
-                leftLabel="약함"
-                rightLabel="승천"
+                min={QUICK_LOG.SAUNER.TOTONO.min}
+                max={QUICK_LOG.SAUNER.TOTONO.max}
+                steps={QUICK_LOG.SAUNER.TOTONO.steps}
                 onChange={setTotono}
               />
             </>
@@ -266,45 +182,33 @@ export default function QuickLog() {
           {logType === 'jimi' && (
             <>
               <Slider
-                label="휴식 퀄리티"
+                label={QUICK_LOG.JIMI.REST_QUALITY.label}
                 value={restQuality}
-                min={1}
-                max={5}
-                leftLabel="별로"
-                rightLabel="최고"
+                min={QUICK_LOG.JIMI.REST_QUALITY.min}
+                max={QUICK_LOG.JIMI.REST_QUALITY.max}
+                steps={QUICK_LOG.JIMI.REST_QUALITY.steps}
                 onChange={setRestQuality}
               />
               <Slider
-                label="청결도"
+                label={QUICK_LOG.JIMI.CLEANLINESS.label}
                 value={cleanliness}
-                min={1}
-                max={5}
-                leftLabel="별로"
-                rightLabel="최고"
+                min={QUICK_LOG.JIMI.CLEANLINESS.min}
+                max={QUICK_LOG.JIMI.CLEANLINESS.max}
+                steps={QUICK_LOG.JIMI.CLEANLINESS.steps}
                 onChange={setCleanliness}
               />
             </>
           )}
 
           {/* 공통: 또 올래요 */}
-          <div className="py-4">
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-medium text-stone-700">또 올래요</span>
-              <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>{revisit}/5</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-stone-400">별로</span>
-              <input
-                type="range"
-                min={1}
-                max={5}
-                value={revisit}
-                onChange={(e) => setRevisit(Number(e.target.value))}
-                className="flex-1"
-              />
-              <span className="text-xs text-stone-400">최고</span>
-            </div>
-          </div>
+          <Slider
+            label={QUICK_LOG.COMMON.REVISIT.label}
+            value={revisit}
+            min={QUICK_LOG.COMMON.REVISIT.min}
+            max={QUICK_LOG.COMMON.REVISIT.max}
+            steps={QUICK_LOG.COMMON.REVISIT.steps}
+            onChange={setRevisit}
+          />
         </div>
       </main>
     </div>

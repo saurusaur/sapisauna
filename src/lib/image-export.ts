@@ -1,36 +1,30 @@
 /**
  * 이미지 변환 및 공유 유틸리티
- * html2canvas로 DOM → Canvas → Blob 변환
+ * html-to-image로 DOM → PNG Blob 변환 (브라우저 네이티브 렌더링)
  * Web Share API 또는 다운로드로 내보내기
  */
 
-import html2canvas from 'html2canvas'
+import { toBlob } from 'html-to-image'
 
 /**
- * DOM 요소를 9:16 비율 이미지로 캡처
+ * DOM 요소를 이미지로 캡처
+ * 캡처 대상은 고정 픽셀 크기여야 함
+ * 출력: ~1080×1920 (인스타 스토리 규격)
  */
 export async function captureCard(element: HTMLElement): Promise<Blob> {
-  const canvas = await html2canvas(element, {
-    scale: 2, // 고해상도
-    useCORS: true,
-    backgroundColor: null,
+  const scale = 1080 / element.offsetWidth
+  const blob = await toBlob(element, {
     width: element.offsetWidth,
     height: element.offsetHeight,
+    pixelRatio: scale,
+    cacheBust: true,
   })
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          resolve(blob)
-        } else {
-          reject(new Error('Failed to create image blob'))
-        }
-      },
-      'image/png',
-      1.0
-    )
-  })
+  if (!blob) {
+    throw new Error('Failed to create image blob')
+  }
+
+  return blob
 }
 
 /**

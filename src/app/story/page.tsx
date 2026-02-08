@@ -11,7 +11,8 @@ import JimiGraph from '@/components/svg/jimi-graph'
 type LogData = {
   place_name: string
   log_type: 'bather' | 'saunner' | 'jimi'
-  created_at: string
+  created_at?: string
+  date?: string
   sauna_temp?: number
   cold_bath_temp?: number
   sets?: number
@@ -68,7 +69,7 @@ export default function Story() {
     setIsExporting(true)
     try {
       const blob = await captureCard(cardRef.current)
-      const date = new Date(log.created_at).toISOString().slice(0, 10)
+      const date = new Date(log.created_at || log.date || '').toISOString().slice(0, 10)
       downloadImage(blob, `sauna-log-${date}.png`)
     } catch {
       // 저장 실패
@@ -194,7 +195,7 @@ export default function Story() {
                   className="text-white/50 text-[12.5px] mt-1.5 italic"
                   style={{ fontFamily: 'var(--font-serif)' }}
                 >
-                  {new Date(log.created_at).toISOString().slice(0, 10).replace(/-/g, '.')}
+                  {new Date(log.created_at || log.date || '').toISOString().slice(0, 10).replace(/-/g, '.')}
                 </p>
               </div>
 

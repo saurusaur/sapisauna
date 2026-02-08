@@ -31,12 +31,12 @@ export const APP = {
 }
 
 // ============================================
-// 타입별 포인트 색상 (CSS 변수와 동일 값, JS에서 직접 참조 필요 시 사용)
+// 타입별 포인트 색상 (globals.css의 CSS 변수 참조)
 // ============================================
-export const TYPE_COLORS = {
-  bather: '#3B82F6',  // 파랑
-  saunner: '#F97316',  // 오렌지
-  jimi: '#22C55E',    // 초록
+const TYPE_COLORS = {
+  bather: 'var(--color-bather)',
+  saunner: 'var(--color-saunner)',
+  jimi: 'var(--color-jimi)',
 } as const
 
 // 탕 성별 옵션 (Deep Log용 - 색상은 페이지 기본 포인트 컬러 사용)
@@ -81,33 +81,12 @@ export const USER_TYPES = {
   },
 } as const
 
-// 타입 ID로 빠르게 조회할 수 있는 맵
-export const TYPE_EMOJI_MAP: Record<string, string> = {
-  bather: '🛁',
-  saunner: '🔥',
-  jimi: '🥚',
-}
-
-// Category 이름 (한국어, 기록 타입/장소 표시용)
-export const TYPE_CATEGORY_MAP: Record<string, string> = {
-  bather: '목욕탕',
-  saunner: '사우나',
-  jimi: '찜질방',
-}
-
-// Persona 이름 (영어, 유저 레이블 표시용)
-export const TYPE_PERSONA_MAP: Record<string, string> = {
-  bather: 'Bather',
-  saunner: 'Saunner',
-  jimi: 'Jimi',
-}
-
-// 한국어 타입명 (UI 표시용)
-export const TYPE_NAME_MAP: Record<string, string> = {
-  bather: '목욕탕파',
-  saunner: '사우나파',
-  jimi: '찜질방파',
-}
+// USER_TYPES에서 자동 생성하는 조회 맵 (중복 제거)
+const typeEntries = Object.values(USER_TYPES)
+export const TYPE_EMOJI_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.emoji]))
+export const TYPE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.category]))
+export const TYPE_PERSONA_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.persona]))
+export const TYPE_NAME_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.name]))
 
 // ============================================
 // 온보딩
@@ -170,14 +149,14 @@ export const QUICK_LOG = {
     },
     HOT_BATH_TEMP: {
       label: '목욕물 온도',
-      min: 35,
+      min: 30,
       max: 46,
       unit: '°C',
       steps: [
-        { value: 35, label: '미지근' },
-        { value: 38, label: '따뜻' },
-        { value: 42, label: '뜨끈' },
-        { value: 46, label: '펄펄' },
+        { value: 30, label: '미지근' },
+        { value: 35, label: '따뜻' },
+        { value: 39, label: '뜨끈' },
+        { value: 41, label: '펄펄' },
       ],
     },
   },
@@ -186,15 +165,15 @@ export const QUICK_LOG = {
   SAUNER: {
     SAUNA_TEMP: {
       label: '건식 사우나 온도',
-      min: 40,
-      max: 140,
+      min: 50,
+      max: 130,
       unit: '°C',
       steps: [
-        { value: 40, label: '미지근' },
-        { value: 70, label: '따뜻' },
-        { value: 90, label: '뜨끈' },
-        { value: 110, label: '후끈' },
-        { value: 140, label: '지옥' },
+        { value: 50, label: '미지근' },
+        { value: 65, label: '따뜻' },
+        { value: 85, label: '뜨끈' },
+        { value: 100, label: '후끈' },
+        { value: 120, label: '지옥' },
       ],
     },
     COLD_BATH_TEMP: {
@@ -203,17 +182,17 @@ export const QUICK_LOG = {
       max: 30,
       unit: '°C',
       steps: [
-        { value: 0, label: '북극' },
-        { value: 8, label: '얼음' },
-        { value: 15, label: '차갑' },
-        { value: 20, label: '시원' },
+        { value: 0, label: '냉동' },
+        { value: 5, label: '냉장' },
+        { value: 10, label: '차갑' },
+        { value: 16, label: '시원' },
         { value: 25, label: '미지근' },
       ],
     },
     SETS: {
       label: '세트 수',
       min: 1,
-      max: 10,
+      max: 7,
       unit: '세트',
       inputType: 'counter',
     },
@@ -267,26 +246,38 @@ export const PLACE_SPECS = {
   BATHS: {
     label: '탕 구성',
     options: [
-      { id: '냉탕', label: '냉탕', icon: 'ac_unit', tempRange: [5, 20] },
-      { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', tempRange: [1, 10] },
-      { id: '미온탕', label: '미온탕', icon: 'thermostat', tempRange: [35, 39] },
-      { id: '온탕', label: '온탕', icon: 'heat', tempRange: [40, 43] },
-      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', tempRange: [43, 47] },
-      { id: '노천탕', label: '노천탕', icon: 'park', tempRange: [38, 45] },
+      { id: '냉탕', label: '냉탕', icon: 'ac_unit', tempRange: [15, 30] },
+      { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', tempRange: [0, 20] },
+      { id: '미온탕', label: '미온탕', icon: 'thermostat', tempRange: [30, 37] },
+      { id: '온탕', label: '온탕', icon: 'heat', tempRange: [35, 43] },
+      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', tempRange: [40, 46] },
+      { id: '노천탕', label: '노천탕', icon: 'park', tempRange: [35, 45] },
     ],
   },
   SAUNAS: {
     label: '사우나 종류',
     options: [
-      { id: '건식', label: '건식', icon: 'sauna', tempRange: [70, 110] },
-      { id: '습식', label: '습식', icon: 'water_voc', tempRange: [50, 80] },
-      { id: '아로마', label: '아로마', icon: 'spa', tempRange: [50, 80] },
+      { id: '건식', label: '건식', icon: 'sauna', tempRange: [50, 130] },
+      { id: '습식', label: '습식', icon: 'water_voc', tempRange: [40, 90] },
+      { id: '아로마', label: '아로마', icon: 'spa', tempRange: [40, 100] },
     ],
   },
   STORE: {
     label: '매점',
-    field: 'has_store',
-    recommendedPlaceholder: '추천 메뉴가 있다면 입력해주세요 (예: 식혜, 계란)',
+    toggleLabel: '이용 함',
+    memoPlaceholder: '추천 메뉴 메모 (예: 식혜가 시원하고 맛있음)',
+    rating: {
+      label: '매점 평가',
+      min: 1,
+      max: 5,
+      steps: [
+        { value: 1, label: '맛없음' },
+        { value: 2, label: '아쉬움' },
+        { value: 3, label: '평범' },
+        { value: 4, label: '맛있음' },
+        { value: 5, label: '꿀맛집' },
+      ],
+    },
   },
   ROOMS: {
     label: '찜질방 종류',
@@ -323,7 +314,7 @@ export const DEEP_LOG = {
     multiple: true,
     options: [
       { id: 'healing', label: '힐링', icon: 'self_improvement' },
-      { id: 'after-workout', label: '운동후', icon: 'fitness_center' },
+      { id: 'after-workout', label: '운동 후', icon: 'fitness_center' },
       { id: 'hangover', label: '숙취해소', icon: 'beer_meal' },
       { id: 'date', label: '데이트', icon: 'favorite' },
       { id: 'work', label: '작업', icon: 'laptop' },
@@ -346,6 +337,7 @@ export const DEEP_LOG = {
       { id: 'workspace', label: '작업 공간', icon: 'laptop' },
       { id: 'gym', label: '운동시설', icon: 'fitness_center' },
       { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat' },
+      { id: 'store', label: '매점', icon: 'dining' },
     ],
   },
   MEMO: {
@@ -358,19 +350,23 @@ export const DEEP_LOG = {
       { id: 'empty', label: '쾌적', icon: 'hot_tub' },
       { id: 'moderate', label: '적당', icon: 'bath_private' },
       { id: 'busy', label: '북적', icon: 'bath_public_large' },
-      { id: 'full', label: '자리없음', icon: 'crowdsource' },
+      { id: 'full', label: '자리 없음', icon: 'crowdsource' },
     ],
   },
   SCRUB: {
     label: '세신',
+    toggleLabel: '이용 함',
     satisfaction: {
       label: '만족도',
-      options: ['별로', '보통', '괜찮음', '좋음', '최고'],
-    },
-    price: {
-      label: '가격',
-      placeholder: '세신 가격',
-      unit: '원',
+      min: 1,
+      max: 5,
+      steps: [
+        { value: 1, label: '별로' },
+        { value: 2, label: '아쉬움' },
+        { value: 3, label: '만족' },
+        { value: 4, label: '시원' },
+        { value: 5, label: '극락' },
+      ],
     },
   },
 }
@@ -395,10 +391,6 @@ export const TYPE_DEFAULTS = {
     emoji: '🥚',
   },
 } as const
-
-export function getTypeDefaults(primaryType: keyof typeof TYPE_DEFAULTS | null) {
-  return primaryType ? TYPE_DEFAULTS[primaryType] : TYPE_DEFAULTS.saunner
-}
 
 // ============================================
 // 메시지
@@ -468,7 +460,7 @@ export const ICONS = {
   SAVE: 'check',
   SHARE: 'share',
   SEARCH: 'search',
-  PLACE: 'location_on',
+  PLACE: 'nest_farsight_heat',
   CALENDAR: 'calendar_today',
   TIME: 'schedule',
   PHOTO: 'photo_camera',
@@ -477,13 +469,6 @@ export const ICONS = {
   INFO: 'info',
   STAR: 'star',
   THERMOMETER: 'device_thermostat',
-}
-
-// 타입별 스토리 템플릿 배경 (타입별 고정)
-export const TYPE_TEMPLATE_MAP: Record<string, string> = {
-  bather: '/images/templates/bather_template.svg',
-  saunner: '/images/templates/saunner_template.svg',
-  jimi: '/images/templates/jimi_template.svg',
 }
 
 // 타입별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { NAV, ICONS, TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP } from '@/constants/content'
+import { NAV, ICONS, TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
 import { formatShortDate, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { DUMMY_LOGS, type DummyLog } from '@/data/dummy-logs'
 
@@ -128,7 +128,7 @@ export default function History() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-stone-400 text-sm">location_on</span>
+                        <span className="material-symbols-outlined text-stone-400 text-xs">{ICONS.PLACE}</span>
                         <span className="font-medium text-stone-700">{log.place_name}</span>
                       </div>
                       <span className="text-sm text-stone-400">{formatShortDate(new Date(log.date))}</span>
@@ -139,7 +139,9 @@ export default function History() {
                         {TYPE_EMOJI_MAP[log.log_type]} {TYPE_CATEGORY_MAP[log.log_type]}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-stone-400">또올래요</span>
+                        <span className="text-xs text-stone-400">
+                          {[...QUICK_LOG.COMMON.REVISIT.steps].filter(s => s.value <= log.revisit_score).sort((a, b) => b.value - a.value)[0]?.label}
+                        </span>
                         {renderRevisitScore(log.revisit_score)}
                       </div>
                     </div>

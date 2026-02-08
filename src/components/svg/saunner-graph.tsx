@@ -44,6 +44,15 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, sets, totono }: 
   const glowColor = tempRatio > 0.6 ? '#FF6B4A' : tempRatio > 0.3 ? '#FF8B6A' : '#FFAB8A'
 
   // 메인 웨이브 경로 생성 (padding + phase shift 적용)
+  // 각 피크마다 자연스러운 높낮이 차이를 위한 진폭 변조
+  const getAmplitudeAt = (t: number): number => {
+    // 양쪽 끝이 자연스럽게 줄어드는 포물선 엔벨로프
+    const envelope = 0.55 + 0.45 * Math.sin(t * Math.PI)
+    // 피크마다 높이 차이 (주파수를 비정수로 설정해 반복감 제거)
+    const variation = 1 + 0.25 * Math.sin(t * Math.PI * 4.3 + 0.7)
+    return amplitude * envelope * variation
+  }
+
   const generateMainWave = (): string => {
     const points: string[] = []
     const segments = 100
@@ -52,10 +61,11 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, sets, totono }: 
       const t = i / segments
       const x = padding + t * (width - 2 * padding)
       const angle = t * Math.PI * frequency + phaseShift
+      const amp = getAmplitudeAt(t)
       const y =
         centerY -
-        Math.sin(angle) * amplitude -
-        Math.sin(angle * 2) * (amplitude * 0.1)
+        Math.sin(angle) * amp -
+        Math.sin(angle * 2) * (amp * 0.12)
 
       points.push(i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`)
     }
@@ -74,11 +84,12 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, sets, totono }: 
       const x = padding + t * (width - 2 * padding)
       const angle = t * Math.PI * frequency + phaseShift
 
-      // 메인 웨이브의 y 위치 (반전)
+      // 메인 웨이브의 y 위치 (진폭 변조 적용)
+      const amp = getAmplitudeAt(t)
       const mainY =
         centerY -
-        Math.sin(angle) * amplitude -
-        Math.sin(angle * 2) * (amplitude * 0.1)
+        Math.sin(angle) * amp -
+        Math.sin(angle * 2) * (amp * 0.12)
 
       // 진폭 모듈레이션: 느린 사인파로 진폭이 변화 → 불규칙 교차
       const ampModulation = 0.4 + Math.sin(t * Math.PI * 2.3 + 0.5) * 0.6
@@ -103,11 +114,12 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, sets, totono }: 
       const x = padding + t * (width - 2 * padding)
       const angle = t * Math.PI * frequency + phaseShift
 
-      // 메인 웨이브의 y 위치 (반전)
+      // 메인 웨이브의 y 위치 (진폭 변조 적용)
+      const amp = getAmplitudeAt(t)
       const mainY =
         centerY -
-        Math.sin(angle) * amplitude -
-        Math.sin(angle * 2) * (amplitude * 0.1)
+        Math.sin(angle) * amp -
+        Math.sin(angle * 2) * (amp * 0.12)
 
       // 다른 모듈레이션 패턴
       const ampModulation = 0.3 + Math.sin(t * Math.PI * 1.7 + 2.1) * 0.7

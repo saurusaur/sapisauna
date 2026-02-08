@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DEEP_LOG, PLACE_SPECS, BATH_GENDER_OPTIONS } from '@/constants/content'
+import { Slider } from '@/components/slider'
 import { formatCostInput } from '@/lib/utils'
 
 // 탕 선택 타입
@@ -24,12 +25,18 @@ export default function DeepLog() {
   // 편의시설
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
 
-  // 장소 정보
-  const [selectedBaths, setSelectedBaths] = useState<string[]>([])
-  const [selectedSaunas, setSelectedSaunas] = useState<string[]>([])
+  // 세신
+  const [hasScrub, setHasScrub] = useState(false)
+  const [scrubSatisfaction, setScrubSatisfaction] = useState(3)
+
+  // 매점
   const [hasStore, setHasStore] = useState(false)
   const [storeScore, setStoreScore] = useState(3)
   const [storeMemo, setStoreMemo] = useState('')
+
+  // 장소 정보
+  const [selectedBaths, setSelectedBaths] = useState<string[]>([])
+  const [selectedSaunas, setSelectedSaunas] = useState<string[]>([])
 
   // 직전 탕 선택값 불러오기
   useEffect(() => {
@@ -54,6 +61,9 @@ export default function DeepLog() {
       crowd,
       memo,
       amenities: selectedAmenities,
+      // 세신
+      has_scrub: hasScrub,
+      scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
       // 장소 정보
       selected_baths: selectedBaths,
       selected_saunas: selectedSaunas,
@@ -242,6 +252,87 @@ export default function DeepLog() {
                 onSelect={setCrowd}
               />
             </div>
+            {/* 세신 */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-stone-700">{DEEP_LOG.SCRUB.label}</label>
+                <button
+                  onClick={() => setHasScrub(!hasScrub)}
+                  className={`
+                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
+                    ${hasScrub
+                      ? 'text-white'
+                      : 'bg-stone-100 text-stone-500'
+                    }
+                  `}
+                  style={hasScrub ? { backgroundColor: 'var(--color-green)' } : {}}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {hasScrub ? 'check_box' : 'check_box_outline_blank'}
+                  </span>
+                  {DEEP_LOG.SCRUB.toggleLabel}
+                </button>
+              </div>
+
+              {hasScrub && (
+                <div className="pl-4 border-l-2 border-green-light">
+                  <Slider
+                    label={DEEP_LOG.SCRUB.satisfaction.label}
+                    value={scrubSatisfaction}
+                    min={DEEP_LOG.SCRUB.satisfaction.min}
+                    max={DEEP_LOG.SCRUB.satisfaction.max}
+                    steps={DEEP_LOG.SCRUB.satisfaction.steps}
+                    onChange={setScrubSatisfaction}
+                  />
+                </div>
+              )}
+            </div>
+            {/* 매점 */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-stone-700">{PLACE_SPECS.STORE.label}</label>
+                <button
+                  onClick={() => setHasStore(!hasStore)}
+                  className={`
+                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
+                    ${hasStore
+                      ? 'text-white'
+                      : 'bg-stone-100 text-stone-500'
+                    }
+                  `}
+                  style={hasStore ? { backgroundColor: 'var(--color-green)' } : {}}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {hasStore ? 'check_box' : 'check_box_outline_blank'}
+                  </span>
+                  {PLACE_SPECS.STORE.toggleLabel}
+                </button>
+              </div>
+
+              {hasStore && (
+                <div className="space-y-3 pl-4 border-l-2 border-green-light">
+                  <Slider
+                    label={PLACE_SPECS.STORE.rating.label}
+                    value={storeScore}
+                    min={PLACE_SPECS.STORE.rating.min}
+                    max={PLACE_SPECS.STORE.rating.max}
+                    steps={PLACE_SPECS.STORE.rating.steps}
+                    onChange={setStoreScore}
+                  />
+
+                  {/* 추천메뉴 메모 */}
+                  <div>
+                    <input
+                      type="text"
+                      value={storeMemo}
+                      onChange={(e) => setStoreMemo(e.target.value)}
+                      placeholder={PLACE_SPECS.STORE.memoPlaceholder}
+                      className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -292,65 +383,6 @@ export default function DeepLog() {
               />
             </div>
 
-            {/* 매점 */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-stone-700">매점</label>
-                <button
-                  onClick={() => setHasStore(!hasStore)}
-                  className={`
-                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
-                    ${hasStore
-                      ? 'text-white'
-                      : 'bg-stone-100 text-stone-500'
-                    }
-                  `}
-                  style={hasStore ? { backgroundColor: 'var(--color-green)' } : {}}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {hasStore ? 'check_box' : 'check_box_outline_blank'}
-                  </span>
-                  이용 함
-                </button>
-              </div>
-
-              {hasStore && (
-                <div className="space-y-3 pl-4 border-l-2 border-green-light">
-                  {/* 매점 평점 */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-stone-600">매점 평점</span>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
-                        {storeScore}/5
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-stone-400">낮음</span>
-                      <input
-                        type="range"
-                        min={1}
-                        max={5}
-                        value={storeScore}
-                        onChange={(e) => setStoreScore(Number(e.target.value))}
-                        className="flex-1"
-                      />
-                      <span className="text-xs text-stone-400">높음</span>
-                    </div>
-                  </div>
-
-                  {/* 추천메뉴 메모 */}
-                  <div>
-                    <input
-                      type="text"
-                      value={storeMemo}
-                      onChange={(e) => setStoreMemo(e.target.value)}
-                      placeholder="추천 메뉴 메모 (예: 식혜가 시원하고 맛있음)"
-                      className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-sm"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 

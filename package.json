@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_EXTRA_CA_CERTS=$HOME/.mac-ca-certs.pem next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.1",
-    "html2canvas": "^1.4.1",
+    "html-to-image": "^1.11.13",
     "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

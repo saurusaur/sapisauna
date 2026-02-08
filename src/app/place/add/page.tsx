@@ -35,9 +35,6 @@ export default function AddPlace() {
   const [selectedBaths, setSelectedBaths] = useState<string[]>([])
   const [selectedSaunas, setSelectedSaunas] = useState<string[]>([])
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-  const [hasStore, setHasStore] = useState(false)
-  const [storeScore, setStoreScore] = useState(3)
-  const [storeMemo, setStoreMemo] = useState('')
 
   const canSave = name && address
 
@@ -107,9 +104,6 @@ export default function AddPlace() {
       baths: selectedBaths,
       saunas: selectedSaunas,
       amenities: selectedAmenities,
-      has_store: hasStore,
-      store_score: hasStore ? storeScore : null,
-      store_memo: hasStore ? storeMemo : null,
       // 외부 API 소스 정보 (place_sources 테이블 구조)
       sources: selectedPlace ? [{
         source: selectedPlace.source,
@@ -408,62 +402,6 @@ export default function AddPlace() {
               />
             </div>
 
-            {/* 매점 */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-stone-700">매점</label>
-                <button
-                  onClick={() => setHasStore(!hasStore)}
-                  className={`
-                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
-                    ${hasStore
-                      ? 'text-white'
-                      : 'bg-stone-100 text-stone-500'
-                    }
-                  `}
-                  style={hasStore ? { backgroundColor: 'var(--color-green)' } : {}}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {hasStore ? 'check_box' : 'check_box_outline_blank'}
-                  </span>
-                  이용 함
-                </button>
-              </div>
-
-              {hasStore && (
-                <div className="space-y-3 pl-4 border-l-2 border-green-light">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-stone-600">매점 평점</span>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
-                        {storeScore}/5
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-stone-300 text-sm">star</span>
-                      <input
-                        type="range"
-                        min={1}
-                        max={5}
-                        value={storeScore}
-                        onChange={(e) => setStoreScore(Number(e.target.value))}
-                        className="flex-1"
-                      />
-                      <span className="material-symbols-outlined text-sm" style={{ color: 'var(--color-orange)' }}>star</span>
-                    </div>
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      value={storeMemo}
-                      onChange={(e) => setStoreMemo(e.target.value)}
-                      placeholder="추천 메뉴 메모 (예: 식혜가 시원하고 맛있음)"
-                      className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-sm"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </main>
