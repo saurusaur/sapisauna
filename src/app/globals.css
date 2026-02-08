@@ -118,7 +118,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* 아이콘 크기 유틸리티 */
-.icon-xsm { font-size: 12px; }
+.icon-xsm { font-size: 10px; }
 .icon-sm { font-size: 18px; }
 .icon-md { font-size: 24px; }
 .icon-lg { font-size: 32px; }

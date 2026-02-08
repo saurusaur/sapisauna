@@ -414,13 +414,6 @@ export const MESSAGES = {
     TITLE: '기록 완료!',
     SUBTITLE: (place: string) => `${place}에서의 기록이 저장되었어요`,
   },
-  STORY: {
-    SELECT_TEMPLATE: '템플릿 선택',
-    EDIT_TITLE: '스토리 편집',
-    ADD_TEXT: '문구 추가',
-    TEXT_PLACEHOLDER: '오늘의 한마디...',
-    DISPLAY_OPTIONS: '표시 항목',
-  },
   ERROR: {
     LOAD_FAILED: '불러오기에 실패했어요',
     SAVE_FAILED: '저장에 실패했어요',

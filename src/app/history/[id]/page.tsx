@@ -17,16 +17,11 @@ function findOption(options: readonly { id: string; label: string; icon: string 
   return options.find(o => o.id === id)
 }
 
-// Material Symbols 아이콘 + 라벨 표시 컴포넌트
+// 라벨 표시 컴포넌트
 function OptionLabel({ options, id }: { options: readonly { id: string; label: string; icon: string }[]; id: string }) {
   const option = findOption(options, id)
   if (!option) return <span>{id}</span>
-  return (
-    <span className="flex items-center gap-1">
-      <span className="material-symbols-outlined text-xs">{option.icon}</span>
-      {option.label}
-    </span>
-  )
+  return <span>{option.label}</span>
 }
 
 export default function HistoryDetail({ params }: { params: { id: string } }) {

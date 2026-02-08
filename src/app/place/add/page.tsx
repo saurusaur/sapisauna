@@ -233,7 +233,7 @@ export default function AddPlace() {
                 <span className="material-symbols-outlined text-lg">public</span>
                 Google
               </span>
-              <span className="text-[10px] text-stone-400">전 세계 · English</span>
+              <span className="text-[10px] text-stone-400">Worldwide · English</span>
             </button>
           </div>
         </div>

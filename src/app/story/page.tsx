@@ -89,15 +89,15 @@ export default function Story() {
     switch (log.log_type) {
       case 'saunner': {
         const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
-        return { value: String(deltaT), unit: '°C', label: 'temperature gap' }
+        return { value: String(deltaT), unit: '°C', label: 'temperature delta' }
       }
       case 'bather': {
         const temp = log.hot_bath_temp || 40
-        return { value: String(temp), unit: '°C', label: 'water temp' }
+        return { value: String(temp), unit: '°C', label: 'immersion temperature' }
       }
       case 'jimi': {
         const percentage = Math.round(((log.rest_quality || 3) / 5) * 100)
-        return { value: String(percentage), unit: '%', label: 'rest quality' }
+        return { value: String(percentage), unit: '%', label: 'recovery level' }
       }
       default:
         return { value: '', unit: '', label: '' }

@@ -22,9 +22,6 @@ export default function DeepLog() {
   const [crowd, setCrowd] = useState<string | null>(null)
   const [memo, setMemo] = useState('')
 
-  // 편의시설
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-
   // 세신
   const [hasScrub, setHasScrub] = useState(false)
   const [scrubSatisfaction, setScrubSatisfaction] = useState(3)
@@ -33,10 +30,6 @@ export default function DeepLog() {
   const [hasStore, setHasStore] = useState(false)
   const [storeScore, setStoreScore] = useState(3)
   const [storeMemo, setStoreMemo] = useState('')
-
-  // 장소 정보
-  const [selectedBaths, setSelectedBaths] = useState<string[]>([])
-  const [selectedSaunas, setSelectedSaunas] = useState<string[]>([])
 
   // 직전 탕 선택값 불러오기
   useEffect(() => {
@@ -60,13 +53,10 @@ export default function DeepLog() {
       cost: cost ? parseInt(cost.replace(/,/g, '')) : null,
       crowd,
       memo,
-      amenities: selectedAmenities,
       // 세신
       has_scrub: hasScrub,
       scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
-      // 장소 정보
-      selected_baths: selectedBaths,
-      selected_saunas: selectedSaunas,
+      // 매점
       has_store: hasStore,
       store_score: hasStore ? storeScore : null,
       store_memo: hasStore ? storeMemo : null,
@@ -334,73 +324,6 @@ export default function DeepLog() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* 장소 정보 등록 섹션 */}
-        <div>
-          <h2 className="text-sm font-bold text-stone-500 mb-4 flex items-center gap-2">
-            <span className="w-full h-px bg-stone-200"></span>
-            <span className="whitespace-nowrap px-2">장소 정보 등록</span>
-            <span className="w-full h-px bg-stone-200"></span>
-          </h2>
-
-          <p className="text-xs text-stone-400 mb-3 text-center">
-            첫 방문 시 표시 · 다른 사용자에게 도움이 돼요
-          </p>
-
-          <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
-            {/* 탕 구성 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {PLACE_SPECS.BATHS.label} (있는 것 선택)
-              </label>
-              <ChipSelect
-                options={PLACE_SPECS.BATHS.options}
-                selected={selectedBaths}
-                onSelect={(id) => {
-                  setSelectedBaths(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-                multiple
-              />
-            </div>
-
-            {/* 사우나 구성 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {PLACE_SPECS.SAUNAS.label}
-              </label>
-              <ChipSelect
-                options={PLACE_SPECS.SAUNAS.options}
-                selected={selectedSaunas}
-                onSelect={(id) => {
-                  setSelectedSaunas(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-                multiple
-              />
-            </div>
-
-          </div>
-        </div>
-
-        {/* 편의시설 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            {DEEP_LOG.AMENITIES.label}
-          </label>
-          <ChipSelect
-            options={DEEP_LOG.AMENITIES.options}
-            selected={selectedAmenities}
-            onSelect={(id) => {
-              setSelectedAmenities(prev =>
-                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-              )
-            }}
-            multiple
-          />
         </div>
 
         {/* 메모 */}
