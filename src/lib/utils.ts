@@ -109,6 +109,7 @@ export const STORAGE_KEYS = {
   SELECTED_PLACE: 'selectedPlace',
   SELECTED_TEMPLATE: 'selectedTemplate',
   LAST_BATH_GENDER: 'lastBathGender',
+  FAVORITES: 'favorites',
 } as const
 
 // ============================================

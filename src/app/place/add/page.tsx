@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PLACE_SPECS, DEEP_LOG } from '@/constants/content'
+import { PLACE_SPECS } from '@/constants/content'
+import SelectButton from '@/components/ui/select-button'
+import ToggleSwitch from '@/components/ui/toggle-switch'
 
 // API 검색 결과 타입
 interface SearchResult {
   name: string
   address: string
+  shortAddress: string
   latitude: number | null
   longitude: number | null
   source: 'naver' | 'google'
@@ -31,10 +34,9 @@ export default function AddPlace() {
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
 
-  // 장소 정보 등록
-  const [selectedBaths, setSelectedBaths] = useState<string[]>([])
-  const [selectedSaunas, setSelectedSaunas] = useState<string[]>([])
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
+  // 장소 정보 등록 (5개 섹션 통합)
+  const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
+  const [is24h, setIs24h] = useState(false)
 
   const canSave = name && address
 
@@ -98,12 +100,12 @@ export default function AddPlace() {
       id: Date.now().toString(),
       name,
       address,
+      shortAddress: selectedPlace?.shortAddress || address,
       latitude: selectedPlace?.latitude || null,
       longitude: selectedPlace?.longitude || null,
-      // 장소 정보
-      baths: selectedBaths,
-      saunas: selectedSaunas,
-      amenities: selectedAmenities,
+      // 장소 시설 정보
+      facilities: selectedFacilities,
+      is_24h: is24h,
       // 외부 API 소스 정보 (place_sources 테이블 구조)
       sources: selectedPlace ? [{
         source: selectedPlace.source,
@@ -125,7 +127,7 @@ export default function AddPlace() {
     router.push('/log')
   }
 
-  // 칩 선택 컴포넌트 (Material Symbols 아이콘 사용)
+  // 칩 선택 래퍼
   const ChipSelect = ({
     options,
     selected,
@@ -135,27 +137,16 @@ export default function AddPlace() {
     selected: string[]
     onSelect: (id: string) => void
   }) => (
-    <div className="flex flex-wrap gap-2">
-      {options.map((option) => {
-        const isSelected = selected.includes(option.id)
-        return (
-          <button
-            key={option.id}
-            onClick={() => onSelect(option.id)}
-            className={`
-              px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5
-              ${isSelected
-                ? 'text-white shadow-md'
-                : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
-              }
-            `}
-            style={isSelected ? { backgroundColor: 'var(--color-green)' } : {}}
-          >
-            <span className="material-symbols-outlined text-base">{option.icon}</span>
-            {option.label}
-          </button>
-        )
-      })}
+    <div className="flex flex-wrap gap-1.5">
+      {options.map((option) => (
+        <SelectButton
+          key={option.id}
+          label={option.label}
+          icon={option.icon}
+          selected={selected.includes(option.id)}
+          onClick={() => onSelect(option.id)}
+        />
+      ))}
     </div>
   )
 
@@ -354,54 +345,32 @@ export default function AddPlace() {
           </p>
 
           <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
-            {/* 탕 구성 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {PLACE_SPECS.BATHS.label} (있는 것 선택)
-              </label>
-              <ChipSelect
-                options={PLACE_SPECS.BATHS.options}
-                selected={selectedBaths}
-                onSelect={(id) => {
-                  setSelectedBaths(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-              />
-            </div>
+            {/* 5개 섹션: HEAT → ICE → PAUSE → BEYOND → AMENITIES */}
+            {(['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const).map((key) => (
+              <div key={key}>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  {PLACE_SPECS[key].label}
+                </label>
+                <ChipSelect
+                  options={PLACE_SPECS[key].options}
+                  selected={selectedFacilities}
+                  onSelect={(id) => {
+                    setSelectedFacilities(prev =>
+                      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                    )
+                  }}
+                />
+              </div>
+            ))}
 
-            {/* 사우나 구성 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {PLACE_SPECS.SAUNAS.label}
+            {/* 24시 영업 토글 */}
+            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+              <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
+                <span className="material-symbols-outlined text-base">schedule</span>
+                24시 영업
               </label>
-              <ChipSelect
-                options={PLACE_SPECS.SAUNAS.options}
-                selected={selectedSaunas}
-                onSelect={(id) => {
-                  setSelectedSaunas(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-              />
+              <ToggleSwitch checked={is24h} onChange={setIs24h} />
             </div>
-
-            {/* 편의시설 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {DEEP_LOG.AMENITIES.label}
-              </label>
-              <ChipSelect
-                options={DEEP_LOG.AMENITIES.options}
-                selected={selectedAmenities}
-                onSelect={(id) => {
-                  setSelectedAmenities(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-              />
-            </div>
-
           </div>
         </div>
       </main>

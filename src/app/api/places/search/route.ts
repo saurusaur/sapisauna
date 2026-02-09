@@ -13,10 +13,33 @@ import { NextRequest, NextResponse } from 'next/server'
 interface PlaceResult {
   name: string
   address: string
+  shortAddress: string   // 카드 미리보기용 짧은 주소
   latitude: number | null
   longitude: number | null
   source: 'naver' | 'google'
   external_id: string
+}
+
+/**
+ * 짧은 주소 생성
+ * - 국내 (Naver): "서울특별시 강남구 신사동 ..." → "서울 강남구"
+ * - 해외 (Google): "123 Main St, Shinjuku, Tokyo, Japan" → "Tokyo, Japan"
+ */
+function generateShortAddress(address: string, source: 'naver' | 'google'): string {
+  if (source === 'naver') {
+    const parts = address.split(' ')
+    // 시/도 이름에서 "특별시/광역시" 등 접미사 제거
+    const city = (parts[0] || '').replace(/특별시|광역시|특별자치시|특별자치도/, '')
+    const district = parts[1] || ''
+    return `${city} ${district}`.trim()
+  } else {
+    // 해외: 콤마 기준 뒤에서 2개 (도시, 나라)
+    const parts = address.split(',').map((s) => s.trim())
+    if (parts.length >= 2) {
+      return parts.slice(-2).join(', ')
+    }
+    return address
+  }
 }
 
 // Naver 검색 API 응답 타입
@@ -97,9 +120,11 @@ async function searchNaver(query: string): Promise<PlaceResult[]> {
 
   return items.map((item) => {
     const coords = convertNaverCoords(item.mapx, item.mapy)
+    const fullAddress = item.roadAddress || item.address
     return {
       name: stripHtml(item.title),
-      address: item.roadAddress || item.address,
+      address: fullAddress,
+      shortAddress: generateShortAddress(fullAddress, 'naver'),
       latitude: coords.lat,
       longitude: coords.lng,
       source: 'naver' as const,
@@ -141,6 +166,7 @@ async function searchGoogle(query: string): Promise<PlaceResult[]> {
   return results.map((item) => ({
     name: item.name,
     address: item.formatted_address,
+    shortAddress: generateShortAddress(item.formatted_address, 'google'),
     latitude: item.geometry?.location?.lat || null,
     longitude: item.geometry?.location?.lng || null,
     source: 'google' as const,

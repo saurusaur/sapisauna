@@ -1,25 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { NAV, ICONS, APP, SETTINGS, TYPE_EMOJI_MAP, TYPE_PERSONA_MAP } from '@/constants/content'
-
-type UserData = {
-  nickname: string
-  user_types: string[]
-  primary_type: 'bather' | 'saunner' | 'jimi'
-}
+import { APP, SETTINGS, MY_PAGE, TYPE_EMOJI_MAP, TYPE_PERSONA_MAP } from '@/constants/content'
+import BottomNav from '@/components/bottom-nav'
+import { useUser } from '@/contexts/user-context'
 
 export default function SettingsPage() {
   const router = useRouter()
-  const [user, setUser] = useState<UserData | null>(null)
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
-  }, [])
+  const { user } = useUser()
 
 
   const handleLogout = () => {
@@ -69,14 +57,8 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen pb-20 bath-tile-bg">
       {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center gap-4">
-        <button
-          onClick={() => router.push('/home')}
-          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className="text-lg font-bold text-stone-700">{SETTINGS.TITLE}</h1>
+      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+        <h1 className="text-xl font-bold text-stone-700">{MY_PAGE.TITLE}</h1>
       </header>
 
       <main className="p-4">
@@ -102,7 +84,7 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl">{TYPE_EMOJI_MAP[user?.primary_type || 'saunner']}</span>
-                <span className="font-medium text-stone-700">나의 타입</span>
+                <span className="font-medium text-stone-700">나의 스타일</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
@@ -170,29 +152,7 @@ export default function SettingsPage() {
         </button>
       </main>
 
-      {/* 하단 네비게이션 */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-stone-200">
-        <div className="flex justify-around py-3 max-w-md mx-auto">
-          <button
-            onClick={() => router.push('/home')}
-            className="flex flex-col items-center text-stone-400 hover:text-stone-600"
-          >
-            <span className="material-symbols-outlined">{ICONS.HOME}</span>
-            <span className="text-xs mt-1">{NAV.HOME}</span>
-          </button>
-          <button
-            onClick={() => router.push('/history')}
-            className="flex flex-col items-center text-stone-400 hover:text-stone-600"
-          >
-            <span className="material-symbols-outlined">{ICONS.HISTORY}</span>
-            <span className="text-xs mt-1">{NAV.HISTORY}</span>
-          </button>
-          <button className="flex flex-col items-center" style={{ color: 'var(--color-green)' }}>
-            <span className="material-symbols-outlined">{ICONS.SETTINGS}</span>
-            <span className="text-xs mt-1">{NAV.SETTINGS}</span>
-          </button>
-        </div>
-      </nav>
+      <BottomNav />
     </div>
   )
 }

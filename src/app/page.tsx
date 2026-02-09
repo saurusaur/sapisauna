@@ -2,19 +2,20 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@/contexts/user-context'
 
-// 로그인 화면 제거 → 온보딩 또는 홈으로 리다이렉트
+// 온보딩 또는 홈으로 리다이렉트
 export default function RootPage() {
   const router = useRouter()
+  const { user } = useUser()
 
   useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
+    if (user) {
       router.replace('/home')
     } else {
       router.replace('/onboarding')
     }
-  }, [router])
+  }, [user, router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bath-tile-bg">

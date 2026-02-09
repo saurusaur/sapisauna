@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { APP, ONBOARDING, USER_TYPES } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
+import { useUser } from '@/contexts/user-context'
 
 // 온보딩 단계: 닉네임 → 타입 선택 (2단계)
 type OnboardingStep = 'nickname' | 'type'
 
 export default function Onboarding() {
   const router = useRouter()
+  const { setUser } = useUser()
 
   // 현재 단계
   const [step, setStep] = useState<OnboardingStep>('nickname')
@@ -101,12 +103,12 @@ export default function Onboarding() {
       primary_type: selectedTypes[0],
     })
 
-    // localStorage에 임시 저장 (MVP)
-    localStorage.setItem('user', JSON.stringify({
+    // Context + localStorage에 저장 (MVP)
+    setUser({
       nickname,
       user_types: selectedTypes,
-      primary_type: selectedTypes[0],
-    }))
+      primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
+    })
 
     router.push('/home')
   }
@@ -257,7 +259,7 @@ export default function Onboarding() {
               </p>
             ) : (
               <p className="text-sm text-stone-400">
-                나에게 맞는 타입을 선택해보세요
+                FIND YOUR TRIBE
               </p>
             )}
           </div>
@@ -272,7 +274,7 @@ export default function Onboarding() {
                 : 'bg-stone-200 text-stone-400 cursor-not-allowed'
               }
             `}
-            style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-orange)' } : {}}
+            style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-green)' } : {}}
           >
             {ONBOARDING.START_BUTTON}
           </button>

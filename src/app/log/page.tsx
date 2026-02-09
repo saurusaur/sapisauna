@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter } from '@/components/slider'
+import { useUser } from '@/contexts/user-context'
 
 type LogType = 'bather' | 'saunner' | 'jimi'
 
 export default function QuickLog() {
   const router = useRouter()
+  const { primaryType } = useUser()
   const [placeName, setPlaceName] = useState('장소')
-  const [logType, setLogType] = useState<LogType>('saunner')
+  const [logType, setLogType] = useState<LogType>(primaryType as LogType)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
   // 슬라이더 값들
@@ -25,20 +27,11 @@ export default function QuickLog() {
   const [revisit, setRevisit] = useState(3)
 
   useEffect(() => {
-    // localStorage에서 선택된 장소와 사용자 정보 가져오기
+    // localStorage에서 선택된 장소 가져오기
     const placeData = localStorage.getItem('selectedPlace')
-    const userData = localStorage.getItem('user')
-
     if (placeData) {
       const place = JSON.parse(placeData)
       setPlaceName(place.name)
-    }
-
-    if (userData) {
-      const user = JSON.parse(userData)
-      if (user.primary_type) {
-        setLogType(user.primary_type)
-      }
     }
   }, [])
 
@@ -200,7 +193,7 @@ export default function QuickLog() {
             </>
           )}
 
-          {/* 공통: 또 올래요 */}
+          {/* 공통: 또 갈래요 */}
           <Slider
             label={QUICK_LOG.COMMON.REVISIT.label}
             value={revisit}

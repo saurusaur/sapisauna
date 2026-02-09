@@ -1,24 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ONBOARDING } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
+import { useUser } from '@/contexts/user-context'
 
 export default function NicknameEdit() {
   const router = useRouter()
-  const [nickname, setNickname] = useState('')
-  const [originalNickname, setOriginalNickname] = useState('')
+  const { user, updateUser } = useUser()
+  const [nickname, setNickname] = useState(user?.nickname || '')
+  const [originalNickname] = useState(user?.nickname || '')
   const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid'>('idle')
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      setNickname(user.nickname || '')
-      setOriginalNickname(user.nickname || '')
-    }
-  }, [])
 
   const isNicknameValid = nickname.length >= 2 && nickname.length <= 10
 
@@ -56,14 +49,7 @@ export default function NicknameEdit() {
 
   const handleSave = () => {
     if (nicknameStatus !== 'available') return
-
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      user.nickname = nickname
-      localStorage.setItem('user', JSON.stringify(user))
-    }
-
+    updateUser({ nickname })
     router.back()
   }
 

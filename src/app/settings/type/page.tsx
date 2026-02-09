@@ -1,20 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@/constants/content'
+import { useUser } from '@/contexts/user-context'
 
 export default function TypeEdit() {
   const router = useRouter()
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      setSelectedTypes(user.user_types || [])
-    }
-  }, [])
+  const { user, updateUser } = useUser()
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(user?.user_types || [])
 
   const handleTypeClick = (typeId: string) => {
     setSelectedTypes((prev) => {
@@ -34,13 +28,10 @@ export default function TypeEdit() {
   const handleSave = () => {
     if (selectedTypes.length === 0) return
 
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      user.user_types = selectedTypes
-      user.primary_type = selectedTypes[0]
-      localStorage.setItem('user', JSON.stringify(user))
-    }
+    updateUser({
+      user_types: selectedTypes,
+      primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
+    })
 
     router.back()
   }

@@ -26,7 +26,7 @@
 // ============================================
 export const APP = {
   NAME: '사우나 로그',
-  TAGLINE: '나만의 사우나 기록',
+  TAGLINE: '우리의 사우나 기록',
   VERSION: '0.1.0',
 }
 
@@ -81,7 +81,7 @@ export const USER_TYPES = {
   },
 } as const
 
-// USER_TYPES에서 자동 생성하는 조회 맵 (중복 제거)
+// USER_TYPES에서 자동 생성하는 조회 맵
 const typeEntries = Object.values(USER_TYPES)
 export const TYPE_EMOJI_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.emoji]))
 export const TYPE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.category]))
@@ -110,7 +110,6 @@ export const ONBOARDING = {
   // 공통
   NEXT_BUTTON: '다음',
   START_BUTTON: '시작하기',
-  SELECTED_COUNT: (count: number) => `${count}개 선택됨`,
 }
 
 // ============================================
@@ -144,7 +143,7 @@ export const QUICK_LOG = {
         { value: 2, label: '조금 탁함' },
         { value: 3, label: '보통' },
         { value: 4, label: '청량' },
-        { value: 5, label: '미끈미끈' },
+        { value: 5, label: '생명수' },
       ],
     },
     HOT_BATH_TEMP: {
@@ -243,25 +242,63 @@ export const QUICK_LOG = {
 // 장소 스펙 옵션 (크라우드소싱 데이터)
 // ============================================
 export const PLACE_SPECS = {
-  BATHS: {
-    label: '탕 구성',
+  // 온열 시설
+  HEAT: {
+    label: '온열 시설',
     options: [
-      { id: '냉탕', label: '냉탕', icon: 'ac_unit', tempRange: [15, 30] },
-      { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', tempRange: [0, 20] },
-      { id: '미온탕', label: '미온탕', icon: 'thermostat', tempRange: [30, 37] },
-      { id: '온탕', label: '온탕', icon: 'heat', tempRange: [35, 43] },
-      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', tempRange: [40, 46] },
-      { id: '노천탕', label: '노천탕', icon: 'park', tempRange: [35, 45] },
+      { id: '온탕', label: '온탕', icon: 'heat', category: 'heat', tempRange: [35, 43] },
+      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
+      { id: '건식사우나', label: '건식사우나', icon: 'sauna', category: 'heat', tempRange: [50, 130] },
+      { id: '습식사우나', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 90] },
+      { id: '불한증막', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
+      { id: '소금사우나', label: '소금사우나', icon: 'salinity', category: 'heat' },
+      { id: '아로마사우나', label: '아로마사우나', icon: 'temp_preferences_eco', category: 'heat', tempRange: [40, 100] },
     ],
   },
-  SAUNAS: {
-    label: '사우나 종류',
+  // 냉각 시설
+  ICE: {
+    label: '냉각 시설',
     options: [
-      { id: '건식', label: '건식', icon: 'sauna', tempRange: [50, 130] },
-      { id: '습식', label: '습식', icon: 'water_voc', tempRange: [40, 90] },
-      { id: '아로마', label: '아로마', icon: 'spa', tempRange: [40, 100] },
+      { id: '냉탕', label: '냉탕', icon: 'ac_unit', category: 'ice', tempRange: [15, 30] },
+      { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', category: 'ice', tempRange: [0, 20] },
+      { id: '아이스방', label: '아이스방', icon: 'icecream', category: 'ice' },
     ],
   },
+  // 휴식 시설
+  PAUSE: {
+    label: '휴식 시설',
+    options: [
+      { id: '외기욕', label: '외기욕(바깥)', icon: 'chair_umbrella', category: 'pause' },
+      { id: '내기욕', label: '내기욕(실내)', icon: 'living', category: 'pause' },
+    ],
+  },
+  // 추가 시설
+  BEYOND: {
+    label: '추가 시설',
+    options: [
+      { id: '노천탕', label: '노천탕', icon: 'bath_outdoor', category: 'beyond', tempRange: [35, 45] },
+      { id: '미온탕', label: '미온탕', icon: 'thermostat', category: 'beyond', tempRange: [30, 37] },
+      { id: '찜질방', label: '찜질방', icon: 'foundation', category: 'beyond' },
+      { id: '아우프구스', label: '아우프구스', icon: 'airwave', category: 'beyond' },
+      { id: '셀프로울루', label: '셀프 로울루', icon: 'format_color_fill', category: 'beyond' },
+    ],
+  },
+  // 편의시설
+  AMENITIES: {
+    label: '편의시설',
+    options: [
+      { id: 'dryer-free', label: '드라이기 무료', icon: 'air', category: 'amenities' },
+      { id: 'towel', label: '수건 무제한', icon: 'dry_cleaning', category: 'amenities' },
+      { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'clean_hands', category: 'amenities' },
+      { id: 'charging', label: '충전 스테이션', icon: 'battery_charging_full', category: 'amenities' },
+      { id: 'workspace', label: '작업 공간', icon: 'laptop', category: 'amenities' },
+      { id: 'gym', label: '운동시설', icon: 'fitness_center', category: 'amenities' },
+      { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat', category: 'amenities' },
+      { id: 'store', label: '매점', icon: 'dining', category: 'amenities' },
+      { id: 'massage', label: '마사지', icon: 'massage', category: 'amenities' },
+    ],
+  },
+  // 매점 토글/평가 (Deep Log 전용 — 건드리지 않음)
   STORE: {
     label: '매점',
     toggleLabel: '이용 함',
@@ -278,16 +315,6 @@ export const PLACE_SPECS = {
         { value: 5, label: '꿀맛집' },
       ],
     },
-  },
-  ROOMS: {
-    label: '찜질방 종류',
-    options: [
-      { id: '불한증막', label: '불한증막', icon: 'warehouse', tempRange: [60, 140], hasTemp: true },
-      { id: '소금방', label: '소금방', icon: 'grain' },
-      { id: '아이스방', label: '아이스방', icon: 'iceream' },
-      { id: '황토방', label: '황토방', icon: 'foundation' },
-      { id: '토굴방', label: '토굴방', icon: 'location_home' },
-    ],
   },
 }
 
@@ -326,19 +353,6 @@ export const DEEP_LOG = {
     label: '비용',
     placeholder: '입장료를 입력해주세요',
     unit: '원',
-  },
-  AMENITIES: {
-    label: '편의시설',
-    options: [
-      { id: 'dryer-free', label: '드라이기 무료', icon: 'air' },
-      { id: 'towel', label: '수건 무제한', icon: 'dry_cleaning' },
-      { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'clean_hands' },
-      { id: 'charging', label: '충전 스테이션', icon: 'battery_charging_full' },
-      { id: 'workspace', label: '작업 공간', icon: 'laptop' },
-      { id: 'gym', label: '운동시설', icon: 'fitness_center' },
-      { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat' },
-      { id: 'store', label: '매점', icon: 'dining' },
-    ],
   },
   MEMO: {
     label: '자유 메모',
@@ -445,6 +459,10 @@ export const ICONS = {
   HOME: 'home',
   HISTORY: 'history',
   SETTINGS: 'settings',
+  EXPLORE: 'explore',
+  MY: 'person',
+  FAVORITE: 'bookmark_heart',
+  FAVORITE_BORDER: 'bookmark_heart',
   BACK: 'arrow_back',
   CLOSE: 'close',
   ADD: 'add',
@@ -453,7 +471,7 @@ export const ICONS = {
   SAVE: 'check',
   SHARE: 'share',
   SEARCH: 'search',
-  PLACE: 'nest_farsight_heat',
+  PLACE: 'location_on',
   CALENDAR: 'calendar_today',
   TIME: 'schedule',
   PHOTO: 'photo_camera',
@@ -462,6 +480,8 @@ export const ICONS = {
   INFO: 'info',
   STAR: 'star',
   THERMOMETER: 'device_thermostat',
+  FILTER: 'tune',
+  MAP: 'map',
 }
 
 // 타입별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
@@ -477,12 +497,100 @@ export const TYPE_ICON_MAP: Record<string, string> = {
 export const NAV = {
   HOME: '홈',
   HISTORY: '기록',
-  SETTINGS: '설정',
+  EXPLORE: '탐색',
+  MY: '마이',
 }
 
 // ============================================
 // 설정
 // ============================================
+// ============================================
+// 탐색 페이지
+// ============================================
+export const EXPLORE = {
+  TITLE: '탐색',
+  SEARCH_PLACEHOLDER: '장소명 또는 주소로 검색',
+  FILTER_BUTTON: '필터',
+  SORT: {
+    LABEL: '정렬',
+    RECOMMENDED: '추천순',
+    POPULAR: '인기순',
+  },
+  TOGGLE_24H: '24시 영업',
+  RECOMMENDATION: {
+    SAUNNER: 'Saunner 추천',
+    BATHER: 'Bather 추천',
+    JIMI: 'Jimi 추천',
+  },
+  NO_RESULTS: '조건에 맞는 장소가 없습니다',
+  AVG_RATING: '평균',
+  LOG_COUNT: (count: number) => `${count}건의 기록`,
+  VIEW_ALL: '전체 보기',
+  REVISIT_LABEL: '또 갈래요',
+}
+
+// ============================================
+// 장소 상세 페이지
+// ============================================
+export const PLACE_DETAIL = {
+  FACILITIES: '시설 정보',
+  AMENITIES: '편의시설',
+  AVG_RATING: '평균 평가',
+  RATING_SUMMARY: (avg: string, count: number) => `평균 ${avg} · ${count}건의 기록`,
+  NO_LOGS: '아직 기록이 없어요',
+  LOGS_TITLE: '이 장소의 기록',
+  MORE_LOGS: '더보기',
+  RECORD_CTA: '이 장소에서 기록하기',
+  NAVER_MAP: 'Naver Map',
+  GOOGLE_MAP: 'Google Maps',
+}
+
+// ============================================
+// 마이 페이지
+// ============================================
+export const MY_PAGE = {
+  TITLE: '마이',
+}
+
+// ============================================
+// 탐색 필터 항목 (PLACE_SPECS id 참조)
+// ============================================
+export const EXPLORE_FILTERS = {
+  HEAT: {
+    label: '온열 시설',
+    options: ['건식사우나', '습식사우나', '불한증막', '소금사우나', '아로마사우나'],
+  },
+  ICE: {
+    label: '냉각 시설',
+    options: ['냉탕', '급냉탕', '아이스방'],
+  },
+  PAUSE: {
+    label: '휴식 시설',
+    options: ['외기욕', '내기욕'],
+  },
+  BEYOND: {
+    label: '특별 시설',
+    options: ['노천탕', '아우프구스', '셀프로울루'],
+  },
+  AMENITIES: {
+    label: '편의시설',
+    options: ['store', 'gym', 'massage', 'sleep-room', 'workspace'],
+  },
+} as const
+
+// AMENITIES id → 표시 라벨 매핑 (PLACE_SPECS에서 참조)
+export const AMENITY_LABEL_MAP: Record<string, string> = {
+  'store': '매점',
+  'gym': '운동시설',
+  'massage': '마사지',
+  'sleep-room': '수면실',
+  'workspace': '작업공간',
+  'dryer-free': '드라이기 무료',
+  'towel': '수건 무제한',
+  'shampoo-bodywash': '샴푸/바디워시',
+  'charging': '충전 스테이션',
+}
+
 export const SETTINGS = {
   TITLE: '설정',
   PROFILE: {

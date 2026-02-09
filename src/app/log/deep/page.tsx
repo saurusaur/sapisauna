@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DEEP_LOG, PLACE_SPECS, BATH_GENDER_OPTIONS } from '@/constants/content'
 import { Slider } from '@/components/slider'
+import SelectButton from '@/components/ui/select-button'
 import { formatCostInput } from '@/lib/utils'
 
 // 탕 선택 타입
@@ -84,28 +85,20 @@ export default function DeepLog() {
     onSelect: (id: string) => void
     multiple?: boolean
   }) => (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {options.map((option) => {
         const isSelected = multiple
           ? (selected as string[])?.includes(option.id)
           : selected === option.id
 
         return (
-          <button
+          <SelectButton
             key={option.id}
+            label={option.label}
+            icon={option.icon}
+            selected={isSelected}
             onClick={() => onSelect(option.id)}
-            className={`
-              px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5
-              ${isSelected
-                ? 'text-white shadow-md'
-                : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
-              }
-            `}
-            style={isSelected ? { backgroundColor: 'var(--color-green)' } : {}}
-          >
-            <span className="material-symbols-outlined text-base">{option.icon}</span>
-            {option.label}
-          </button>
+          />
         )
       })}
     </div>
@@ -246,22 +239,12 @@ export default function DeepLog() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-stone-700">{DEEP_LOG.SCRUB.label}</label>
-                <button
+                <SelectButton
+                  label={DEEP_LOG.SCRUB.toggleLabel}
+                  icon={hasScrub ? 'check_box' : 'check_box_outline_blank'}
+                  selected={hasScrub}
                   onClick={() => setHasScrub(!hasScrub)}
-                  className={`
-                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
-                    ${hasScrub
-                      ? 'text-white'
-                      : 'bg-stone-100 text-stone-500'
-                    }
-                  `}
-                  style={hasScrub ? { backgroundColor: 'var(--color-green)' } : {}}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {hasScrub ? 'check_box' : 'check_box_outline_blank'}
-                  </span>
-                  {DEEP_LOG.SCRUB.toggleLabel}
-                </button>
+                />
               </div>
 
               {hasScrub && (
@@ -281,22 +264,12 @@ export default function DeepLog() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-stone-700">{PLACE_SPECS.STORE.label}</label>
-                <button
+                <SelectButton
+                  label={PLACE_SPECS.STORE.toggleLabel}
+                  icon={hasStore ? 'check_box' : 'check_box_outline_blank'}
+                  selected={hasStore}
                   onClick={() => setHasStore(!hasStore)}
-                  className={`
-                    px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2
-                    ${hasStore
-                      ? 'text-white'
-                      : 'bg-stone-100 text-stone-500'
-                    }
-                  `}
-                  style={hasStore ? { backgroundColor: 'var(--color-green)' } : {}}
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    {hasStore ? 'check_box' : 'check_box_outline_blank'}
-                  </span>
-                  {PLACE_SPECS.STORE.toggleLabel}
-                </button>
+                />
               </div>
 
               {hasStore && (

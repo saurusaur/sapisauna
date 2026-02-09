@@ -1,32 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MESSAGES } from '@/constants/content'
+import { MESSAGES, AMENITY_LABEL_MAP, EXPLORE, ICONS } from '@/constants/content'
+import { DUMMY_PLACES } from '@/data/dummy-places'
+import { DUMMY_LOGS } from '@/data/dummy-logs'
+import Chip from '@/components/ui/chip'
 
-// 더미 장소 데이터
-// facilities: PLACE_SPECS 기반 시설 태그 (icon: Material Symbol, label: 표시명)
-const DUMMY_PLACES = [
-  { id: '1', name: '스파랜드', address: '서울 강남구', distance: '350m', facilities: [
-    { icon: 'hot_tub', label: '온탕' },
-    { icon: 'ac_unit', label: '냉탕' },
-    { icon: 'local_fire_department', label: '건식' },
-  ]},
-  { id: '2', name: '실로암사우나', address: '서울 중구', distance: '1.2km', facilities: [
-    { icon: 'local_fire_department', label: '건식' },
-    { icon: 'water', label: '습식' },
-  ]},
-  { id: '3', name: '드래곤힐스파', address: '서울 용산구', distance: '2.5km', facilities: [
-    { icon: 'hot_tub', label: '온탕' },
-    { icon: 'ac_unit', label: '냉탕' },
-    { icon: 'local_fire_department', label: '건식' },
-    { icon: 'grain', label: '소금방' },
-  ]},
-]
+// 시설 라벨 (영어 id → 한국어)
+function getFacilityLabel(id: string): string {
+  return AMENITY_LABEL_MAP[id] || id
+}
+
+// 장소별 또갈래요 평균 + 기록 수
+function getPlaceStats(placeName: string) {
+  const logs = DUMMY_LOGS.filter(l => l.place_name === placeName)
+  if (logs.length === 0) return { avg: 0, count: 0 }
+  const avg = Math.round((logs.reduce((sum, l) => sum + l.revisit_score, 0) / logs.length) * 10) / 10
+  return { avg, count: logs.length }
+}
+
+// localStorage에 저장된 사용자 등록 장소
+interface SavedPlace {
+  id: string
+  name: string
+  address?: string
+}
 
 export default function PlaceSelection() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [recentPlaces, setRecentPlaces] = useState<SavedPlace[]>([])
+
+  // 최근 등록 장소 로드
+  useEffect(() => {
+    const saved = localStorage.getItem('places')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as SavedPlace[]
+        // 최근 5개만
+        setRecentPlaces(parsed.slice(-5).reverse())
+      } catch { /* ignore */ }
+    }
+  }, [])
 
   // 검색 필터링
   const filteredPlaces = DUMMY_PLACES.filter(place =>
@@ -35,7 +51,6 @@ export default function PlaceSelection() {
 
   // 장소 선택
   const handlePlaceSelect = (placeId: string, placeName: string) => {
-    // 선택한 장소 정보를 localStorage에 저장
     localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName }))
     router.push('/log')
   }
@@ -68,32 +83,90 @@ export default function PlaceSelection() {
           />
         </div>
 
+        {/* 최근 등록 장소 (검색 중이 아닐 때만) */}
+        {!searchQuery && recentPlaces.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '18px' }}>history</span>
+              <span className="text-sm font-medium text-stone-500">최근 등록 장소</span>
+            </div>
+            <div className="space-y-2">
+              {recentPlaces.map((place) => (
+                <button
+                  key={place.id}
+                  onClick={() => handlePlaceSelect(place.id, place.name)}
+                  className="w-full bg-white p-3 rounded-xl shadow-sm text-left hover:shadow-md transition-all flex items-center gap-3"
+                >
+                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>
+                    {ICONS.PLACE}
+                  </span>
+                  <div>
+                    <div className="font-medium text-stone-700 text-sm">{place.name}</div>
+                    {place.address && (
+                      <div className="text-xs text-stone-400">{place.address}</div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 내 주변 라벨 */}
         <div className="flex items-center gap-2 mb-4">
           <span className="material-symbols-outlined text-stone-500">location_on</span>
           <span className="text-sm font-medium text-stone-500">{MESSAGES.LOG.NEARBY}</span>
         </div>
 
-        {/* 장소 목록 */}
+        {/* 장소 목록 — explore 카드 스타일 */}
         <div className="space-y-3 mb-6">
-          {filteredPlaces.map((place) => (
-            <button
-              key={place.id}
-              onClick={() => handlePlaceSelect(place.id, place.name)}
-              className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
-            >
-              <div className="font-semibold text-stone-700 mb-1">{place.name}</div>
-              <div className="text-sm text-stone-400 mb-2">{place.address} · {place.distance}</div>
-              <div className="flex gap-2 flex-wrap">
-                {place.facilities.map((facility, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-stone-100 rounded-full text-xs text-stone-500">
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>{facility.icon}</span>
-                    {facility.label}
-                  </span>
-                ))}
-              </div>
-            </button>
-          ))}
+          {filteredPlaces.map((place) => {
+            const stats = getPlaceStats(place.name)
+            const mainFacilities = place.facilities.slice(0, 5)
+
+            return (
+              <button
+                key={place.id}
+                onClick={() => handlePlaceSelect(place.id, place.name)}
+                className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-stone-700">{place.name}</span>
+                      {place.is_24h && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
+                          24h
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-400 mt-0.5">{place.shortAddress || place.address}</p>
+                  </div>
+                </div>
+
+                {/* 시설 칩 */}
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {mainFacilities.map((f) => (
+                    <Chip key={f} label={getFacilityLabel(f)} size="sm" />
+                  ))}
+                  {place.facilities.length > 5 && (
+                    <Chip label={`+${place.facilities.length - 5}`} size="sm" />
+                  )}
+                </div>
+
+                {/* 또갈래요 평점 */}
+                {stats.count > 0 && (
+                  <div className="flex items-center gap-1 text-xs">
+                    <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
+                      {EXPLORE.REVISIT_LABEL} {stats.avg}
+                    </span>
+                    <span className="text-stone-300">·</span>
+                    <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
+                  </div>
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* 직접 장소 추가 */}

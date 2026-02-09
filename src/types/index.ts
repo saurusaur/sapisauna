@@ -111,3 +111,30 @@ export interface SliderStep {
   value: number      // 이 값 이상일 때
   label: string      // 표시할 레이블
 }
+
+// 더미 장소 정보
+export interface DummyPlace {
+  id: string
+  name: string
+  address: string
+  shortAddress?: string  // 카드 미리보기용 짧은 주소 (예: "서울 강남구", "Tokyo, Japan")
+  facilities: string[]   // PLACE_SPECS 전체의 id들 (평탄한 배열)
+  is_24h: boolean        // 24시간 영업 여부
+  latitude?: number      // 위도 (좌표 없는 장소도 호환)
+  longitude?: number     // 경도
+}
+
+// 즐겨찾기 컬렉션
+export interface FavoriteCollection {
+  id: string
+  name: string           // 기본: "좋아요"
+  icon: string           // Material Symbol 아이콘 (기본: "favorite")
+  placeIds: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+// 즐겨찾기 데이터 (localStorage 저장 구조)
+export interface FavoritesData {
+  collections: FavoriteCollection[]
+}

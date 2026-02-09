@@ -1,30 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@/contexts/user-context'
 
 export default function GenderEdit() {
   const router = useRouter()
-  const [gender, setGender] = useState<'male' | 'female' | null>(null)
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      setGender(user.gender || null)
-    }
-  }, [])
+  const { user, updateUser } = useUser()
+  const [gender, setGender] = useState<'male' | 'female' | null>(user?.gender || null)
 
   const handleSave = () => {
     if (!gender) return
-
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const user = JSON.parse(userData)
-      user.gender = gender
-      localStorage.setItem('user', JSON.stringify(user))
-    }
-
+    updateUser({ gender })
     router.back()
   }
 

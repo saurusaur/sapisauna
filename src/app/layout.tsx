@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { APP } from '@/constants/content'
+import { UserProvider } from '@/contexts/user-context'
 
 export const metadata: Metadata = {
   title: APP.NAME,
@@ -43,9 +44,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen" style={{ backgroundColor: '#fdfbf7' }}>
-        <main className="max-w-md mx-auto min-h-screen">
-          {children}
-        </main>
+        <UserProvider>
+          <main className="max-w-md mx-auto min-h-screen">
+            {children}
+          </main>
+        </UserProvider>
       </body>
     </html>
   )

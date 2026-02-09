@@ -35,30 +35,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const visibleSamePlaceLogs = showAllSamePlace ? samePlaceLogs : samePlaceLogs.slice(0, 2)
   const hasMoreSamePlaceLogs = samePlaceLogs.length > 2
 
-  const renderRevisitScore = (score: number) => (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: i <= score ? 'var(--color-orange)' : '#e5e5e5' }}
-        />
-      ))}
-    </div>
-  )
-
-  // 간략 점수 표시 (과거 기록 카드용)
-  const renderSmallRevisitScore = (score: number) => (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className="w-2 h-2 rounded-full"
-          style={{ backgroundColor: i <= score ? 'var(--color-orange)' : '#e5e5e5' }}
-        />
-      ))}
-    </div>
-  )
+  // 점수를 descriptor 텍스트로 표시
+  const getRevisitLabel = (score: number): string => {
+    return getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, score)
+  }
 
   // 상세 정보 텍스트 (과거 기록 카드용)
   const getDetailText = (item: DummyLog) => {
@@ -153,12 +133,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">토토노이 강도</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-stone-400">
-                      {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono || 0)}
-                    </span>
-                    {renderRevisitScore(log.totono || 0)}
-                  </div>
+                  <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+                    {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono || 0)}
+                  </span>
                 </div>
               </>
             )}
@@ -190,10 +167,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             )}
 
             <div className="pt-3 border-t border-stone-100 flex justify-end items-center gap-2">
-              <span className="text-sm text-stone-400">
-                {getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, log.revisit_score)}
+              <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+                {getRevisitLabel(log.revisit_score)}
               </span>
-              {renderRevisitScore(log.revisit_score)}
             </div>
           </div>
         </div>
@@ -272,12 +248,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs text-stone-400">{getDetailText(item)}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-stone-400">
-                        {getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, item.revisit_score)}
-                      </span>
-                      {renderSmallRevisitScore(item.revisit_score)}
-                    </div>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+                      {getRevisitLabel(item.revisit_score)}
+                    </span>
                   </div>
                 </button>
               ))}
