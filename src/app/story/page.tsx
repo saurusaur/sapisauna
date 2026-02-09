@@ -10,7 +10,7 @@ import JimiGraph from '@/components/svg/jimi-graph'
 
 type LogData = {
   place_name: string
-  log_type: 'bather' | 'saunner' | 'jimi'
+  tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string
   date?: string
   sauna_temp?: number
@@ -86,7 +86,7 @@ export default function Story() {
   const getMainMetric = () => {
     if (!log) return { value: '', unit: '', label: '' }
 
-    switch (log.log_type) {
+    switch (log.tribe_id) {
       case 'saunner': {
         const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
         return { value: String(deltaT), unit: '°C', label: 'temperature delta' }
@@ -107,7 +107,7 @@ export default function Story() {
   const renderGraph = () => {
     if (!log) return null
 
-    switch (log.log_type) {
+    switch (log.tribe_id) {
       case 'saunner':
         return (
           <SaunnerGraph
@@ -144,8 +144,8 @@ export default function Story() {
     )
   }
 
-  const bgColor = TYPE_BG_COLORS[log.log_type] || TYPE_BG_COLORS.saunner
-  const displayName = TYPE_DISPLAY_NAMES[log.log_type] || 'Saunner'
+  const bgColor = TYPE_BG_COLORS[log.tribe_id] || TYPE_BG_COLORS.saunner
+  const displayName = TYPE_DISPLAY_NAMES[log.tribe_id] || 'Saunner'
   const metric = getMainMetric()
 
   return (

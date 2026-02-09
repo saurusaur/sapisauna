@@ -7,12 +7,12 @@
  *
  * 색상 관리:
  * → globals.css의 CSS 변수에서 관리 (--color-green, --color-orange 등)
- * → 아래 TYPE_COLORS는 타입 선택 UI에서만 사용
+ * → 아래 TRIBE_COLORS는 타입 선택 UI에서만 사용
  *
  * 구조:
  * - APP: 앱 전반 정보
- * - TYPE_COLORS: 사용자 타입별 색상 (타입 선택 UI용)
- * - USER_TYPES: 사용자 타입 정보
+ * - TRIBE_COLORS: 사용자 타입별 색상 (타입 선택 UI용)
+ * - TRIBES: 사용자 타입 정보
  * - ONBOARDING: 온보딩 화면
  * - QUICK_LOG: 퀵로그 입력 항목
  * - DEEP_LOG: 딥로그 입력 항목
@@ -33,7 +33,7 @@ export const APP = {
 // ============================================
 // 타입별 포인트 색상 (globals.css의 CSS 변수 참조)
 // ============================================
-const TYPE_COLORS = {
+const TRIBE_COLORS = {
   bather: 'var(--color-bather)',
   saunner: 'var(--color-saunner)',
   jimi: 'var(--color-jimi)',
@@ -49,7 +49,7 @@ export const BATH_GENDER_OPTIONS = [
 // ============================================
 // 사용자 타입
 // ============================================
-export const USER_TYPES = {
+export const TRIBES = {
   BATHER: {
     id: 'bather',
     // Category (기록 타입, 한국어): 목욕
@@ -59,7 +59,7 @@ export const USER_TYPES = {
     name: '목욕탕파',
     emoji: '🛁',
     description: '목욕탕의 따뜻한 물과 시원한 세신이 나를 부른다',
-    color: TYPE_COLORS.bather,
+    color: TRIBE_COLORS.bather,
   },
   SAUNER: {
     id: 'saunner',
@@ -68,7 +68,7 @@ export const USER_TYPES = {
     name: '사우나파',
     emoji: '🔥',
     description: '사우나, 냉탕, 휴식의 반복으로 완성하는 나의 루틴',
-    color: TYPE_COLORS.saunner,
+    color: TRIBE_COLORS.saunner,
   },
   JIMI: {
     id: 'jimi',
@@ -77,16 +77,17 @@ export const USER_TYPES = {
     name: '찜질방파',
     emoji: '🥚',
     description: '찜질방에서 굴러다니며 먹고 자는 게 최고의 힐링',
-    color: TYPE_COLORS.jimi,
+    color: TRIBE_COLORS.jimi,
   },
 } as const
 
-// USER_TYPES에서 자동 생성하는 조회 맵
-const typeEntries = Object.values(USER_TYPES)
-export const TYPE_EMOJI_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.emoji]))
-export const TYPE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.category]))
-export const TYPE_PERSONA_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.persona]))
-export const TYPE_NAME_MAP: Record<string, string> = Object.fromEntries(typeEntries.map(t => [t.id, t.name]))
+
+// TRIBES에서 자동 생성하는 조회 맵
+const tribeEntries = Object.values(TRIBES)
+export const TRIBE_EMOJI_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.emoji]))
+export const TRIBE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.category]))
+export const TRIBE_PERSONA_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.persona]))
+export const TRIBE_NAME_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.name]))
 
 // ============================================
 // 온보딩
@@ -388,7 +389,7 @@ export const DEEP_LOG = {
 // ============================================
 // 타입별 기본 설정
 // ============================================
-export const TYPE_DEFAULTS = {
+export const TRIBE_DEFAULTS = {
   bather: {
     greeting: '오늘도 따뜻한 물에서 힐링하세요 🛁',
     quickLogFields: ['WATER_QUALITY', 'HOT_BATH_TEMP', 'REVISIT'],
@@ -484,8 +485,8 @@ export const ICONS = {
   MAP: 'map',
 }
 
-// 타입별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
-export const TYPE_ICON_MAP: Record<string, string> = {
+// 트라이브별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
+export const TRIBE_ICON_MAP: Record<string, string> = {
   bather: 'bath_outdoor',
   saunner: 'local_fire_department',
   jimi: 'egg',

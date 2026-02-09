@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { ICONS, TYPE_EMOJI_MAP, TYPE_PERSONA_MAP } from '@/constants/content'
+import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
 import { DUMMY_LOGS, type DummyLog } from '@/data/dummy-logs'
@@ -11,11 +11,11 @@ import RecordCard from '@/components/features/record-card'
 // 뷰 모드: 리스트 or 캘린더
 type ViewMode = 'list' | 'calendar'
 
-// 타입 필터 옵션 (이모지는 TYPE_EMOJI_MAP에서 참조)
-const TYPE_FILTER_IDS = ['all', 'saunner', 'bather', 'jimi'] as const
+// 타입 필터 옵션 (이모지는 TRIBE_EMOJI_MAP에서 참조)
+const TRIBE_FILTER_IDS = ['all', 'saunner', 'bather', 'jimi'] as const
 
 // 타입별 컬러
-const TYPE_COLORS: Record<string, string> = {
+const TRIBE_COLORS: Record<string, string> = {
   saunner: 'var(--color-saunner)',
   bather: 'var(--color-bather)',
   jimi: 'var(--color-jimi)',
@@ -73,7 +73,7 @@ export default function History() {
   // 타입 필터 적용
   const typeFilteredLogs = typeFilter === 'all'
     ? DUMMY_LOGS
-    : DUMMY_LOGS.filter((log) => log.log_type === typeFilter)
+    : DUMMY_LOGS.filter((log) => log.tribe_id === typeFilter)
 
   // 검색어 + 타입 필터 적용
   const filteredLogs = searchQuery
@@ -110,7 +110,7 @@ export default function History() {
     const total = monthLogs.length
     const byType: Record<string, number> = {}
     monthLogs.forEach((l) => {
-      byType[l.log_type] = (byType[l.log_type] || 0) + 1
+      byType[l.tribe_id] = (byType[l.tribe_id] || 0) + 1
     })
     return { total, byType }
   }, [calendarMonth, typeFilter])
@@ -167,16 +167,16 @@ export default function History() {
 
       {/* 타입 필터 (이모지 칩) */}
       <div className="px-4 pt-3 flex gap-1.5">
-        {TYPE_FILTER_IDS.map((id) => {
-          const emoji = id !== 'all' ? TYPE_EMOJI_MAP[id] : ''
-          const label = id === 'all' ? '전체' : TYPE_PERSONA_MAP[id]
+        {TRIBE_FILTER_IDS.map((id) => {
+          const emoji = id !== 'all' ? TRIBE_EMOJI_MAP[id] : ''
+          const label = id === 'all' ? '전체' : TRIBE_PERSONA_MAP[id]
           return (
             <TypeTab
               key={id}
               label={emoji ? `${emoji} ${label}` : label}
               active={typeFilter === id}
               onClick={() => setTypeFilter(id)}
-              color={id === 'all' ? 'var(--color-green)' : TYPE_COLORS[id]}
+              color={id === 'all' ? 'var(--color-green)' : TRIBE_COLORS[id]}
             />
           )
         })}
@@ -276,7 +276,7 @@ export default function History() {
                   <span className="text-stone-300 mx-1">·</span>
                   {Object.entries(monthlySummary.byType).map(([type, count]) => (
                     <span key={type} className="mx-0.5">
-                      {TYPE_EMOJI_MAP[type]}{count}
+                      {TRIBE_EMOJI_MAP[type]}{count}
                     </span>
                   ))}
                 </>
@@ -311,7 +311,7 @@ export default function History() {
                   today.getDate() === day
 
                 // 해당 날짜의 고유 타입들 (dot 표시용)
-                const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.log_type)))
+                const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.tribe_id)))
 
                 return (
                   <button
@@ -322,10 +322,10 @@ export default function History() {
                   >
                     <span
                       className={`text-sm ${isToday
-                          ? 'font-bold text-white bg-stone-700 w-6 h-6 rounded-full flex items-center justify-center'
-                          : isSelected
-                            ? 'font-bold text-stone-700'
-                            : 'text-stone-600'
+                        ? 'font-bold text-white bg-stone-700 w-6 h-6 rounded-full flex items-center justify-center'
+                        : isSelected
+                          ? 'font-bold text-stone-700'
+                          : 'text-stone-600'
                         }`}
                     >
                       {day}
@@ -337,7 +337,7 @@ export default function History() {
                         <span
                           key={type}
                           className="w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: TYPE_COLORS[type] || '#d6d3d1' }}
+                          style={{ backgroundColor: TRIBE_COLORS[type] || '#d6d3d1' }}
                         />
                       ))}
                     </div>

@@ -2,14 +2,14 @@
  * 타입 정의
  */
 
-// 사용자 타입 ID
-export type UserTypeId = 'bather' | 'saunner' | 'jimi'
+// 사용자 트라이브 ID
+export type TribeId = 'bather' | 'saunner' | 'jimi'
 
 // 사용자 프로필
 export interface UserProfile {
   id: string
-  types: UserTypeId[]
-  lastUsedType: UserTypeId
+  tribes: TribeId[]
+  lastUsedTribe: TribeId
   createdAt: Date
 }
 
@@ -74,7 +74,7 @@ export interface LogEntry {
   userId: string
   placeId: string
   placeName: string
-  userType: UserTypeId
+  tribeId: TribeId
   quickLog: QuickLogData
   deepLog?: DeepLogData
   createdAt: Date

@@ -1,4 +1,4 @@
-import { TYPE_EMOJI_MAP } from '@/constants/content'
+import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import { formatShortDate, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import type { DummyLog } from '@/data/dummy-logs'
 import ScoreBadge from './score-badge'
@@ -11,7 +11,7 @@ interface RecordCardProps {
 export default function RecordCard({ log, onClick }: RecordCardProps) {
     // 상세 정보 텍스트 생성 (TYPE별 상이)
     const getDetailText = (log: DummyLog) => {
-        switch (log.log_type) {
+        switch (log.tribe_id) {
             case 'saunner':
                 return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.sets}세트`
             case 'bather':
@@ -31,7 +31,7 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
             {/* Row1: 장소명 / 타입 이모지 */}
             <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm text-stone-700 truncate">{log.place_name}</span>
-                <span className="text-sm flex-shrink-0 ml-2">{TYPE_EMOJI_MAP[log.log_type]}</span>
+                <span className="text-sm flex-shrink-0 ml-2">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
             </div>
 
             {/* Row2: 상세 텍스트 */}

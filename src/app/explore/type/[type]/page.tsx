@@ -3,17 +3,22 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
-  ICONS, EXPLORE, EXPLORE_FILTERS, AMENITY_LABEL_MAP,
-  TYPE_EMOJI_MAP, PLACE_SPECS, TYPE_NAME_MAP,
+  ICONS, EXPLORE, AMENITY_LABEL_MAP,
+  TRIBE_EMOJI_MAP, TRIBE_NAME_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
 import { DUMMY_PLACES } from '@/data/dummy-places'
 import { DUMMY_LOGS } from '@/data/dummy-logs'
 import type { DummyPlace, FavoritesData, FavoriteCollection } from '@/types'
 import Chip from '@/components/ui/chip'
-import ToggleSwitch from '@/components/ui/toggle-switch'
+import FilterControls from '@/components/features/filter-controls'
+import { useExploreFilters } from '@/hooks/use-explore-filters'
 
-type SortType = 'recommended' | 'popular'
+// 시설 라벨
+function getFacilityLabel(id: string): string {
+  return AMENITY_LABEL_MAP[id] || id
+}
+
 
 const VALID_TYPES = ['saunner', 'bather', 'jimi'] as const
 
@@ -54,26 +59,13 @@ function getFavoriteCount(placeId: string, favorites: FavoritesData): number {
   )
 }
 
-// PLACE_SPECS에서 시설 id → 아이콘 찾기
-const facilityIconMap: Record<string, string> = {}
-for (const section of Object.values(PLACE_SPECS)) {
-  if ('options' in section && Array.isArray(section.options)) {
-    for (const opt of section.options) {
-      facilityIconMap[opt.id] = opt.icon
-    }
-  }
-}
 
-// 시설 라벨
-function getFacilityLabel(id: string): string {
-  return AMENITY_LABEL_MAP[id] || id
-}
 
 // 타입 드롭다운 라벨 매핑
 const typeDropdownLabel: Record<string, string> = {
-  saunner: `${TYPE_EMOJI_MAP['saunner']} Saunner 추천`,
-  bather: `${TYPE_EMOJI_MAP['bather']} Bather 추천`,
-  jimi: `${TYPE_EMOJI_MAP['jimi']} Jimi 추천`,
+  saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner 추천`,
+  bather: `${TRIBE_EMOJI_MAP['bather']} Bather 추천`,
+  jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi 추천`,
 }
 
 export default function TypeListPage() {
@@ -85,10 +77,13 @@ export default function TypeListPage() {
     VALID_TYPES.includes(initialType as typeof VALID_TYPES[number]) ? initialType : 'saunner'
   )
   const [searchQuery, setSearchQuery] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
-  const [sortType, setSortType] = useState<SortType>('recommended')
-  const [is24hOnly, setIs24hOnly] = useState(false)
+  const {
+    showFilters, setShowFilters, toggleFiltersPanel,
+    selectedFilters, toggleFilter,
+    is24hOnly, setIs24hOnly,
+    sortType, setSortType,
+    filterCount, hasActiveFilters, resetFilters,
+  } = useExploreFilters()
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
 
@@ -117,17 +112,11 @@ export default function TypeListPage() {
     return favorites.collections[0]?.placeIds.includes(placeId) || false
   }
 
-  // 필터 토글
-  const toggleFilter = (filterId: string) => {
-    setSelectedFilters((prev) =>
-      prev.includes(filterId) ? prev.filter((f) => f !== filterId) : [...prev, filterId]
-    )
-  }
 
   // 해당 타입의 추천 장소 (≥4점 건수 내림차순 → 평균 점수 내림차순)
   const recommendedPlaces = useMemo(() => {
     const qualifiedLogs = DUMMY_LOGS.filter(
-      (log) => log.log_type === currentType && log.revisit_score >= 4
+      (log) => log.tribe_id === currentType && log.revisit_score >= 4
     )
     const placeStats: Record<string, { count: number; sum: number }> = {}
     for (const log of qualifiedLogs) {
@@ -229,11 +218,10 @@ export default function TypeListPage() {
                       setCurrentType(type)
                       setShowTypeDropdown(false)
                     }}
-                    className={`w-full px-4 py-3 text-left text-sm transition-colors ${
-                      currentType === type
-                        ? 'bg-stone-100 font-semibold text-stone-700'
-                        : 'text-stone-600 hover:bg-stone-50'
-                    }`}
+                    className={`w-full px-4 py-3 text-left text-sm transition-colors ${currentType === type
+                      ? 'bg-stone-100 font-semibold text-stone-700'
+                      : 'text-stone-600 hover:bg-stone-50'
+                      }`}
                   >
                     {typeDropdownLabel[type]}
                   </button>
@@ -275,109 +263,18 @@ export default function TypeListPage() {
           )}
         </div>
 
-        {/* 필터 버튼 + 정렬 */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center rounded-lg shadow-sm overflow-hidden">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`
-                flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all
-                ${selectedFilters.length > 0 || is24hOnly
-                  ? 'text-white'
-                  : 'bg-white text-stone-600'
-                }
-              `}
-              style={selectedFilters.length > 0 || is24hOnly ? { backgroundColor: 'var(--color-green)' } : {}}
-            >
-              <span className="material-symbols-outlined text-sm">{ICONS.FILTER}</span>
-              {EXPLORE.FILTER_BUTTON}
-              {(selectedFilters.length > 0 || is24hOnly) && (
-                <span className="bg-white/30 px-1 rounded-full text-[10px]">
-                  {selectedFilters.length + (is24hOnly ? 1 : 0)}
-                </span>
-              )}
-            </button>
-
-            {/* 필터 일괄 취소 X: 필터 버튼에 붙어서 같은 색으로 표시 */}
-            {(selectedFilters.length > 0 || is24hOnly) && (
-              <button
-                onClick={() => {
-                  setSelectedFilters([])
-                  setIs24hOnly(false)
-                }}
-                className="flex items-center px-1.5 py-1.5 text-white/80 hover:text-white border-l border-white/30 transition-all"
-                style={{ backgroundColor: 'var(--color-green)' }}
-              >
-                <span className="material-symbols-outlined text-sm">{ICONS.CLOSE}</span>
-              </button>
-            )}
-          </div>
-
-          {/* 정렬 선택 */}
-          <div className="flex items-center gap-1 ml-auto">
-            {([
-              { key: 'recommended', label: EXPLORE.SORT.RECOMMENDED },
-              { key: 'popular', label: EXPLORE.SORT.POPULAR },
-            ] as const).map((s) => (
-              <button
-                key={s.key}
-                onClick={() => setSortType(s.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                  sortType === s.key
-                    ? 'bg-stone-700 text-white'
-                    : 'text-stone-400 hover:text-stone-600'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 필터 패널 */}
-        {showFilters && (
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-4 space-y-4">
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowFilters(false)}
-                className="px-2.5 py-1 rounded-lg text-xs font-medium text-white transition-all"
-                style={{ backgroundColor: 'var(--color-green)' }}
-              >
-                적용
-              </button>
-            </div>
-
-            {(Object.entries(EXPLORE_FILTERS) as [string, { label: string; options: readonly string[] }][]).map(
-              ([key, section]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">
-                    {section.label}
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {section.options.map((optionId) => (
-                      <Chip
-                        key={optionId}
-                        label={getFacilityLabel(optionId)}
-                        icon={facilityIconMap[optionId]}
-                        selected={selectedFilters.includes(optionId)}
-                        onClick={() => toggleFilter(optionId)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )
-            )}
-
-            {/* 24시 토글 */}
-            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-              <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">schedule</span>
-                {EXPLORE.TOGGLE_24H}
-              </label>
-              <ToggleSwitch checked={is24hOnly} onChange={setIs24hOnly} />
-            </div>
-          </div>
-        )}
+        {/* 필터/정렬 컨트롤 */}
+        <FilterControls
+          showFilters={showFilters}
+          onToggleFilters={toggleFiltersPanel}
+          selectedFilters={selectedFilters}
+          onToggleFilter={toggleFilter}
+          onResetFilters={resetFilters}
+          is24hOnly={is24hOnly}
+          onToggle24h={setIs24hOnly}
+          sortType={sortType}
+          onSortChange={setSortType}
+        />
 
         {/* 장소 리스트 */}
         {filteredPlaces.length === 0 ? (

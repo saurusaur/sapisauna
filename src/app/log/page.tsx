@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 
@@ -10,9 +10,9 @@ type LogType = 'bather' | 'saunner' | 'jimi'
 
 export default function QuickLog() {
   const router = useRouter()
-  const { primaryType } = useUser()
+  const { primaryTribe } = useUser()
   const [placeName, setPlaceName] = useState('장소')
-  const [logType, setLogType] = useState<LogType>(primaryType as LogType)
+  const [logType, setLogType] = useState<LogType>(primaryTribe as LogType)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
   // 슬라이더 값들
@@ -40,7 +40,7 @@ export default function QuickLog() {
     // 로그 데이터 저장
     const logData = {
       place_name: placeName,
-      log_type: logType,
+      tribe_id: logType,
       created_at: new Date().toISOString(),
       // 타입별 데이터
       ...(logType === 'bather' && { water_quality: waterQuality, hot_bath_temp: hotBathTemp }),
@@ -83,8 +83,8 @@ export default function QuickLog() {
             className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between"
           >
             <span className="flex items-center gap-2 font-medium text-stone-700">
-              <span className="text-xl">{TYPE_EMOJI_MAP[logType]}</span>
-              {TYPE_CATEGORY_MAP[logType]}
+              <span className="text-xl">{TRIBE_EMOJI_MAP[logType]}</span>
+              {TRIBE_CATEGORY_MAP[logType]}
             </span>
             <span className="material-symbols-outlined text-stone-400">expand_more</span>
           </button>
@@ -101,8 +101,8 @@ export default function QuickLog() {
                   className="w-full p-4 flex items-center justify-between hover:bg-stone-50 transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-xl">{TYPE_EMOJI_MAP[type]}</span>
-                    {TYPE_CATEGORY_MAP[type]}
+                    <span className="text-xl">{TRIBE_EMOJI_MAP[type]}</span>
+                    {TRIBE_CATEGORY_MAP[type]}
                   </span>
                   {logType === type && (
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-green)' }}>check</span>

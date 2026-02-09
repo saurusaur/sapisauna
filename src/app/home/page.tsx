@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { MESSAGES, TYPE_DEFAULTS, TYPE_PERSONA_MAP } from '@/constants/content'
+import { MESSAGES, TRIBE_DEFAULTS, TRIBE_PERSONA_MAP } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import { DUMMY_LOGS } from '@/data/dummy-logs'
 import { useUser } from '@/contexts/user-context'
@@ -10,18 +10,18 @@ import RecordCard from '@/components/features/record-card'
 
 export default function Home() {
   const router = useRouter()
-  const { user, primaryType } = useUser()
+  const { user, primaryTribe } = useUser()
 
   // 최신 3건 표시 (dummy-logs.ts와 동기화)
   const recentLogs = DUMMY_LOGS.slice(0, 3)
-  const typeDefaults = TYPE_DEFAULTS[primaryType]
+  const tribeDefaults = TRIBE_DEFAULTS[primaryTribe]
 
   return (
     <div className="min-h-screen pb-20 bath-tile-bg">
       {/* 헤더 */}
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm">
         <h1 className="text-xl font-bold text-stone-700">
-          {user ? `Hello, ${TYPE_PERSONA_MAP[primaryType]}` : '안녕하세요'}
+          {user ? `Hello, ${TRIBE_PERSONA_MAP[primaryTribe]}` : '안녕하세요'}
         </h1>
       </header>
 
@@ -29,7 +29,7 @@ export default function Home() {
       <main className="p-6">
         {/* 인사말 */}
         {user && (
-          <p className="text-stone-500 mb-6">{typeDefaults.greeting}</p>
+          <p className="text-stone-500 mb-6">{tribeDefaults.greeting}</p>
         )}
 
         {/* 오늘의 기록 버튼 */}

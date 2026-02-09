@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TYPE_EMOJI_MAP, TYPE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
 
@@ -42,7 +42,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
   // 상세 정보 텍스트 (과거 기록 카드용)
   const getDetailText = (item: DummyLog) => {
-    switch (item.log_type) {
+    switch (item.tribe_id) {
       case 'saunner':
         return `사우나 ${item.sauna_temp}°C · 냉탕 ${item.cold_bath_temp}°C · ${item.sets}세트`
       case 'bather':
@@ -111,13 +111,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
             <span className="w-full h-px bg-stone-200"></span>
             <span className="whitespace-nowrap px-2 flex items-center gap-1">
-              {TYPE_EMOJI_MAP[log.log_type]} {TYPE_CATEGORY_MAP[log.log_type]}
+              {TRIBE_EMOJI_MAP[log.tribe_id]} {TRIBE_CATEGORY_MAP[log.tribe_id]}
             </span>
             <span className="w-full h-px bg-stone-200"></span>
           </h2>
 
           <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
-            {log.log_type === 'saunner' && (
+            {log.tribe_id === 'saunner' && (
               <>
                 <div className="flex justify-between">
                   <span className="text-stone-500">사우나 온도</span>
@@ -140,7 +140,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               </>
             )}
 
-            {log.log_type === 'bather' && (
+            {log.tribe_id === 'bather' && (
               <>
                 <div className="flex justify-between">
                   <span className="text-stone-500">수질</span>
@@ -153,7 +153,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               </>
             )}
 
-            {log.log_type === 'jimi' && (
+            {log.tribe_id === 'jimi' && (
               <>
                 <div className="flex justify-between">
                   <span className="text-stone-500">휴식 만족도</span>
@@ -241,7 +241,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm">
-                      {TYPE_EMOJI_MAP[item.log_type]} {TYPE_CATEGORY_MAP[item.log_type]}
+                      {TRIBE_EMOJI_MAP[item.tribe_id]} {TRIBE_CATEGORY_MAP[item.tribe_id]}
                     </span>
                     <span className="text-sm text-stone-400">{formatShortDate(new Date(item.date))}</span>
                   </div>

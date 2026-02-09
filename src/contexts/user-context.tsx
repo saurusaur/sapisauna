@@ -13,7 +13,7 @@ export interface UserData {
 // Context가 제공하는 값
 interface UserContextValue {
   user: UserData | null           // 유저 데이터 (없으면 null = 온보딩 전)
-  primaryType: 'bather' | 'saunner' | 'jimi'  // user.primary_type 바로 접근 (기본값: 'saunner')
+  primaryTribe: 'bather' | 'saunner' | 'jimi'  // user.primary_type 바로 접근 (기본값: 'saunner')
   updateUser: (updates: Partial<UserData>) => void  // 유저 데이터 부분 업데이트
   setUser: (data: UserData) => void                 // 유저 데이터 전체 세팅 (온보딩 등)
 }
@@ -51,13 +51,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const primaryType: 'bather' | 'saunner' | 'jimi' = user?.primary_type || 'saunner'
+  const primaryTribe: 'bather' | 'saunner' | 'jimi' = user?.primary_type || 'saunner'
 
   // localStorage 로드 전에는 빈 화면 방지
   if (!isLoaded) return null
 
   return (
-    <UserContext.Provider value={{ user, primaryType, updateUser, setUser }}>
+    <UserContext.Provider value={{ user, primaryTribe, updateUser, setUser }}>
       {children}
     </UserContext.Provider>
   )

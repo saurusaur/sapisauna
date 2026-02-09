@@ -3,21 +3,20 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ICONS, EXPLORE, EXPLORE_FILTERS, AMENITY_LABEL_MAP,
-  TYPE_EMOJI_MAP, PLACE_SPECS,
+  ICONS, EXPLORE,
+  TRIBE_EMOJI_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
 import { DUMMY_PLACES } from '@/data/dummy-places'
 import { DUMMY_LOGS, getPlaceStats } from '@/data/dummy-logs'
 import type { DummyPlace, FavoritesData, FavoriteCollection } from '@/types'
 import BottomNav from '@/components/bottom-nav'
-import Chip from '@/components/ui/chip'
 import TypeTab from '@/components/ui/type-tab'
-import ToggleSwitch from '@/components/ui/toggle-switch'
 import { useUser } from '@/contexts/user-context'
 import PlaceCard from '@/components/features/place-card'
+import FilterControls from '@/components/features/filter-controls'
+import { useExploreFilters } from '@/hooks/use-explore-filters'
 
-type SortType = 'recommended' | 'popular'
 
 // 기본 즐겨찾기 컬렉션 생성
 function getDefaultCollection(): FavoriteCollection {
@@ -50,20 +49,7 @@ function getFavoriteCount(placeId: string, favorites: FavoritesData): number {
   )
 }
 
-// PLACE_SPECS에서 시설 id → 아이콘 찾기
-const facilityIconMap: Record<string, string> = {}
-for (const section of Object.values(PLACE_SPECS)) {
-  if ('options' in section && Array.isArray(section.options)) {
-    for (const opt of section.options) {
-      facilityIconMap[opt.id] = opt.icon
-    }
-  }
-}
 
-// 시설 라벨 (AMENITIES는 영어 id → 한국어 매핑 필요)
-function getFacilityLabel(id: string): string {
-  return AMENITY_LABEL_MAP[id] || id
-}
 
 // 타입별 탭 컬러 (공용)
 const TYPE_TAB_COLORS: Record<string, string> = {
@@ -74,21 +60,24 @@ const TYPE_TAB_COLORS: Record<string, string> = {
 
 // 추천 탭 라벨 매핑
 const recTabLabel: Record<string, string> = {
-  saunner: `${TYPE_EMOJI_MAP['saunner']} Saunner`,
-  bather: `${TYPE_EMOJI_MAP['bather']} Bather`,
-  jimi: `${TYPE_EMOJI_MAP['jimi']} Jimi`,
+  saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner`,
+  bather: `${TRIBE_EMOJI_MAP['bather']} Bather`,
+  jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi`,
 }
 
 export default function ExplorePage() {
   const router = useRouter()
   const searchRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
-  const [sortType, setSortType] = useState<SortType>('recommended')
-  const [is24hOnly, setIs24hOnly] = useState(false)
+  const {
+    showFilters, setShowFilters, toggleFiltersPanel,
+    selectedFilters, toggleFilter,
+    is24hOnly, setIs24hOnly,
+    sortType, setSortType,
+    filterCount, hasActiveFilters, resetFilters,
+  } = useExploreFilters()
   const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
-  const { primaryType } = useUser()
+  const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
 
@@ -117,55 +106,62 @@ export default function ExplorePage() {
     return favorites.collections[0]?.placeIds.includes(placeId) || false
   }
 
-  // 필터 토글
-  const toggleFilter = (filterId: string) => {
-    setSelectedFilters((prev) =>
-      prev.includes(filterId) ? prev.filter((f) => f !== filterId) : [...prev, filterId]
-    )
-  }
 
-  // 추천 섹션 데이터 (≥4점 건수 내림차순 → 평균 점수 내림차순)
+  // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
   const recommendations = useMemo(() => {
     const typeKeys = ['saunner', 'bather', 'jimi'] as const
     const result: Record<string, DummyPlace[]> = {}
 
     for (const type of typeKeys) {
-      // 해당 타입 기록 중 revisit_score ≥ 4인 로그만 추출
-      const qualifiedLogs = DUMMY_LOGS.filter(
-        (log) => log.log_type === type && log.revisit_score >= 4
-      )
-      // 장소명별 건수 & 평균 점수 집계 (Note: using place_id for better accuracy)
-      const placeStats: Record<string, { count: number; sum: number }> = {}
-      for (const log of qualifiedLogs) {
-        // Fallback to place_name for aggregation if place_id mapping is incomplete in logs (though we fixed it)
-        // But here we need to map back to DUMMY_PLACES. DUMMY_PLACES has IDs.
-        // Let's use place_id for aggregation.
+      // 해당 타입의 모든 로그 집계
+      const typeLogs = DUMMY_LOGS.filter((log) => log.tribe_id === type)
+      const placeStats: Record<string, { count: number; sum: number; highScoreCount: number }> = {}
+      for (const log of typeLogs) {
         const key = log.place_id
-        if (!placeStats[key]) placeStats[key] = { count: 0, sum: 0 }
+        if (!placeStats[key]) placeStats[key] = { count: 0, sum: 0, highScoreCount: 0 }
         placeStats[key].count++
         placeStats[key].sum += log.revisit_score
+        if (log.revisit_score >= 4) placeStats[key].highScoreCount++
       }
 
-      // 장소 매칭 후 건수 내림차순 → 평균 점수 내림차순 정렬
-      result[type] = DUMMY_PLACES
-        .filter((place) => placeStats[place.id])
-        .sort((a, b) => {
-          const sa = placeStats[a.id]
-          const sb = placeStats[b.id]
-          if (sb.count !== sa.count) return sb.count - sa.count
+      // 기본 조건: 평균 revisit_score ≥ 3.5인 장소만 필터
+      const qualified = DUMMY_PLACES.filter((place) => {
+        const stats = placeStats[place.id]
+        return stats && (stats.sum / stats.count) >= 3.5
+      })
+
+      // sortType에 따라 정렬
+      result[type] = qualified.sort((a, b) => {
+        const sa = placeStats[a.id]
+        const sb = placeStats[b.id]
+
+        if (sortType === 'recommended') {
+          // 추천순: 4점 이상 로그 수 ↓ → 평균 점수 ↓
+          if (sb.highScoreCount !== sa.highScoreCount) return sb.highScoreCount - sa.highScoreCount
           return (sb.sum / sb.count) - (sa.sum / sa.count)
-        })
+        }
+
+        if (sortType === 'popular') {
+          // 인기순: 즐겨찾기 수 ↓ → 평균 점수 ↓
+          const favA = getFavoriteCount(a.id, favorites)
+          const favB = getFavoriteCount(b.id, favorites)
+          if (favB !== favA) return favB - favA
+          return (sb.sum / sb.count) - (sa.sum / sa.count)
+        }
+
+        return 0
+      })
     }
 
     return result
-  }, [])
+  }, [sortType, favorites])
 
   // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
   const recommendationOrder = useMemo(() => {
     const types = ['saunner', 'bather', 'jimi']
-    const sorted = [primaryType, ...types.filter((t) => t !== primaryType)]
+    const sorted = [primaryTribe, ...types.filter((t) => t !== primaryTribe)]
     return sorted.filter((t) => recommendations[t]?.length > 0)
-  }, [primaryType, recommendations])
+  }, [primaryTribe, recommendations])
 
   // activeTab 초기화: 추천 탭 순서가 결정되면 첫 번째 탭 선택
   useEffect(() => {
@@ -259,108 +255,18 @@ export default function ExplorePage() {
           )}
         </div>
 
-        {/* 필터 버튼 + 정렬 */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center rounded-lg shadow-sm overflow-hidden">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`
-                flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all
-                ${selectedFilters.length > 0 || is24hOnly
-                  ? 'text-white'
-                  : 'bg-white text-stone-600'
-                }
-              `}
-              style={selectedFilters.length > 0 || is24hOnly ? { backgroundColor: 'var(--color-green)' } : {}}
-            >
-              <span className="material-symbols-outlined text-sm">{ICONS.FILTER}</span>
-              {EXPLORE.FILTER_BUTTON}
-              {(selectedFilters.length > 0 || is24hOnly) && (
-                <span className="bg-white/30 px-1 rounded-full text-[10px]">
-                  {selectedFilters.length + (is24hOnly ? 1 : 0)}
-                </span>
-              )}
-            </button>
-
-            {/* 필터 일괄 취소 X: 필터 버튼에 붙어서 같은 색으로 표시 */}
-            {(selectedFilters.length > 0 || is24hOnly) && (
-              <button
-                onClick={() => {
-                  setSelectedFilters([])
-                  setIs24hOnly(false)
-                }}
-                className="flex items-center px-1.5 py-1.5 text-white/80 hover:text-white border-l border-white/30 transition-all"
-                style={{ backgroundColor: 'var(--color-green)' }}
-              >
-                <span className="material-symbols-outlined text-sm">{ICONS.CLOSE}</span>
-              </button>
-            )}
-          </div>
-
-          {/* 정렬 선택 */}
-          <div className="flex items-center gap-1 ml-auto">
-            {([
-              { key: 'recommended', label: EXPLORE.SORT.RECOMMENDED },
-              { key: 'popular', label: EXPLORE.SORT.POPULAR },
-            ] as const).map((s) => (
-              <button
-                key={s.key}
-                onClick={() => setSortType(s.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
-                    ? 'bg-stone-700 text-white'
-                    : 'text-stone-400 hover:text-stone-600'
-                  }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 필터 패널 */}
-        {showFilters && (
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-4 space-y-4">
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowFilters(false)}
-                className="px-2.5 py-1 rounded-lg text-xs font-medium text-white transition-all"
-                style={{ backgroundColor: 'var(--color-green)' }}
-              >
-                적용
-              </button>
-            </div>
-
-            {(Object.entries(EXPLORE_FILTERS) as [string, { label: string; options: readonly string[] }][]).map(
-              ([key, section]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">
-                    {section.label}
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {section.options.map((optionId) => (
-                      <Chip
-                        key={optionId}
-                        label={getFacilityLabel(optionId)}
-                        icon={facilityIconMap[optionId]}
-                        selected={selectedFilters.includes(optionId)}
-                        onClick={() => toggleFilter(optionId)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )
-            )}
-
-            {/* 24시 토글 */}
-            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-              <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">schedule</span>
-                {EXPLORE.TOGGLE_24H}
-              </label>
-              <ToggleSwitch checked={is24hOnly} onChange={setIs24hOnly} />
-            </div>
-          </div>
-        )}
+        {/* 필터/정렬 컨트롤 */}
+        <FilterControls
+          showFilters={showFilters}
+          onToggleFilters={toggleFiltersPanel}
+          selectedFilters={selectedFilters}
+          onToggleFilter={toggleFilter}
+          onResetFilters={resetFilters}
+          is24hOnly={is24hOnly}
+          onToggle24h={setIs24hOnly}
+          sortType={sortType}
+          onSortChange={setSortType}
+        />
 
         {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
         {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
@@ -371,7 +277,7 @@ export default function ExplorePage() {
               className="flex items-center gap-1.5 mb-3"
             >
               <h2 className="text-sm font-semibold text-stone-500">
-                TRIBE PICKS {recommendationOrder.map((type) => TYPE_EMOJI_MAP[type]).join('')}
+                TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
               </h2>
               <span className="material-symbols-outlined text-base text-stone-400">
                 {showRecommendations ? 'expand_less' : 'expand_more'}
