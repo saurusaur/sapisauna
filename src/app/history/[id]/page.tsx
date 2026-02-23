@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
@@ -27,6 +28,7 @@ function OptionLabel({ options, id }: { options: readonly { id: string; label: s
 export default function HistoryDetail({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [showAllSamePlace, setShowAllSamePlace] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const log = findLogById(params.id)
 
@@ -56,11 +58,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
     }
   }
 
-  const handleDelete = () => {
-    if (confirm('이 기록을 삭제하시겠습니까?')) {
-      // TODO: 실제 삭제 로직
-      router.push('/history')
-    }
+  const handleDeleteConfirm = () => {
+    // TODO: 실제 삭제 로직
+    router.push('/history')
   }
 
   if (!log) {
@@ -87,7 +87,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         <div className="flex gap-2">
           <button
             onClick={() => {
-              // 기존 기록을 currentLog로 설정하고 폼으로 이동 (display_id 보존)
+              // 기존 기록을 currentLog로 설정하고 폼으로 이동
               const logAsCurrentLog = {
                 _editId: log.id,
                 display_id: log.id,
@@ -106,6 +106,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 water_quality: log.water_quality,
                 jjim_temp: log.jjim_temp,
                 cleanliness: log.cleanliness,
+                ...(log.deep_log && { deep_log: log.deep_log }),
               }
               localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
               localStorage.setItem('selectedPlace', JSON.stringify({ name: log.place_name }))
@@ -116,7 +117,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <span className="material-symbols-outlined">edit</span>
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeleteConfirm(true)}
             className="p-2 text-red-400 hover:text-red-600 transition-colors"
           >
             <span className="material-symbols-outlined">delete</span>
@@ -206,7 +207,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         </div>
 
         {/* Deep Log 정보 */}
-        {(log.companion || log.purpose || log.cost || log.crowd) && (
+        {log.deep_log && (
           <div>
             <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
               <span className="w-full h-px bg-stone-200"></span>
@@ -215,41 +216,61 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             </h2>
 
             <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
-              {log.companion && (
+              {log.deep_log.companion && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">동행자</span>
-                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.COMPANION.options} id={log.companion} /></span>
+                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.COMPANION.options} id={log.deep_log.companion} /></span>
                 </div>
               )}
-              {log.purpose && (
+              {log.deep_log.purposes && log.deep_log.purposes.length > 0 && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">방문 목적</span>
-                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.PURPOSE.options} id={log.purpose} /></span>
+                  <span className="font-medium text-stone-700">
+                    {log.deep_log.purposes.map(id => {
+                      const opt = DEEP_LOG.PURPOSE.options.find(o => o.id === id)
+                      return opt?.label ?? id
+                    }).join(', ')}
+                  </span>
                 </div>
               )}
-              {log.cost && (
+              {log.deep_log.cost && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">비용</span>
-                  <span className="font-medium text-stone-700">{log.cost.toLocaleString()}원</span>
+                  <span className="font-medium text-stone-700">{log.deep_log.cost.toLocaleString()}원</span>
                 </div>
               )}
-              {log.crowd && (
+              {log.deep_log.crowd && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">혼잡도</span>
-                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.CROWD.options} id={log.crowd} /></span>
+                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.CROWD.options} id={log.deep_log.crowd} /></span>
+                </div>
+              )}
+              {log.deep_log.has_scrub && (
+                <div className="flex justify-between">
+                  <span className="text-stone-500">세신</span>
+                  <span className="font-medium text-stone-700">
+                    {DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}
+                  </span>
+                </div>
+              )}
+              {log.deep_log.has_store && (
+                <div className="flex justify-between">
+                  <span className="text-stone-500">매점</span>
+                  <span className="font-medium text-stone-700">
+                    {log.deep_log.store_memo || '이용'}
+                  </span>
+                </div>
+              )}
+              {log.deep_log.memo && (
+                <div className="pt-2 border-t border-stone-100">
+                  <p className="text-sm text-stone-500">{log.deep_log.memo}</p>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* 메모 */}
-        {log.memo && (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <label className="block text-sm font-medium text-stone-500 mb-2">메모</label>
-            <p className="text-stone-700">{log.memo}</p>
-          </div>
-        )}
+        {/* 메모 — deep_log 내부 memo로 이동됨, Deep Log 섹션에서 표시 */}
 
         {/* 같은 장소 과거 기록 */}
         {samePlaceLogs.length > 0 && (
@@ -325,6 +346,17 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           스토리 만들기
         </button>
       </main>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteConfirm && (
+        <ConfirmModal
+          message="이 기록을 삭제하시겠습니까?"
+          confirmLabel="삭제"
+          cancelLabel="취소"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
     </div>
   )
 }

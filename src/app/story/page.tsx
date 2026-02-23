@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { APP } from '@/constants/content'
 import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
 
 type LogData = {
+  _editId?: string
   display_id?: string
   place_name: string
   tribe_id: 'bather' | 'saunner' | 'jimi'
@@ -29,6 +31,8 @@ type LogData = {
   jjim_temp?: number
   // common
   revisit_score: number
+  // deep log
+  deep_log?: { [key: string]: unknown }
 }
 
 // 타입별 배경색 (CSS 변수 참조)
@@ -50,6 +54,7 @@ export default function Story() {
   const cardRef = useRef<HTMLDivElement>(null)
   const [log, setLog] = useState<LogData | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   useEffect(() => {
     const logData = localStorage.getItem('currentLog')
@@ -90,10 +95,10 @@ export default function Story() {
   }
 
   // 편집 모드 여부 (히스토리에서 edit으로 진입한 경우 _editId가 존재)
-  const isEditMode = Boolean(log && '_editId' in log)
+  const isEditMode = Boolean(log?._editId)
 
-  // 취소: 기록 폐기 후 원래 화면으로
-  const handleCancel = () => {
+  // 취소: 모달 확인 후 기록 폐기
+  const handleCancelConfirm = () => {
     localStorage.removeItem('currentLog')
     localStorage.removeItem('selectedPlace')
     router.push(isEditMode ? '/history' : '/home')
@@ -173,19 +178,18 @@ export default function Story() {
     <div className="min-h-screen bath-tile-bg">
       {/* 헤더 */}
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        {/* 왼쪽: 수정 (뒤로가기 역할) */}
+        {/* 왼쪽: 뒤로가기 (이전 화면으로 — 모바일 백 버튼과 동일) */}
         <button
-          onClick={() => router.push('/log')}
-          className="flex items-center gap-1 p-2 text-stone-500 hover:text-stone-700 transition-colors"
+          onClick={() => router.back()}
+          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
-          <span className="text-sm font-medium">수정</span>
+          <span className="material-symbols-outlined">arrow_back</span>
         </button>
 
         {/* 오른쪽: 취소 + 기록 저장 */}
         <div className="flex items-center gap-2">
           <button
-            onClick={handleCancel}
+            onClick={() => setShowCancelConfirm(true)}
             className="p-2 text-stone-400 hover:text-stone-600 text-xs transition-colors"
           >
             {isEditMode ? '편집 취소' : '기록 취소'}
@@ -315,11 +319,24 @@ export default function Story() {
             className="w-full py-4 rounded-2xl font-semibold text-stone-600 bg-white border border-stone-200 flex items-center justify-center gap-2 hover:bg-stone-50 transition-all"
           >
             <span className="material-symbols-outlined">edit_note</span>
-            상세 기록 추가하기
+            {log?.deep_log ? '상세 기록 편집하기' : '상세 기록 추가하기'}
           </button>
 
         </div>
       </main>
+
+      {/* 취소 확인 모달 */}
+      {showCancelConfirm && (
+        <ConfirmModal
+          message={isEditMode
+            ? '편집 내용을 취소하시겠습니까?'
+            : '기록을 취소하시겠습니까?\n입력한 내용이 삭제됩니다.'}
+          confirmLabel={isEditMode ? '편집 취소' : '기록 취소'}
+          cancelLabel="돌아가기"
+          onConfirm={handleCancelConfirm}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
     </div>
   )
 }

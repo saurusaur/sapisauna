@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP, ONBOARDING, USER_TYPES } from '@/constants/content'
+import { APP, ONBOARDING, TRIBES } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 
@@ -203,7 +203,7 @@ export default function Onboarding() {
           </div>
 
           <div className="flex gap-4 mb-4">
-            {Object.values(USER_TYPES).map((type) => {
+            {Object.values(TRIBES).map((type) => {
               const rank = getSelectionRank(type.id)
               const isSelected = rank !== null
 
@@ -255,7 +255,7 @@ export default function Onboarding() {
           <div className="text-center mb-8 h-12 flex items-center justify-center">
             {lastToggledType && lastToggleAction === 'selected' ? (
               <p className="text-sm text-stone-600 italic">
-                &ldquo;{Object.values(USER_TYPES).find(t => t.id === lastToggledType)?.description}&rdquo;
+                &ldquo;{Object.values(TRIBES).find(t => t.id === lastToggledType)?.description}&rdquo;
               </p>
             ) : (
               <p className="text-sm text-stone-400">

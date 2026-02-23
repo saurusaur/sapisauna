@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { APP, SETTINGS, MY_PAGE, TYPE_EMOJI_MAP, TYPE_PERSONA_MAP } from '@/constants/content'
+import { APP, SETTINGS, MY_PAGE, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import { useUser } from '@/contexts/user-context'
 
@@ -83,12 +83,12 @@ export default function SettingsPage() {
               className="w-full flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xl">{TYPE_EMOJI_MAP[user?.primary_type || 'saunner']}</span>
+                <span className="text-xl">{TRIBE_EMOJI_MAP[user?.primary_type || 'saunner']}</span>
                 <span className="font-medium text-stone-700">나의 스타일</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
-                  {TYPE_PERSONA_MAP[user?.primary_type || 'saunner']}
+                  {TRIBE_PERSONA_MAP[user?.primary_type || 'saunner']}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>

@@ -42,8 +42,10 @@ export default function QuickLog() {
   // --- 공통 ---
   const [revisit, setRevisit] = useState(3)
 
-  // 편집 모드에서 기존 display_id 보존 (새로 생성하지 않도록)
+  // 편집 모드에서 기존 값 보존
   const [existingDisplayId, setExistingDisplayId] = useState<string | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [existingDeepLog, setExistingDeepLog] = useState<Record<string, unknown> | null>(null)
 
   useEffect(() => {
     // 장소 정보 복원
@@ -58,8 +60,10 @@ export default function QuickLog() {
     const savedLog = localStorage.getItem('currentLog')
     if (savedLog) {
       const log = JSON.parse(savedLog)
-      // 편집 모드: 기존 display_id가 있으면 보존 (재생성 방지)
+      // 편집 모드: 기존 값 보존
       if (log.display_id) setExistingDisplayId(log.display_id)
+      if (log._editId) setEditId(log._editId)
+      if (log.deep_log) setExistingDeepLog(log.deep_log)
       if (log.tribe_id) setLogType(log.tribe_id as LogType)
       if (log.revisit_score) setRevisit(log.revisit_score)
       if (log.repeat) setRepeat(log.repeat)
@@ -92,6 +96,7 @@ export default function QuickLog() {
     const displayId = existingDisplayId ?? generateDisplayId(logType, placeCountryCode)
 
     const logData = {
+      ...(editId && { _editId: editId }),
       display_id: displayId,
       place_name: placeName,
       tribe_id: logType,
@@ -117,6 +122,8 @@ export default function QuickLog() {
         ...(jjimTempEnabled && { jjim_temp: jjimTemp }),
         cleanliness,
       }),
+      // 기존 deep_log 보존 (숏기록 수정 후 다시 저장할 때 deep_log가 날아가지 않도록)
+      ...(existingDeepLog && { deep_log: existingDeepLog }),
     }
 
     localStorage.setItem('currentLog', JSON.stringify(logData))

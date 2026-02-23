@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { USER_TYPES } from '@/constants/content'
+import { TRIBES } from '@/constants/content'
 import { useUser } from '@/contexts/user-context'
 
 export default function TypeEdit() {
@@ -72,7 +72,7 @@ export default function TypeEdit() {
         </div>
 
         <div className="flex justify-center gap-4 mb-8">
-          {Object.values(USER_TYPES).map((type) => {
+          {Object.values(TRIBES).map((type) => {
             const rank = getSelectionRank(type.id)
             const isSelected = rank !== null
 

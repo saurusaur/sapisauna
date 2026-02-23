@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { DEEP_LOG, PLACE_SPECS, BATH_GENDER_OPTIONS } from '@/constants/content'
 import { Slider } from '@/components/slider'
 import SelectButton from '@/components/ui/select-button'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { formatCostInput } from '@/lib/utils'
 
 // 탕 선택 타입
@@ -12,6 +13,10 @@ type BathGender = 'male' | 'female' | 'mixed'
 
 export default function DeepLog() {
   const router = useRouter()
+
+  // 편집 모드 여부
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   // 탕 선택 (남탕/여탕/혼탕) - 직전 선택값 기본 적용
   const [bathGender, setBathGender] = useState<BathGender | null>(null)
@@ -40,6 +45,7 @@ export default function DeepLog() {
     const currentLog = localStorage.getItem('currentLog')
     if (currentLog) {
       const parsed = JSON.parse(currentLog)
+      if (parsed._editId) setIsEditMode(true)
       const dl = parsed.deep_log
       if (dl) {
         if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
@@ -92,7 +98,12 @@ export default function DeepLog() {
       localStorage.setItem('currentLog', JSON.stringify(merged))
     }
 
-    router.push('/complete')
+    router.back()
+  }
+
+  // 취소: 딥로그 입력 내용 버리고 돌아가기
+  const handleCancelConfirm = () => {
+    router.back()
   }
 
   // 칩 선택 컴포넌트 (Material Symbols 아이콘 사용)
@@ -139,13 +150,21 @@ export default function DeepLog() {
           </button>
           <h1 className="text-lg font-bold text-stone-700">Deep Log</h1>
         </div>
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 rounded-xl font-semibold text-white transition-all hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-green)' }}
-        >
-          저장
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowCancelConfirm(true)}
+            className="p-2 text-stone-400 hover:text-stone-600 text-xs transition-colors"
+          >
+            {isEditMode ? '편집 취소' : '입력 취소'}
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 rounded-xl font-semibold text-white transition-all hover:opacity-90"
+            style={{ backgroundColor: 'var(--color-green)' }}
+          >
+            {isEditMode ? '편집 저장' : '기록 저장'}
+          </button>
+        </div>
       </header>
 
       <main className="p-4 space-y-4">
@@ -305,6 +324,19 @@ export default function DeepLog() {
           />
         </div>
       </main>
+
+      {/* 취소 확인 모달 */}
+      {showCancelConfirm && (
+        <ConfirmModal
+          message={isEditMode
+            ? '편집 내용을 취소하시겠습니까?'
+            : '입력 내용을 취소하시겠습니까?\n입력한 내용이 저장되지 않습니다.'}
+          confirmLabel={isEditMode ? '편집 취소' : '입력 취소'}
+          cancelLabel="돌아가기"
+          onConfirm={handleCancelConfirm}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
     </div>
   )
 }

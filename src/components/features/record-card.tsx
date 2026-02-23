@@ -25,15 +25,22 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
         }
     }
 
+    const hasDeepLog = Boolean(log.deep_log)
+
     return (
         <button
             onClick={onClick}
             className="w-full bg-white p-3 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
         >
-            {/* Row1: 장소명 / 타입 이모지 */}
+            {/* Row1: 장소명 / 딥로그 아이콘 + 타입 이모지 */}
             <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm text-stone-700 truncate">{log.place_name}</span>
-                <span className="text-sm flex-shrink-0 ml-2">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
+                <span className="flex items-center gap-1 flex-shrink-0 ml-2">
+                    {hasDeepLog && (
+                        <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '16px' }}>stacks</span>
+                    )}
+                    <span className="text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
+                </span>
             </div>
 
             {/* Row2: 상세 텍스트 */}

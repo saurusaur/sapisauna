@@ -117,15 +117,6 @@ export const ONBOARDING = {
 // Quick Log 입력 항목
 // ============================================
 
-// 공통 목적달성 레벨 스텝 (타입별 필드 라벨만 다름, steps는 공유)
-const ACHIEVEMENT_STEPS = [
-  { value: 1, label: '아직...' },
-  { value: 2, label: '살짝' },
-  { value: 3, label: '좋아' },
-  { value: 4, label: '달성' },
-  { value: 5, label: '승천' },
-] as const
-
 // 공통 냉탕 온도 config (saunner/bather 공유)
 const COLD_BATH_TEMP_CONFIG = {
   label: '냉탕 온도',
@@ -234,7 +225,7 @@ export const QUICK_LOG = {
       ],
     },
     TOTONO: {
-      label: '토토노이',
+      label: '사우나 하이',
       min: 1,
       max: 5,
       steps: [
@@ -440,7 +431,7 @@ export const TRIBE_DEFAULTS = {
     emoji: '🔥',
   },
   jimi: {
-    greeting: '편안한 찜질방 시간 되세요 🥚',
+    greeting: '오늘의 지짐은 어떠셨나요? 🥚',
     quickLogFields: ['JJIM_TEMP', 'CLEANLINESS', 'ROUTINE', 'REVISIT'],
     emoji: '🥚',
   },

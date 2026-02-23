@@ -1,5 +1,20 @@
 import type { TribeId } from '@/types'
 
+// Deep Log 중첩 구조 (currentLog.deep_log와 동일)
+export interface DeepLogData {
+  bath_gender?: 'male' | 'female' | 'mixed'
+  companion?: string | null
+  purposes?: string[]
+  cost?: number | null
+  crowd?: string | null
+  memo?: string
+  has_scrub?: boolean
+  scrub_satisfaction?: number | null
+  has_store?: boolean
+  store_score?: number | null
+  store_memo?: string | null
+}
+
 // 더미 로그 타입 (MVP용, 추후 LogEntry 타입으로 전환)
 export interface DummyLog {
   id: string
@@ -25,12 +40,8 @@ export interface DummyLog {
   // jimi 전용
   cleanliness?: number
   jjim_temp?: number     // 선택 - 한증막 없는 찜질방은 undefined
-  // deep log
-  companion?: string
-  purpose?: string
-  cost?: number
-  crowd?: string
-  memo?: string
+  // deep log (중첩 구조)
+  deep_log?: DeepLogData
 }
 
 // 더미 히스토리 데이터 (날짜 최신순 정렬)
@@ -51,11 +62,14 @@ export const DUMMY_LOGS: DummyLog[] = [
     heat_time: 12,
     ice_time: 2,
     pause_time: 5,
-    companion: 'friend',
-    purpose: 'after-workout',
-    cost: 12000,
-    crowd: 'empty',
-    memo: '노천탕 온도가 평소보다 낮아서 아쉬웠음',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'friend',
+      purposes: ['after-workout'],
+      cost: 12000,
+      crowd: 'empty',
+      memo: '노천탕 온도가 평소보다 낮아서 아쉬웠음',
+    },
   },
   {
     id: '2',
@@ -72,10 +86,13 @@ export const DUMMY_LOGS: DummyLog[] = [
     heat_time: 10,
     ice_time: 1,
     pause_time: 5,
-    companion: 'alone',
-    purpose: 'healing',
-    cost: 12000,
-    crowd: 'moderate',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'alone',
+      purposes: ['healing'],
+      cost: 12000,
+      crowd: 'moderate',
+    },
   },
   {
     id: '13',
@@ -88,10 +105,16 @@ export const DUMMY_LOGS: DummyLog[] = [
     cleanliness: 5,
     jjim_temp: 90,
     repeat: 3,
-    companion: 'friend',
-    cost: 13000,
-    crowd: 'moderate',
-    memo: '찜질방 시설 최신, 수면실도 쾌적',
+    deep_log: {
+      companion: 'friend',
+      purposes: ['healing'],
+      cost: 13000,
+      crowd: 'moderate',
+      memo: '찜질방 시설 최신, 수면실도 쾌적',
+      has_store: true,
+      store_score: 4,
+      store_memo: '식혜, 맥반석 계란',
+    },
   },
   {
     id: '3',
@@ -104,10 +127,15 @@ export const DUMMY_LOGS: DummyLog[] = [
     water_quality: 4,
     hot_bath_temp: 42,
     cold_bath_temp: 18,
-    companion: 'family',
-    purpose: 'healing',
-    cost: 8000,
-    crowd: 'busy',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'family',
+      purposes: ['healing'],
+      cost: 8000,
+      crowd: 'busy',
+      has_scrub: true,
+      scrub_satisfaction: 4,
+    },
   },
   {
     id: '15',
@@ -124,10 +152,14 @@ export const DUMMY_LOGS: DummyLog[] = [
     heat_time: 12,
     ice_time: 2,
     pause_time: 8,
-    companion: 'alone',
-    cost: 14000,
-    crowd: 'empty',
-    memo: '아우프구스 이벤트 날 방문, 셀프 로울루도 가능',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'alone',
+      purposes: ['after-workout'],
+      cost: 14000,
+      crowd: 'empty',
+      memo: '아우프구스 이벤트 날 방문, 셀프 로울루도 가능',
+    },
   },
   {
     id: '11',
@@ -140,10 +172,16 @@ export const DUMMY_LOGS: DummyLog[] = [
     water_quality: 5,
     hot_bath_temp: 42,
     cold_bath_temp: 16,
-    companion: 'alone',
-    cost: 9000,
-    crowd: 'empty',
-    memo: '수질 최고, 세신도 잘함',
+    deep_log: {
+      bath_gender: 'female',
+      companion: 'alone',
+      purposes: ['healing'],
+      cost: 9000,
+      crowd: 'empty',
+      memo: '수질 최고, 세신도 잘함',
+      has_scrub: true,
+      scrub_satisfaction: 5,
+    },
   },
   {
     id: '4',
@@ -157,10 +195,14 @@ export const DUMMY_LOGS: DummyLog[] = [
     cold_bath_temp: 16,
     repeat: 3,
     totono: 3,
-    companion: 'alone',
-    cost: 12000,
-    crowd: 'busy',
-    memo: '주말이라 혼잡했지만 사우나 컨디션은 좋았음',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'alone',
+      purposes: ['healing'],
+      cost: 12000,
+      crowd: 'busy',
+      memo: '주말이라 혼잡했지만 사우나 컨디션은 좋았음',
+    },
   },
   {
     id: '12',
@@ -172,9 +214,15 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     water_quality: 4,
     hot_bath_temp: 43,
-    companion: 'family',
-    cost: 7000,
-    crowd: 'moderate',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'family',
+      purposes: ['leisure'],
+      cost: 7000,
+      crowd: 'moderate',
+      has_scrub: true,
+      scrub_satisfaction: 3,
+    },
   },
   {
     id: '9',
@@ -191,10 +239,14 @@ export const DUMMY_LOGS: DummyLog[] = [
     heat_time: 15,
     ice_time: 3,
     pause_time: 8,
-    companion: 'alone',
-    cost: 10000,
-    crowd: 'empty',
-    memo: '급냉탕이 진짜 차갑고 외기욕 공간이 넓어서 최고',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'alone',
+      purposes: ['after-workout', 'healing'],
+      cost: 10000,
+      crowd: 'empty',
+      memo: '급냉탕이 진짜 차갑고 외기욕 공간이 넓어서 최고',
+    },
   },
   {
     id: '14',
@@ -206,10 +258,13 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     cleanliness: 4,
     jjim_temp: 85,
-    companion: 'partner',
-    cost: 11000,
-    crowd: 'empty',
-    memo: '불한증막이 진짜 뜨겁고 좋음',
+    deep_log: {
+      companion: 'partner',
+      purposes: ['healing'],
+      cost: 11000,
+      crowd: 'empty',
+      memo: '불한증막이 진짜 뜨겁고 좋음',
+    },
   },
   {
     id: '10',
@@ -223,9 +278,13 @@ export const DUMMY_LOGS: DummyLog[] = [
     cold_bath_temp: 13,
     repeat: 3,
     totono: 4,
-    companion: 'friend',
-    cost: 10000,
-    crowd: 'moderate',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'friend',
+      purposes: ['leisure'],
+      cost: 10000,
+      crowd: 'moderate',
+    },
   },
   {
     id: '16',
@@ -239,9 +298,13 @@ export const DUMMY_LOGS: DummyLog[] = [
     cold_bath_temp: 15,
     repeat: 3,
     totono: 3,
-    companion: 'friend',
-    cost: 9000,
-    crowd: 'moderate',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'friend',
+      purposes: ['leisure'],
+      cost: 9000,
+      crowd: 'moderate',
+    },
   },
   // --- 2024년 12월 ---
   {
@@ -255,11 +318,16 @@ export const DUMMY_LOGS: DummyLog[] = [
     cleanliness: 4,
     jjim_temp: 75,
     repeat: 2,
-    companion: 'friend',
-    purpose: 'healing',
-    cost: 15000,
-    crowd: 'full',
-    memo: '연말이라 사람 많았지만 분위기 좋았음',
+    deep_log: {
+      companion: 'friend',
+      purposes: ['healing'],
+      cost: 15000,
+      crowd: 'full',
+      memo: '연말이라 사람 많았지만 분위기 좋았음',
+      has_store: true,
+      store_score: 3,
+      store_memo: '라면, 음료',
+    },
   },
   {
     id: '17',
@@ -271,9 +339,13 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     water_quality: 4,
     hot_bath_temp: 41,
-    companion: 'alone',
-    cost: 8000,
-    crowd: 'empty',
+    deep_log: {
+      bath_gender: 'male',
+      companion: 'alone',
+      purposes: ['leisure'],
+      cost: 8000,
+      crowd: 'empty',
+    },
   },
   {
     id: '6',
@@ -287,10 +359,14 @@ export const DUMMY_LOGS: DummyLog[] = [
     cold_bath_temp: 13,
     repeat: 5,
     totono: 5,
-    cost: 12000,
-    crowd: 'empty',
-    memo: '평일 저녁 최고의 컨디션',
+    deep_log: {
+      bath_gender: 'male',
+      cost: 12000,
+      crowd: 'empty',
+      memo: '평일 저녁 최고의 컨디션',
+    },
   },
+  // 숏로그만 있는 기록 (deep_log 없음)
   {
     id: '7',
     place_id: 'place-2',
@@ -301,9 +377,6 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     water_quality: 5,
     hot_bath_temp: 43,
-    companion: 'alone',
-    cost: 8000,
-    crowd: 'empty',
   },
   // --- 2024년 11월 ---
   {
@@ -316,10 +389,12 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 3,
     cleanliness: 3,
     jjim_temp: 80,
-    companion: 'partner',
-    purpose: 'healing',
-    cost: 15000,
-    crowd: 'moderate',
+    deep_log: {
+      companion: 'partner',
+      purposes: ['healing'],
+      cost: 15000,
+      crowd: 'moderate',
+    },
   },
 ]
 

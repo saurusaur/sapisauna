@@ -18,19 +18,30 @@ export default function Complete() {
   const [log, setLog] = useState<SavedLog | null>(null)
 
   useEffect(() => {
-    // currentLog 읽기 → 완료 화면에 표시
     const logData = localStorage.getItem('currentLog')
     if (logData) {
       setLog(JSON.parse(logData))
+      // 기록 흐름 종료 — localStorage 정리
+      localStorage.removeItem('currentLog')
+      localStorage.removeItem('selectedPlace')
+    } else {
+      // 새로고침 등으로 데이터 없이 진입 → 홈으로 리다이렉트
+      router.replace('/home')
+      return
     }
-    // 기록 흐름 종료 — localStorage 정리
-    localStorage.removeItem('currentLog')
-    localStorage.removeItem('selectedPlace')
-  }, [])
+
+    // 뒤로가기 차단: 히스토리에 현재 페이지를 한 번 더 push한 뒤,
+    // popstate 발생 시(뒤로가기) 홈으로 리다이렉트
+    window.history.pushState(null, '', '/complete')
+    const handlePopState = () => {
+      router.replace('/home')
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [router])
 
   const emoji = log ? TRIBE_EMOJI_MAP[log.tribe_id] ?? '🛁' : '🛁'
 
-  // "2월 23일 (일)" 형식
   const dateStr = log?.created_at
     ? new Date(log.created_at).toLocaleDateString('ko-KR', {
         month: 'long',
@@ -41,6 +52,9 @@ export default function Complete() {
 
   const hasDeepLog = Boolean(log?.deep_log)
 
+  // 데이터 없으면 리다이렉트 중이므로 아무것도 렌더링하지 않음
+  if (!log) return null
+
   return (
     <div className="min-h-screen bath-tile-bg flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -50,12 +64,10 @@ export default function Complete() {
 
         {/* 완료 메시지 */}
         <h1 className="text-xl font-bold text-stone-700 mb-1.5">기록 완료!</h1>
-        {log && (
-          <p className="text-stone-500 text-sm mb-8">
-            {log.place_name}
-            {dateStr ? ` · ${dateStr}` : ''}
-          </p>
-        )}
+        <p className="text-stone-500 text-sm mb-8">
+          {log.place_name}
+          {dateStr ? ` · ${dateStr}` : ''}
+        </p>
 
         {/* 딥로그 추가 여부 표시 */}
         {hasDeepLog && (

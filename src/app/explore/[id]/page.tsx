@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS,
-  TYPE_EMOJI_MAP,
+  TRIBE_EMOJI_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
 import { findPlaceById } from '@/data/dummy-places'
