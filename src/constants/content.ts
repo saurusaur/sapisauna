@@ -25,8 +25,8 @@
 // 앱 정보
 // ============================================
 export const APP = {
-  NAME: '사우나 로그',
-  TAGLINE: '우리의 사우나 기록',
+  NAME: '사-피',
+  TAGLINE: '사-피엔스의 사우나 기록',
   VERSION: '0.1.0',
 }
 
@@ -72,11 +72,11 @@ export const TRIBES = {
   },
   JIMI: {
     id: 'jimi',
-    category: '찜질방',
+    category: '찜질',
     persona: 'Jimi',
-    name: '찜질방파',
+    name: '찜질파',
     emoji: '🥚',
-    description: '찜질방에서 굴러다니며 먹고 자는 게 최고의 힐링',
+    description: '한증막에서 뜨겁게 지진 후 먹고 자는 게 최고의 힐링',
     color: TRIBE_COLORS.jimi,
   },
 } as const
@@ -105,7 +105,7 @@ export const ONBOARDING = {
   },
   // Step 2: 타입 선택
   TYPE: {
-    TITLE: '나의 사우나 라이프스타일은?',
+    TITLE: '나의 사우나 라이프 스타일은?',
     SUBTITLE: '좋아하는 순서대로 선택해주세요',
   },
   // 공통
@@ -116,6 +116,31 @@ export const ONBOARDING = {
 // ============================================
 // Quick Log 입력 항목
 // ============================================
+
+// 공통 목적달성 레벨 스텝 (타입별 필드 라벨만 다름, steps는 공유)
+const ACHIEVEMENT_STEPS = [
+  { value: 1, label: '아직...' },
+  { value: 2, label: '살짝' },
+  { value: 3, label: '좋아' },
+  { value: 4, label: '달성' },
+  { value: 5, label: '승천' },
+] as const
+
+// 공통 냉탕 온도 config (saunner/bather 공유)
+const COLD_BATH_TEMP_CONFIG = {
+  label: '냉탕 온도',
+  min: 0,
+  max: 30,
+  unit: '°C',
+  steps: [
+    { value: 0, label: '냉동' },
+    { value: 5, label: '냉장' },
+    { value: 10, label: '차갑' },
+    { value: 16, label: '시원' },
+    { value: 25, label: '미지근' },
+  ],
+} as const
+
 export const QUICK_LOG = {
   // 공통 항목
   COMMON: {
@@ -131,22 +156,42 @@ export const QUICK_LOG = {
         { value: 5, label: '꼭 가야해요!' },
       ],
     },
+    // 냉탕 온도 (saunner 필수 / bather 선택)
+    COLD_BATH_TEMP: COLD_BATH_TEMP_CONFIG,
+    // 루틴 기록 (전 타입 선택 — 탭 시 활성화, 초기화 버튼으로 리셋)
+    ROUTINE: {
+      HEAT: {
+        label: 'HEAT',
+        placeholder: 12, // 흐릿하게 보여지는 예시값
+        min: 1,
+        max: 60,
+        unit: '분',  // 숏후기 폼은 현지어 단위 / 스토리 스티커는 'mins' 고정
+      },
+      ICE: {
+        label: 'ICE',
+        placeholder: 1,
+        min: 1,
+        max: 5,
+        unit: '분',
+      },
+      PAUSE: {
+        label: 'PAUSE',
+        placeholder: 5,
+        min: 1,
+        max: 30,
+        unit: '분',
+      },
+      REPEAT: {
+        label: 'REPEAT',
+        min: 1,
+        max: 7,
+        unit: 'sets',
+      },
+    },
   },
 
   // 목욕파 전용
   BATHER: {
-    WATER_QUALITY: {
-      label: '수질',
-      min: 1,
-      max: 5,
-      steps: [
-        { value: 1, label: '매우 탁함' },
-        { value: 2, label: '조금 탁함' },
-        { value: 3, label: '보통' },
-        { value: 4, label: '청량' },
-        { value: 5, label: '생명수' },
-      ],
-    },
     HOT_BATH_TEMP: {
       label: '목욕물 온도',
       min: 30,
@@ -157,6 +202,18 @@ export const QUICK_LOG = {
         { value: 35, label: '따뜻' },
         { value: 39, label: '뜨끈' },
         { value: 41, label: '펄펄' },
+      ],
+    },
+    WATER_QUALITY: {
+      label: '수질',
+      min: 1,
+      max: 5,
+      steps: [
+        { value: 1, label: '매우 탁함' },
+        { value: 2, label: '조금 탁함' },
+        { value: 3, label: '보통' },
+        { value: 4, label: '청량' },
+        { value: 5, label: '생명수' },
       ],
     },
   },
@@ -176,28 +233,8 @@ export const QUICK_LOG = {
         { value: 120, label: '지옥' },
       ],
     },
-    COLD_BATH_TEMP: {
-      label: '냉탕 온도',
-      min: 0,
-      max: 30,
-      unit: '°C',
-      steps: [
-        { value: 0, label: '냉동' },
-        { value: 5, label: '냉장' },
-        { value: 10, label: '차갑' },
-        { value: 16, label: '시원' },
-        { value: 25, label: '미지근' },
-      ],
-    },
-    SETS: {
-      label: '세트 수',
-      min: 1,
-      max: 7,
-      unit: '세트',
-      inputType: 'counter',
-    },
     TOTONO: {
-      label: '토토노이 강도',
+      label: '토토노이',
       min: 1,
       max: 5,
       steps: [
@@ -212,16 +249,16 @@ export const QUICK_LOG = {
 
   // 찜질파 전용
   JIMI: {
-    REST_QUALITY: {
-      label: '휴식 퀄리티',
-      min: 1,
-      max: 5,
+    JJIM_TEMP: {
+      label: '한증막 온도',
+      min: 60,
+      max: 100,
+      unit: '°C',
       steps: [
-        { value: 1, label: '아쉬움' },
-        { value: 2, label: '무난' },
-        { value: 3, label: '평온' },
-        { value: 4, label: '개운' },
-        { value: 5, label: '황홀' },
+        { value: 60, label: '따뜻' },
+        { value: 70, label: '뜨끈' },
+        { value: 80, label: '후끈' },
+        { value: 90, label: '지글지글' },
       ],
     },
     CLEANLINESS: {
@@ -345,6 +382,8 @@ export const DEEP_LOG = {
       { id: 'after-workout', label: '운동 후', icon: 'fitness_center' },
       { id: 'hangover', label: '숙취해소', icon: 'beer_meal' },
       { id: 'date', label: '데이트', icon: 'favorite' },
+      { id: 'travel', label: '여행', icon: 'luggage' },
+      { id: 'leisure', label: '여가', icon: 'beach_access' },
       { id: 'work', label: '작업', icon: 'laptop' },
       { id: 'sleep', label: '수면', icon: 'bedtime' },
       { id: 'meal', label: '식사', icon: 'restaurant' },
@@ -391,18 +430,18 @@ export const DEEP_LOG = {
 // ============================================
 export const TRIBE_DEFAULTS = {
   bather: {
-    greeting: '오늘도 따뜻한 물에서 힐링하세요 🛁',
-    quickLogFields: ['WATER_QUALITY', 'HOT_BATH_TEMP', 'REVISIT'],
+    greeting: '오늘도 촉촉한 힐링하세요 🛁',
+    quickLogFields: ['HOT_BATH_TEMP', 'COLD_BATH_TEMP', 'WATER_QUALITY', 'ROUTINE', 'REVISIT'],
     emoji: '🛁',
   },
   saunner: {
     greeting: '오늘의 토토노이를 기록해보세요 🔥',
-    quickLogFields: ['SAUNA_TEMP', 'COLD_BATH_TEMP', 'SETS', 'TOTONO', 'REVISIT'],
+    quickLogFields: ['SAUNA_TEMP', 'COLD_BATH_TEMP', 'TOTONO', 'ROUTINE', 'REVISIT'],
     emoji: '🔥',
   },
   jimi: {
     greeting: '편안한 찜질방 시간 되세요 🥚',
-    quickLogFields: ['REST_QUALITY', 'CLEANLINESS', 'REVISIT'],
+    quickLogFields: ['JJIM_TEMP', 'CLEANLINESS', 'ROUTINE', 'REVISIT'],
     emoji: '🥚',
   },
 } as const
@@ -519,9 +558,9 @@ export const EXPLORE = {
   },
   TOGGLE_24H: '24시 영업',
   RECOMMENDATION: {
-    SAUNNER: 'Saunner 추천',
-    BATHER: 'Bather 추천',
-    JIMI: 'Jimi 추천',
+    SAUNNER: 'Saunner PICK',
+    BATHER: 'Bather PICK',
+    JIMI: 'Jimi PICK',
   },
   NO_RESULTS: '조건에 맞는 장소가 없습니다',
   AVG_RATING: '평균',

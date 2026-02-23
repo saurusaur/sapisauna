@@ -9,6 +9,8 @@
 interface BatherGraphProps {
   waterQuality: number
   hotBathTemp: number
+  coldBathTemp?: number   // 선택 — 냉탕 없는 목욕탕 또는 미입력 시 undefined, ΔT 중심 파동 레이어에 반영
+  refreshedScore?: number // 선택 — Feature 4 스티커용 (현재 렌더링에 미사용)
 }
 
 function seededRandom(seed: number): number {
@@ -16,7 +18,7 @@ function seededRandom(seed: number): number {
   return x - Math.floor(x)
 }
 
-export default function BatherGraph({ waterQuality, hotBathTemp }: BatherGraphProps) {
+export default function BatherGraph({ waterQuality, hotBathTemp, coldBathTemp }: BatherGraphProps) {
   const size = 280
   const center = size / 2
 
@@ -99,6 +101,24 @@ export default function BatherGraph({ waterQuality, hotBathTemp }: BatherGraphPr
           )
         })}
       </g>
+
+      {/* ΔT 중심 파동 레이어 — coldBathTemp 입력 시만 렌더링 */}
+      {coldBathTemp !== undefined && (() => {
+        // ΔT가 클수록 (차가운 냉탕) 차가운 파동 강하게
+        const deltaT = hotBathTemp - coldBathTemp
+        const deltaRatio = Math.min(Math.max((deltaT - 10) / 20, 0), 1) // 0~1
+        const coldRadius1 = minRadius * 0.6
+        const coldRadius2 = minRadius * 0.35
+        const coldOpacity = 0.3 + deltaRatio * 0.5
+        return (
+          <g mask="url(#bather-mask)">
+            <circle cx={center} cy={center} r={coldRadius1} fill="none"
+              stroke="hsl(195, 60%, 88%)" strokeWidth={1.2} strokeOpacity={coldOpacity} />
+            <circle cx={center} cy={center} r={coldRadius2} fill="none"
+              stroke="hsl(200, 70%, 92%)" strokeWidth={0.8} strokeOpacity={coldOpacity * 0.7} />
+          </g>
+        )
+      })()}
     </svg>
   )
 }

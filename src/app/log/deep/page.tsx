@@ -32,11 +32,33 @@ export default function DeepLog() {
   const [storeScore, setStoreScore] = useState(3)
   const [storeMemo, setStoreMemo] = useState('')
 
-  // 직전 탕 선택값 불러오기
+  // 이전 입력 복원 (편집 모드 또는 뒤로가기 시)
   useEffect(() => {
-    const lastBathGender = localStorage.getItem('lastBathGender')
-    if (lastBathGender) {
-      setBathGender(lastBathGender as BathGender)
+    let restoredGender: BathGender | null = null
+
+    // currentLog에 deep_log가 있으면 복원
+    const currentLog = localStorage.getItem('currentLog')
+    if (currentLog) {
+      const parsed = JSON.parse(currentLog)
+      const dl = parsed.deep_log
+      if (dl) {
+        if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
+        if (dl.companion) setCompanion(dl.companion)
+        if (dl.purposes) setPurposes(dl.purposes)
+        if (dl.cost) setCost(dl.cost.toLocaleString())
+        if (dl.crowd) setCrowd(dl.crowd)
+        if (dl.memo) setMemo(dl.memo)
+        if (dl.has_scrub) { setHasScrub(true); setScrubSatisfaction(dl.scrub_satisfaction || 3) }
+        if (dl.has_store) { setHasStore(true); setStoreScore(dl.store_score || 3); setStoreMemo(dl.store_memo || '') }
+      }
+    }
+
+    // 직전 탕 선택값 폴백 (deep_log에 bath_gender가 없을 때만)
+    if (!restoredGender) {
+      const lastBathGender = localStorage.getItem('lastBathGender')
+      if (lastBathGender) {
+        setBathGender(lastBathGender as BathGender)
+      }
     }
   }, [])
 
@@ -104,34 +126,6 @@ export default function DeepLog() {
     </div>
   )
 
-  // 탕 선택 버튼 컴포넌트 (페이지 기본 포인트 컬러 사용)
-  const BathGenderSelect = () => (
-    <div className="flex gap-3">
-      {BATH_GENDER_OPTIONS.map((option) => {
-        const isSelected = bathGender === option.id
-
-        return (
-          <button
-            key={option.id}
-            onClick={() => setBathGender(option.id as BathGender)}
-            className={`
-              flex-1 py-3 px-4 rounded-xl font-medium transition-all
-              flex flex-col items-center gap-1
-              ${isSelected
-                ? 'text-white shadow-md'
-                : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
-              }
-            `}
-            style={isSelected ? { backgroundColor: 'var(--color-green)' } : {}}
-          >
-            <span className="material-symbols-outlined">{option.icon}</span>
-            <span className="text-sm">{option.label}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-
   return (
     <div className="min-h-screen bath-tile-bg pb-8">
       {/* 헤더 */}
@@ -154,29 +148,28 @@ export default function DeepLog() {
         </button>
       </header>
 
-      <main className="p-4 space-y-6">
-        {/* 탕 선택 섹션 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <label className="block text-sm font-medium text-stone-700 mb-3">
-            {DEEP_LOG.BATH_GENDER.label}
-          </label>
-          <BathGenderSelect />
-          {bathGender && (
-            <p className="text-xs text-stone-400 mt-2 text-center">
-              다음 기록 시 기본값으로 적용돼요
-            </p>
-          )}
-        </div>
-
+      <main className="p-4 space-y-4">
         {/* 오늘의 경험 섹션 */}
-        <div>
-          <h2 className="text-sm font-bold text-stone-500 mb-4 flex items-center gap-2">
-            <span className="w-full h-px bg-stone-200"></span>
-            <span className="whitespace-nowrap px-2">오늘의 경험</span>
-            <span className="w-full h-px bg-stone-200"></span>
-          </h2>
+        <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
+          {/* 탕 선택 — 섹션 상단 */}
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">
+              {DEEP_LOG.BATH_GENDER.label}
+            </label>
+            <ChipSelect
+              options={BATH_GENDER_OPTIONS}
+              selected={bathGender}
+              onSelect={(id) => setBathGender(id as BathGender)}
+            />
+            {bathGender && (
+              <p className="text-xs text-stone-400 mt-1.5">
+                다음 기록 시 기본값으로 적용돼요
+              </p>
+            )}
+          </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
+          <div className="border-t border-stone-100" />
+
             {/* 동행자 */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
@@ -296,7 +289,6 @@ export default function DeepLog() {
                 </div>
               )}
             </div>
-          </div>
         </div>
 
         {/* 메모 */}

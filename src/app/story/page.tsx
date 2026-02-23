@@ -9,18 +9,25 @@ import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
 
 type LogData = {
+  display_id?: string
   place_name: string
   tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string
   date?: string
+  // saunner
   sauna_temp?: number
   cold_bath_temp?: number
-  sets?: number
+  repeat?: number
   totono?: number
+  // bather
   water_quality?: number
   hot_bath_temp?: number
+  refreshed_score?: number
+  // jimi
   rest_quality?: number
   cleanliness?: number
+  jjim_temp?: number
+  // common
   revisit_score: number
 }
 
@@ -82,6 +89,16 @@ export default function Story() {
     router.push('/log/deep')
   }
 
+  // 편집 모드 여부 (히스토리에서 edit으로 진입한 경우 _editId가 존재)
+  const isEditMode = Boolean(log && '_editId' in log)
+
+  // 취소: 기록 폐기 후 원래 화면으로
+  const handleCancel = () => {
+    localStorage.removeItem('currentLog')
+    localStorage.removeItem('selectedPlace')
+    router.push(isEditMode ? '/history' : '/home')
+  }
+
   // 타입별 메인 수치
   const getMainMetric = () => {
     if (!log) return { value: '', unit: '', label: '' }
@@ -96,8 +113,10 @@ export default function Story() {
         return { value: String(temp), unit: '°C', label: 'immersion temperature' }
       }
       case 'jimi': {
-        const percentage = Math.round(((log.rest_quality || 3) / 5) * 100)
-        return { value: String(percentage), unit: '%', label: 'recovery level' }
+        const temp = log.jjim_temp
+        return temp
+          ? { value: String(temp), unit: '°C', label: 'jjimjilbang temperature' }
+          : { value: '—', unit: '', label: 'jjimjilbang' }
       }
       default:
         return { value: '', unit: '', label: '' }
@@ -113,7 +132,7 @@ export default function Story() {
           <SaunnerGraph
             saunaTemp={log.sauna_temp || 80}
             coldBathTemp={log.cold_bath_temp || 15}
-            sets={log.sets || 3}
+            repeat={log.repeat || 3}
             totono={log.totono || 3}
           />
         )
@@ -122,13 +141,15 @@ export default function Story() {
           <BatherGraph
             waterQuality={log.water_quality || 3}
             hotBathTemp={log.hot_bath_temp || 40}
+            coldBathTemp={log.cold_bath_temp}
+            refreshedScore={log.refreshed_score}
           />
         )
       case 'jimi':
         return (
           <JimiGraph
-            restQuality={log.rest_quality || 3}
             cleanliness={log.cleanliness || 3}
+            jjimTemp={log.jjim_temp}
           />
         )
       default:
@@ -152,14 +173,30 @@ export default function Story() {
     <div className="min-h-screen bath-tile-bg">
       {/* 헤더 */}
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        {/* 왼쪽: 수정 (뒤로가기 역할) */}
+        <button
+          onClick={() => router.push('/log')}
+          className="flex items-center gap-1 p-2 text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
+          <span className="text-sm font-medium">수정</span>
+        </button>
+
+        {/* 오른쪽: 취소 + 기록 저장 */}
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => router.push('/home')}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+            onClick={handleCancel}
+            className="p-2 text-stone-400 hover:text-stone-600 text-xs transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            {isEditMode ? '편집 취소' : '기록 취소'}
           </button>
-          <h1 className="text-lg font-bold text-stone-700">스토리</h1>
+          <button
+            onClick={() => router.push('/complete')}
+            className="px-4 py-2 rounded-xl font-semibold text-white transition-all hover:opacity-90"
+            style={{ backgroundColor: 'var(--color-green)' }}
+          >
+            {isEditMode ? '편집 저장' : '기록 저장'}
+          </button>
         </div>
       </header>
 
@@ -281,12 +318,6 @@ export default function Story() {
             상세 기록 추가하기
           </button>
 
-          <button
-            onClick={() => router.push('/home')}
-            className="w-full py-3 text-sm text-stone-400 hover:text-stone-600 transition-colors"
-          >
-            홈으로 돌아가기
-          </button>
         </div>
       </main>
     </div>

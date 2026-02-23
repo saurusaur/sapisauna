@@ -18,6 +18,7 @@ export interface Place {
   id: string
   name: string
   address: string
+  countryCode?: string   // ISO 2자리 국가코드 — display_id 생성용
   distance?: number
   defaultPrice?: number
   source: 'naver' | 'google' | 'user'
@@ -26,21 +27,28 @@ export interface Place {
 // Quick Log 기록
 export interface QuickLogData {
   // 공통
-  revisit: number // 1-5
+  revisit: number       // 1-5
+
+  // 공통 루틴 (heat/ice/pause 시간, repeat 세트)
+  heatTime?: number     // 1-60분
+  iceTime?: number      // 1-5분
+  pauseTime?: number    // 1-30분
+  repeat?: number       // 1-7세트
 
   // 목욕파
-  waterQuality?: number // 1-5
-  hotBathTemp?: number // 38-45
+  waterQuality?: number    // 1-5
+  hotBathTemp?: number     // 30-46°C
+  coldBathTemp?: number    // 0-30°C (saunner/bather 공통 — 선택)
+  refreshedScore?: number  // 1-5, 개운함
 
   // 사우너파
-  saunaTemp?: number // 70-110
-  coldBathTemp?: number // 5-20
-  sets?: number // 1-10
-  totono?: number // 1-5
+  saunaTemp?: number    // 50-130°C
+  totono?: number       // 1-5, 토토노이
 
   // 찜질파
-  restQuality?: number // 1-5
-  cleanliness?: number // 1-5
+  restQuality?: number  // 1-5, 가벼움
+  cleanliness?: number  // 1-5
+  jjimTemp?: number     // 60-100°C (선택)
 }
 
 // Deep Log 기록
@@ -71,6 +79,7 @@ export interface DeepLogData {
 // 전체 기록
 export interface LogEntry {
   id: string
+  displayId?: string    // 기록 고유 ID (15자리, 내부 참조용)
   userId: string
   placeId: string
   placeName: string
@@ -118,6 +127,7 @@ export interface DummyPlace {
   name: string
   address: string
   shortAddress?: string  // 카드 미리보기용 짧은 주소 (예: "서울 강남구", "Tokyo, Japan")
+  countryCode?: string   // ISO 2자리 국가코드 (예: 'KR', 'JP') — display_id 생성용, 없으면 'KR' 기본값
   facilities: string[]   // PLACE_SPECS 전체의 id들 (평탄한 배열)
   is_24h: boolean        // 24시간 영업 여부
   latitude?: number      // 위도 (좌표 없는 장소도 호환)

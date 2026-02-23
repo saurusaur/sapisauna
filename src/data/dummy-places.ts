@@ -8,6 +8,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '스파랜드',
     address: '서울특별시 강남구 영동대로 513',
     shortAddress: '서울 강남구',
+    countryCode: 'KR',
     latitude: 37.5245,
     longitude: 127.0270,
     facilities: [
@@ -24,6 +25,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '청학동목욕탕',
     address: '서울특별시 종로구 자하문로36길 12',
     shortAddress: '서울 종로구',
+    countryCode: 'KR',
     latitude: 37.5780,
     longitude: 127.0066,
     facilities: [
@@ -39,6 +41,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '드래곤힐스파',
     address: '서울특별시 용산구 한강대로21나길 40',
     shortAddress: '서울 용산구',
+    countryCode: 'KR',
     latitude: 37.5327,
     longitude: 126.9642,
     facilities: [
@@ -57,6 +60,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '시로암사우나',
     address: '서울특별시 중구 청파로 51',
     shortAddress: '서울 중구',
+    countryCode: 'KR',
     latitude: 37.5568,
     longitude: 126.9647,
     facilities: [
@@ -72,6 +76,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '스크러빈',
     address: '서울 마포구 서교동',
     shortAddress: '서울 마포구',
+    countryCode: 'KR',
     latitude: 37.5563,
     longitude: 126.9236,
     facilities: [
@@ -87,6 +92,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '월드컵스파랜드',
     address: '서울 마포구 상암동',
     shortAddress: '서울 마포구',
+    countryCode: 'KR',
     latitude: 37.5680,
     longitude: 126.8976,
     facilities: [
@@ -103,6 +109,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '이태원랜드',
     address: '서울 용산구 이태원동',
     shortAddress: '서울 용산구',
+    countryCode: 'KR',
     latitude: 37.5345,
     longitude: 126.9895,
     facilities: [
@@ -119,6 +126,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '천호사우나',
     address: '서울 강동구 천호동',
     shortAddress: '서울 강동구',
+    countryCode: 'KR',
     latitude: 37.5391,
     longitude: 127.1243,
     facilities: [
@@ -134,6 +142,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '해밀톤호텔사우나',
     address: '서울 용산구 이태원동',
     shortAddress: '서울 용산구',
+    countryCode: 'KR',
     latitude: 37.5340,
     longitude: 126.9935,
     facilities: [
@@ -150,6 +159,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '올림픽공원한증막',
     address: '서울 송파구 방이동',
     shortAddress: '서울 송파구',
+    countryCode: 'KR',
     latitude: 37.5205,
     longitude: 127.1220,
     facilities: [
@@ -166,6 +176,7 @@ export const DUMMY_PLACES: DummyPlace[] = [
     name: '종로세신탕',
     address: '서울 종로구 종로3가',
     shortAddress: '서울 종로구',
+    countryCode: 'KR',
     latitude: 37.5710,
     longitude: 126.9930,
     facilities: [

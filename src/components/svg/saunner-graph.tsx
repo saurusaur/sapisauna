@@ -1,6 +1,6 @@
 /**
  * Saunner 웨이브 그래프 SVG 컴포넌트
- * - sets = peak 개수
+ * - repeat = peak 개수 (세트 수)
  * - totono = amplitude + 두께 + 글로우 강도
  * - 매끄럽지만 불규칙하게 교차하는 꾸밈 웨이브
  * - 디퓨즈 글로우 (네온 X)
@@ -9,19 +9,19 @@
 interface SaunnerGraphProps {
   saunaTemp: number
   coldBathTemp: number
-  sets: number
+  repeat: number    // 세트 수 (peak 개수)
   totono: number
 }
 
-export default function SaunnerGraph({ saunaTemp, coldBathTemp, sets, totono }: SaunnerGraphProps) {
+export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }: SaunnerGraphProps) {
   const width = 300
   const height = 260  // 200 → 260 (상하 30px 여백 추가)
   const padding = 12 // 좌우 여백
   const centerY = height / 2
 
-  // sets = upward peak 개수
+  // repeat = upward peak 개수
   // frequency 조정: 시작(상승 중)과 끝(하강 중)이 보이도록
-  const frequency = 2 * sets - 0.5
+  const frequency = 2 * repeat - 0.5
   const phaseShift = -Math.PI / 4  // 상승 라인부터 시작
 
   // totono = amplitude (18~38px, 약 2배 차이)

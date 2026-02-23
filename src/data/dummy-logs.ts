@@ -3,23 +3,28 @@ import type { TribeId } from '@/types'
 // 더미 로그 타입 (MVP용, 추후 LogEntry 타입으로 전환)
 export interface DummyLog {
   id: string
-  place_id: string // [NEW] 장소 ID (DummyPlace.id 참조)
+  place_id: string       // 장소 ID (DummyPlace.id 참조)
   place_name: string
   address: string
   date: string
   tribe_id: TribeId
   revisit_score: number
-  // saunner
+  // 공통 루틴 (선택)
+  heat_time?: number     // 1-60분
+  ice_time?: number      // 1-5분
+  pause_time?: number    // 1-30분
+  repeat?: number        // 1-7세트
+  // saunner 전용
   sauna_temp?: number
-  cold_bath_temp?: number
-  sets?: number
   totono?: number
-  // bather
+  // saunner/bather 공통 (선택)
+  cold_bath_temp?: number
+  // bather 전용
   water_quality?: number
   hot_bath_temp?: number
-  // jimi
-  rest_quality?: number
+  // jimi 전용
   cleanliness?: number
+  jjim_temp?: number     // 선택 - 한증막 없는 찜질방은 undefined
   // deep log
   companion?: string
   purpose?: string
@@ -41,8 +46,11 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 5,
     sauna_temp: 95,
     cold_bath_temp: 15,
-    sets: 3,
+    repeat: 3,
     totono: 5,
+    heat_time: 12,
+    ice_time: 2,
+    pause_time: 5,
     companion: 'friend',
     purpose: 'after-workout',
     cost: 12000,
@@ -59,8 +67,11 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     sauna_temp: 92,
     cold_bath_temp: 14,
-    sets: 4,
+    repeat: 4,
     totono: 4,
+    heat_time: 10,
+    ice_time: 1,
+    pause_time: 5,
     companion: 'alone',
     purpose: 'healing',
     cost: 12000,
@@ -74,8 +85,9 @@ export const DUMMY_LOGS: DummyLog[] = [
     date: '2025-01-22T21:00:00',
     tribe_id: 'jimi',
     revisit_score: 5,
-    rest_quality: 5,
     cleanliness: 5,
+    jjim_temp: 90,
+    repeat: 3,
     companion: 'friend',
     cost: 13000,
     crowd: 'moderate',
@@ -91,6 +103,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 3,
     water_quality: 4,
     hot_bath_temp: 42,
+    cold_bath_temp: 18,
     companion: 'family',
     purpose: 'healing',
     cost: 8000,
@@ -106,8 +119,11 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 5,
     sauna_temp: 105,
     cold_bath_temp: 10,
-    sets: 5,
+    repeat: 5,
     totono: 5,
+    heat_time: 12,
+    ice_time: 2,
+    pause_time: 8,
     companion: 'alone',
     cost: 14000,
     crowd: 'empty',
@@ -123,6 +139,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 5,
     water_quality: 5,
     hot_bath_temp: 42,
+    cold_bath_temp: 16,
     companion: 'alone',
     cost: 9000,
     crowd: 'empty',
@@ -138,7 +155,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     sauna_temp: 90,
     cold_bath_temp: 16,
-    sets: 3,
+    repeat: 3,
     totono: 3,
     companion: 'alone',
     cost: 12000,
@@ -169,8 +186,11 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 5,
     sauna_temp: 100,
     cold_bath_temp: 12,
-    sets: 4,
+    repeat: 4,
     totono: 5,
+    heat_time: 15,
+    ice_time: 3,
+    pause_time: 8,
     companion: 'alone',
     cost: 10000,
     crowd: 'empty',
@@ -184,8 +204,8 @@ export const DUMMY_LOGS: DummyLog[] = [
     date: '2025-01-08T18:00:00',
     tribe_id: 'jimi',
     revisit_score: 4,
-    rest_quality: 4,
     cleanliness: 4,
+    jjim_temp: 85,
     companion: 'partner',
     cost: 11000,
     crowd: 'empty',
@@ -201,7 +221,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     sauna_temp: 98,
     cold_bath_temp: 13,
-    sets: 3,
+    repeat: 3,
     totono: 4,
     companion: 'friend',
     cost: 10000,
@@ -217,7 +237,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 4,
     sauna_temp: 88,
     cold_bath_temp: 15,
-    sets: 3,
+    repeat: 3,
     totono: 3,
     companion: 'friend',
     cost: 9000,
@@ -232,8 +252,9 @@ export const DUMMY_LOGS: DummyLog[] = [
     date: '2024-12-31T22:00:00',
     tribe_id: 'jimi',
     revisit_score: 4,
-    rest_quality: 5,
     cleanliness: 4,
+    jjim_temp: 75,
+    repeat: 2,
     companion: 'friend',
     purpose: 'healing',
     cost: 15000,
@@ -264,7 +285,7 @@ export const DUMMY_LOGS: DummyLog[] = [
     revisit_score: 5,
     sauna_temp: 98,
     cold_bath_temp: 13,
-    sets: 5,
+    repeat: 5,
     totono: 5,
     cost: 12000,
     crowd: 'empty',
@@ -293,8 +314,8 @@ export const DUMMY_LOGS: DummyLog[] = [
     date: '2024-11-23T17:00:00',
     tribe_id: 'jimi',
     revisit_score: 3,
-    rest_quality: 4,
     cleanliness: 3,
+    jjim_temp: 80,
     companion: 'partner',
     purpose: 'healing',
     cost: 15000,

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
-import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getCleanlinessLabel } from '@/lib/utils'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
 
 // steps 배열에서 현재 value에 맞는 descriptor를 찾는 헬퍼
@@ -44,11 +44,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const getDetailText = (item: DummyLog) => {
     switch (item.tribe_id) {
       case 'saunner':
-        return `사우나 ${item.sauna_temp}°C · 냉탕 ${item.cold_bath_temp}°C · ${item.sets}세트`
+        return `사우나 ${item.sauna_temp}°C · 냉탕 ${item.cold_bath_temp}°C · ${item.repeat}세트`
       case 'bather':
         return `수질 ${getWaterQualityLabel(item.water_quality || 3)} · 온탕 ${item.hot_bath_temp}°C`
       case 'jimi':
-        return `휴식 ${getRestQualityLabel(item.rest_quality || 3)} · 청결 ${getCleanlinessLabel(item.cleanliness || 3)}`
+        return item.jjim_temp
+          ? `한증막 ${item.jjim_temp}°C · 청결 ${getCleanlinessLabel(item.cleanliness || 3)}`
+          : `청결 ${getCleanlinessLabel(item.cleanliness || 3)}`
       default:
         return ''
     }
@@ -83,7 +85,34 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <h1 className="text-lg font-bold text-stone-700">기록 상세</h1>
         </div>
         <div className="flex gap-2">
-          <button className="p-2 text-stone-500 hover:text-stone-700 transition-colors">
+          <button
+            onClick={() => {
+              // 기존 기록을 currentLog로 설정하고 폼으로 이동 (display_id 보존)
+              const logAsCurrentLog = {
+                _editId: log.id,
+                display_id: log.id,
+                place_name: log.place_name,
+                tribe_id: log.tribe_id,
+                created_at: log.date,
+                revisit_score: log.revisit_score,
+                repeat: log.repeat,
+                heat_time: log.heat_time,
+                ice_time: log.ice_time,
+                pause_time: log.pause_time,
+                sauna_temp: log.sauna_temp,
+                cold_bath_temp: log.cold_bath_temp,
+                totono: log.totono,
+                hot_bath_temp: log.hot_bath_temp,
+                water_quality: log.water_quality,
+                jjim_temp: log.jjim_temp,
+                cleanliness: log.cleanliness,
+              }
+              localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
+              localStorage.setItem('selectedPlace', JSON.stringify({ name: log.place_name }))
+              router.push('/log')
+            }}
+            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+          >
             <span className="material-symbols-outlined">edit</span>
           </button>
           <button
@@ -129,7 +158,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-stone-500">세트 수</span>
-                  <span className="font-medium text-stone-700">{log.sets}세트</span>
+                  <span className="font-medium text-stone-700">{log.repeat}세트</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">토토노이 강도</span>
@@ -155,10 +184,12 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
             {log.tribe_id === 'jimi' && (
               <>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">휴식 만족도</span>
-                  <span className="font-medium text-stone-700">{getRestQualityLabel(log.rest_quality || 3)}</span>
-                </div>
+                {log.jjim_temp && (
+                  <div className="flex justify-between">
+                    <span className="text-stone-500">한증막 온도</span>
+                    <span className="font-medium text-stone-700">{log.jjim_temp}°C</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-stone-500">청결도</span>
                   <span className="font-medium text-stone-700">{getCleanlinessLabel(log.cleanliness || 3)}</span>

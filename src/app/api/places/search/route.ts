@@ -14,10 +14,35 @@ interface PlaceResult {
   name: string
   address: string
   shortAddress: string   // 카드 미리보기용 짧은 주소
+  countryCode: string    // ISO 2자리 국가코드 (예: 'KR', 'JP') — display_id 생성용
   latitude: number | null
   longitude: number | null
   source: 'naver' | 'google'
   external_id: string
+}
+
+/**
+ * Google formatted_address에서 ISO 국가코드 추출
+ * 주소 마지막 항목(콤마 기준)에서 나라 이름을 파싱
+ * 예: "123 Main St, Shinjuku, Tokyo, Japan" → 'JP'
+ */
+const COUNTRY_NAME_TO_ISO: Record<string, string> = {
+  'japan': 'JP',
+  'hong kong': 'HK',
+  'taiwan': 'TW',
+  'south korea': 'KR',
+  'korea': 'KR',
+  'republic of korea': 'KR',
+  'china': 'CN',
+  'thailand': 'TH',
+  'singapore': 'SG',
+  'united states': 'US',
+  'usa': 'US',
+}
+
+function extractCountryCode(formattedAddress: string): string {
+  const lastPart = formattedAddress.split(',').pop()?.trim().toLowerCase() ?? ''
+  return COUNTRY_NAME_TO_ISO[lastPart] ?? 'KR' // 알 수 없으면 기본값 KR
 }
 
 /**
@@ -125,10 +150,11 @@ async function searchNaver(query: string): Promise<PlaceResult[]> {
       name: stripHtml(item.title),
       address: fullAddress,
       shortAddress: generateShortAddress(fullAddress, 'naver'),
+      countryCode: 'KR', // Naver API = 국내 전용
       latitude: coords.lat,
       longitude: coords.lng,
       source: 'naver' as const,
-      external_id: `${item.mapx}_${item.mapy}`, // 고유 ID로 좌표 조합 사용
+      external_id: `${item.mapx}_${item.mapy}`,
     }
   })
 }
@@ -167,6 +193,7 @@ async function searchGoogle(query: string): Promise<PlaceResult[]> {
     name: item.name,
     address: item.formatted_address,
     shortAddress: generateShortAddress(item.formatted_address, 'google'),
+    countryCode: extractCountryCode(item.formatted_address), // 나라명 → ISO 코드
     latitude: item.geometry?.location?.lat || null,
     longitude: item.geometry?.location?.lng || null,
     source: 'google' as const,

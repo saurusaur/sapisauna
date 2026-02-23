@@ -2,14 +2,16 @@
  * Jimi 프로그레스 링 SVG 컴포넌트
  * - 링: 얇은 흰색 테두리, 바깥으로 넓게 퍼지는 세련된 디퓨즈 글로우
  * - 내부: 액체가 아래에서 위로 차오르는 느낌 (출렁이는 두 겹의 반투명 물 표면)
+ * - jjimTemp 높을수록 동그라미가 꽉 참 (60°C ≈ 10%, 100°C = 100%)
+ * - cleanliness → 글로우 색상/강도
  */
 
 interface JimiGraphProps {
-  restQuality: number
   cleanliness: number
+  jjimTemp?: number  // 선택 — 한증막 없는 찜질방 또는 미입력 시 undefined
 }
 
-export default function JimiGraph({ restQuality, cleanliness }: JimiGraphProps) {
+export default function JimiGraph({ cleanliness, jjimTemp }: JimiGraphProps) {
   const size = 280
   const center = size / 2
   const ringRadius = 90
@@ -33,11 +35,14 @@ export default function JimiGraph({ restQuality, cleanliness }: JimiGraphProps) 
   // 글로우 강도 (크기가 아닌 짙기로 표현)
   const glowIntensity = 0.15 + cleanliness * 0.12 // 0.27 ~ 0.75
 
-  // 물 채워짐 높이 (restQuality 1~5 → 20%~100%)
-  const fillRatio = restQuality / 5 // 0.2 ~ 1.0
+  // 물 채워짐 높이 — jjimTemp 기반
+  // 60°C → fillRatio 0.1 (거의 빔), 100°C → fillRatio 1.0 (꽉 참)
+  // 미입력(undefined) → 0.35 (기본 상태)
+  const fillRatio = jjimTemp !== undefined
+    ? Math.min(Math.max((jjimTemp - 60) / 40, 0), 1) * 0.9 + 0.1
+    : 0.35
+
   // 아래에서 위로 채워짐: fillRatio가 높을수록 waterTopY가 위로 올라감
-  // fillRatio 0.2 → waterTopY = center + ringRadius * 0.6 (아래쪽 20%만 채움)
-  // fillRatio 1.0 → waterTopY = center - ringRadius (거의 꽉 참)
   const waterTopY = center + ringRadius * (1 - fillRatio * 2)
 
   // 출렁이는 물결 경로 생성 - 아래에서 위로 채워지는 방식
@@ -47,7 +52,6 @@ export default function JimiGraph({ restQuality, cleanliness }: JimiGraphProps) 
     const segments = 80
 
     // 물 표면의 좌우 끝점 계산 (원과 수평선의 교점)
-    // topY가 원 안에 있는 경우에만 물 표시
     const clampedTopY = Math.max(center - innerRadius, Math.min(center + innerRadius, topY))
     const dy = clampedTopY - center
     const halfWidth = Math.sqrt(Math.max(0, innerRadius * innerRadius - dy * dy))
@@ -72,11 +76,6 @@ export default function JimiGraph({ restQuality, cleanliness }: JimiGraphProps) 
         points.push(`L ${x} ${y}`)
       }
     }
-
-    // 원의 아래쪽 호를 따라 닫기 (오른쪽 교점 → 아래 → 왼쪽 교점)
-    // 아래쪽 반원 호 그리기
-    const startAngle = Math.acos((rightX - center) / innerRadius)
-    const endAngle = Math.PI - startAngle
 
     // 큰 호로 아래쪽을 감싸기
     points.push(`A ${innerRadius} ${innerRadius} 0 1 1 ${leftX} ${clampedTopY}`)
