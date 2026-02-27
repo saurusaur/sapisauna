@@ -115,44 +115,45 @@ export const STORAGE_KEYS = {
 // ============================================
 // 점수 관련 유틸
 // ============================================
+import { QUICK_LOG } from '@/constants/content'
+import type { DummyLog } from '@/data/dummy-logs'
 
 /**
- * 또올래요 점수에 따른 이모지 반환
+ * steps 배열에서 value 이하인 가장 가까운 라벨을 반환
  */
-export function getRevisitEmoji(score: number): string {
-  if (score <= 2) return '😐'
-  if (score >= 4) return '😍'
-  return '🙂'
+export function getStepLabel(steps: readonly { value: number; label: string }[], value: number): string {
+  return [...steps].filter(s => s.value <= value).sort((a, b) => b.value - a.value)[0]?.label
+    ?? steps[0]?.label ?? ''
 }
 
 /**
- * 토토노이 강도 레이블 반환
- */
-export function getTotonoLabel(score: number): string {
-  const labels = ['', '그냥저냥', '나쁘지않음', '좋음', '최고', '승천']
-  return labels[score] || ''
-}
-
-/**
- * 수질 레이블 반환
+ * 수질 레이블 반환 (content.ts SSOT)
  */
 export function getWaterQualityLabel(score: number): string {
-  const labels = ['', '탁함', '조금탁함', '보통', '맑음', '아주맑음']
-  return labels[score] || ''
+  return getStepLabel(QUICK_LOG.BATHER.WATER_QUALITY.steps, score)
 }
 
 /**
- * 휴식 퀄리티 레이블 반환
- */
-export function getRestQualityLabel(score: number): string {
-  const labels = ['', '별로', '그냥저냥', '괜찮음', '편안함', '꿀잠']
-  return labels[score] || ''
-}
-
-/**
- * 청결도 레이블 반환
+ * 청결도 레이블 반환 (content.ts SSOT)
  */
 export function getCleanlinessLabel(score: number): string {
-  const labels = ['', '별로', '아쉬움', '보통', '깨끗', '완벽']
-  return labels[score] || ''
+  return getStepLabel(QUICK_LOG.JIMI.CLEANLINESS.steps, score)
+}
+
+/**
+ * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
+ */
+export function getDetailText(log: Pick<DummyLog, 'tribe_id' | 'sauna_temp' | 'cold_bath_temp' | 'repeat' | 'hot_bath_temp' | 'water_quality' | 'jjim_temp' | 'cleanliness'>): string {
+  switch (log.tribe_id) {
+    case 'saunner':
+      return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.repeat}세트`
+    case 'bather':
+      return `수질 ${getWaterQualityLabel(log.water_quality || 3)} · 온탕 ${log.hot_bath_temp}°C`
+    case 'jimi':
+      return log.jjim_temp
+        ? `한증막 ${log.jjim_temp}°C · 청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
+        : `청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
+    default:
+      return ''
+  }
 }

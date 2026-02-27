@@ -4,14 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
-import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel } from '@/lib/utils'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel, getStepLabel, getDetailText } from '@/lib/utils'
 import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
-
-// steps 배열에서 현재 value에 맞는 descriptor를 찾는 헬퍼
-function getStepLabel(steps: readonly { value: number; label: string }[], value: number): string {
-  return [...steps].filter(s => s.value <= value).sort((a, b) => b.value - a.value)[0]?.label
-    ?? steps[0]?.label ?? ''
-}
 
 // DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
 function findOption(options: readonly { id: string; label: string; icon: string }[], id: string) {
@@ -40,22 +34,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   // 점수를 descriptor 텍스트로 표시
   const getRevisitLabel = (score: number): string => {
     return getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, score)
-  }
-
-  // 상세 정보 텍스트 (과거 기록 카드용)
-  const getDetailText = (item: DummyLog) => {
-    switch (item.tribe_id) {
-      case 'saunner':
-        return `사우나 ${item.sauna_temp}°C · 냉탕 ${item.cold_bath_temp}°C · ${item.repeat}세트`
-      case 'bather':
-        return `수질 ${getWaterQualityLabel(item.water_quality || 3)} · 온탕 ${item.hot_bath_temp}°C`
-      case 'jimi':
-        return item.jjim_temp
-          ? `한증막 ${item.jjim_temp}°C · 청결 ${getCleanlinessLabel(item.cleanliness || 3)}`
-          : `청결 ${getCleanlinessLabel(item.cleanliness || 3)}`
-      default:
-        return ''
-    }
   }
 
   const handleDeleteConfirm = () => {

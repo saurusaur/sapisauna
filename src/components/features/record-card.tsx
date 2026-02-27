@@ -1,5 +1,5 @@
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
-import { formatShortDate, getWaterQualityLabel, getCleanlinessLabel } from '@/lib/utils'
+import { formatShortDate, getDetailText } from '@/lib/utils'
 import type { DummyLog } from '@/data/dummy-logs'
 import ScoreBadge from './score-badge'
 
@@ -9,21 +9,6 @@ interface RecordCardProps {
 }
 
 export default function RecordCard({ log, onClick }: RecordCardProps) {
-    // 상세 정보 텍스트 생성 (TYPE별 상이)
-    const getDetailText = (log: DummyLog) => {
-        switch (log.tribe_id) {
-            case 'saunner':
-                return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.repeat}세트`
-            case 'bather':
-                return `수질 ${getWaterQualityLabel(log.water_quality || 3)} · 온탕 ${log.hot_bath_temp}°C`
-            case 'jimi':
-                return log.jjim_temp
-                    ? `한증막 ${log.jjim_temp}°C · 청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
-                    : `청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
-            default:
-                return ''
-        }
-    }
 
     const hasDeepLog = Boolean(log.deep_log)
 

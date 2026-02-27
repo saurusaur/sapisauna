@@ -1,12 +1,24 @@
+/**
+ * 기록 완료 페이지
+ * /complete
+ *
+ * 새 플로우:
+ * 1. currentLog → savedLogs 배열에 저장
+ * 2. currentLog + selectedPlace + sessionStorage 정리
+ * 3. 컴포넌트 state에 보관 → 새로고침에도 UI 유지
+ * 4. 새로고침 시 데이터 없으면 기본 완료 메시지 + 네비게이션 표시 (리다이렉트 안 함)
+ */
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
+import { saveLogToHistory } from '@/lib/storage'
 
-// 완료 화면에서 필요한 최소 필드
-type SavedLog = {
-  display_id?: string
+// sessionStorage 키 (에디터와 공유)
+const EDITOR_STATE_KEY = 'story-editor-state'
+
+type CompletedLog = {
   place_name: string
   tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string
@@ -15,30 +27,36 @@ type SavedLog = {
 
 export default function Complete() {
   const router = useRouter()
-  const [log, setLog] = useState<SavedLog | null>(null)
+  const [log, setLog] = useState<CompletedLog | null>(null)
+  // 새로고침 시에도 완료 UI는 보여줌
+  const [showGeneric, setShowGeneric] = useState(false)
 
   useEffect(() => {
     const logData = localStorage.getItem('currentLog')
     if (logData) {
-      setLog(JSON.parse(logData))
-      // 기록 흐름 종료 — localStorage 정리
+      const parsed = JSON.parse(logData)
+      setLog(parsed)
+
+      // savedLogs 배열에 저장
+      saveLogToHistory(parsed)
+
+      // 정리: 기록 흐름 종료
       localStorage.removeItem('currentLog')
       localStorage.removeItem('selectedPlace')
+      sessionStorage.removeItem(EDITOR_STATE_KEY)
     } else {
-      // 새로고침 등으로 데이터 없이 진입 → 홈으로 리다이렉트
-      router.replace('/home')
-      return
+      // 새로고침 등으로 데이터 없이 진입 → 기본 완료 메시지 표시
+      setShowGeneric(true)
     }
 
-    // 뒤로가기 차단: 히스토리에 현재 페이지를 한 번 더 push한 뒤,
-    // popstate 발생 시(뒤로가기) 홈으로 리다이렉트
+    // 뒤로가기 차단
     window.history.pushState(null, '', '/complete')
     const handlePopState = () => {
-      router.replace('/home')
+      window.history.pushState(null, '', '/complete')
     }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [router])
+  }, [])
 
   const emoji = log ? TRIBE_EMOJI_MAP[log.tribe_id] ?? '🛁' : '🛁'
 
@@ -52,9 +70,6 @@ export default function Complete() {
 
   const hasDeepLog = Boolean(log?.deep_log)
 
-  // 데이터 없으면 리다이렉트 중이므로 아무것도 렌더링하지 않음
-  if (!log) return null
-
   return (
     <div className="min-h-screen bath-tile-bg flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -64,10 +79,17 @@ export default function Complete() {
 
         {/* 완료 메시지 */}
         <h1 className="text-xl font-bold text-stone-700 mb-1.5">기록 완료!</h1>
-        <p className="text-stone-500 text-sm mb-8">
-          {log.place_name}
-          {dateStr ? ` · ${dateStr}` : ''}
-        </p>
+
+        {log ? (
+          <p className="text-stone-500 text-sm mb-8">
+            {log.place_name}
+            {dateStr ? ` · ${dateStr}` : ''}
+          </p>
+        ) : showGeneric ? (
+          <p className="text-stone-500 text-sm mb-8">
+            기록이 저장되었습니다.
+          </p>
+        ) : null}
 
         {/* 딥로그 추가 여부 표시 */}
         {hasDeepLog && (
@@ -85,6 +107,12 @@ export default function Complete() {
             style={{ backgroundColor: 'var(--color-green)' }}
           >
             내 기록 보기
+          </button>
+          <button
+            onClick={() => router.push('/place')}
+            className="w-full py-3.5 rounded-xl font-semibold border border-stone-200 text-stone-600 transition-all hover:bg-stone-50"
+          >
+            한 번 더 기록하기
           </button>
           <button
             onClick={() => router.push('/home')}

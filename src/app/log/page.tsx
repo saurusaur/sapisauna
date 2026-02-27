@@ -48,12 +48,16 @@ export default function QuickLog() {
   const [existingDeepLog, setExistingDeepLog] = useState<Record<string, unknown> | null>(null)
 
   useEffect(() => {
-    // 장소 정보 복원
+    // 장소 정보 복원 — 없으면 장소 선택 페이지로 redirect
     const placeData = localStorage.getItem('selectedPlace')
     if (placeData) {
       const place = JSON.parse(placeData)
       setPlaceName(place.name)
       setPlaceCountryCode(place.countryCode)
+    } else if (!localStorage.getItem('currentLog')) {
+      // 편집 모드(currentLog 있음)가 아닌데 장소도 없으면 → 장소 선택으로
+      router.replace('/place')
+      return
     }
 
     // 이전 입력 복원 (스토리에서 뒤로가기 또는 편집 모드 진입 시)
