@@ -1,20 +1,22 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { APP, SETTINGS, MY_PAGE, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { useUser } from '@/contexts/user-context'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { user } = useUser()
+  const { signOut } = useAuth()
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
-
-  const handleLogout = () => {
-    if (confirm('로그아웃 하시겠습니까?')) {
-      localStorage.removeItem('user')
-      router.push('/')
-    }
+  const handleLogout = async () => {
+    await signOut()
+    router.push('/login')
   }
 
   // 설정 항목 컴포넌트
@@ -144,13 +146,23 @@ export default function SettingsPage() {
 
         {/* 로그아웃 */}
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutConfirm(true)}
           className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center gap-3 text-red-500 hover:shadow-md transition-all"
         >
           <span className="material-symbols-outlined">logout</span>
           <span className="font-medium">로그아웃</span>
         </button>
       </main>
+
+      {showLogoutConfirm && (
+        <ConfirmModal
+          message="로그아웃 하시겠습니까?"
+          confirmLabel="로그아웃"
+          cancelLabel="취소"
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
+      )}
 
       <BottomNav />
     </div>

@@ -90,6 +90,19 @@ export const TRIBE_PERSONA_MAP: Record<string, string> = Object.fromEntries(trib
 export const TRIBE_NAME_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.name]))
 
 // ============================================
+// 로그인 & 비로그인 홈
+// ============================================
+export const LOGIN = {
+  GOOGLE_BUTTON: 'Google로 시작하기',
+  ERROR: '로그인에 실패했어요. 다시 시도해주세요.',
+  TERMS_NOTICE: '로그인 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.',
+  HOME_TITLE: '사-피에 오신 걸 환영해요',
+  HOME_SUBTITLE: '사우나, 목욕, 찜질 기록을 시작해보세요',
+  EXPLORE_CTA: '사우나 탐색하기',
+  LOGIN_CTA: '로그인하고 기록해보세요',
+}
+
+// ============================================
 // 온보딩
 // ============================================
 export const ONBOARDING = {

@@ -2,20 +2,29 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 
-// 온보딩 또는 홈으로 리다이렉트
+// 루트: 인증·프로필 상태에 따라 분기
 export default function RootPage() {
   const router = useRouter()
-  const { user } = useUser()
+  const { user: authUser, isLoading: authLoading } = useAuth()
+  const { user: profile } = useUser()
 
   useEffect(() => {
-    if (user) {
+    if (authLoading) return
+
+    if (!authUser) {
+      // 미인증 → 홈 (공개 CTA 버전)
       router.replace('/home')
-    } else {
+    } else if (!profile) {
+      // 인증됨 + 프로필 없음 → 온보딩
       router.replace('/onboarding')
+    } else {
+      // 인증됨 + 프로필 있음 → 홈
+      router.replace('/home')
     }
-  }, [user, router])
+  }, [authUser, authLoading, profile, router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bath-tile-bg">

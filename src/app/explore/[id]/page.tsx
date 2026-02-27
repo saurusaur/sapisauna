@@ -13,6 +13,7 @@ import type { DummyLog } from '@/data/dummy-logs'
 import type { FavoritesData, FavoriteCollection } from '@/types'
 import Chip from '@/components/ui/chip'
 import RecordCard from '@/components/features/record-card'
+import { useAuth } from '@/contexts/auth-context'
 
 // 기본 즐겨찾기 컬렉션
 function getDefaultCollection(): FavoriteCollection {
@@ -47,6 +48,7 @@ export default function PlaceDetailPage() {
 
   const place = findPlaceById(placeId)
   const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
+  const { user: authUser } = useAuth()
   const [showAllLogs, setShowAllLogs] = useState(false)
 
   useEffect(() => {
@@ -115,8 +117,12 @@ export default function PlaceDetailPage() {
     ? `https://www.google.com/maps/search/${encodeURIComponent(place.name)}/@${place.latitude},${place.longitude},17z`
     : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`
 
-  // "기록하기" CTA
+  // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {
+    if (!authUser) {
+      router.push('/login?next=/log')
+      return
+    }
     localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name }))
     router.push('/log')
   }

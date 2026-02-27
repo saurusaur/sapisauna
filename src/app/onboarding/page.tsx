@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { APP, ONBOARDING, TRIBES } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
+import { useAuth } from '@/contexts/auth-context'
 
 // 온보딩 단계: 닉네임 → 타입 선택 (2단계)
 type OnboardingStep = 'nickname' | 'type'
@@ -12,6 +13,7 @@ type OnboardingStep = 'nickname' | 'type'
 export default function Onboarding() {
   const router = useRouter()
   const { setUser } = useUser()
+  const { user: authUser } = useAuth()
 
   // 현재 단계
   const [step, setStep] = useState<OnboardingStep>('nickname')
@@ -94,22 +96,26 @@ export default function Onboarding() {
     }
   }
 
-  // 최종 제출 - DB에 일괄 저장
+  // 최종 제출 - Supabase + localStorage 저장
   const handleSubmit = async () => {
-    // TODO: Supabase에 사용자 정보 저장
-    console.log('온보딩 완료 - DB 저장:', {
-      nickname,
-      user_types: selectedTypes,
-      primary_type: selectedTypes[0],
-    })
-
-    // Context + localStorage에 저장 (MVP)
-    setUser({
+    const userData = {
       nickname,
       user_types: selectedTypes,
       primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
-    })
+    }
 
+    // Supabase에 프로필 저장 (인증된 경우)
+    if (authUser) {
+      await supabase.from('users').upsert({
+        id: authUser.id,
+        nickname: userData.nickname,
+        user_types: userData.user_types,
+        primary_type: userData.primary_type,
+      })
+    }
+
+    // Context + localStorage에 저장
+    setUser(userData)
     router.push('/home')
   }
 
