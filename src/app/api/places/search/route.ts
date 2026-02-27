@@ -125,7 +125,7 @@ async function searchNaver(query: string): Promise<PlaceResult[]> {
   }
 
   const url = new URL('https://openapi.naver.com/v1/search/local.json')
-  url.searchParams.set('query', `${query} 사우나`)
+  url.searchParams.set('query', query)
   url.searchParams.set('display', '10')
   url.searchParams.set('sort', 'comment') // 리뷰 많은 순
 
@@ -170,9 +170,8 @@ async function searchGoogle(query: string): Promise<PlaceResult[]> {
   }
 
   const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json')
-  url.searchParams.set('query', `${query} sauna spa`)
-  url.searchParams.set('type', 'spa')
-  url.searchParams.set('language', 'en') // 영어로 주소 반환 (일관성)
+  url.searchParams.set('query', `${query} sauna`)
+  url.searchParams.set('language', 'en')
   url.searchParams.set('key', apiKey)
 
   const response = await fetch(url.toString())
