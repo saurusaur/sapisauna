@@ -3,16 +3,20 @@
 import { useRouter } from 'next/navigation'
 import { MESSAGES, TRIBE_DEFAULTS, TRIBE_PERSONA_MAP, LOGIN } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
-import { DUMMY_LOGS } from '@/data/dummy-logs'
+import { useUserLogs } from '@/hooks/use-logs'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
 import AddRecordCard from '@/components/features/add-record-card'
 import RecordCard from '@/components/features/record-card'
+import DataState from '@/components/ui/data-state'
 
 export default function Home() {
   const router = useRouter()
   const { user, primaryTribe } = useUser()
   const { user: authUser } = useAuth()
+
+  // DB 로그 로드 (로그인 시에만 실제 호출됨)
+  const { data: userLogs, loading, error } = useUserLogs()
 
   // 비로그인 상태: 공개 CTA
   if (!authUser) {
@@ -47,7 +51,7 @@ export default function Home() {
   }
 
   // 로그인 상태: 기존 홈
-  const recentLogs = DUMMY_LOGS.slice(0, 3)
+  const recentLogs = userLogs.slice(0, 3)
   const tribeDefaults = TRIBE_DEFAULTS[primaryTribe]
 
   return (
@@ -68,7 +72,7 @@ export default function Home() {
         <div>
           <h2 className="text-sm font-semibold text-stone-500 mb-3">{MESSAGES.HOME.RECENT_RECORDS}</h2>
 
-          {recentLogs.length > 0 ? (
+          <DataState loading={loading} error={error} isEmpty={recentLogs.length === 0} emptyMessage={MESSAGES.HOME.NO_RECORDS}>
             <div className="space-y-3">
               {recentLogs.map((log) => (
                 <RecordCard
@@ -78,11 +82,7 @@ export default function Home() {
                 />
               ))}
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <p className="text-stone-400 mb-4">{MESSAGES.HOME.NO_RECORDS}</p>
-            </div>
-          )}
+          </DataState>
         </div>
       </main>
 

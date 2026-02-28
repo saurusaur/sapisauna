@@ -1,10 +1,10 @@
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import { formatShortDate, getDetailText } from '@/lib/utils'
-import type { DummyLog } from '@/data/dummy-logs'
+import type { LogWithPlace } from '@/types'
 import ScoreBadge from './score-badge'
 
 interface RecordCardProps {
-    log: DummyLog
+    log: LogWithPlace
     onClick: () => void
 }
 

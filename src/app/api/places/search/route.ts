@@ -125,9 +125,10 @@ async function searchNaver(query: string): Promise<PlaceResult[]> {
   }
 
   const url = new URL('https://openapi.naver.com/v1/search/local.json')
-  url.searchParams.set('query', query)
+  url.searchParams.set('query', `${query} 사우나`)
   url.searchParams.set('display', '10')
-  url.searchParams.set('sort', 'comment') // 리뷰 많은 순
+  // sort 파라미터 생략 → 기본(관련도순) 사용
+  // sort=comment는 대형 워터파크/스파 위주로 편향됨
 
   const response = await fetch(url.toString(), {
     headers: {

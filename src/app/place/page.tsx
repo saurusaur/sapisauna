@@ -2,22 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MESSAGES, AMENITY_LABEL_MAP, EXPLORE, ICONS } from '@/constants/content'
-import { DUMMY_PLACES } from '@/data/dummy-places'
-import { DUMMY_LOGS } from '@/data/dummy-logs'
+import { MESSAGES, FACILITY_LABEL_MAP, EXPLORE, ICONS } from '@/constants/content'
+import { usePlaces, usePlaceStats } from '@/hooks/use-places'
+import DataState from '@/components/ui/data-state'
 import Chip from '@/components/ui/chip'
 
 // 시설 라벨 (영어 id → 한국어)
 function getFacilityLabel(id: string): string {
-  return AMENITY_LABEL_MAP[id] || id
+  return FACILITY_LABEL_MAP[id] || id
 }
 
-// 장소별 또갈래요 평균 + 기록 수
-function getPlaceStats(placeName: string) {
-  const logs = DUMMY_LOGS.filter(l => l.place_name === placeName)
-  if (logs.length === 0) return { avg: 0, count: 0 }
-  const avg = Math.round((logs.reduce((sum, l) => sum + l.revisit_score, 0) / logs.length) * 10) / 10
-  return { avg, count: logs.length }
+// 장소 통계 표시용 컴포넌트
+function PlaceStatsDisplay({ placeId }: { placeId: string }) {
+  const { stats } = usePlaceStats(placeId)
+  if (stats.count === 0) return null
+  return (
+    <div className="flex items-center gap-1 text-xs">
+      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
+        {EXPLORE.REVISIT_LABEL} {stats.avg}
+      </span>
+      <span className="text-stone-300">·</span>
+      <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
+    </div>
+  )
 }
 
 // localStorage에 저장된 사용자 등록 장소
@@ -32,6 +39,9 @@ export default function PlaceSelection() {
   const [searchQuery, setSearchQuery] = useState('')
   const [recentPlaces, setRecentPlaces] = useState<SavedPlace[]>([])
 
+  // DB 데이터 로드
+  const { data: places, loading, error } = usePlaces()
+
   // 최근 등록 장소 로드
   useEffect(() => {
     const saved = localStorage.getItem('places')
@@ -45,7 +55,7 @@ export default function PlaceSelection() {
   }, [])
 
   // 검색 필터링
-  const filteredPlaces = DUMMY_PLACES.filter(place =>
+  const filteredPlaces = places.filter(place =>
     place.name.includes(searchQuery) || place.address.includes(searchQuery)
   )
 
@@ -118,56 +128,49 @@ export default function PlaceSelection() {
           <span className="text-sm font-medium text-stone-500">{MESSAGES.LOG.NEARBY}</span>
         </div>
 
-        {/* 장소 목록 — explore 카드 스타일 */}
-        <div className="space-y-3 mb-6">
-          {filteredPlaces.map((place) => {
-            const stats = getPlaceStats(place.name)
-            const mainFacilities = place.facilities.slice(0, 5)
+        {/* 장소 목록 */}
+        <DataState loading={loading} error={error} isEmpty={filteredPlaces.length === 0} emptyIcon="location_off" emptyMessage="등록된 장소가 없습니다">
+          <div className="space-y-3 mb-6">
+            {filteredPlaces.map((place) => {
+              const mainFacilities = place.facilities.slice(0, 5)
 
-            return (
-              <button
-                key={place.id}
-                onClick={() => handlePlaceSelect(place.id, place.name)}
-                className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-stone-700">{place.name}</span>
-                      {place.is_24h && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
-                          24h
-                        </span>
-                      )}
+              return (
+                <button
+                  key={place.id}
+                  onClick={() => handlePlaceSelect(place.id, place.name)}
+                  className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-stone-700">{place.name}</span>
+                        {place.is_24h && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
+                            24h
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
                     </div>
-                    <p className="text-xs text-stone-400 mt-0.5">{place.shortAddress || place.address}</p>
                   </div>
-                </div>
 
-                {/* 시설 칩 */}
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {mainFacilities.map((f) => (
-                    <Chip key={f} label={getFacilityLabel(f)} size="sm" />
-                  ))}
-                  {place.facilities.length > 5 && (
-                    <Chip label={`+${place.facilities.length - 5}`} size="sm" />
-                  )}
-                </div>
-
-                {/* 또갈래요 평점 */}
-                {stats.count > 0 && (
-                  <div className="flex items-center gap-1 text-xs">
-                    <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-                      {EXPLORE.REVISIT_LABEL} {stats.avg}
-                    </span>
-                    <span className="text-stone-300">·</span>
-                    <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
+                  {/* 시설 칩 */}
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {mainFacilities.map((f) => (
+                      <Chip key={f} label={getFacilityLabel(f)} size="sm" />
+                    ))}
+                    {place.facilities.length > 5 && (
+                      <Chip label={`+${place.facilities.length - 5}`} size="sm" />
+                    )}
                   </div>
-                )}
-              </button>
-            )
-          })}
-        </div>
+
+                  {/* 또갈래요 평점 */}
+                  <PlaceStatsDisplay placeId={place.id} />
+                </button>
+              )
+            })}
+          </div>
+        </DataState>
 
         {/* 직접 장소 추가 */}
         <button

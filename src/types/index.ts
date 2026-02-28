@@ -13,15 +13,36 @@ export interface UserProfile {
   createdAt: Date
 }
 
-// 장소 정보
+// 장소 정보 (DB places + place_sources JOIN)
 export interface Place {
   id: string
+  country_code: string
+  latitude: number | null
+  longitude: number | null
+  facilities: string[]
+  is_24h: boolean
+  bath_gender?: 'male-only' | 'female-only' | 'private' | 'mixed' | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+  // place_sources에서 조인된 표시용 필드
   name: string
   address: string
-  countryCode?: string   // ISO 2자리 국가코드 — display_id 생성용
-  distance?: number
-  defaultPrice?: number
-  source: 'naver' | 'google' | 'user'
+  short_address?: string
+  sources: PlaceSource[]
+}
+
+// 장소 소스 (place_sources 테이블)
+export interface PlaceSource {
+  id: string
+  place_id: string
+  source: 'naver' | 'google' | 'manual'
+  external_id: string | null
+  name_original: string
+  address_original: string | null
+  link: string | null
+  plus_code: string | null
+  created_at: string
 }
 
 // Quick Log 기록
@@ -121,17 +142,39 @@ export interface SliderStep {
   label: string      // 표시할 레이블
 }
 
-// 더미 장소 정보
-export interface DummyPlace {
+// DB 로그 + 장소 조인 타입
+export interface LogWithPlace {
   id: string
-  name: string
+  place_id: string
+  place_name: string
   address: string
-  shortAddress?: string  // 카드 미리보기용 짧은 주소 (예: "서울 강남구", "Tokyo, Japan")
-  countryCode?: string   // ISO 2자리 국가코드 (예: 'KR', 'JP') — display_id 생성용, 없으면 'KR' 기본값
-  facilities: string[]   // PLACE_SPECS 전체의 id들 (평탄한 배열)
-  is_24h: boolean        // 24시간 영업 여부
-  latitude?: number      // 위도 (좌표 없는 장소도 호환)
-  longitude?: number     // 경도
+  date: string
+  tribe_id: TribeId
+  revisit_score: number
+  heat_time?: number
+  ice_time?: number
+  pause_time?: number
+  repeat?: number
+  sauna_temp?: number
+  cold_bath_temp?: number
+  totono?: number
+  water_quality?: number
+  hot_bath_temp?: number
+  cleanliness?: number
+  jjim_temp?: number
+  deep_log?: {
+    bath_gender?: 'male' | 'female' | 'mixed' | 'private'
+    companion?: string | null
+    purposes?: string[]
+    cost?: number | null
+    crowd?: string | null
+    memo?: string
+    has_scrub?: boolean
+    scrub_satisfaction?: number | null
+    has_store?: boolean
+    store_score?: number | null
+    store_memo?: string | null
+  }
 }
 
 // 즐겨찾기 컬렉션

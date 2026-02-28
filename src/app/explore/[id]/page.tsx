@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS,
-  TRIBE_EMOJI_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
-import { findPlaceById } from '@/data/dummy-places'
-import { DUMMY_LOGS, getPlaceStats } from '@/data/dummy-logs'
-import type { DummyLog } from '@/data/dummy-logs'
+import { usePlace, usePlaceStats } from '@/hooks/use-places'
+import { useLogsByPlace } from '@/hooks/use-logs'
 import type { FavoritesData, FavoriteCollection } from '@/types'
 import Chip from '@/components/ui/chip'
+import DataState from '@/components/ui/data-state'
 import RecordCard from '@/components/features/record-card'
 import { useAuth } from '@/contexts/auth-context'
 
@@ -46,7 +45,9 @@ export default function PlaceDetailPage() {
   const params = useParams()
   const placeId = params.id as string
 
-  const place = findPlaceById(placeId)
+  const { data: place, loading: placeLoading, error: placeError } = usePlace(placeId)
+  const { data: placeLogs, loading: logsLoading } = useLogsByPlace(placeId)
+  const { stats } = usePlaceStats(placeId)
   const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
   const { user: authUser } = useAuth()
   const [showAllLogs, setShowAllLogs] = useState(false)
@@ -55,7 +56,16 @@ export default function PlaceDetailPage() {
     setFavorites(loadFavorites())
   }, [])
 
-  if (!place) {
+  // 로딩/에러/없음 상태
+  if (placeLoading) {
+    return (
+      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+        <span className="material-symbols-outlined text-3xl text-stone-300 animate-spin">progress_activity</span>
+      </div>
+    )
+  }
+
+  if (placeError || !place) {
     return (
       <div className="min-h-screen bath-tile-bg flex items-center justify-center">
         <p className="text-stone-400">장소를 찾을 수 없습니다</p>
@@ -82,14 +92,6 @@ export default function PlaceDetailPage() {
 
   const isFavorited = favorites.collections[0]?.placeIds.includes(placeId) || false
 
-  // 이 장소의 모든 기록
-  const placeLogs = DUMMY_LOGS
-    .filter((log) => log.place_id === place.id) // Use place_id
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-
-  // 평균 평가 (공용 함수 사용)
-  const stats = getPlaceStats(place.id)
-
   // 시설 분류
   const facilityGroups: { label: string; items: { id: string; label: string; icon: string }[] }[] = []
   for (const key of specSections) {
@@ -108,14 +110,19 @@ export default function PlaceDetailPage() {
   // 표시할 기록 (기본 3개, 더보기 시 전체)
   const displayedLogs = showAllLogs ? placeLogs : placeLogs.slice(0, 3)
 
-  // 지도 URL (좌표 있으면 좌표 기반, 없으면 이름+주소 검색 폴백)
-  const naverMapUrl = place.latitude
-    ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
-    : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
+  // 지도 URL — place_sources에서 link 우선, 없으면 좌표/이름 기반 생성
+  const naverSource = place.sources.find(s => s.source === 'naver')
+  const googleSource = place.sources.find(s => s.source === 'google')
 
-  const googleMapUrl = place.latitude
-    ? `https://www.google.com/maps/search/${encodeURIComponent(place.name)}/@${place.latitude},${place.longitude},17z`
-    : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`
+  const naverMapUrl = naverSource?.link
+    || (place.latitude
+      ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
+      : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`)
+
+  const googleMapUrl = googleSource?.link
+    || (place.latitude
+      ? `https://www.google.com/maps/search/${encodeURIComponent(place.name)}/@${place.latitude},${place.longitude},17z`
+      : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`)
 
   // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {
@@ -222,13 +229,13 @@ export default function PlaceDetailPage() {
         {/* 평균 평가 */}
         <div className="bg-white rounded-xl shadow-sm p-4">
           <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.AVG_RATING}</h3>
-          {placeLogs.length > 0 ? (
+          {stats.count > 0 ? (
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
                 {stats.avg} (&ldquo;또 갈래요&rdquo;)
               </span>
               <span className="text-sm text-stone-400">
-                · {EXPLORE.LOG_COUNT(placeLogs.length)}
+                · {EXPLORE.LOG_COUNT(stats.count)}
               </span>
             </div>
           ) : (
@@ -236,13 +243,11 @@ export default function PlaceDetailPage() {
           )}
         </div>
 
-        {/* 이 장소의 기록 리스트 (RecordCard 사용, 흰색 박스 제거) */}
+        {/* 이 장소의 기록 리스트 */}
         <div>
           <h3 className="text-sm font-semibold text-stone-500 mb-3">{PLACE_DETAIL.LOGS_TITLE}</h3>
 
-          {placeLogs.length === 0 ? (
-            <p className="text-sm text-stone-400 text-center py-4">{PLACE_DETAIL.NO_LOGS}</p>
-          ) : (
+          <DataState loading={logsLoading} error={null} isEmpty={placeLogs.length === 0} emptyMessage={PLACE_DETAIL.NO_LOGS}>
             <div className="space-y-3">
               {displayedLogs.map((log) => (
                 <RecordCard
@@ -262,7 +267,7 @@ export default function PlaceDetailPage() {
                 </button>
               )}
             </div>
-          )}
+          </DataState>
         </div>
       </main>
 

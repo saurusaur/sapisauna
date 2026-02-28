@@ -39,11 +39,21 @@ const TRIBE_COLORS = {
   jimi: 'var(--color-jimi)',
 } as const
 
-// 탕 성별 옵션 (Deep Log용 - 색상은 페이지 기본 포인트 컬러 사용)
-export const BATH_GENDER_OPTIONS = [
+// 장소 특성: "이 시설은 어떤 종류?" (places.bath_gender)
+// 미선택(NULL) = 일반 남녀분리 시설
+export const PLACE_BATH_TYPE = [
+  { id: 'male-only', label: '남성전용', icon: 'male' },
+  { id: 'female-only', label: '여성전용', icon: 'female' },
+  { id: 'private', label: '개인', icon: 'person' },
+  { id: 'mixed', label: '혼탕', icon: 'wc' },
+] as const
+
+// 딥로그 기록: "오늘 나는 어디 이용?" (deep_logs.bath_gender)
+export const LOG_BATH_GENDER = [
   { id: 'male', label: '남탕', icon: 'male' },
   { id: 'female', label: '여탕', icon: 'female' },
   { id: 'mixed', label: '혼탕', icon: 'wc' },
+  { id: 'private', label: '개인', icon: 'person' },
 ] as const
 
 // ============================================
@@ -288,41 +298,41 @@ export const PLACE_SPECS = {
   HEAT: {
     label: '온열 시설',
     options: [
-      { id: '온탕', label: '온탕', icon: 'heat', category: 'heat', tempRange: [35, 43] },
-      { id: '열탕', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
-      { id: '건식사우나', label: '건식사우나', icon: 'sauna', category: 'heat', tempRange: [50, 130] },
-      { id: '습식사우나', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 90] },
-      { id: '불한증막', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
-      { id: '소금사우나', label: '소금사우나', icon: 'salinity', category: 'heat' },
-      { id: '아로마사우나', label: '아로마사우나', icon: 'temp_preferences_eco', category: 'heat', tempRange: [40, 100] },
+      { id: 'hot-bath', label: '온탕', icon: 'heat', category: 'heat', tempRange: [35, 43] },
+      { id: 'very-hot-bath', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
+      { id: 'dry-sauna', label: '건식사우나', icon: 'sauna', category: 'heat', tempRange: [50, 130] },
+      { id: 'wet-sauna', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 90] },
+      { id: 'bulgama', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
+      { id: 'salt-sauna', label: '소금사우나', icon: 'salinity', category: 'heat' },
+      { id: 'aroma-sauna', label: '아로마사우나', icon: 'temp_preferences_eco', category: 'heat', tempRange: [40, 100] },
     ],
   },
   // 냉각 시설
   ICE: {
     label: '냉각 시설',
     options: [
-      { id: '냉탕', label: '냉탕', icon: 'ac_unit', category: 'ice', tempRange: [15, 30] },
-      { id: '급냉탕', label: '급냉탕', icon: 'severe_cold', category: 'ice', tempRange: [0, 20] },
-      { id: '아이스방', label: '아이스방', icon: 'icecream', category: 'ice' },
+      { id: 'cold-bath', label: '냉탕', icon: 'ac_unit', category: 'ice', tempRange: [15, 30] },
+      { id: 'ice-bath', label: '급냉탕', icon: 'severe_cold', category: 'ice', tempRange: [0, 20] },
+      { id: 'ice-room', label: '아이스방', icon: 'icecream', category: 'ice' },
     ],
   },
   // 휴식 시설
   PAUSE: {
     label: '휴식 시설',
     options: [
-      { id: '외기욕', label: '외기욕(바깥)', icon: 'chair_umbrella', category: 'pause' },
-      { id: '내기욕', label: '내기욕(실내)', icon: 'living', category: 'pause' },
+      { id: 'outdoor-rest', label: '외기욕(바깥)', icon: 'chair_umbrella', category: 'pause' },
+      { id: 'indoor-rest', label: '내기욕(실내)', icon: 'living', category: 'pause' },
     ],
   },
   // 추가 시설
   BEYOND: {
     label: '추가 시설',
     options: [
-      { id: '노천탕', label: '노천탕', icon: 'bath_outdoor', category: 'beyond', tempRange: [35, 45] },
-      { id: '미온탕', label: '미온탕', icon: 'thermostat', category: 'beyond', tempRange: [30, 37] },
-      { id: '찜질방', label: '찜질방', icon: 'foundation', category: 'beyond' },
-      { id: '아우프구스', label: '아우프구스', icon: 'airwave', category: 'beyond' },
-      { id: '셀프로울루', label: '셀프 로울루', icon: 'format_color_fill', category: 'beyond' },
+      { id: 'open-air-bath', label: '노천탕', icon: 'bath_outdoor', category: 'beyond', tempRange: [35, 45] },
+      { id: 'lukewarm-bath', label: '미온탕', icon: 'thermostat', category: 'beyond', tempRange: [30, 37] },
+      { id: 'jjimjilbang', label: '찜질방', icon: 'foundation', category: 'beyond' },
+      { id: 'aufguss', label: '아우프구스', icon: 'airwave', category: 'beyond' },
+      { id: 'self-loyly', label: '셀프 로울루', icon: 'format_color_fill', category: 'beyond' },
     ],
   },
   // 편의시설
@@ -364,10 +374,10 @@ export const PLACE_SPECS = {
 // Deep Log 입력 항목
 // ============================================
 export const DEEP_LOG = {
-  // 탕 선택 (남탕/여탕/혼탕)
+  // 탕 선택 (남탕/여탕/혼탕/개인)
   BATH_GENDER: {
     label: '탕 선택',
-    options: BATH_GENDER_OPTIONS,
+    options: LOG_BATH_GENDER,
   },
   COMPANION: {
     label: '동행자',
@@ -602,23 +612,27 @@ export const MY_PAGE = {
 export const EXPLORE_FILTERS = {
   HEAT: {
     label: '온열 시설',
-    options: ['건식사우나', '습식사우나', '불한증막', '소금사우나', '아로마사우나'],
+    options: ['dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna', 'aroma-sauna'],
   },
   ICE: {
     label: '냉각 시설',
-    options: ['냉탕', '급냉탕', '아이스방'],
+    options: ['cold-bath', 'ice-bath', 'ice-room'],
   },
   PAUSE: {
     label: '휴식 시설',
-    options: ['외기욕', '내기욕'],
+    options: ['outdoor-rest', 'indoor-rest'],
   },
   BEYOND: {
     label: '특별 시설',
-    options: ['노천탕', '아우프구스', '셀프로울루'],
+    options: ['open-air-bath', 'aufguss', 'self-loyly'],
   },
   AMENITIES: {
     label: '편의시설',
     options: ['store', 'gym', 'massage', 'sleep-room', 'workspace'],
+  },
+  GENDER: {
+    label: '탕 구분',
+    options: ['male-only', 'female-only', 'private', 'mixed'],
   },
 } as const
 
@@ -634,6 +648,21 @@ export const AMENITY_LABEL_MAP: Record<string, string> = {
   'shampoo-bodywash': '샴푸/바디워시',
   'charging': '충전 스테이션',
 }
+
+// 전체 시설 ID → 라벨 통합 매핑 (PLACE_SPECS 모든 섹션 + AMENITY_LABEL_MAP + PLACE_BATH_TYPE)
+export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
+  const map: Record<string, string> = { ...AMENITY_LABEL_MAP }
+  const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
+  for (const section of sections) {
+    for (const opt of section.options) {
+      map[opt.id] = opt.label
+    }
+  }
+  for (const opt of PLACE_BATH_TYPE) {
+    map[opt.id] = opt.label
+  }
+  return map
+})()
 
 export const SETTINGS = {
   TITLE: '설정',

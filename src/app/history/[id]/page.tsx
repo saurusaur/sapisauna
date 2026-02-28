@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel, getStepLabel, getDetailText } from '@/lib/utils'
-import { findLogById, findLogsBySamePlace, type DummyLog } from '@/data/dummy-logs'
+import { useLog } from '@/hooks/use-logs'
+import { useLogsByPlace } from '@/hooks/use-logs'
+import DataState from '@/components/ui/data-state'
 
 // DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
 function findOption(options: readonly { id: string; label: string; icon: string }[], id: string) {
@@ -24,10 +26,12 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const [showAllSamePlace, setShowAllSamePlace] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const log = findLogById(params.id)
+  // DB 로그 로드
+  const { data: log, loading, error } = useLog(params.id)
+  const { data: allPlaceLogs } = useLogsByPlace(log?.place_id || '')
 
-  // 같은 장소 과거 기록
-  const samePlaceLogs = log ? findLogsBySamePlace(log.id, log.place_name) : []
+  // 같은 장소 과거 기록 (현재 기록 제외)
+  const samePlaceLogs = log ? allPlaceLogs.filter(l => l.id !== log.id) : []
   const visibleSamePlaceLogs = showAllSamePlace ? samePlaceLogs : samePlaceLogs.slice(0, 2)
   const hasMoreSamePlaceLogs = samePlaceLogs.length > 2
 
@@ -37,11 +41,20 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   }
 
   const handleDeleteConfirm = () => {
-    // TODO: 실제 삭제 로직
+    // TODO: Supabase 삭제 로직
     router.push('/history')
   }
 
-  if (!log) {
+  // 로딩/에러 상태
+  if (loading) {
+    return (
+      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+        <span className="material-symbols-outlined text-3xl text-stone-300 animate-spin">progress_activity</span>
+      </div>
+    )
+  }
+
+  if (error || !log) {
     return (
       <div className="min-h-screen bath-tile-bg flex items-center justify-center">
         <p className="text-stone-400">기록을 찾을 수 없습니다</p>
@@ -247,8 +260,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             </div>
           </div>
         )}
-
-        {/* 메모 — deep_log 내부 memo로 이동됨, Deep Log 섹션에서 표시 */}
 
         {/* 같은 장소 과거 기록 */}
         {samePlaceLogs.length > 0 && (

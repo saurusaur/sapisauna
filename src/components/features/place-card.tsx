@@ -1,11 +1,11 @@
-import { ICONS, AMENITY_LABEL_MAP } from '@/constants/content'
-import type { DummyPlace } from '@/types'
-import { getPlaceStats } from '@/data/dummy-logs'
+import { ICONS, FACILITY_LABEL_MAP } from '@/constants/content'
+import type { Place } from '@/types'
+import { usePlaceStats } from '@/hooks/use-places'
 import Chip from '@/components/ui/chip'
 import ScoreBadge from './score-badge'
 
 interface PlaceCardProps {
-    place: DummyPlace
+    place: Place
     isFavorited: boolean
     onToggleFavorite: () => void
     onClick: () => void
@@ -13,11 +13,11 @@ interface PlaceCardProps {
 }
 
 function getFacilityLabel(id: string): string {
-    return AMENITY_LABEL_MAP[id] || id
+    return FACILITY_LABEL_MAP[id] || id
 }
 
 // 기본 시설 — 카드 표시에서 후순위로 밀기 (상세 페이지에서는 전체 표시)
-const BASIC_FACILITIES = new Set(['온탕', '열탕', '냉탕'])
+const BASIC_FACILITIES = new Set(['hot-bath', 'very-hot-bath', 'cold-bath'])
 
 function sortFacilities(facilities: string[]): string[] {
     const special = facilities.filter((f) => !BASIC_FACILITIES.has(f))
@@ -32,7 +32,7 @@ export default function PlaceCard({
     onClick,
     variant = 'default',
 }: PlaceCardProps) {
-    const stats = getPlaceStats(place.id)
+    const { stats } = usePlaceStats(place.id)
 
     if (variant === 'minimal') {
         return (
@@ -49,7 +49,7 @@ export default function PlaceCard({
                             </span>
                         )}
                     </div>
-                    <p className="text-xs text-stone-400 mt-0.5">{place.shortAddress || place.address}</p>
+                    <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
                     {stats.count > 0 && (
                         <div className="mt-1">
                             <ScoreBadge score={stats.avg} count={stats.count} />
@@ -90,7 +90,7 @@ export default function PlaceCard({
                             </span>
                         )}
                     </div>
-                    <p className="text-xs text-stone-400 mt-0.5">{place.shortAddress || place.address}</p>
+                    <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
                 </div>
                 <div
                     onClick={(e) => {

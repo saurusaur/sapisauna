@@ -3,20 +3,21 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
-  ICONS, EXPLORE, AMENITY_LABEL_MAP,
-  TRIBE_EMOJI_MAP, TRIBE_NAME_MAP,
+  ICONS, EXPLORE, FACILITY_LABEL_MAP,
+  TRIBE_EMOJI_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
-import { DUMMY_PLACES } from '@/data/dummy-places'
-import { DUMMY_LOGS } from '@/data/dummy-logs'
-import type { DummyPlace, FavoritesData, FavoriteCollection } from '@/types'
+import { usePlaces, usePlaceStats } from '@/hooks/use-places'
+import { useLogs } from '@/hooks/use-logs'
+import type { Place, FavoritesData, FavoriteCollection } from '@/types'
 import Chip from '@/components/ui/chip'
+import DataState from '@/components/ui/data-state'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 
 // 시설 라벨
 function getFacilityLabel(id: string): string {
-  return AMENITY_LABEL_MAP[id] || id
+  return FACILITY_LABEL_MAP[id] || id
 }
 
 
@@ -44,14 +45,6 @@ function saveFavorites(data: FavoritesData) {
   storage.set(STORAGE_KEYS.FAVORITES, data)
 }
 
-// 장소별 평균 revisit_score 계산
-function getPlaceStats(placeName: string) {
-  const logs = DUMMY_LOGS.filter((log) => log.place_name === placeName)
-  if (logs.length === 0) return { avg: 0, count: 0 }
-  const sum = logs.reduce((acc, log) => acc + log.revisit_score, 0)
-  return { avg: Math.round((sum / logs.length) * 10) / 10, count: logs.length }
-}
-
 // 장소별 즐겨찾기 수
 function getFavoriteCount(placeId: string, favorites: FavoritesData): number {
   return favorites.collections.reduce((count, col) =>
@@ -66,6 +59,21 @@ const typeDropdownLabel: Record<string, string> = {
   saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner 추천`,
   bather: `${TRIBE_EMOJI_MAP['bather']} Bather 추천`,
   jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi 추천`,
+}
+
+// 장소 통계 표시용 컴포넌트
+function PlaceStatsDisplay({ placeId }: { placeId: string }) {
+  const { stats } = usePlaceStats(placeId)
+  if (stats.count === 0) return null
+  return (
+    <div className="flex items-center gap-1 text-xs">
+      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
+        {EXPLORE.REVISIT_LABEL} {stats.avg}
+      </span>
+      <span className="text-stone-300">·</span>
+      <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
+    </div>
+  )
 }
 
 export default function TypeListPage() {
@@ -86,6 +94,11 @@ export default function TypeListPage() {
   } = useExploreFilters()
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
+
+  // DB 데이터 로드
+  const { data: places, loading: placesLoading, error: placesError } = usePlaces()
+  const { data: logs, loading: logsLoading } = useLogs(100)
+  const loading = placesLoading || logsLoading
 
   useEffect(() => {
     setFavorites(loadFavorites())
@@ -112,36 +125,49 @@ export default function TypeListPage() {
     return favorites.collections[0]?.placeIds.includes(placeId) || false
   }
 
+  // 장소별 통계 캐시
+  const placeStatsMap = useMemo(() => {
+    const map: Record<string, { avg: number; count: number }> = {}
+    for (const log of logs) {
+      if (!map[log.place_id]) map[log.place_id] = { avg: 0, count: 0 }
+      map[log.place_id].count++
+      map[log.place_id].avg += log.revisit_score
+    }
+    for (const key of Object.keys(map)) {
+      map[key].avg = Math.round((map[key].avg / map[key].count) * 10) / 10
+    }
+    return map
+  }, [logs])
 
   // 해당 타입의 추천 장소 (≥4점 건수 내림차순 → 평균 점수 내림차순)
   const recommendedPlaces = useMemo(() => {
-    const qualifiedLogs = DUMMY_LOGS.filter(
+    const qualifiedLogs = logs.filter(
       (log) => log.tribe_id === currentType && log.revisit_score >= 4
     )
     const placeStats: Record<string, { count: number; sum: number }> = {}
     for (const log of qualifiedLogs) {
-      if (!placeStats[log.place_name]) placeStats[log.place_name] = { count: 0, sum: 0 }
-      placeStats[log.place_name].count++
-      placeStats[log.place_name].sum += log.revisit_score
+      if (!placeStats[log.place_id]) placeStats[log.place_id] = { count: 0, sum: 0 }
+      placeStats[log.place_id].count++
+      placeStats[log.place_id].sum += log.revisit_score
     }
-    return DUMMY_PLACES
-      .filter((place) => placeStats[place.name])
+    return places
+      .filter((place) => placeStats[place.id])
       .sort((a, b) => {
-        const sa = placeStats[a.name]
-        const sb = placeStats[b.name]
+        const sa = placeStats[a.id]
+        const sb = placeStats[b.id]
         if (sb.count !== sa.count) return sb.count - sa.count
         return (sb.sum / sb.count) - (sa.sum / sa.count)
       })
-  }, [currentType])
+  }, [places, logs, currentType])
 
   // 검색/필터 적용
   const filteredPlaces = useMemo(() => {
-    let places = [...recommendedPlaces]
+    let filtered = [...recommendedPlaces]
 
     // 검색
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
-      places = places.filter(
+      filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.address.toLowerCase().includes(q)
@@ -150,20 +176,20 @@ export default function TypeListPage() {
 
     // 시설 필터 (AND 조건)
     if (selectedFilters.length > 0) {
-      places = places.filter((p) =>
+      filtered = filtered.filter((p) =>
         selectedFilters.every((f) => p.facilities.includes(f))
       )
     }
 
     // 24시 토글
     if (is24hOnly) {
-      places = places.filter((p) => p.is_24h)
+      filtered = filtered.filter((p) => p.is_24h)
     }
 
     // 정렬
-    places.sort((a, b) => {
-      const statsA = getPlaceStats(a.name)
-      const statsB = getPlaceStats(b.name)
+    filtered.sort((a, b) => {
+      const statsA = placeStatsMap[a.id] || { avg: 0, count: 0 }
+      const statsB = placeStatsMap[b.id] || { avg: 0, count: 0 }
 
       if (sortType === 'recommended') {
         if (statsA.count === 0 && statsB.count > 0) return 1
@@ -182,8 +208,8 @@ export default function TypeListPage() {
       return 0
     })
 
-    return places
-  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, favorites])
+    return filtered
+  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, favorites, placeStatsMap])
 
   return (
     <div className="min-h-screen pb-8 bath-tile-bg">
@@ -277,17 +303,9 @@ export default function TypeListPage() {
         />
 
         {/* 장소 리스트 */}
-        {filteredPlaces.length === 0 ? (
-          <div className="text-center py-16">
-            <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
-              search_off
-            </span>
-            <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
-          </div>
-        ) : (
+        <DataState loading={loading} error={placesError} isEmpty={filteredPlaces.length === 0} emptyIcon="search_off" emptyMessage={EXPLORE.NO_RESULTS}>
           <div className="space-y-3">
             {filteredPlaces.map((place) => {
-              const stats = getPlaceStats(place.name)
               const mainFacilities = place.facilities.slice(0, 5)
 
               return (
@@ -306,7 +324,7 @@ export default function TypeListPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-stone-400 mt-0.5">{place.shortAddress || place.address}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
                     </div>
                     <button
                       onClick={(e) => {
@@ -335,20 +353,12 @@ export default function TypeListPage() {
                   </div>
 
                   {/* 평점 */}
-                  {stats.count > 0 && (
-                    <div className="flex items-center gap-1 text-xs">
-                      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-                        {EXPLORE.REVISIT_LABEL} {stats.avg}
-                      </span>
-                      <span className="text-stone-300">·</span>
-                      <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
-                    </div>
-                  )}
+                  <PlaceStatsDisplay placeId={place.id} />
                 </button>
               )
             })}
           </div>
-        )}
+        </DataState>
       </main>
     </div>
   )

@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DEEP_LOG, PLACE_SPECS, BATH_GENDER_OPTIONS } from '@/constants/content'
+import { DEEP_LOG, PLACE_SPECS, LOG_BATH_GENDER } from '@/constants/content'
 import { Slider } from '@/components/slider'
 import SelectButton from '@/components/ui/select-button'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { formatCostInput } from '@/lib/utils'
 
-// 탕 선택 타입
-type BathGender = 'male' | 'female' | 'mixed'
+// 탕 선택 타입 (딥로그용: 오늘 이용한 탕)
+type BathGender = 'male' | 'female' | 'mixed' | 'private'
 
 export default function DeepLog() {
   const router = useRouter()
@@ -176,7 +176,7 @@ export default function DeepLog() {
               {DEEP_LOG.BATH_GENDER.label}
             </label>
             <ChipSelect
-              options={BATH_GENDER_OPTIONS}
+              options={LOG_BATH_GENDER}
               selected={bathGender}
               onSelect={(id) => setBathGender(id as BathGender)}
             />

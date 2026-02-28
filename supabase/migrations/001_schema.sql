@@ -37,27 +37,19 @@ CREATE POLICY "Authenticated users can check nicknames" ON users
   FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- ============================================
--- 2. PLACES 테이블 - 장소 스펙 (정적 정보)
+-- 2. PLACES 테이블 - 장소 (이름/주소는 place_sources에서 관리)
 -- ============================================
 CREATE TABLE IF NOT EXISTS places (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  address TEXT,
+  country_code TEXT NOT NULL DEFAULT 'KR',
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
 
-  -- 시설 스펙 (JSONB)
-  baths JSONB DEFAULT '{}',
-  saunas JSONB DEFAULT '{}',
-  rooms JSONB DEFAULT '{}',
-
-  -- 편의시설
-  is_dryer_free BOOLEAN,
-  has_amenities BOOLEAN,
-  has_towel_service BOOLEAN,
-  has_store BOOLEAN,
-  store_recommended TEXT,
-  has_sleep_room BOOLEAN,
+  -- 시설 스펙 (평탄 배열: PLACE_SPECS의 id들)
+  facilities TEXT[] DEFAULT '{}',
+  is_24h BOOLEAN DEFAULT false,
+  -- 탕 구분: NULL = 일반 남탕/여탕 (default)
+  bath_gender TEXT CHECK (bath_gender IN ('male-only', 'female-only', 'private', 'mixed')),
 
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -80,8 +72,10 @@ CREATE TABLE IF NOT EXISTS place_sources (
   place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
   source TEXT NOT NULL CHECK (source IN ('naver', 'google', 'manual')),
   external_id TEXT,
-  name_original TEXT,
+  name_original TEXT NOT NULL,
   address_original TEXT,
+  link TEXT,
+  plus_code TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(source, external_id)
 );
@@ -167,6 +161,7 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   used_rooms TEXT[] DEFAULT '{}',
   used_amenities TEXT[] DEFAULT '{}',
 
+  bath_gender TEXT CHECK (bath_gender IN ('male', 'female', 'mixed', 'private')),
   crowd TEXT CHECK (crowd IN ('empty', 'moderate', 'busy', 'full')),
 
   had_scrub BOOLEAN DEFAULT false,
@@ -202,3 +197,20 @@ CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_logs_place_id ON logs(place_id);
 CREATE INDEX IF NOT EXISTS idx_logs_logged_at ON logs(logged_at DESC);
 CREATE INDEX IF NOT EXISTS idx_deep_logs_log_id ON deep_logs(log_id);
+CREATE INDEX IF NOT EXISTS idx_places_facilities ON places USING GIN (facilities);
+
+-- ============================================
+-- 6. RPC 함수 - 장소별 통계
+-- ============================================
+CREATE OR REPLACE FUNCTION get_place_stats(p_place_id UUID)
+RETURNS TABLE(avg_score NUMERIC, log_count BIGINT)
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT
+    ROUND(AVG(revisit_score)::NUMERIC, 1) AS avg_score,
+    COUNT(*) AS log_count
+  FROM logs
+  WHERE place_id = p_place_id
+    AND revisit_score IS NOT NULL;
+$$;

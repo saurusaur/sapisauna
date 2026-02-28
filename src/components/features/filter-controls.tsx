@@ -1,10 +1,10 @@
 'use client'
 
-import { ICONS, EXPLORE, EXPLORE_FILTERS, AMENITY_LABEL_MAP, PLACE_SPECS } from '@/constants/content'
+import { ICONS, EXPLORE, EXPLORE_FILTERS, FACILITY_LABEL_MAP, PLACE_SPECS, PLACE_BATH_TYPE } from '@/constants/content'
 import Chip from '@/components/ui/chip'
 import ToggleSwitch from '@/components/ui/toggle-switch'
 
-// PLACE_SPECS에서 시설 id → 아이콘 찾기
+// PLACE_SPECS + PLACE_BATH_TYPE에서 시설 id → 아이콘 찾기
 const facilityIconMap: Record<string, string> = {}
 for (const section of Object.values(PLACE_SPECS)) {
     if ('options' in section && Array.isArray(section.options)) {
@@ -13,9 +13,12 @@ for (const section of Object.values(PLACE_SPECS)) {
         }
     }
 }
+for (const opt of PLACE_BATH_TYPE) {
+    facilityIconMap[opt.id] = opt.icon
+}
 
 function getFacilityLabel(id: string): string {
-    return AMENITY_LABEL_MAP[id] || id
+    return FACILITY_LABEL_MAP[id] || id
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -116,7 +116,6 @@ export const STORAGE_KEYS = {
 // 점수 관련 유틸
 // ============================================
 import { QUICK_LOG } from '@/constants/content'
-import type { DummyLog } from '@/data/dummy-logs'
 
 /**
  * steps 배열에서 value 이하인 가장 가까운 라벨을 반환
@@ -141,9 +140,25 @@ export function getCleanlinessLabel(score: number): string {
 }
 
 /**
+ * 주소에서 짧은 주소 생성 (예: "서울특별시 강남구 영동대로 513" → "서울 강남구")
+ */
+export function generateShortAddress(address: string): string {
+  if (!address) return ''
+  const parts = address.split(/\s+/)
+  if (parts.length < 2) return address
+
+  // "서울특별시" → "서울", "경기도" → "경기" 등
+  const city = parts[0]
+    .replace(/특별시|광역시|특별자치시|특별자치도/, '')
+    .replace(/도$/, '')
+  const district = parts[1]
+  return `${city} ${district}`
+}
+
+/**
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
-export function getDetailText(log: Pick<DummyLog, 'tribe_id' | 'sauna_temp' | 'cold_bath_temp' | 'repeat' | 'hot_bath_temp' | 'water_quality' | 'jjim_temp' | 'cleanliness'>): string {
+export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; cleanliness?: number }): string {
   switch (log.tribe_id) {
     case 'saunner':
       return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.repeat}세트`

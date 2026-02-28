@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { PLACE_SPECS } from '@/constants/content'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
+import { addPlace } from '@/lib/places-service'
+import { PLACE_BATH_TYPE } from '@/constants/content'
 
 // API 검색 결과 타입
 interface SearchResult {
@@ -37,8 +39,13 @@ export default function AddPlace() {
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
+  const [bathGender, setBathGender] = useState<'male-only' | 'female-only' | 'private' | 'mixed' | null>(null)
 
-  const canSave = name && address
+  // 저장 상태
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const canSave = name && address && !isSaving
 
   // 검색 실행 (debounce)
   const executeSearch = useCallback(async (query: string, searchSource: 'naver' | 'google') => {
@@ -91,40 +98,33 @@ export default function AddPlace() {
     setSearchQuery('')
   }
 
-  // 저장
-  const handleSave = () => {
+  // 저장 — Supabase places + place_sources
+  const handleSave = async () => {
     if (!canSave) return
 
-    // place_sources 구조에 맞게 저장
-    const newPlace = {
-      id: Date.now().toString(),
-      name,
-      address,
-      shortAddress: selectedPlace?.shortAddress || address,
-      latitude: selectedPlace?.latitude || null,
-      longitude: selectedPlace?.longitude || null,
-      // 장소 시설 정보
-      facilities: selectedFacilities,
-      is_24h: is24h,
-      // 외부 API 소스 정보 (place_sources 테이블 구조)
-      sources: selectedPlace ? [{
-        source: selectedPlace.source,
-        external_id: selectedPlace.external_id,
-        name_original: selectedPlace.name,
-        address_original: selectedPlace.address,
-      }] : [],
+    setIsSaving(true)
+    setSaveError(null)
+
+    try {
+      const newPlace = await addPlace({
+        name,
+        address,
+        latitude: selectedPlace?.latitude || null,
+        longitude: selectedPlace?.longitude || null,
+        facilities: selectedFacilities,
+        is_24h: is24h,
+        bath_gender: bathGender,
+        country_code: source === 'naver' ? 'KR' : undefined,
+        source: selectedPlace ? selectedPlace.source : 'manual',
+        external_id: selectedPlace?.external_id,
+      })
+
+      localStorage.setItem('selectedPlace', JSON.stringify({ id: newPlace.id, name: newPlace.name }))
+      router.push('/log')
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
+      setIsSaving(false)
     }
-
-    // TODO: Supabase 연동 시 좌표 기반 매칭 (반경 50m) 로직 추가
-    // 기존 장소가 있으면 sources에 추가, 없으면 새 장소 생성
-
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: newPlace.id, name: newPlace.name }))
-    // 장소 상세정보도 저장
-    const places = JSON.parse(localStorage.getItem('places') || '[]')
-    places.push(newPlace)
-    localStorage.setItem('places', JSON.stringify(places))
-
-    router.push('/log')
   }
 
   // 칩 선택 래퍼
@@ -175,11 +175,23 @@ export default function AddPlace() {
           `}
           style={canSave ? { backgroundColor: 'var(--color-green)' } : {}}
         >
-          <span className="material-symbols-outlined">check</span>
+          {isSaving ? (
+            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+          ) : (
+            <span className="material-symbols-outlined">check</span>
+          )}
         </button>
       </header>
 
       <main className="p-4 space-y-4">
+        {/* 저장 에러 */}
+        {saveError && (
+          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">error</span>
+            {saveError}
+          </div>
+        )}
+
         {/* 검색 엔진 선택 */}
         <div className="bg-white rounded-xl shadow-sm p-4">
           <label className="block text-sm font-medium text-stone-700 mb-3">
@@ -370,6 +382,26 @@ export default function AddPlace() {
                 24시 영업
               </label>
               <ToggleSwitch checked={is24h} onChange={setIs24h} />
+            </div>
+
+            {/* 탕 성별 선택 */}
+            <div className="pt-2 border-t border-stone-100">
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                탕 구분
+              </label>
+              <div className="flex gap-1.5">
+                {PLACE_BATH_TYPE.map((option) => (
+                  <SelectButton
+                    key={option.id}
+                    label={option.label}
+                    icon={option.icon}
+                    selected={bathGender === option.id}
+                    onClick={() => setBathGender(
+                      bathGender === option.id ? null : option.id as 'male-only' | 'female-only' | 'private' | 'mixed'
+                    )}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

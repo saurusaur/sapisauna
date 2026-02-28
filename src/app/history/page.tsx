@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
-import { DUMMY_LOGS, type DummyLog } from '@/data/dummy-logs'
+import DataState from '@/components/ui/data-state'
+import { useUserLogs } from '@/hooks/use-logs'
+import type { LogWithPlace } from '@/types'
 import RecordCard from '@/components/features/record-card'
 
 // 뷰 모드: 리스트 or 캘린더
@@ -49,8 +51,8 @@ function getCalendarDays(year: number, month: number) {
 }
 
 // 월별로 로그의 날짜→타입 매핑
-function getLogsByDate(logs: DummyLog[]) {
-  const map: Record<string, DummyLog[]> = {}
+function getLogsByDate(logs: LogWithPlace[]) {
+  const map: Record<string, LogWithPlace[]> = {}
   logs.forEach((log) => {
     const dateKey = log.date.slice(0, 10) // YYYY-MM-DD
     if (!map[dateKey]) map[dateKey] = []
@@ -65,6 +67,9 @@ export default function History() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [typeFilter, setTypeFilter] = useState<string>('all')
 
+  // DB 로그 로드
+  const { data: allLogs, loading, error } = useUserLogs()
+
   // 캘린더: 현재 표시 월
   const today = new Date()
   const [calendarMonth, setCalendarMonth] = useState({ year: today.getFullYear(), month: today.getMonth() })
@@ -72,8 +77,8 @@ export default function History() {
 
   // 타입 필터 적용
   const typeFilteredLogs = typeFilter === 'all'
-    ? DUMMY_LOGS
-    : DUMMY_LOGS.filter((log) => log.tribe_id === typeFilter)
+    ? allLogs
+    : allLogs.filter((log) => log.tribe_id === typeFilter)
 
   // 검색어 + 타입 필터 적용
   const filteredLogs = searchQuery
@@ -83,8 +88,8 @@ export default function History() {
     : typeFilteredLogs
 
   // 월별로 그룹화
-  const groupByMonth = (logs: DummyLog[]) => {
-    const groups: Record<string, DummyLog[]> = {}
+  const groupByMonth = (logs: LogWithPlace[]) => {
+    const groups: Record<string, LogWithPlace[]> = {}
     logs.forEach((log) => {
       const date = new Date(log.date)
       const key = `${date.getFullYear()}년 ${date.getMonth() + 1}월`
@@ -97,7 +102,7 @@ export default function History() {
   const groupedLogs = groupByMonth(filteredLogs)
 
   // 캘린더 데이터
-  const logsByDate = useMemo(() => getLogsByDate(typeFilteredLogs), [typeFilter])
+  const logsByDate = useMemo(() => getLogsByDate(typeFilteredLogs), [typeFilteredLogs])
   const calendarDays = getCalendarDays(calendarMonth.year, calendarMonth.month)
 
   // 선택된 날짜의 로그
@@ -113,7 +118,7 @@ export default function History() {
       byType[l.tribe_id] = (byType[l.tribe_id] || 0) + 1
     })
     return { total, byType }
-  }, [calendarMonth, typeFilter])
+  }, [calendarMonth, typeFilteredLogs])
 
   // 월 이동
   const goToPrevMonth = () => {
@@ -210,20 +215,8 @@ export default function History() {
           </div>
 
           <main className="p-4">
-            {Object.keys(groupedLogs).length === 0 ? (
-              <div className="text-center py-16">
-                <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
-                  search_off
-                </span>
-                <p className="text-stone-400 text-sm">
-                  {searchQuery
-                    ? <>&apos;{searchQuery}&apos;에 대한 기록이 없습니다</>
-                    : '기록이 없습니다'
-                  }
-                </p>
-              </div>
-            ) : (
-              Object.entries(groupedLogs).map(([month, logs]) => (
+            <DataState loading={loading} error={error} isEmpty={Object.keys(groupedLogs).length === 0} emptyIcon="search_off" emptyMessage={searchQuery ? `'${searchQuery}'에 대한 기록이 없습니다` : '기록이 없습니다'}>
+              {Object.entries(groupedLogs).map(([month, logs]) => (
                 <div key={month} className="mb-6">
                   <h2 className="text-sm font-semibold text-stone-500 mb-3">{month}</h2>
 
@@ -237,8 +230,8 @@ export default function History() {
                     ))}
                   </div>
                 </div>
-              ))
-            )}
+              ))}
+            </DataState>
           </main>
         </>
       )}
@@ -246,139 +239,141 @@ export default function History() {
       {/* 캘린더 뷰 */}
       {viewMode === 'calendar' && (
         <main className="p-4">
-          {/* 월 네비게이션 */}
-          <div className="flex items-center justify-between mb-4 bg-white rounded-xl shadow-sm p-3">
-            <button
-              onClick={goToPrevMonth}
-              className="p-1 text-stone-400 hover:text-stone-600 transition-colors"
-            >
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            <span className="font-bold text-stone-700">
-              {calendarMonth.year}년 {calendarMonth.month + 1}월
-            </span>
-            <button
-              onClick={goToNextMonth}
-              className="p-1 text-stone-400 hover:text-stone-600 transition-colors"
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-
-          {/* 월별 요약 */}
-          {monthlySummary.total > 0 && (
-            <div className="text-center text-sm text-stone-500 mb-4">
-              <span className="font-medium">{calendarMonth.month + 1}월</span>
-              <span className="text-stone-300 mx-1">·</span>
-              <span>{monthlySummary.total}회 방문</span>
-              {Object.entries(monthlySummary.byType).length > 0 && (
-                <>
-                  <span className="text-stone-300 mx-1">·</span>
-                  {Object.entries(monthlySummary.byType).map(([type, count]) => (
-                    <span key={type} className="mx-0.5">
-                      {TRIBE_EMOJI_MAP[type]}{count}
-                    </span>
-                  ))}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* 캘린더 그리드 */}
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
-            {/* 요일 헤더 */}
-            <div className="grid grid-cols-7 mb-2">
-              {WEEKDAYS.map((day) => (
-                <div key={day} className="text-center text-xs font-medium text-stone-400 py-1">
-                  {day}
-                </div>
-              ))}
+          <DataState loading={loading} error={error} isEmpty={false}>
+            {/* 월 네비게이션 */}
+            <div className="flex items-center justify-between mb-4 bg-white rounded-xl shadow-sm p-3">
+              <button
+                onClick={goToPrevMonth}
+                className="p-1 text-stone-400 hover:text-stone-600 transition-colors"
+              >
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+              <span className="font-bold text-stone-700">
+                {calendarMonth.year}년 {calendarMonth.month + 1}월
+              </span>
+              <button
+                onClick={goToNextMonth}
+                className="p-1 text-stone-400 hover:text-stone-600 transition-colors"
+              >
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
             </div>
 
-            {/* 날짜 그리드 */}
-            <div className="grid grid-cols-7">
-              {calendarDays.map((day, idx) => {
-                if (day === null) {
-                  return <div key={`empty-${idx}`} className="py-2" />
-                }
+            {/* 월별 요약 */}
+            {monthlySummary.total > 0 && (
+              <div className="text-center text-sm text-stone-500 mb-4">
+                <span className="font-medium">{calendarMonth.month + 1}월</span>
+                <span className="text-stone-300 mx-1">·</span>
+                <span>{monthlySummary.total}회 방문</span>
+                {Object.entries(monthlySummary.byType).length > 0 && (
+                  <>
+                    <span className="text-stone-300 mx-1">·</span>
+                    {Object.entries(monthlySummary.byType).map(([type, count]) => (
+                      <span key={type} className="mx-0.5">
+                        {TRIBE_EMOJI_MAP[type]}{count}
+                      </span>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
 
-                const dateKey = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                const dayLogs = logsByDate[dateKey] || []
-                const isSelected = selectedDate === dateKey
-                const isToday =
-                  today.getFullYear() === calendarMonth.year &&
-                  today.getMonth() === calendarMonth.month &&
-                  today.getDate() === day
+            {/* 캘린더 그리드 */}
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+              {/* 요일 헤더 */}
+              <div className="grid grid-cols-7 mb-2">
+                {WEEKDAYS.map((day) => (
+                  <div key={day} className="text-center text-xs font-medium text-stone-400 py-1">
+                    {day}
+                  </div>
+                ))}
+              </div>
 
-                // 해당 날짜의 고유 타입들 (dot 표시용)
-                const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.tribe_id)))
+              {/* 날짜 그리드 */}
+              <div className="grid grid-cols-7">
+                {calendarDays.map((day, idx) => {
+                  if (day === null) {
+                    return <div key={`empty-${idx}`} className="py-2" />
+                  }
 
-                return (
-                  <button
-                    key={dateKey}
-                    onClick={() => setSelectedDate(isSelected ? null : dateKey)}
-                    className={`py-2 flex flex-col items-center gap-1 rounded-lg transition-all ${isSelected ? 'bg-stone-100' : ''
-                      }`}
-                  >
-                    <span
-                      className={`text-sm ${isToday
-                        ? 'font-bold text-white bg-stone-700 w-6 h-6 rounded-full flex items-center justify-center'
-                        : isSelected
-                          ? 'font-bold text-stone-700'
-                          : 'text-stone-600'
+                  const dateKey = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                  const dayLogs = logsByDate[dateKey] || []
+                  const isSelected = selectedDate === dateKey
+                  const isToday =
+                    today.getFullYear() === calendarMonth.year &&
+                    today.getMonth() === calendarMonth.month &&
+                    today.getDate() === day
+
+                  // 해당 날짜의 고유 타입들 (dot 표시용)
+                  const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.tribe_id)))
+
+                  return (
+                    <button
+                      key={dateKey}
+                      onClick={() => setSelectedDate(isSelected ? null : dateKey)}
+                      className={`py-2 flex flex-col items-center gap-1 rounded-lg transition-all ${isSelected ? 'bg-stone-100' : ''
                         }`}
                     >
-                      {day}
-                    </span>
+                      <span
+                        className={`text-sm ${isToday
+                          ? 'font-bold text-white bg-stone-700 w-6 h-6 rounded-full flex items-center justify-center'
+                          : isSelected
+                            ? 'font-bold text-stone-700'
+                            : 'text-stone-600'
+                          }`}
+                      >
+                        {day}
+                      </span>
 
-                    {/* 타입별 컬러 dot */}
-                    <div className="flex gap-0.5 h-2 items-center">
-                      {uniqueTypes.map((type) => (
-                        <span
-                          key={type}
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: TRIBE_COLORS[type] || '#d6d3d1' }}
-                        />
-                      ))}
-                    </div>
-                  </button>
-                )
-              })}
+                      {/* 타입별 컬러 dot */}
+                      <div className="flex gap-0.5 h-2 items-center">
+                        {uniqueTypes.map((type) => (
+                          <span
+                            key={type}
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: TRIBE_COLORS[type] || '#d6d3d1' }}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* 선택된 날짜의 기록 */}
-          {selectedDate && (
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-stone-500 mb-3">
-                {new Date(selectedDate + 'T00:00:00').getMonth() + 1}월 {new Date(selectedDate + 'T00:00:00').getDate()}일 기록
-              </h3>
+            {/* 선택된 날짜의 기록 */}
+            {selectedDate && (
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-stone-500 mb-3">
+                  {new Date(selectedDate + 'T00:00:00').getMonth() + 1}월 {new Date(selectedDate + 'T00:00:00').getDate()}일 기록
+                </h3>
 
-              {selectedDateLogs.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-stone-400 text-sm">이 날의 기록이 없습니다</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {selectedDateLogs.map((log) => (
-                    <RecordCard
-                      key={log.id}
-                      log={log}
-                      onClick={() => router.push(`/history/${log.id}`)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                {selectedDateLogs.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-stone-400 text-sm">이 날의 기록이 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedDateLogs.map((log) => (
+                      <RecordCard
+                        key={log.id}
+                        log={log}
+                        onClick={() => router.push(`/history/${log.id}`)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* 기록 없는 달 안내 */}
-          {monthlySummary.total === 0 && !selectedDate && (
-            <div className="text-center py-8">
-              <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">event_busy</span>
-              <p className="text-stone-400 text-sm">이 달의 기록이 없습니다</p>
-            </div>
-          )}
+            {/* 기록 없는 달 안내 */}
+            {monthlySummary.total === 0 && !selectedDate && (
+              <div className="text-center py-8">
+                <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">event_busy</span>
+                <p className="text-stone-400 text-sm">이 달의 기록이 없습니다</p>
+              </div>
+            )}
+          </DataState>
         </main>
       )}
 

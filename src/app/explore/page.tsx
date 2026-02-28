@@ -7,11 +7,12 @@ import {
   TRIBE_EMOJI_MAP,
 } from '@/constants/content'
 import { storage, STORAGE_KEYS } from '@/lib/utils'
-import { DUMMY_PLACES } from '@/data/dummy-places'
-import { DUMMY_LOGS, getPlaceStats } from '@/data/dummy-logs'
-import type { DummyPlace, FavoritesData, FavoriteCollection } from '@/types'
+import { usePlaces } from '@/hooks/use-places'
+import { useLogs } from '@/hooks/use-logs'
+import type { Place, FavoritesData, FavoriteCollection } from '@/types'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
+import DataState from '@/components/ui/data-state'
 import { useUser } from '@/contexts/user-context'
 import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
@@ -81,6 +82,13 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
 
+  // DB 데이터 로드
+  const { data: places, loading: placesLoading, error: placesError } = usePlaces()
+  const { data: logs, loading: logsLoading, error: logsError } = useLogs(100)
+
+  const loading = placesLoading || logsLoading
+  const error = placesError || logsError
+
   useEffect(() => {
     setFavorites(loadFavorites())
   }, [])
@@ -110,11 +118,11 @@ export default function ExplorePage() {
   // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
   const recommendations = useMemo(() => {
     const typeKeys = ['saunner', 'bather', 'jimi'] as const
-    const result: Record<string, DummyPlace[]> = {}
+    const result: Record<string, Place[]> = {}
 
     for (const type of typeKeys) {
       // 해당 타입의 모든 로그 집계
-      const typeLogs = DUMMY_LOGS.filter((log) => log.tribe_id === type)
+      const typeLogs = logs.filter((log) => log.tribe_id === type)
       const placeStats: Record<string, { count: number; sum: number; highScoreCount: number }> = {}
       for (const log of typeLogs) {
         const key = log.place_id
@@ -125,7 +133,7 @@ export default function ExplorePage() {
       }
 
       // 기본 조건: 평균 revisit_score ≥ 3.5인 장소만 필터
-      const qualified = DUMMY_PLACES.filter((place) => {
+      const qualified = places.filter((place) => {
         const stats = placeStats[place.id]
         return stats && (stats.sum / stats.count) >= 3.5
       })
@@ -154,7 +162,7 @@ export default function ExplorePage() {
     }
 
     return result
-  }, [sortType, favorites])
+  }, [places, logs, sortType, favorites])
 
   // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
   const recommendationOrder = useMemo(() => {
@@ -170,36 +178,64 @@ export default function ExplorePage() {
     }
   }, [recommendationOrder, activeTab])
 
+  // 장소별 통계 (로그 기반 계산)
+  const placeStatsMap = useMemo(() => {
+    const map: Record<string, { avg: number; count: number }> = {}
+    for (const log of logs) {
+      if (!map[log.place_id]) map[log.place_id] = { avg: 0, count: 0 }
+      map[log.place_id].count++
+      map[log.place_id].avg += log.revisit_score
+    }
+    for (const key of Object.keys(map)) {
+      map[key].avg = Math.round((map[key].avg / map[key].count) * 10) / 10
+    }
+    return map
+  }, [logs])
+
   // 검색/필터 적용된 장소 리스트
   const filteredPlaces = useMemo(() => {
-    let places = [...DUMMY_PLACES]
+    let filtered = [...places]
 
     // 검색
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
-      places = places.filter(
+      filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.address.toLowerCase().includes(q)
       )
     }
 
-    // 시설 필터 (AND 조건)
+    // 시설 필터 + 탕 구분 필터 (AND 조건)
     if (selectedFilters.length > 0) {
-      places = places.filter((p) =>
-        selectedFilters.every((f) => p.facilities.includes(f))
+      const genderFilters = selectedFilters.filter((f) =>
+        ['male-only', 'female-only', 'private', 'mixed'].includes(f)
       )
+      const facilityFilters = selectedFilters.filter((f) =>
+        !['male-only', 'female-only', 'private', 'mixed'].includes(f)
+      )
+
+      if (facilityFilters.length > 0) {
+        filtered = filtered.filter((p) =>
+          facilityFilters.every((f) => p.facilities.includes(f))
+        )
+      }
+      if (genderFilters.length > 0) {
+        filtered = filtered.filter((p) =>
+          p.bath_gender ? genderFilters.includes(p.bath_gender) : false
+        )
+      }
     }
 
     // 24시 토글
     if (is24hOnly) {
-      places = places.filter((p) => p.is_24h)
+      filtered = filtered.filter((p) => p.is_24h)
     }
 
     // 정렬
-    places.sort((a, b) => {
-      const statsA = getPlaceStats(a.id)
-      const statsB = getPlaceStats(b.id)
+    filtered.sort((a, b) => {
+      const statsA = placeStatsMap[a.id] || { avg: 0, count: 0 }
+      const statsB = placeStatsMap[b.id] || { avg: 0, count: 0 }
 
       if (sortType === 'recommended') {
         if (statsA.count === 0 && statsB.count > 0) return 1
@@ -218,8 +254,8 @@ export default function ExplorePage() {
       return 0
     })
 
-    return places
-  }, [searchQuery, selectedFilters, is24hOnly, sortType, favorites])
+    return filtered
+  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, favorites, placeStatsMap])
 
   // 검색/필터가 활성화되어 있는지
   const isSearchOrFilterActive = searchQuery || selectedFilters.length > 0 || is24hOnly
@@ -268,123 +304,133 @@ export default function ExplorePage() {
           onSortChange={setSortType}
         />
 
-        {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
-        {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
-          <div className="mb-6">
-            {/* 섹션 헤더 + 접기/펼치기 */}
-            <button
-              onClick={() => setShowRecommendations((prev) => !prev)}
-              className="flex items-center gap-1.5 mb-3"
-            >
-              <h2 className="text-sm font-semibold text-stone-500">
-                TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
-              </h2>
-              <span className="material-symbols-outlined text-base text-stone-400">
-                {showRecommendations ? 'expand_less' : 'expand_more'}
-              </span>
-            </button>
+        {/* 데이터 로딩/에러 상태 */}
+        <DataState loading={loading} error={error} isEmpty={false}>
+          {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
+          {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
+            <div className="mb-6">
+              {/* 섹션 헤더 + 접기/펼치기 */}
+              <button
+                onClick={() => setShowRecommendations((prev) => !prev)}
+                className="flex items-center gap-1.5 mb-3"
+              >
+                <h2 className="text-sm font-semibold text-stone-500">
+                  TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
+                </h2>
+                <span className="material-symbols-outlined text-base text-stone-400">
+                  {showRecommendations ? 'expand_less' : 'expand_more'}
+                </span>
+              </button>
 
-            {showRecommendations && (
-              <>
-                {/* 탭 버튼 (타입별 컬러) */}
-                <div className="flex gap-1.5 pb-3">
-                  {recommendationOrder.map((type) => (
-                    <TypeTab
-                      key={type}
-                      label={recTabLabel[type]}
-                      active={activeTab === type}
-                      onClick={() => setActiveTab(type)}
-                      color={TYPE_TAB_COLORS[type]}
+              {showRecommendations && (
+                <>
+                  {/* 탭 버튼 (타입별 컬러) */}
+                  <div className="flex gap-1.5 pb-3">
+                    {recommendationOrder.map((type) => (
+                      <TypeTab
+                        key={type}
+                        label={recTabLabel[type]}
+                        active={activeTab === type}
+                        onClick={() => setActiveTab(type)}
+                        color={TYPE_TAB_COLORS[type]}
+                      />
+                    ))}
+                  </div>
+
+                  {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
+                  {activeTab && recommendations[activeTab] && (
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      {recommendations[activeTab].slice(0, 3).map((place, idx) => (
+                        <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
+                          <PlaceCard
+                            place={place}
+                            isFavorited={isFavorited(place.id)}
+                            onToggleFavorite={() => toggleFavorite(place.id)}
+                            onClick={() => router.push(`/explore/${place.id}`)}
+                            variant="minimal"
+                          />
+                        </div>
+                      ))}
+
+                      {/* 전체 보기 버튼 */}
+                      <button
+                        onClick={() => router.push(`/explore/type/${activeTab}`)}
+                        className="w-full py-3 text-center text-sm font-medium text-stone-500 hover:text-stone-700 border-t border-stone-100 transition-colors flex items-center justify-center gap-1"
+                      >
+                        {EXPLORE.VIEW_ALL}
+                        <span className="material-symbols-outlined text-base">{ICONS.CHEVRON_RIGHT}</span>
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* 장소 카드 리스트 (검색/필터 적용 시) */}
+          {isSearchOrFilterActive && (
+            <div>
+              {filteredPlaces.length === 0 ? (
+                <div className="text-center py-16">
+                  <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
+                    search_off
+                  </span>
+                  <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredPlaces.map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      place={place}
+                      isFavorited={isFavorited(place.id)}
+                      onToggleFavorite={() => toggleFavorite(place.id)}
+                      onClick={() => router.push(`/explore/${place.id}`)}
                     />
                   ))}
                 </div>
-
-                {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
-                {activeTab && recommendations[activeTab] && (
-                  <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    {recommendations[activeTab].slice(0, 3).map((place, idx) => (
-                      <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
-                        <PlaceCard
-                          place={place}
-                          isFavorited={isFavorited(place.id)}
-                          onToggleFavorite={() => toggleFavorite(place.id)}
-                          onClick={() => router.push(`/explore/${place.id}`)}
-                          variant="minimal"
-                        />
-                      </div>
-                    ))}
-
-                    {/* 전체 보기 버튼 */}
-                    <button
-                      onClick={() => router.push(`/explore/type/${activeTab}`)}
-                      className="w-full py-3 text-center text-sm font-medium text-stone-500 hover:text-stone-700 border-t border-stone-100 transition-colors flex items-center justify-center gap-1"
-                    >
-                      {EXPLORE.VIEW_ALL}
-                      <span className="material-symbols-outlined text-base">{ICONS.CHEVRON_RIGHT}</span>
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* 장소 카드 리스트 (검색/필터 적용 시) */}
-        {isSearchOrFilterActive && (
-          <div>
-            {filteredPlaces.length === 0 ? (
-              <div className="text-center py-16">
-                <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
-                  search_off
-                </span>
-                <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredPlaces.map((place) => (
-                  <PlaceCard
-                    key={place.id}
-                    place={place}
-                    isFavorited={isFavorited(place.id)}
-                    onToggleFavorite={() => toggleFavorite(place.id)}
-                    onClick={() => router.push(`/explore/${place.id}`)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
-        {!isSearchOrFilterActive && (
-          <div>
-            <h2 className="text-sm font-semibold text-stone-500 mb-3">전체 장소</h2>
-            <div className="space-y-3">
-              {filteredPlaces.slice(0, 3).map((place) => (
-                <PlaceCard
-                  key={place.id}
-                  place={place}
-                  isFavorited={isFavorited(place.id)}
-                  onToggleFavorite={() => toggleFavorite(place.id)}
-                  onClick={() => router.push(`/explore/${place.id}`)}
-                />
-              ))}
-
-              {filteredPlaces.length > 3 && (
-                <button
-                  onClick={() => {
-                    searchRef.current?.focus()
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }}
-                  className="w-full py-4 rounded-xl border border-dashed border-stone-300 flex items-center justify-center gap-2 text-stone-400 hover:text-stone-600 hover:border-stone-400 transition-all text-sm"
-                >
-                  <span className="material-symbols-outlined text-base">{ICONS.SEARCH}</span>
-                  검색으로 더 찾아보세요
-                </button>
               )}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
+          {!isSearchOrFilterActive && (
+            <div>
+              <h2 className="text-sm font-semibold text-stone-500 mb-3">전체 장소</h2>
+              {places.length === 0 ? (
+                <div className="text-center py-8">
+                  <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">location_off</span>
+                  <p className="text-stone-400 text-sm">등록된 장소가 없습니다</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredPlaces.slice(0, 3).map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      place={place}
+                      isFavorited={isFavorited(place.id)}
+                      onToggleFavorite={() => toggleFavorite(place.id)}
+                      onClick={() => router.push(`/explore/${place.id}`)}
+                    />
+                  ))}
+
+                  {filteredPlaces.length > 3 && (
+                    <button
+                      onClick={() => {
+                        searchRef.current?.focus()
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className="w-full py-4 rounded-xl border border-dashed border-stone-300 flex items-center justify-center gap-2 text-stone-400 hover:text-stone-600 hover:border-stone-400 transition-all text-sm"
+                    >
+                      <span className="material-symbols-outlined text-base">{ICONS.SEARCH}</span>
+                      검색으로 더 찾아보세요
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </DataState>
       </main>
 
       <BottomNav />
