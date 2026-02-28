@@ -9,6 +9,10 @@
 
 ## Backlog
 
+<!-- P0: UI↔DB 동기화 (감사 결과 기반) -->
+- [ ] [인프라] UI↔DB 동기화 수정 — 매점 컬럼 추가, purpose 배열화, INSERT 로직 구현, place_id 연결. 상세: `docs/plans/PLAN_ui_db_sync.md` | priority: P0 | added: 2026-03-01
+<!-- P1: 리팩토링 -->
+- [ ] [리팩토링] 중복 로직 제거 — AMENITY_LABEL_MAP 제거, getFacilityLabel 통합, 즐겨찾기 훅 추출, ChipSelect/PlaceStatsDisplay 컴포넌트화, SortType/UseDataState/TRIBE_COLORS 통합, FACILITY_ICON_MAP 자동생성. 상세: `docs/plans/REVIEW_duplicate_logic.md` | priority: P1 | added: 2026-03-01
 <!-- P1: DB 연동 후 바로 착수 -->
 - [ ] [버그] 로그인 후 장소 카드 지도 링크 클릭 시 랜딩 이상 — ⚠️ DB 연동 완료 후 작업 | priority: P1 | added: 2026-02-27
 - [ ] [인프라] localStorage → Supabase 데이터 마이그레이션 플로우 | priority: P1 | added: 2026-02-27
@@ -25,6 +29,7 @@
 - [ ] [기능] 스토리 에디터 완성도 점검 (스티커/배경/크롭) | priority: P2 | added: 2026-02-27
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
+- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
 <!-- P3 -->
 - [ ] [기능] 크로스 소스 장소 매칭 — 네이버 등록 시 구글 Nearby Search로 place_id 확보, 사용자 확인 1탭 (외국인 유저 대응) | priority: P3 | added: 2026-03-01
 - [ ] [기능] 목록 공유 링크 및 구독(팔로우) 시스템 | priority: P3 | added: 2026-02-27

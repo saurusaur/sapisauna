@@ -333,6 +333,7 @@ export const PLACE_SPECS = {
       { id: 'jjimjilbang', label: '찜질방', icon: 'foundation', category: 'beyond' },
       { id: 'aufguss', label: '아우프구스', icon: 'airwave', category: 'beyond' },
       { id: 'self-loyly', label: '셀프 로울루', icon: 'format_color_fill', category: 'beyond' },
+      { id: 'scrub', label: '세신', icon: 'spa', category: 'beyond' },
     ],
   },
   // 편의시설
