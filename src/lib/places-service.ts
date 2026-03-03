@@ -24,7 +24,7 @@ function toPlace(row: Record<string, unknown>): Place {
     longitude: row.longitude as number | null,
     facilities: (row.facilities as string[]) || [],
     is_24h: (row.is_24h as boolean) || false,
-    bath_gender: (row.bath_gender as 'male-only' | 'female-only' | 'private' | 'mixed' | null) || null,
+    facility_type: (row.facility_type as 'public' | 'male-only' | 'female-only' | 'private' | 'mixed') || 'public',
     coordinate_source: (row.coordinate_source as 'naver' | 'google' | 'manual' | null) || null,
     status: (row.status as string) || 'active',
     merged: (row.merged as boolean) || false,
@@ -125,7 +125,7 @@ export async function addPlace(params: {
   longitude?: number | null
   facilities: string[]
   is_24h: boolean
-  bath_gender?: 'male-only' | 'female-only' | 'private' | 'mixed' | null
+  facility_type?: 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
   country_code?: string
   source?: 'naver' | 'google' | 'manual'
   external_id?: string
@@ -133,7 +133,7 @@ export async function addPlace(params: {
 }): Promise<Place> {
   const {
     name, address, latitude, longitude,
-    facilities, is_24h, bath_gender,
+    facilities, is_24h, facility_type,
     country_code = 'KR',
     source = 'manual', external_id, plus_code,
   } = params
@@ -177,7 +177,7 @@ export async function addPlace(params: {
           facilities: mergedFacilities,
           is_24h: is_24h || nearby.is_24h,
           merged: true,
-          ...(bath_gender && { bath_gender }),
+          facility_type: facility_type || 'public',
         })
         .eq('id', nearby.id)
 
@@ -196,7 +196,7 @@ export async function addPlace(params: {
       facilities,
       is_24h,
       coordinate_source: source,
-      ...(bath_gender && { bath_gender }),
+      facility_type: facility_type || 'public',
     })
     .select()
     .single()

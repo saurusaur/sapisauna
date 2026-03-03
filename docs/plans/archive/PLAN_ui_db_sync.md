@@ -1,4 +1,8 @@
-# UI-DB 동기화 수정 계획
+# ✅ ARCHIVED — UI-DB 동기화 수정 계획
+
+> **적용 완료**: 2026-03-03
+> **해결 방식**: Phase 1~2 전건 구현. Phase 3(WARNING 매핑)은 DB 컬럼명 통일로 대체. 비로그인 폴백은 미들웨어 인증 필수이므로 불필요하여 제외. saveLogToHistory 호출 제거 (DB SSOT).
+> **후속 문서**: `AUDIT_plans_vs_code_20260303.md` 참조
 
 **작성일**: 2026-03-01
 **근거**: `docs/plans/AUDIT_ui_vs_db_fields.md`

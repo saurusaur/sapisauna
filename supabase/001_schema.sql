@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS places (
   -- 시설 스펙 (평탄 배열: PLACE_SPECS의 id들)
   facilities TEXT[] DEFAULT '{}',
   is_24h BOOLEAN DEFAULT false,
-  -- 탕 구분: NULL = 일반 남탕/여탕 (default)
-  bath_gender TEXT CHECK (bath_gender IN ('male-only', 'female-only', 'private', 'mixed')),
+  -- 시설 유형 (기본값: 일반 대중탕)
+  facility_type TEXT NOT NULL DEFAULT 'public' CHECK (facility_type IN ('public', 'male-only', 'female-only', 'private', 'mixed')),
   -- 대표 좌표 출처
   coordinate_source TEXT CHECK (coordinate_source IN ('naver', 'google', 'manual')),
   -- 영업 상태

@@ -13,7 +13,6 @@ import type { StickerType } from '@/lib/sticker-templates'
 // 로그 데이터 타입 (story page의 LogData와 동일)
 export type LogData = {
   _editId?: string
-  display_id?: string
   place_name: string
   tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string

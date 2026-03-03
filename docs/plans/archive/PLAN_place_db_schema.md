@@ -1,4 +1,8 @@
-# Place DB 스키마 변경 명세
+# ✅ ARCHIVED — Place DB 스키마 변경 명세
+
+> **적용 완료**: 2026-03-03
+> **해결 방식**: 초기 설계. 이후 `PLAN_place_dedup_logic.md`에서 발전 (coordinate_source, status, merged, place_sources lat/lng 추가, link 제거). 현재 코드는 dedup 플랜 기준.
+> **최신 설계**: `PLAN_place_dedup_logic.md` 참조
 
 > 이 문서만으로 DB 반영 가능하도록 작성됨
 

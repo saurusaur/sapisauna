@@ -14,7 +14,7 @@ interface PlaceResult {
   name: string
   address: string
   shortAddress: string   // 카드 미리보기용 짧은 주소
-  countryCode: string    // ISO 2자리 국가코드 (예: 'KR', 'JP') — display_id 생성용
+  countryCode: string    // ISO 2자리 국가코드 (예: 'KR', 'JP')
   latitude: number | null
   longitude: number | null
   source: 'naver' | 'google'
@@ -106,10 +106,21 @@ function convertNaverCoords(mapx: string, mapy: string): { lat: number; lng: num
 }
 
 /**
- * HTML 태그 제거 (Naver 응답에 <b> 태그 포함됨)
+ * HTML 태그 제거 + HTML 엔티티 디코딩
+ * Naver 응답에 <b> 태그와 &amp; 등 HTML 엔티티가 포함됨
  */
 function stripHtml(str: string): string {
-  return str.replace(/<[^>]*>/g, '')
+  const HTML_ENTITIES: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+  }
+  return str
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(?:amp|lt|gt|quot|#39|apos);/g, (m) => HTML_ENTITIES[m] ?? m)
 }
 
 

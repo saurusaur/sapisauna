@@ -41,12 +41,14 @@ export default function DeepLog() {
   useEffect(() => {
     let restoredGender: BathGender | null = null
 
-    // currentLog에 deep_log가 있으면 복원
+    // currentLog에서 편집 모드 확인 + deep_log 복원 (편집 모드일 때만)
     const currentLog = localStorage.getItem('currentLog')
     if (currentLog) {
       const parsed = JSON.parse(currentLog)
-      if (parsed._editId) setIsEditMode(true)
-      const dl = parsed.deep_log
+      const isEdit = Boolean(parsed._editId)
+      if (isEdit) setIsEditMode(true)
+      // 편집 모드일 때만 기존 딥로그 데이터 복원
+      const dl = isEdit ? parsed.deep_log : null
       if (dl) {
         if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
         if (dl.companion) setCompanion(dl.companion)
@@ -143,7 +145,7 @@ export default function DeepLog() {
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => setShowCancelConfirm(true)}
             className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>

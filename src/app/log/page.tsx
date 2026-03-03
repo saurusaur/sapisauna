@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
-import { generateDisplayId } from '@/lib/generate-id'
+import ConfirmModal from '@/components/ui/confirm-modal'
 
 type LogType = 'bather' | 'saunner' | 'jimi'
 
@@ -44,8 +44,9 @@ export default function QuickLog() {
   const [revisit, setRevisit] = useState(3)
 
   // 편집 모드에서 기존 값 보존
-  const [existingDisplayId, setExistingDisplayId] = useState<string | null>(null)
   const [editId, setEditId] = useState<string | null>(null)
+  const [showBackConfirm, setShowBackConfirm] = useState(false)
+  const [existingCreatedAt, setExistingCreatedAt] = useState<string | null>(null)
   const [existingDeepLog, setExistingDeepLog] = useState<Record<string, unknown> | null>(null)
 
   useEffect(() => {
@@ -67,8 +68,10 @@ export default function QuickLog() {
     if (savedLog) {
       const log = JSON.parse(savedLog)
       // 편집 모드: 기존 값 보존
-      if (log.display_id) setExistingDisplayId(log.display_id)
-      if (log._editId) setEditId(log._editId)
+      if (log._editId) {
+        setEditId(log._editId)
+        if (log.created_at) setExistingCreatedAt(log.created_at)
+      }
       if (log.deep_log) setExistingDeepLog(log.deep_log)
       if (log.tribe_id) setLogType(log.tribe_id as LogType)
       if (log.revisit_score) setRevisit(log.revisit_score)
@@ -98,16 +101,12 @@ export default function QuickLog() {
 
   // 저장 처리
   const handleSave = () => {
-    // 편집 모드면 기존 display_id 유지, 새 기록이면 생성
-    const displayId = existingDisplayId ?? generateDisplayId(logType, placeCountryCode)
-
     const logData = {
       ...(editId && { _editId: editId }),
-      display_id: displayId,
       place_id: placeId,
       place_name: placeName,
       tribe_id: logType,
-      created_at: new Date().toISOString(),
+      created_at: existingCreatedAt ?? new Date().toISOString(),
       revisit_score: revisit,
       // 루틴 (입력된 경우만 포함)
       ...(heatTime !== null && { heat_time: heatTime }),
@@ -143,7 +142,7 @@ export default function QuickLog() {
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => setShowBackConfirm(true)}
             className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
@@ -351,6 +350,18 @@ export default function QuickLog() {
           </div>
         </div>
       </main>
+
+      {showBackConfirm && (
+        <ConfirmModal
+          message={editId
+            ? '편집 내용이 저장되지 않습니다. 나가시겠습니까?'
+            : '입력한 내용이 저장되지 않습니다. 나가시겠습니까?'}
+          confirmLabel="나가기"
+          cancelLabel="계속 입력"
+          onConfirm={() => router.back()}
+          onCancel={() => setShowBackConfirm(false)}
+        />
+      )}
     </div>
   )
 }

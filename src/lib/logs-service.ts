@@ -118,7 +118,6 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
     .insert({
       user_id: user.id,
       place_id: logData.place_id,
-      display_id: logData.display_id,
       tribe_id: logData.tribe_id,
       revisit_score: logData.revisit_score,
       heat_time: logData.heat_time ?? null,
@@ -167,4 +166,82 @@ export async function insertDeepLog(logId: string, deepData: Record<string, unkn
     })
 
   if (error) throw error
+}
+
+// 로그 UPDATE — 편집 모드에서 사용
+export async function updateLog(logId: string, logData: Record<string, unknown>): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('인증 필요')
+
+  // tribe 변경 시 이전 tribe 전용 필드를 null로 초기화
+  const { error } = await supabase
+    .from('logs')
+    .update({
+      place_id: logData.place_id,
+      tribe_id: logData.tribe_id,
+      revisit_score: logData.revisit_score,
+      heat_time: logData.heat_time ?? null,
+      ice_time: logData.ice_time ?? null,
+      pause_time: logData.pause_time ?? null,
+      repeat: logData.repeat ?? null,
+      // 모든 tribe 필드를 명시 — 해당 tribe가 아니면 null로 클리어
+      sauna_temp: logData.sauna_temp ?? null,
+      cold_bath_temp: logData.cold_bath_temp ?? null,
+      totono_score: logData.totono_score ?? null,
+      water_quality: logData.water_quality ?? null,
+      hot_bath_temp: logData.hot_bath_temp ?? null,
+      refreshed_score: logData.refreshed_score ?? null,
+      jjim_temp: logData.jjim_temp ?? null,
+      rest_quality: logData.rest_quality ?? null,
+      cleanliness: logData.cleanliness ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', logId)
+    .eq('user_id', user.id)
+
+  if (error) throw error
+}
+
+// 딥로그 저장 (INSERT 또는 UPDATE — 기존 존재 여부에 따라 분기)
+export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string, unknown>): Promise<void> {
+  // 기존 딥로그 존재 확인
+  const { data: existing } = await supabase
+    .from('deep_logs')
+    .select('id')
+    .eq('log_id', logId)
+    .single()
+
+  const payload = {
+    log_id: logId,
+    companion: deepData.companion ?? null,
+    purposes: deepData.purposes ?? [],
+    cost: deepData.cost ?? null,
+    memo: deepData.memo ?? null,
+    used_sauna_types: deepData.used_sauna_types ?? [],
+    used_rooms: deepData.used_rooms ?? [],
+    used_amenities: deepData.used_amenities ?? [],
+    bath_gender: deepData.bath_gender ?? null,
+    crowd: deepData.crowd ?? null,
+    has_scrub: deepData.has_scrub ?? false,
+    scrub_satisfaction: deepData.scrub_satisfaction ?? null,
+    scrub_price: deepData.scrub_price ?? null,
+    has_store: deepData.has_store ?? false,
+    store_score: deepData.store_score ?? null,
+    store_memo: deepData.store_memo ?? null,
+    food_eaten: deepData.food_eaten ?? [],
+    updated_at: new Date().toISOString(),
+  }
+
+  if (existing) {
+    const { error } = await supabase
+      .from('deep_logs')
+      .update(payload)
+      .eq('log_id', logId)
+    if (error) throw error
+  } else {
+    const { error } = await supabase
+      .from('deep_logs')
+      .insert(payload)
+    if (error) throw error
+  }
 }

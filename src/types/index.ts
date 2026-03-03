@@ -21,7 +21,7 @@ export interface Place {
   longitude: number | null
   facilities: string[]
   is_24h: boolean
-  bath_gender?: 'male-only' | 'female-only' | 'private' | 'mixed' | null
+  facility_type: 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
   coordinate_source?: 'naver' | 'google' | 'manual' | null
   status: string
   merged: boolean

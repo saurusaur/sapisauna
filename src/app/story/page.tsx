@@ -32,7 +32,6 @@ type EditorSessionState = {
 
 type LogData = {
   _editId?: string
-  display_id?: string
   place_name: string
   tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string

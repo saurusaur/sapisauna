@@ -81,7 +81,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               // 기존 기록을 currentLog로 설정하고 폼으로 이동
               const logAsCurrentLog = {
                 _editId: log.id,
-                display_id: log.id,
+                place_id: log.place_id,
                 place_name: log.place_name,
                 tribe_id: log.tribe_id,
                 created_at: log.date,
@@ -100,7 +100,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 ...(log.deep_log && { deep_log: log.deep_log }),
               }
               localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({ name: log.place_name }))
+              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name }))
               router.push('/log')
             }}
             className="p-2 text-stone-500 hover:text-stone-700 transition-colors"

@@ -1,4 +1,8 @@
-# UI vs DB 필드 감사 (Audit) 결과
+# ✅ ARCHIVED — UI vs DB 필드 감사 (Audit) 결과
+
+> **적용 완료**: 2026-03-03
+> **해결 방식**: CRITICAL 4건 + WARNING 4건 모두 해결. WARNING은 계획(INSERT 매핑)과 달리 DB 컬럼명 자체를 UI와 통일하여 매핑 레이어 제거.
+> **후속 문서**: `AUDIT_plans_vs_code_20260303.md` 참조
 
 **작성일**: 2026-03-01
 **범위**: content.ts UI 필드 → DB 스키마 매칭 + 실제 저장 경로 추적

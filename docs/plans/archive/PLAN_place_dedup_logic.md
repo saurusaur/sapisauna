@@ -1,5 +1,10 @@
-# 장소 중복 제거 (Dedup) 로직 설계
+# ✅ ARCHIVED — 장소 중복 제거 (Dedup) 로직 설계
 
+> **적용 완료**: 2026-03-03
+> **적용 범위**: DB 스키마(coordinate_source/status/merged, place_sources lat/lng, link 제거), RPC find_nearby_places(간소화 공식), addPlace() dedup 1-3단계, 지도 URL external_id 기반 동적 생성
+> **계획과 다른 점**: (1) place_sources.link 제거 (계획은 유지) (2) RPC는 Haversine 대신 간소화 공식 (3) Dedup 2단계 유저 확인 UI 미구현→자동 병합
+> **미적용 잔여**: `TODO_place_dedup_remaining.md`로 분리 (유저 확인 UI, 폐업 플로우, 어드민 리뷰)
+>
 > 최종 업데이트: 2026-03-01
 
 ## 좌표 검증 결과

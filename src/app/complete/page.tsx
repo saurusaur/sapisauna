@@ -10,10 +10,10 @@
  */
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
-import { insertLog, insertDeepLog } from '@/lib/logs-service'
+import { insertLog, insertDeepLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 
 // sessionStorage 키 (에디터와 공유)
 const EDITOR_STATE_KEY = 'story-editor-state'
@@ -28,30 +28,44 @@ type CompletedLog = {
 export default function Complete() {
   const router = useRouter()
   const [log, setLog] = useState<CompletedLog | null>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
   // 새로고침 시에도 완료 UI는 보여줌
   const [showGeneric, setShowGeneric] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // React Strict Mode 이중 실행 방지
+  const hasSaved = useRef(false)
 
   useEffect(() => {
+    if (hasSaved.current) return
     const logData = localStorage.getItem('currentLog')
     if (logData) {
       const parsed = JSON.parse(logData)
       setLog(parsed)
+      const editId = parsed._editId as string | undefined
+      if (editId) setIsEditMode(true)
+      hasSaved.current = true
 
-      // Supabase INSERT
       ;(async () => {
         try {
-          const logId = await insertLog(parsed)
-          // 딥로그가 있으면 함께 INSERT
-          if (parsed.deep_log) {
-            await insertDeepLog(logId, parsed.deep_log)
+          if (editId) {
+            // 편집 모드: UPDATE
+            await updateLog(editId, parsed)
+            if (parsed.deep_log) {
+              await saveOrUpdateDeepLog(editId, parsed.deep_log)
+            }
+          } else {
+            // 새 기록: INSERT
+            const logId = await insertLog(parsed)
+            if (parsed.deep_log) {
+              await insertDeepLog(logId, parsed.deep_log)
+            }
           }
           // 성공 시 정리: 기록 흐름 종료
           localStorage.removeItem('currentLog')
           localStorage.removeItem('selectedPlace')
           sessionStorage.removeItem(EDITOR_STATE_KEY)
         } catch (err) {
-          // 실패 시 currentLog 유지 → 재진입 시 재시도 가능
+          hasSaved.current = false
           console.error('로그 저장 실패:', err)
           setError('저장에 실패했습니다. 다시 시도해주세요.')
         }
@@ -90,7 +104,7 @@ export default function Complete() {
         <div className="text-6xl mb-5">{emoji}</div>
 
         {/* 완료 메시지 */}
-        <h1 className="text-xl font-bold text-stone-700 mb-1.5">기록 완료!</h1>
+        <h1 className="text-xl font-bold text-stone-700 mb-1.5">{isEditMode ? '수정 완료!' : '기록 완료!'}</h1>
 
         {log ? (
           <p className="text-stone-500 text-sm mb-8">
