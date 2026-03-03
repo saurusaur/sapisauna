@@ -92,7 +92,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 pause_time: log.pause_time,
                 sauna_temp: log.sauna_temp,
                 cold_bath_temp: log.cold_bath_temp,
-                totono: log.totono,
+                totono_score: log.totono_score,
                 hot_bath_temp: log.hot_bath_temp,
                 water_quality: log.water_quality,
                 jjim_temp: log.jjim_temp,
@@ -155,7 +155,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">토토노이 강도</span>
                   <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
-                    {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono || 0)}
+                    {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono_score || 0)}
                   </span>
                 </div>
               </>

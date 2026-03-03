@@ -110,19 +110,21 @@ export default function PlaceDetailPage() {
   // 표시할 기록 (기본 3개, 더보기 시 전체)
   const displayedLogs = showAllLogs ? placeLogs : placeLogs.slice(0, 3)
 
-  // 지도 URL — place_sources에서 link 우선, 없으면 좌표/이름 기반 생성
+  // 지도 URL — external_id(place_id) 우선, fallback은 좌표/이름 기반
   const naverSource = place.sources.find(s => s.source === 'naver')
   const googleSource = place.sources.find(s => s.source === 'google')
 
-  const naverMapUrl = naverSource?.link
-    || (place.latitude
+  const naverMapUrl = naverSource?.external_id
+    ? `https://map.naver.com/v5/entry/place/${naverSource.external_id}`
+    : place.latitude
       ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
-      : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`)
+      : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
 
-  const googleMapUrl = googleSource?.link
-    || (place.latitude
+  const googleMapUrl = googleSource?.external_id
+    ? `https://www.google.com/maps/place/?q=place_id:${googleSource.external_id}`
+    : place.latitude
       ? `https://www.google.com/maps/search/${encodeURIComponent(place.name)}/@${place.latitude},${place.longitude},17z`
-      : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`)
+      : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`
 
   // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {

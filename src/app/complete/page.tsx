@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
-import { saveLogToHistory } from '@/lib/storage'
+import { insertLog, insertDeepLog } from '@/lib/logs-service'
 
 // sessionStorage 키 (에디터와 공유)
 const EDITOR_STATE_KEY = 'story-editor-state'
@@ -30,6 +30,7 @@ export default function Complete() {
   const [log, setLog] = useState<CompletedLog | null>(null)
   // 새로고침 시에도 완료 UI는 보여줌
   const [showGeneric, setShowGeneric] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const logData = localStorage.getItem('currentLog')
@@ -37,13 +38,24 @@ export default function Complete() {
       const parsed = JSON.parse(logData)
       setLog(parsed)
 
-      // savedLogs 배열에 저장
-      saveLogToHistory(parsed)
-
-      // 정리: 기록 흐름 종료
-      localStorage.removeItem('currentLog')
-      localStorage.removeItem('selectedPlace')
-      sessionStorage.removeItem(EDITOR_STATE_KEY)
+      // Supabase INSERT
+      ;(async () => {
+        try {
+          const logId = await insertLog(parsed)
+          // 딥로그가 있으면 함께 INSERT
+          if (parsed.deep_log) {
+            await insertDeepLog(logId, parsed.deep_log)
+          }
+          // 성공 시 정리: 기록 흐름 종료
+          localStorage.removeItem('currentLog')
+          localStorage.removeItem('selectedPlace')
+          sessionStorage.removeItem(EDITOR_STATE_KEY)
+        } catch (err) {
+          // 실패 시 currentLog 유지 → 재진입 시 재시도 가능
+          console.error('로그 저장 실패:', err)
+          setError('저장에 실패했습니다. 다시 시도해주세요.')
+        }
+      })()
     } else {
       // 새로고침 등으로 데이터 없이 진입 → 기본 완료 메시지 표시
       setShowGeneric(true)
@@ -90,6 +102,19 @@ export default function Complete() {
             기록이 저장되었습니다.
           </p>
         ) : null}
+
+        {/* 에러 표시 */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-xl mb-4 -mt-4">
+            {error}
+            <button
+              onClick={() => router.push('/complete')}
+              className="ml-2 underline font-medium"
+            >
+              재시도
+            </button>
+          </div>
+        )}
 
         {/* 딥로그 추가 여부 표시 */}
         {hasDeepLog && (

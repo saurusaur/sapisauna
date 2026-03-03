@@ -26,8 +26,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     place_id: row.place_id as string,
     place_name: placeName,
     address,
-    date: (row.logged_at as string) || (row.created_at as string),
-    tribe_id: row.log_type as LogWithPlace['tribe_id'],
+    date: row.created_at as string,
+    tribe_id: row.tribe_id as LogWithPlace['tribe_id'],
     revisit_score: (row.revisit_score as number) || 0,
     heat_time: row.heat_time as number | undefined,
     ice_time: row.ice_time as number | undefined,
@@ -35,7 +35,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     repeat: row.repeat as number | undefined,
     sauna_temp: row.sauna_temp as number | undefined,
     cold_bath_temp: row.cold_bath_temp as number | undefined,
-    totono: row.totono_score as number | undefined,
+    totono_score: row.totono_score as number | undefined,
     water_quality: row.water_quality as number | undefined,
     hot_bath_temp: row.hot_bath_temp as number | undefined,
     cleanliness: row.cleanliness as number | undefined,
@@ -43,12 +43,15 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     deep_log: dl ? {
       bath_gender: dl.bath_gender as 'male' | 'female' | 'mixed' | 'private' | undefined,
       companion: dl.companion as string | null,
-      purposes: dl.purpose ? [dl.purpose as string] : [],
+      purposes: (dl.purposes as string[]) || [],
       cost: dl.cost as number | null,
       crowd: dl.crowd as string | null,
       memo: dl.memo as string | undefined,
-      has_scrub: dl.had_scrub as boolean | undefined,
+      has_scrub: dl.has_scrub as boolean | undefined,
       scrub_satisfaction: dl.scrub_satisfaction as number | null,
+      has_store: dl.has_store as boolean | undefined,
+      store_score: dl.store_score as number | null,
+      store_memo: dl.store_memo as string | null,
     } : undefined,
   }
 }
@@ -60,7 +63,7 @@ export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
-    .order('logged_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(limit)
 
   if (error) throw error
@@ -72,7 +75,7 @@ export async function getUserLogs(): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
-    .order('logged_at', { ascending: false })
+    .order('created_at', { ascending: false })
 
   if (error) throw error
   return (data || []).map(toLogWithPlace)
@@ -99,8 +102,69 @@ export async function getLogsByPlace(placeId: string): Promise<LogWithPlace[]> {
     .from('logs')
     .select(LOG_SELECT)
     .eq('place_id', placeId)
-    .order('logged_at', { ascending: false })
+    .order('created_at', { ascending: false })
 
   if (error) throw error
   return (data || []).map(toLogWithPlace)
+}
+
+// 로그 INSERT — DB 컬럼명과 키 동일
+export async function insertLog(logData: Record<string, unknown>): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('인증 필요')
+
+  const { data, error } = await supabase
+    .from('logs')
+    .insert({
+      user_id: user.id,
+      place_id: logData.place_id,
+      display_id: logData.display_id,
+      tribe_id: logData.tribe_id,
+      revisit_score: logData.revisit_score,
+      heat_time: logData.heat_time ?? null,
+      ice_time: logData.ice_time ?? null,
+      pause_time: logData.pause_time ?? null,
+      repeat: logData.repeat ?? null,
+      sauna_temp: logData.sauna_temp ?? null,
+      cold_bath_temp: logData.cold_bath_temp ?? null,
+      totono_score: logData.totono_score ?? null,
+      water_quality: logData.water_quality ?? null,
+      hot_bath_temp: logData.hot_bath_temp ?? null,
+      refreshed_score: logData.refreshed_score ?? null,
+      jjim_temp: logData.jjim_temp ?? null,
+      rest_quality: logData.rest_quality ?? null,
+      cleanliness: logData.cleanliness ?? null,
+    })
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return data.id as string
+}
+
+// 딥로그 INSERT
+export async function insertDeepLog(logId: string, deepData: Record<string, unknown>): Promise<void> {
+  const { error } = await supabase
+    .from('deep_logs')
+    .insert({
+      log_id: logId,
+      companion: deepData.companion ?? null,
+      purposes: deepData.purposes ?? [],
+      cost: deepData.cost ?? null,
+      memo: deepData.memo ?? null,
+      used_sauna_types: deepData.used_sauna_types ?? [],
+      used_rooms: deepData.used_rooms ?? [],
+      used_amenities: deepData.used_amenities ?? [],
+      bath_gender: deepData.bath_gender ?? null,
+      crowd: deepData.crowd ?? null,
+      has_scrub: deepData.has_scrub ?? false,
+      scrub_satisfaction: deepData.scrub_satisfaction ?? null,
+      scrub_price: deepData.scrub_price ?? null,
+      has_store: deepData.has_store ?? false,
+      store_score: deepData.store_score ?? null,
+      store_memo: deepData.store_memo ?? null,
+      food_eaten: deepData.food_eaten ?? [],
+    })
+
+  if (error) throw error
 }

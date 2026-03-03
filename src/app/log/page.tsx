@@ -13,6 +13,7 @@ export default function QuickLog() {
   const router = useRouter()
   const { primaryTribe } = useUser()
   const [placeName, setPlaceName] = useState('장소')
+  const [placeId, setPlaceId] = useState<string | null>(null)
   const [placeCountryCode, setPlaceCountryCode] = useState<string | undefined>(undefined)
   const [logType, setLogType] = useState<LogType>(primaryTribe as LogType)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
@@ -53,6 +54,7 @@ export default function QuickLog() {
     if (placeData) {
       const place = JSON.parse(placeData)
       setPlaceName(place.name)
+      if (place.id) setPlaceId(place.id)
       setPlaceCountryCode(place.countryCode)
     } else if (!localStorage.getItem('currentLog')) {
       // 편집 모드(currentLog 있음)가 아닌데 장소도 없으면 → 장소 선택으로
@@ -77,7 +79,7 @@ export default function QuickLog() {
       // 사우너
       if (log.sauna_temp) setSaunaTemp(log.sauna_temp)
       if (log.cold_bath_temp && log.tribe_id === 'saunner') setColdBathTemp(log.cold_bath_temp)
-      if (log.totono) setTotono(log.totono)
+      if (log.totono_score) setTotono(log.totono_score)
       // 목욕파
       if (log.hot_bath_temp) setHotBathTemp(log.hot_bath_temp)
       if (log.cold_bath_temp && log.tribe_id === 'bather') {
@@ -102,6 +104,7 @@ export default function QuickLog() {
     const logData = {
       ...(editId && { _editId: editId }),
       display_id: displayId,
+      place_id: placeId,
       place_name: placeName,
       tribe_id: logType,
       created_at: new Date().toISOString(),
@@ -115,7 +118,7 @@ export default function QuickLog() {
       ...(logType === 'saunner' && {
         sauna_temp: saunaTemp,
         cold_bath_temp: coldBathTemp,
-        totono,
+        totono_score: totono,
       }),
       ...(logType === 'bather' && {
         hot_bath_temp: hotBathTemp,

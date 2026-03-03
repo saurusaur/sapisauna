@@ -41,7 +41,7 @@ type LogData = {
   sauna_temp?: number
   cold_bath_temp?: number
   repeat?: number
-  totono?: number
+  totono_score?: number
   // bather
   water_quality?: number
   hot_bath_temp?: number
@@ -193,7 +193,7 @@ export default function Story() {
             saunaTemp={log.sauna_temp || 80}
             coldBathTemp={log.cold_bath_temp || 15}
             repeat={log.repeat || 3}
-            totono={log.totono || 3}
+            totono_score={log.totono_score || 3}
           />
         )
       case 'bather':

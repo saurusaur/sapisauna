@@ -1,7 +1,7 @@
 /**
  * Saunner 웨이브 그래프 SVG 컴포넌트
  * - repeat = peak 개수 (세트 수)
- * - totono = amplitude + 두께 + 글로우 강도
+ * - totono_score = amplitude + 두께 + 글로우 강도
  * - 매끄럽지만 불규칙하게 교차하는 꾸밈 웨이브
  * - 디퓨즈 글로우 (네온 X)
  */
@@ -10,10 +10,10 @@ interface SaunnerGraphProps {
   saunaTemp: number
   coldBathTemp: number
   repeat: number    // 세트 수 (peak 개수)
-  totono: number
+  totono_score: number
 }
 
-export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }: SaunnerGraphProps) {
+export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono_score }: SaunnerGraphProps) {
   const width = 300
   const height = 260  // 200 → 260 (상하 30px 여백 추가)
   const padding = 12 // 좌우 여백
@@ -24,19 +24,19 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }
   const frequency = 2 * repeat - 0.5
   const phaseShift = -Math.PI / 4  // 상승 라인부터 시작
 
-  // totono = amplitude (18~38px, 약 2배 차이)
+  // totono_score = amplitude (18~38px, 약 2배 차이)
   const maxAmplitude = (height / 2) - 18 // 상하 여백 확보
-  const baseAmplitude = 18 + (totono - 1) * 5 // 18, 23, 28, 33, 38
+  const baseAmplitude = 18 + (totono_score - 1) * 5 // 18, 23, 28, 33, 38
   const amplitude = Math.min(baseAmplitude, maxAmplitude)
 
   // 웨이브 두께 고정 (얇게)
   const mainStrokeWidth = 2.5
 
-  // totono = 글로우 강도 (디퓨즈)
-  const glowIntensity = 0.25 + (totono - 1) * 0.15 // 0.25 ~ 0.85
+  // totono_score = 글로우 강도 (디퓨즈)
+  const glowIntensity = 0.25 + (totono_score - 1) * 0.15 // 0.25 ~ 0.85
 
-  // totono = 블러 크기 (축소하여 경계선 방지)
-  const glowBlur = 4 + totono * 1.5 // 5.5 ~ 10
+  // totono_score = 블러 크기 (축소하여 경계선 방지)
+  const glowBlur = 4 + totono_score * 1.5 // 5.5 ~ 10
 
   // 온도차에 따른 글로우 색상
   const deltaT = saunaTemp - coldBathTemp
@@ -136,7 +136,7 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       <defs>
-        {/* 디퓨즈 글로우 필터 (totono에 따라 블러 크기 조절) */}
+        {/* 디퓨즈 글로우 필터 (totono_score에 따라 블러 크기 조절) */}
         <filter id="saunner-diffuse" x="-50%" y="-40%" width="160%" height="190%">
           <feGaussianBlur stdDeviation={glowBlur} result="blur1" />
           <feGaussianBlur stdDeviation={glowBlur * 0.2} result="blur2" />
@@ -173,12 +173,12 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }
         </linearGradient>
       </defs>
 
-      {/* 디퓨즈 글로우 레이어 (totono에 따라 강도 변화) */}
+      {/* 디퓨즈 글로우 레이어 (totono_score에 따라 강도 변화) */}
       <path
         d={generateMainWave()}
         fill="none"
         stroke="url(#saunner-glow-grad)"
-        strokeWidth={12 + totono * 4}
+        strokeWidth={12 + totono_score * 4}
         strokeLinecap="round"
         filter="url(#saunner-diffuse)"
       />
@@ -201,7 +201,7 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono }
         strokeLinecap="round"
       />
 
-      {/* 메인 웨이브 (totono에 따라 두께 변화) */}
+      {/* 메인 웨이브 (totono_score에 따라 두께 변화) */}
       <path
         d={generateMainWave()}
         fill="none"

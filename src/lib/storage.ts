@@ -14,7 +14,7 @@ export type SavedLog = {
   sauna_temp?: number
   cold_bath_temp?: number
   repeat?: number
-  totono?: number
+  totono_score?: number
   // bather
   water_quality?: number
   hot_bath_temp?: number
