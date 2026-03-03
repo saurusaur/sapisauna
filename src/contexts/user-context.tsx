@@ -33,35 +33,45 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (authLoading) return
 
     async function loadProfile() {
-      // 1. 로그인 상태면 Supabase에서 프로필 로드
-      if (authUser) {
-        const { data } = await supabase
-          .from('users')
-          .select('nickname, user_types, primary_type, gender')
-          .eq('id', authUser.id)
-          .single()
+      try {
+        // 1. 로그인 상태면 Supabase에서 프로필 로드
+        if (authUser) {
+          const { data } = await supabase
+            .from('users')
+            .select('nickname, user_types, primary_type, gender')
+            .eq('id', authUser.id)
+            .single()
 
-        if (data) {
-          const profile: UserData = {
-            nickname: data.nickname,
-            user_types: data.user_types || [],
-            primary_type: data.primary_type as UserData['primary_type'],
-            gender: data.gender as UserData['gender'],
+          if (data) {
+            const profile: UserData = {
+              nickname: data.nickname,
+              user_types: data.user_types || [],
+              primary_type: data.primary_type as UserData['primary_type'],
+              gender: data.gender as UserData['gender'],
+            }
+            setUserState(profile)
+            // localStorage 캐시 동기화
+            localStorage.setItem('user', JSON.stringify(profile))
+            setIsLoaded(true)
+            return
           }
-          setUserState(profile)
-          // localStorage 캐시 동기화
-          localStorage.setItem('user', JSON.stringify(profile))
-          setIsLoaded(true)
-          return
         }
-      }
 
-      // 2. 비로그인 또는 Supabase 프로필 없음 → localStorage 폴백
-      const cached = localStorage.getItem('user')
-      if (cached) {
-        setUserState(JSON.parse(cached))
+        // 2. 비로그인 또는 Supabase 프로필 없음 → localStorage 폴백
+        const cached = localStorage.getItem('user')
+        if (cached) {
+          setUserState(JSON.parse(cached))
+        }
+        setIsLoaded(true)
+      } catch (e) {
+        console.error('프로필 로드 실패:', e)
+        // localStorage 폴백 시도
+        try {
+          const cached = localStorage.getItem('user')
+          if (cached) setUserState(JSON.parse(cached))
+        } catch { /* localStorage도 실패하면 null 상태 유지 */ }
+        setIsLoaded(true)
       }
-      setIsLoaded(true)
     }
 
     loadProfile()
@@ -85,8 +95,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const primaryTribe: 'bather' | 'saunner' | 'jimi' = user?.primary_type || 'saunner'
 
-  // localStorage 로드 전에는 빈 화면 방지
-  if (!isLoaded) return null
+  // localStorage 로드 전 로딩 표시
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-stone-400 text-sm">로딩 중...</div>
+      </div>
+    )
+  }
 
   return (
     <UserContext.Provider value={{ user, primaryTribe, updateUser, setUser }}>

@@ -65,7 +65,13 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch {
+    // Supabase 에러 시 미인증과 동일 처리
+  }
 
   if (!user) {
     // 미인증 → 로그인 페이지로 리다이렉트

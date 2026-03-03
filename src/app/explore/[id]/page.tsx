@@ -132,6 +132,7 @@ export default function PlaceDetailPage() {
       router.push('/login?next=/log')
       return
     }
+    localStorage.removeItem('currentLog')
     localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name }))
     router.push('/log')
   }
@@ -234,7 +235,7 @@ export default function PlaceDetailPage() {
           {stats.count > 0 ? (
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
-                {stats.avg} (&ldquo;또 갈래요&rdquo;)
+                또 갈래요 {stats.avg}
               </span>
               <span className="text-sm text-stone-400">
                 · {EXPLORE.LOG_COUNT(stats.count)}

@@ -39,9 +39,10 @@ const TRIBE_COLORS = {
   jimi: 'var(--color-jimi)',
 } as const
 
-// 장소 특성: "이 시설은 어떤 종류?" (places.bath_gender)
+// 장소 특성: "이 시설은 어떤 종류?" (places.facility_type)
 // 미선택(NULL) = 일반 남녀분리 시설
 export const PLACE_BATH_TYPE = [
+  { id: 'public', label: '일반 대중탕', icon: 'public' },
   { id: 'male-only', label: '남성전용', icon: 'male' },
   { id: 'female-only', label: '여성전용', icon: 'female' },
   { id: 'private', label: '개인', icon: 'person' },
@@ -304,7 +305,6 @@ export const PLACE_SPECS = {
       { id: 'wet-sauna', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 90] },
       { id: 'bulgama', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
       { id: 'salt-sauna', label: '소금사우나', icon: 'salinity', category: 'heat' },
-      { id: 'aroma-sauna', label: '아로마사우나', icon: 'temp_preferences_eco', category: 'heat', tempRange: [40, 100] },
     ],
   },
   // 냉각 시설
@@ -613,7 +613,7 @@ export const MY_PAGE = {
 export const EXPLORE_FILTERS = {
   HEAT: {
     label: '온열 시설',
-    options: ['dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna', 'aroma-sauna'],
+    options: ['very-hot-bath', 'dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna'],
   },
   ICE: {
     label: '냉각 시설',

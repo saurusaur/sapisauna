@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
       setIsLoading(false)
-    })
+    }).catch(() => setIsLoading(false))
 
     // 세션 변경 구독
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

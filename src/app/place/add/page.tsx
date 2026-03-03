@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { PLACE_SPECS } from '@/constants/content'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { addPlace } from '@/lib/places-service'
 import { PLACE_BATH_TYPE } from '@/constants/content'
 
@@ -39,11 +40,15 @@ export default function AddPlace() {
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
-  const [bathGender, setBathGender] = useState<'male-only' | 'female-only' | 'private' | 'mixed' | null>(null)
+  const [bathGender, setBathGender] = useState<'public' | 'male-only' | 'female-only' | 'private' | 'mixed'>('public')
 
   // 저장 상태
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [showBackConfirm, setShowBackConfirm] = useState(false)
+
+  // 입력이 시작되었는지 (워닝 표시 기준)
+  const hasInput = Boolean(name || selectedPlace || selectedFacilities.length > 0)
 
   const canSave = name && address && !isSaving
 
@@ -113,12 +118,13 @@ export default function AddPlace() {
         longitude: selectedPlace?.longitude || null,
         facilities: selectedFacilities,
         is_24h: is24h,
-        bath_gender: bathGender,
+        facility_type: bathGender,
         country_code: source === 'naver' ? 'KR' : undefined,
         source: selectedPlace ? selectedPlace.source : 'manual',
         external_id: selectedPlace?.external_id,
       })
 
+      localStorage.removeItem('currentLog')
       localStorage.setItem('selectedPlace', JSON.stringify({ id: newPlace.id, name: newPlace.name }))
       router.push('/log')
     } catch (error) {
@@ -156,7 +162,7 @@ export default function AddPlace() {
       <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => hasInput ? setShowBackConfirm(true) : router.back()}
             className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
@@ -357,6 +363,26 @@ export default function AddPlace() {
           </p>
 
           <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
+            {/* 유형 선택 — 맨 위 배치 */}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                유형 선택
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {PLACE_BATH_TYPE.map((option) => (
+                  <SelectButton
+                    key={option.id}
+                    label={option.label}
+                    icon={option.icon}
+                    selected={bathGender === option.id}
+                    onClick={() => setBathGender(
+                      bathGender === option.id ? 'public' : option.id as 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
             {/* 5개 섹션: HEAT → ICE → PAUSE → BEYOND → AMENITIES */}
             {(['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const).map((key) => (
               <div key={key}>
@@ -383,29 +409,19 @@ export default function AddPlace() {
               </label>
               <ToggleSwitch checked={is24h} onChange={setIs24h} />
             </div>
-
-            {/* 탕 성별 선택 */}
-            <div className="pt-2 border-t border-stone-100">
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                탕 구분
-              </label>
-              <div className="flex gap-1.5">
-                {PLACE_BATH_TYPE.map((option) => (
-                  <SelectButton
-                    key={option.id}
-                    label={option.label}
-                    icon={option.icon}
-                    selected={bathGender === option.id}
-                    onClick={() => setBathGender(
-                      bathGender === option.id ? null : option.id as 'male-only' | 'female-only' | 'private' | 'mixed'
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </main>
+
+      {showBackConfirm && (
+        <ConfirmModal
+          message="입력한 내용이 저장되지 않습니다. 나가시겠습니까?"
+          confirmLabel="나가기"
+          cancelLabel="계속 입력"
+          onConfirm={() => router.back()}
+          onCancel={() => setShowBackConfirm(false)}
+        />
+      )}
     </div>
   )
 }

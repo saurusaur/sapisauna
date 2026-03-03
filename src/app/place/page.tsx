@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MESSAGES, FACILITY_LABEL_MAP, EXPLORE, ICONS } from '@/constants/content'
 import { usePlaces, usePlaceStats } from '@/hooks/use-places'
@@ -27,32 +27,14 @@ function PlaceStatsDisplay({ placeId }: { placeId: string }) {
   )
 }
 
-// localStorage에 저장된 사용자 등록 장소
-interface SavedPlace {
-  id: string
-  name: string
-  address?: string
-}
-
 export default function PlaceSelection() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
-  const [recentPlaces, setRecentPlaces] = useState<SavedPlace[]>([])
-
   // DB 데이터 로드
   const { data: places, loading, error } = usePlaces()
 
-  // 최근 등록 장소 로드
-  useEffect(() => {
-    const saved = localStorage.getItem('places')
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as SavedPlace[]
-        // 최근 5개만
-        setRecentPlaces(parsed.slice(-5).reverse())
-      } catch { /* ignore */ }
-    }
-  }, [])
+  // 최근 등록 장소: DB에서 최신 3개
+  const recentPlaces = places.slice(0, 3)
 
   // 검색 필터링
   const filteredPlaces = places.filter(place =>
@@ -61,6 +43,7 @@ export default function PlaceSelection() {
 
   // 장소 선택
   const handlePlaceSelect = (placeId: string, placeName: string) => {
+    localStorage.removeItem('currentLog')
     localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName }))
     router.push('/log')
   }
@@ -112,8 +95,8 @@ export default function PlaceSelection() {
                   </span>
                   <div>
                     <div className="font-medium text-stone-700 text-sm">{place.name}</div>
-                    {place.address && (
-                      <div className="text-xs text-stone-400">{place.address}</div>
+                    {(place.short_address || place.address) && (
+                      <div className="text-xs text-stone-400">{place.short_address || place.address}</div>
                     )}
                   </div>
                 </button>
