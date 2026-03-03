@@ -50,6 +50,13 @@ CREATE TABLE IF NOT EXISTS places (
   is_24h BOOLEAN DEFAULT false,
   -- 탕 구분: NULL = 일반 남탕/여탕 (default)
   bath_gender TEXT CHECK (bath_gender IN ('male-only', 'female-only', 'private', 'mixed')),
+  -- 대표 좌표 출처
+  coordinate_source TEXT CHECK (coordinate_source IN ('naver', 'google', 'manual')),
+  -- 영업 상태
+  status TEXT NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active', 'closed_permanently', 'closed_temporarily', 'under_review')),
+  -- 다른 소스에서 병합된 이력
+  merged BOOLEAN NOT NULL DEFAULT false,
 
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -74,7 +81,8 @@ CREATE TABLE IF NOT EXISTS place_sources (
   external_id TEXT,
   name_original TEXT NOT NULL,
   address_original TEXT,
-  link TEXT,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
   plus_code TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(source, external_id)
@@ -97,12 +105,9 @@ CREATE TABLE IF NOT EXISTS logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   place_id UUID REFERENCES places(id) ON DELETE SET NULL,
-  -- 기록 고유 ID (15자리, 내부 참조용)
-  display_id TEXT UNIQUE,
-  logged_at TIMESTAMPTZ DEFAULT NOW(),
   -- 공통
   revisit_score INT CHECK (revisit_score BETWEEN 1 AND 5),
-  log_type TEXT CHECK (log_type IN ('bather', 'saunner', 'jimi')),
+  tribe_id TEXT CHECK (tribe_id IN ('bather', 'saunner', 'jimi')),
 
   -- 공통 루틴 시간
   heat_time INT CHECK (heat_time BETWEEN 1 AND 60),
@@ -153,7 +158,7 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   log_id UUID NOT NULL REFERENCES logs(id) ON DELETE CASCADE,
 
   companion TEXT CHECK (companion IN ('alone', 'friend', 'family', 'partner')),
-  purpose TEXT CHECK (purpose IN ('healing', 'after-workout', 'hangover', 'date', 'travel', 'leisure', 'work', 'sleep', 'meal')),
+  purposes TEXT[] DEFAULT '{}',
   cost INT,
   memo TEXT,
 
@@ -164,13 +169,19 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   bath_gender TEXT CHECK (bath_gender IN ('male', 'female', 'mixed', 'private')),
   crowd TEXT CHECK (crowd IN ('empty', 'moderate', 'busy', 'full')),
 
-  had_scrub BOOLEAN DEFAULT false,
+  has_scrub BOOLEAN DEFAULT false,
   scrub_satisfaction INT CHECK (scrub_satisfaction BETWEEN 1 AND 5),
   scrub_price INT,
 
+  -- 매점
+  has_store BOOLEAN DEFAULT false,
+  store_score INT CHECK (store_score BETWEEN 1 AND 5),
+  store_memo TEXT,
+
   food_eaten TEXT[] DEFAULT '{}',
 
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE deep_logs ENABLE ROW LEVEL SECURITY;
@@ -195,12 +206,35 @@ CREATE POLICY "Users can update own deep_logs" ON deep_logs
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_logs_place_id ON logs(place_id);
-CREATE INDEX IF NOT EXISTS idx_logs_logged_at ON logs(logged_at DESC);
+CREATE INDEX IF NOT EXISTS idx_logs_created_at ON logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_deep_logs_log_id ON deep_logs(log_id);
 CREATE INDEX IF NOT EXISTS idx_places_facilities ON places USING GIN (facilities);
 
 -- ============================================
--- 6. RPC 함수 - 장소별 통계
+-- 6. RPC 함수 - 근접 장소 검색
+-- ============================================
+CREATE OR REPLACE FUNCTION find_nearby_places(
+  p_lat DECIMAL,
+  p_lng DECIMAL,
+  p_radius_m INT DEFAULT 50
+)
+RETURNS SETOF places
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT *
+  FROM places
+  WHERE latitude IS NOT NULL
+    AND longitude IS NOT NULL
+    AND ABS(latitude - p_lat) < (p_radius_m::DECIMAL / 111320)
+    AND ABS(longitude - p_lng) < (p_radius_m::DECIMAL / (111320 * COS(RADIANS(p_lat))))
+  ORDER BY
+    POWER(latitude - p_lat, 2) + POWER(longitude - p_lng, 2)
+  LIMIT 10;
+$$;
+
+-- ============================================
+-- 7. RPC 함수 - 장소별 통계
 -- ============================================
 CREATE OR REPLACE FUNCTION get_place_stats(p_place_id UUID)
 RETURNS TABLE(avg_score NUMERIC, log_count BIGINT)

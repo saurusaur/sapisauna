@@ -22,6 +22,9 @@ export interface Place {
   facilities: string[]
   is_24h: boolean
   bath_gender?: 'male-only' | 'female-only' | 'private' | 'mixed' | null
+  coordinate_source?: 'naver' | 'google' | 'manual' | null
+  status: string
+  merged: boolean
   created_by: string | null
   created_at: string
   updated_at: string
@@ -40,7 +43,8 @@ export interface PlaceSource {
   external_id: string | null
   name_original: string
   address_original: string | null
-  link: string | null
+  latitude: number | null
+  longitude: number | null
   plus_code: string | null
   created_at: string
 }
@@ -64,7 +68,7 @@ export interface QuickLogData {
 
   // 사우너파
   saunaTemp?: number    // 50-130°C
-  totono?: number       // 1-5, 토토노이
+  totonoScore?: number  // 1-5, 토토노이
 
   // 찜질파
   restQuality?: number  // 1-5, 가벼움
@@ -76,7 +80,7 @@ export interface QuickLogData {
 export interface DeepLogData {
   // 공통
   companion?: string
-  purpose?: string
+  purposes?: string[]
   cost?: number
   memo?: string
 
@@ -157,7 +161,7 @@ export interface LogWithPlace {
   repeat?: number
   sauna_temp?: number
   cold_bath_temp?: number
-  totono?: number
+  totono_score?: number
   water_quality?: number
   hot_bath_temp?: number
   cleanliness?: number

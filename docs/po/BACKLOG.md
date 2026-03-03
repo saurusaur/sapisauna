@@ -11,6 +11,12 @@
 
 <!-- P0: UI↔DB 동기화 (감사 결과 기반) -->
 - [ ] [인프라] UI↔DB 동기화 수정 — 매점 컬럼 추가, purpose 배열화, INSERT 로직 구현, place_id 연결. 상세: `docs/plans/PLAN_ui_db_sync.md` | priority: P0 | added: 2026-03-01
+<!-- P0: Dedup & DB 변경 연동 (프론트엔드) -->
+- [ ] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02
+- [ ] [인프라] places-service 함수 업데이트 — addPlace에서 link 제거·coordinate_source 추가·place_sources에 lat/lng 저장, findNearbyPlace→findNearbyPlaces(복수형, LIMIT 1 제거) | priority: P0 | added: 2026-03-02
+- [ ] [인프라] 타입 정의 DB 동기화 — PlaceSource: link 제거·lat/lng 추가, Place: coordinate_source·status·merged 추가 | priority: P0 | added: 2026-03-02
+- [ ] [UX] 지도 랜딩 URL 변경 — 장소 상세에서 Naver는 주소+이름 검색 URL, Google은 place_id 기반 URL로 교체. 실제 지도 업체 페이지 랜딩 | priority: P0 | added: 2026-03-02
+- [ ] [인프라] 로그 수정 시 updated_at 기록 — logs에 logged_at 없이 created_at+updated_at 사용. 수정 시 updated_at 갱신 로직 추가 | priority: P0 | added: 2026-03-02
 <!-- P1: 리팩토링 -->
 - [ ] [리팩토링] 중복 로직 제거 — AMENITY_LABEL_MAP 제거, getFacilityLabel 통합, 즐겨찾기 훅 추출, ChipSelect/PlaceStatsDisplay 컴포넌트화, SortType/UseDataState/TRIBE_COLORS 통합, FACILITY_ICON_MAP 자동생성. 상세: `docs/plans/REVIEW_duplicate_logic.md` | priority: P1 | added: 2026-03-01
 <!-- P1: DB 연동 후 바로 착수 -->
@@ -31,6 +37,10 @@
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
 <!-- P3 -->
+- [ ] [UX] 폐업 배지 + 필터링 — place-card에 status='closed' 배지 표시, 탐색 목록에서 폐업 장소 숨김/흐리게 | priority: P2 | added: 2026-03-02
+- [ ] [기능] "폐업했어요" 버튼 + Google 검증 — 유저 신고 → Google business_status API 확인 → 상태 업데이트 or 어드민 큐 | priority: P2 | added: 2026-03-02
+- [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교 | priority: P2 | added: 2026-03-02
+- [ ] [기능] "다른 장소에요" 신고 — 잘못 병합된 장소 유저 신고 → 어드민 큐 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 크로스 소스 장소 매칭 — 네이버 등록 시 구글 Nearby Search로 place_id 확보, 사용자 확인 1탭 (외국인 유저 대응) | priority: P3 | added: 2026-03-01
 - [ ] [기능] 목록 공유 링크 및 구독(팔로우) 시스템 | priority: P3 | added: 2026-02-27
 - [ ] [기능] log/nudge 페이지 완성 및 푸시 알림 연동 | priority: P3 | added: 2026-02-27

@@ -25,6 +25,9 @@ function toPlace(row: Record<string, unknown>): Place {
     facilities: (row.facilities as string[]) || [],
     is_24h: (row.is_24h as boolean) || false,
     bath_gender: (row.bath_gender as 'male-only' | 'female-only' | 'private' | 'mixed' | null) || null,
+    coordinate_source: (row.coordinate_source as 'naver' | 'google' | 'manual' | null) || null,
+    status: (row.status as string) || 'active',
+    merged: (row.merged as boolean) || false,
     created_by: row.created_by as string | null,
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
@@ -87,24 +90,31 @@ export async function searchPlaces(query: string): Promise<Place[]> {
   return places
 }
 
-// 좌표 기반 근처 장소 검색 (±0.0005도 ≈ 50m)
-export async function findNearbyPlace(
+// 좌표 기반 근처 장소 검색 (RPC — 반경 50m 이내, 복수 후보)
+export async function findNearbyPlaces(
   lat: number,
   lng: number,
-  threshold = 0.0005
-): Promise<Place | null> {
+  radiusM = 50
+): Promise<Place[]> {
   const { data, error } = await supabase
-    .from('places')
-    .select(PLACE_SELECT)
-    .gte('latitude', lat - threshold)
-    .lte('latitude', lat + threshold)
-    .gte('longitude', lng - threshold)
-    .lte('longitude', lng + threshold)
-    .limit(1)
+    .rpc('find_nearby_places', { p_lat: lat, p_lng: lng, p_radius_m: radiusM })
 
   if (error) throw error
-  if (!data || data.length === 0) return null
-  return toPlace(data[0])
+  if (!data || data.length === 0) return []
+
+  // RPC는 places만 반환하므로, place_sources를 별도 조인
+  const placeIds = data.map((d: Record<string, unknown>) => d.id as string)
+  const { data: sources } = await supabase
+    .from('place_sources')
+    .select('*')
+    .in('place_id', placeIds)
+
+  return data.map((row: Record<string, unknown>) => {
+    const rowSources = (sources || []).filter(
+      (s: Record<string, unknown>) => s.place_id === row.id
+    )
+    return toPlace({ ...row, place_sources: rowSources })
+  })
 }
 
 // 장소 추가 (dedup 로직 포함)
@@ -119,14 +129,13 @@ export async function addPlace(params: {
   country_code?: string
   source?: 'naver' | 'google' | 'manual'
   external_id?: string
-  link?: string
   plus_code?: string
 }): Promise<Place> {
   const {
     name, address, latitude, longitude,
     facilities, is_24h, bath_gender,
     country_code = 'KR',
-    source = 'manual', external_id, link, plus_code,
+    source = 'manual', external_id, plus_code,
   } = params
 
   // 1단계: source + external_id 매칭
@@ -144,10 +153,11 @@ export async function addPlace(params: {
     }
   }
 
-  // 2단계: 좌표 50m 이내 매칭
+  // 2단계: 좌표 50m 이내 매칭 (RPC)
   if (latitude && longitude) {
-    const nearby = await findNearbyPlace(latitude, longitude)
-    if (nearby) {
+    const nearbyList = await findNearbyPlaces(latitude, longitude)
+    if (nearbyList.length > 0) {
+      const nearby = nearbyList[0]
       // 기존 장소에 새 소스 추가
       await supabase.from('place_sources').insert({
         place_id: nearby.id,
@@ -155,16 +165,18 @@ export async function addPlace(params: {
         external_id: external_id || null,
         name_original: name,
         address_original: address,
-        link: link || null,
+        latitude: latitude || null,
+        longitude: longitude || null,
         plus_code: plus_code || null,
       })
-      // 시설 정보 병합
+      // 시설 정보 병합 + merged 플래그
       const mergedFacilities = Array.from(new Set([...nearby.facilities, ...facilities]))
       await supabase
         .from('places')
         .update({
           facilities: mergedFacilities,
           is_24h: is_24h || nearby.is_24h,
+          merged: true,
           ...(bath_gender && { bath_gender }),
         })
         .eq('id', nearby.id)
@@ -183,6 +195,7 @@ export async function addPlace(params: {
       longitude: longitude || null,
       facilities,
       is_24h,
+      coordinate_source: source,
       ...(bath_gender && { bath_gender }),
     })
     .select()
@@ -196,7 +209,8 @@ export async function addPlace(params: {
     external_id: external_id || null,
     name_original: name,
     address_original: address,
-    link: link || null,
+    latitude: latitude || null,
+    longitude: longitude || null,
     plus_code: plus_code || null,
   })
 
