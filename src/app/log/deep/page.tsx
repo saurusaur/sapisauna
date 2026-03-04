@@ -6,7 +6,7 @@ import { DEEP_LOG, PLACE_SPECS, LOG_BATH_GENDER } from '@/constants/content'
 import { Slider } from '@/components/slider'
 import SelectButton from '@/components/ui/select-button'
 import ConfirmModal from '@/components/ui/confirm-modal'
-import { formatCostInput } from '@/lib/utils'
+import { formatCostInput, safeParse } from '@/lib/utils'
 
 // 탕 선택 타입 (딥로그용: 오늘 이용한 탕)
 type BathGender = 'male' | 'female' | 'mixed' | 'private'
@@ -44,7 +44,8 @@ export default function DeepLog() {
     // currentLog에서 편집 모드 확인 + deep_log 복원 (편집 모드일 때만)
     const currentLog = localStorage.getItem('currentLog')
     if (currentLog) {
-      const parsed = JSON.parse(currentLog)
+      const parsed = safeParse(currentLog, null)
+      if (!parsed) return
       const isEdit = Boolean(parsed._editId)
       if (isEdit) setIsEditMode(true)
       // 편집 모드일 때만 기존 딥로그 데이터 복원
@@ -96,7 +97,7 @@ export default function DeepLog() {
     // 기존 로그 데이터와 병합
     const currentLog = localStorage.getItem('currentLog')
     if (currentLog) {
-      const merged = { ...JSON.parse(currentLog), deep_log: deepLogData }
+      const merged = { ...safeParse(currentLog, {}), deep_log: deepLogData }
       localStorage.setItem('currentLog', JSON.stringify(merged))
     }
 

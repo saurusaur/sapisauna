@@ -17,6 +17,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import EditorCanvas from '@/components/story-editor/editor-canvas'
 import type { BackgroundState } from '@/components/story-editor/editor-canvas'
 import SaunnerGraph from '@/components/svg/saunner-graph'
+import { safeParse } from '@/lib/utils'
 import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
 import type { Sticker } from '@/lib/sticker-templates'
@@ -83,7 +84,7 @@ export default function Story() {
   useEffect(() => {
     const logData = localStorage.getItem('currentLog')
     if (logData) {
-      setLog(JSON.parse(logData))
+      setLog(safeParse(logData, null))
     }
 
     // sessionStorage에서 에디터 상태 복원

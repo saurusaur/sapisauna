@@ -14,6 +14,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import { insertLog, insertDeepLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
+import { safeParse } from '@/lib/utils'
 
 // sessionStorage 키 (에디터와 공유)
 const EDITOR_STATE_KEY = 'story-editor-state'
@@ -23,6 +24,8 @@ type CompletedLog = {
   tribe_id: 'bather' | 'saunner' | 'jimi'
   created_at?: string
   deep_log?: { [key: string]: unknown }
+  _editId?: string
+  [key: string]: unknown
 }
 
 export default function Complete() {
@@ -39,7 +42,8 @@ export default function Complete() {
     if (hasSaved.current) return
     const logData = localStorage.getItem('currentLog')
     if (logData) {
-      const parsed = JSON.parse(logData)
+      const parsed = safeParse<CompletedLog | null>(logData, null)
+      if (!parsed) { setShowGeneric(true); return }
       setLog(parsed)
       const editId = parsed._editId as string | undefined
       if (editId) setIsEditMode(true)

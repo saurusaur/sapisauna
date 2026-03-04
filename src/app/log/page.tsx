@@ -6,6 +6,7 @@ import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, QUICK_LOG } from '@/constants/cont
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import { safeParse } from '@/lib/utils'
 
 type LogType = 'bather' | 'saunner' | 'jimi'
 
@@ -53,8 +54,9 @@ export default function QuickLog() {
     // 장소 정보 복원 — 없으면 장소 선택 페이지로 redirect
     const placeData = localStorage.getItem('selectedPlace')
     if (placeData) {
-      const place = JSON.parse(placeData)
-      setPlaceName(place.name)
+      const place = safeParse<{ name?: string; id?: string; countryCode?: string } | null>(placeData, null)
+      if (!place) return
+      setPlaceName(place.name || '')
       if (place.id) setPlaceId(place.id)
       setPlaceCountryCode(place.countryCode)
     } else if (!localStorage.getItem('currentLog')) {
@@ -66,7 +68,8 @@ export default function QuickLog() {
     // 이전 입력 복원 (스토리에서 뒤로가기 또는 편집 모드 진입 시)
     const savedLog = localStorage.getItem('currentLog')
     if (savedLog) {
-      const log = JSON.parse(savedLog)
+      const log = safeParse(savedLog, null)
+      if (!log) return
       // 편집 모드: 기존 값 보존
       if (log._editId) {
         setEditId(log._editId)

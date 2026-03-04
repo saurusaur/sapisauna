@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import type { LogData } from '@/components/story-editor/sticker-content'
 import EditorCanvas from '@/components/story-editor/editor-canvas'
+import { safeParse } from '@/lib/utils'
 import type { BackgroundState } from '@/components/story-editor/editor-canvas'
 import EditorToolbar from '@/components/story-editor/editor-toolbar'
 import StickerDrawer from '@/components/story-editor/sticker-drawer'
@@ -57,7 +58,8 @@ export default function StoryEditor() {
       return
     }
 
-    const parsed: LogData = JSON.parse(logData)
+    const parsed = safeParse<LogData | null>(logData, null)
+    if (!parsed) { router.push('/story'); return }
     setLog(parsed)
 
     // sessionStorage에 이전 에디터 상태가 있으면 복원

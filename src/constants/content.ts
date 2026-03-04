@@ -98,7 +98,7 @@ const tribeEntries = Object.values(TRIBES)
 export const TRIBE_EMOJI_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.emoji]))
 export const TRIBE_CATEGORY_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.category]))
 export const TRIBE_PERSONA_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.persona]))
-export const TRIBE_NAME_MAP: Record<string, string> = Object.fromEntries(tribeEntries.map(t => [t.id, t.name]))
+
 
 // ============================================
 // 로그인 & 비로그인 홈
@@ -466,8 +466,6 @@ export const TRIBE_DEFAULTS = {
 // ============================================
 export const MESSAGES = {
   HOME: {
-    GREETING: (persona: string) => `Hello, ${persona}`,
-    GREETING_WITH_TYPE: (persona: string) => `Hello, ${persona}`,
     NO_RECORDS: '아직 기록이 없어요',
     RECENT_RECORDS: '최근 기록',
   },
@@ -613,7 +611,7 @@ export const MY_PAGE = {
 export const EXPLORE_FILTERS = {
   HEAT: {
     label: '온열 시설',
-    options: ['very-hot-bath', 'dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna'],
+    options: ['hot-bath', 'very-hot-bath', 'dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna'],
   },
   ICE: {
     label: '냉각 시설',

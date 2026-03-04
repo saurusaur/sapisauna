@@ -168,6 +168,20 @@ export async function insertDeepLog(logId: string, deepData: Record<string, unkn
   if (error) throw error
 }
 
+// 로그 삭제 — deep_logs는 ON DELETE CASCADE로 자동 삭제
+export async function deleteLog(logId: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('인증 필요')
+
+  const { error } = await supabase
+    .from('logs')
+    .delete()
+    .eq('id', logId)
+    .eq('user_id', user.id)
+
+  if (error) throw error
+}
+
 // 로그 UPDATE — 편집 모드에서 사용
 export async function updateLog(logId: string, logData: Record<string, unknown>): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()

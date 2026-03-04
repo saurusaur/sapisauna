@@ -82,13 +82,23 @@ export function formatCostInput(value: string): string {
 }
 
 // ============================================
+// JSON 안전 파싱 — localStorage 등에서 읽은 문자열을 파싱할 때 사용
+// 파싱 실패 시 fallback 반환 (크래시 방지)
+// fallback이 null이면 any | null 반환 (JSON.parse의 원래 동작 유지)
+export function safeParse(json: string | null, fallback: null): any | null
+export function safeParse<T>(json: string | null, fallback: T): T
+export function safeParse<T>(json: string | null, fallback: T): T {
+  if (!json) return fallback
+  try { return JSON.parse(json) } catch { return fallback }
+}
+
 // 로컬 스토리지 헬퍼
 // ============================================
 export const storage = {
   get<T>(key: string): T | null {
     if (typeof window === 'undefined') return null
     const item = localStorage.getItem(key)
-    return item ? JSON.parse(item) : null
+    return safeParse<T | null>(item, null)
   },
 
   set<T>(key: string, value: T): void {

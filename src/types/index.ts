@@ -95,7 +95,7 @@ export interface DeepLogData {
   coldBathDetail?: string[]
 
   // 찜질파
-  food?: string[]
+  food_eaten?: string[]
   roomTypes?: string[]
   crowd?: string
   amenities?: string[]
@@ -117,19 +117,6 @@ export interface LogEntry {
   visitDayOfWeek: number // 0-6 (일-토)
   visitHour: number // 0-23
   weather?: string
-}
-
-// 스토리 템플릿 ID
-export type StoryTemplateId = 'minimal' | 'dark' | 'gradient' | 'retro'
-
-// 스토리 설정
-export interface StorySettings {
-  templateId: StoryTemplateId
-  customText?: string
-  showTemperature: boolean
-  showSets: boolean
-  showRevisit: boolean
-  showDate: boolean
 }
 
 // 슬라이더 설정 타입

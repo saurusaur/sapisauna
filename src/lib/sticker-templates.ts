@@ -27,21 +27,6 @@ export type Sticker = {
   imageUrl?: string  // 캡처된 스티커 이미지 (에디터에서 사용)
 }
 
-// 스티커 타입별 최대 개수
-export const STICKER_MAX_COUNT: Record<StickerType, number> = {
-  'temp-delta': 1,
-  'heat-temp': 1,
-  'graph': 1,
-  'location': 1,
-  'timestamp': 1,
-  'score': 1,
-  'nickname': 1,
-  'tribe': 1,
-  'ritual-2line': 1,
-  'ritual-1col': 1,
-  'comment': 2,
-}
-
 // ritual 타입은 합산 1개 (2line + 1col 중 택1)
 export const RITUAL_TYPES: StickerType[] = ['ritual-2line', 'ritual-1col']
 

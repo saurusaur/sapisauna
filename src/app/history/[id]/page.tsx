@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel, getStepLabel, getDetailText } from '@/lib/utils'
-import { useLog } from '@/hooks/use-logs'
-import { useLogsByPlace } from '@/hooks/use-logs'
+import { useLog, useLogsByPlace } from '@/hooks/use-logs'
+import { deleteLog } from '@/lib/logs-service'
 import DataState from '@/components/ui/data-state'
 
 // DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
@@ -25,6 +25,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [showAllSamePlace, setShowAllSamePlace] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // DB 로그 로드
   const { data: log, loading, error } = useLog(params.id)
@@ -40,9 +41,16 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
     return getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, score)
   }
 
-  const handleDeleteConfirm = () => {
-    // TODO: Supabase 삭제 로직
-    router.push('/history')
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true)
+    try {
+      await deleteLog(params.id)
+      router.push('/history')
+    } catch (e) {
+      console.error('삭제 실패:', e)
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
   }
 
   // 로딩/에러 상태
