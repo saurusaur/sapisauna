@@ -10,6 +10,8 @@
 <!-- P0 -->
 <!-- P0: Dedup & DB 변경 연동 (프론트엔드) -->
 - [ ] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02
+<!-- P1: 네비게이션 -->
+- [ ] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04
 <!-- P1: 리팩토링 -->
 - [ ] [리팩토링] 중복 로직 제거 — AMENITY_LABEL_MAP 제거, getFacilityLabel 통합, 즐겨찾기 훅 추출, ChipSelect/PlaceStatsDisplay 컴포넌트화, SortType/UseDataState/TRIBE_COLORS 통합, FACILITY_ICON_MAP 자동생성. 상세: `docs/plans/REVIEW_duplicate_logic.md` | priority: P1 | added: 2026-03-01
 <!-- P1 -->

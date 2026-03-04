@@ -1,29 +1,17 @@
-# 중복 매핑/로직 분석 리포트
+# 코드 전체 검토 리포트
 
-분석일: 2026-03-01
-
----
-
-## 1. AMENITY_LABEL_MAP vs PLACE_SPECS.AMENITIES.options 중복
-
-| 항목 | 위치 |
-|------|------|
-| 수동 맵 | `src/constants/content.ts:641-651` (AMENITY_LABEL_MAP) |
-| 자동 소스 | `src/constants/content.ts:339-353` (PLACE_SPECS.AMENITIES.options) |
-
-**분석**: AMENITY_LABEL_MAP에 있는 9개 항목 중 8개(`store`, `gym`, `massage`, `sleep-room`, `workspace`, `dryer-free`, `towel`, `shampoo-bodywash`, `charging`)가 PLACE_SPECS.AMENITIES.options에 동일한 id/label로 존재한다. 단, `workspace`의 label이 AMENITY_LABEL_MAP에서는 `'작업공간'`이고, PLACE_SPECS.AMENITIES.options에서는 `'작업 공간'`으로 띄어쓰기 차이가 있다.
-
-**FACILITY_LABEL_MAP(654-666)은 AMENITY_LABEL_MAP을 먼저 spread한 뒤 PLACE_SPECS를 순회하여 덮어쓰므로**, AMENITY_LABEL_MAP의 값이 PLACE_SPECS의 label과 다를 경우 PLACE_SPECS 값으로 덮어써진다. 즉 AMENITY_LABEL_MAP의 `workspace: '작업공간'`은 결국 PLACE_SPECS의 `'작업 공간'`으로 덮어쓰여 사실상 무의미하다.
-
-- ✅ 제거 가능: AMENITY_LABEL_MAP 전체를 삭제하고, FACILITY_LABEL_MAP 생성 로직에서 AMENITY_LABEL_MAP spread 제거
-- 영향 파일: `src/constants/content.ts`, 그리고 AMENITY_LABEL_MAP을 직접 import하는 파일은 없음 (FACILITY_LABEL_MAP만 외부에서 사용됨)
-- 기능 변경: 없음 (PLACE_SPECS가 이미 동일 데이터를 가지고 있으므로)
+분석일: 2026-03-04 (2차 업데이트)
+범위: 중복 코드 + 미사용 코드 + UX/UI 갭 + 타입/상수 정합성
 
 ---
 
-## 2. `getFacilityLabel()` 함수 4곳 중복 정의
+## Part A. 중복 코드 — 통합 대상 12건
 
-동일한 함수가 4개 파일에 독립적으로 정의됨:
+### A1. getFacilityLabel() — 4곳 복붙 ✅ 쉬움
+
+**뭐가 문제?**
+`FACILITY_LABEL_MAP[id] || id` 한 줄짜리 함수가 4개 파일에 각각 정의되어 있다.
+나중에 맵 로직이 바뀌면(예: 다국어 지원) 4곳을 다 수정해야 한다.
 
 | 파일 | 라인 |
 |------|------|
@@ -32,234 +20,326 @@
 | `src/app/place/page.tsx` | :11 |
 | `src/app/explore/type/[type]/page.tsx` | :19 |
 
-모두 `return FACILITY_LABEL_MAP[id] || id`와 동일한 한 줄 함수.
-
-- ✅ 제거 가능: `src/lib/utils.ts`에 한 번만 정의하고 4곳에서 import
-- 영향 파일: 위 4개 파일
-- 기능 변경: 없음
+**해결**: `src/lib/utils.ts`에 한 번 정의 → 4곳에서 import.
+**대안**: `content.ts`에서 export. 하지만 utils.ts가 이미 유틸 함수 모아놓은 곳이라 여기가 자연스럽다.
+**추천**: utils.ts ✅
 
 ---
 
-## 3. 즐겨찾기 유틸 함수 3곳 복붙
+### A2. 즐겨찾기 로직 — 3곳 복붙 (90+줄) ✅ 중간
 
-`getDefaultCollection()`, `loadFavorites()`, `saveFavorites()`, `toggleFavorite()`, `isFavorited()` 로직이 3개 파일에 거의 동일하게 반복:
-
-| 파일 | 함수들 |
-|------|--------|
-| `src/app/explore/page.tsx` | :23-51, :97-115 |
-| `src/app/explore/[id]/page.tsx` | :18-37, :77-93 |
-| `src/app/explore/type/[type]/page.tsx` | :27-53, :108-126 |
-
-- ✅ 제거 가능: `src/hooks/use-favorites.ts` 커스텀 훅으로 추출
-- 영향 파일: 위 3개 파일
-- 기능 변경: 없음
-
----
-
-## 4. `getFavoriteCount()` 2곳 중복
+**뭐가 문제?**
+`getDefaultCollection()`, `loadFavorites()`, `saveFavorites()`, 즐겨찾기 토글 로직이 explore 관련 3개 페이지에 거의 동일하게 복사되어 있다.
+한 곳에서 버그를 고치면 나머지 2곳에도 같은 수정을 해야 한다.
 
 | 파일 | 라인 |
 |------|------|
-| `src/app/explore/page.tsx` | :47-50 |
-| `src/app/explore/type/[type]/page.tsx` | :49-52 |
+| `src/app/explore/page.tsx` | :22-52 |
+| `src/app/explore/[id]/page.tsx` | :17-37 |
+| `src/app/explore/type/[type]/page.tsx` | :27-53 |
 
-동일한 reduce 로직.
+**해결 A (추천 ✅)**: `src/hooks/use-favorites.ts` 커스텀 훅 생성.
+- `useFavorites()` → `{ favorites, toggleFavorite, isFavorited, favoriteCount }` 반환
+- 내부에서 localStorage 관리 + state 관리 일괄 처리
+- 3개 페이지는 훅만 호출
 
-- ✅ 제거 가능: 즐겨찾기 훅에 포함
-- 영향 파일: 위 2개 파일
-- 기능 변경: 없음
+**해결 B**: `src/lib/favorites-utils.ts`에 순수 함수만 추출. 각 페이지에서 state는 직접 관리.
+- 장점: 훅 의존 없이 함수만 공유
+- 단점: useState + useEffect 보일러플레이트는 여전히 3곳에 남음
 
----
-
-## 5. `placeStatsMap` useMemo 로직 2곳 중복
-
-로그에서 장소별 평균/건수를 계산하는 동일한 useMemo 로직:
-
-| 파일 | 라인 |
-|------|------|
-| `src/app/explore/page.tsx` | :182-193 |
-| `src/app/explore/type/[type]/page.tsx` | :129-140 |
-
-- ✅ 제거 가능: `src/hooks/use-place-stats-map.ts` 또는 기존 `use-places.ts`에 추가
-- 영향 파일: 위 2개 파일
-- 기능 변경: 없음
+**추천**: 해결 A (훅). state까지 캡슐화해야 실질적 중복 제거가 됨.
 
 ---
 
-## 6. `PlaceStatsDisplay` 컴포넌트 2곳 중복 정의
+### A3. TRIBE_COLORS — 3곳 중복 ✅ 쉬움
 
-동일한 인라인 컴포넌트가 2개 파일에 정의:
+**뭐가 문제?**
+`{ saunner: 'var(--color-saunner)', bather: 'var(--color-bather)', jimi: 'var(--color-jimi)' }` 동일한 객체가 3곳에 각각 정의.
+
+| 파일 | 이름 |
+|------|------|
+| `src/constants/content.ts:36-40` | `TRIBE_COLORS` (private) |
+| `src/app/explore/page.tsx:56-60` | `TYPE_TAB_COLORS` |
+| `src/app/history/page.tsx:20-24` | `TRIBE_COLORS` |
+
+**해결**: `content.ts`의 `TRIBE_COLORS`를 export → 2곳에서 import.
+**추천**: 이것만 하면 됨 ✅
+
+---
+
+### A4. PlaceStatsDisplay — 2곳 중복 ✅ 쉬움
+
+**뭐가 문제?**
+"또갈래요 4.2 · 3건" 표시하는 동일 컴포넌트가 2곳에 인라인 정의.
 
 | 파일 | 라인 |
 |------|------|
-| `src/app/explore/type/[type]/page.tsx` | :65-77 |
 | `src/app/place/page.tsx` | :16-28 |
+| `src/app/explore/type/[type]/page.tsx` | :64-77 |
 
-- ✅ 제거 가능: `src/components/features/place-stats-display.tsx`로 추출
-- 영향 파일: 위 2개 파일
-- 기능 변경: 없음
+**해결**: `src/components/features/place-stats-display.tsx`로 추출.
+**추천**: 단독 파일 ✅
 
 ---
 
-## 7. `SortType` 타입 2곳 중복 정의
+### A5. ChipSelect — 2곳 중복 ✅ 쉬움
+
+**뭐가 문제?**
+SelectButton을 감싼 칩 선택 래퍼가 2곳에 인라인 정의.
+deep/page.tsx 버전은 `multiple` prop 지원, add/page.tsx는 항상 배열 기반.
+
+| 파일 | 라인 |
+|------|------|
+| `src/app/log/deep/page.tsx` | :110-138 |
+| `src/app/place/add/page.tsx` | :137-151 |
+
+**해결**: `src/components/ui/chip-select.tsx`로 통합. `multiple` prop으로 단일/복수 선택 모두 지원.
+**추천**: UI 컴포넌트 폴더에 배치 ✅
+
+---
+
+### A6. SortType — 2곳 중복 ✅ 쉬움
 
 | 파일 | 라인 |
 |------|------|
 | `src/hooks/use-explore-filters.ts` | :5 |
 | `src/components/features/filter-controls.tsx` | :28 |
 
-둘 다 `'recommended' | 'popular'`.
-
-- ✅ 제거 가능: `filter-controls.tsx`에서 제거하고 `use-explore-filters.ts`에서 import
-- 영향 파일: `src/components/features/filter-controls.tsx`
-- 기능 변경: 없음
+**해결**: `use-explore-filters.ts`에서 export → `filter-controls.tsx`에서 import.
 
 ---
 
-## 8. `UseDataState<T>` 인터페이스 2곳 중복 정의
+### A7. UseDataState<T> — 2곳 중복 ✅ 쉬움
 
 | 파일 | 라인 |
 |------|------|
 | `src/hooks/use-logs.ts` | :11-15 |
 | `src/hooks/use-places.ts` | :11-15 |
 
-동일한 `{ data: T; loading: boolean; error: string | null }` 구조.
-
-- ✅ 제거 가능: `src/types/index.ts`에 정의 후 양쪽에서 import
-- 영향 파일: `src/hooks/use-logs.ts`, `src/hooks/use-places.ts`
-- 기능 변경: 없음
+**해결**: `src/types/index.ts`에 정의 → 양쪽 훅에서 import.
 
 ---
 
-## 9. `ChipSelect` 컴포넌트 2곳 중복 정의
+### A8. AMENITY_LABEL_MAP 제거 ✅ 쉬움
 
-| 파일 | 라인 |
+**뭐가 문제?**
+`AMENITY_LABEL_MAP`은 `PLACE_SPECS.AMENITIES.options`과 동일한 데이터.
+`FACILITY_LABEL_MAP` 빌드 시 PLACE_SPECS가 덮어쓰므로 사실상 무의미.
+
+**해결**: AMENITY_LABEL_MAP 삭제 + FACILITY_LABEL_MAP에서 spread 제거.
+외부에서 직접 import하는 곳 없음.
+
+---
+
+### A9. FACILITY_ICON_MAP 자동 생성 ✅ 쉬움
+
+**뭐가 문제?**
+`filter-controls.tsx`에서 매 렌더마다 PLACE_SPECS를 순회해서 icon 맵을 빌드.
+
+**해결**: `content.ts`에서 `FACILITY_LABEL_MAP` 빌드 로직 옆에 `FACILITY_ICON_MAP`도 함께 생성 → export.
+
+---
+
+### A10. bath_gender 타입 리터럴 하드코딩 5+곳 ✅ 중간
+
+**뭐가 문제?**
+`'public' | 'male-only' | 'female-only' | 'private' | 'mixed'` 리터럴이 5곳+에 흩어져 있다.
+새 유형 추가 시 모든 곳을 수정해야 함.
+
+**해결**: `types/index.ts`에 `FacilityType` 타입 정의 → 모든 곳에서 import.
+
+---
+
+### A11. facilityIconMap 런타임 빌드 → 상수화 ✅ 쉬움
+
+A9와 동일. `content.ts`에서 미리 빌드.
+
+---
+
+### A12. insertDeepLog vs saveOrUpdateDeepLog — 기능 중복 ✅ 중간
+
+**뭐가 문제?**
+`insertDeepLog`은 INSERT만, `saveOrUpdateDeepLog`는 UPSERT.
+두 함수의 목적이 겹친다.
+
+**해결**: `insertDeepLog` 내부에서 `saveOrUpdateDeepLog`를 호출하도록 통합.
+**대안**: `insertDeepLog` 삭제하고 `saveOrUpdateDeepLog`만 유지.
+**추천**: 대안 (삭제). 호출처가 1곳뿐이라 간단.
+
+---
+
+## Part B. 미사용/죽은 코드 — 제거 대상
+
+| # | 항목 | 파일 | 설명 |
+|---|------|------|------|
+| B1 | `TRIBE_NAME_MAP` | `content.ts` | export되지만 어디서도 import 안 됨 |
+| B2 | `StoryTemplateId` 타입 | `types/index.ts` | 코드에서 사용되지 않음 |
+| B3 | `STICKER_MAX_COUNT` | `sticker-templates.ts` | 정의만 있고 import 없음 |
+| B4 | `GREETING` vs `GREETING_WITH_TYPE` | `content.ts` | 동일 출력. 하나 제거 |
+| B5 | `storage.ts` 삭제됨 | - | ✅ 이미 완료 (3/4) |
+| B6 | `generate-id.ts` 삭제됨 | - | ✅ 이미 완료 (3/4) |
+
+---
+
+## Part C. 타입/상수 정합성 이슈
+
+### C1. DeepLogData.food vs DB food_eaten — 이름 불일치 🔴 높음
+
+**뭐가 문제?**
+타입에서는 `food`라고 부르는데, DB 스키마에서는 `food_eaten`이다.
+API 응답이 DB 컬럼명을 사용하므로 타입과 맞지 않을 수 있다.
+
+**해결**: `types/index.ts`의 `food`를 `food_eaten`으로 변경. 사용처도 일괄 수정.
+**영향**: logs-service.ts, log/deep/page.tsx, complete/page.tsx 등
+
+---
+
+### C2. EXPLORE_FILTERS ↔ PLACE_SPECS 필터 동기화
+
+**뭐가 문제?**
+- `hot-bath`(온탕)은 PLACE_SPECS에 있지만 EXPLORE_FILTERS.HEAT에 없다
+- 이전 세션에서 유저가 의도적으로 hot-bath를 필터에서 제외 요청함
+
+**상태**: 의도적 제외 — 문서화만 필요.
+
+---
+
+### C3. LogData 타입 3곳 필드 중복 ⚠️ 보류
+
+`LogWithPlace` (types), `SavedLog` (삭제됨), `LogData` (sticker-content)가 유사 필드를 갖는다.
+storage.ts 삭제로 SavedLog는 해소됨. sticker-content의 LogData는 스토리 렌더 전용이라 분리 유지가 합리적.
+
+**상태**: storage.ts 삭제로 2/3 해소. 나머지 1건은 용도가 달라 보류.
+
+---
+
+## Part D. UX/UI 갭 — 기능적 누락
+
+### D1. 기록 삭제 미구현 🔴 CRITICAL
+
+**뭐가 문제?**
+`history/[id]/page.tsx:44`에 `// TODO: Supabase 삭제 로직` 주석만 있다.
+삭제 버튼은 렌더링되고, ConfirmModal도 뜨지만, 실제 삭제 로직이 없다.
+**유저가 삭제 확인을 눌러도 아무 일도 안 일어난다.**
+
+**해결**: `logs-service.ts`에 `deleteLog(logId)` 함수 추가 → `history/[id]`에서 호출.
+
+---
+
+### D2. 기록 상세 → 장소 상세 링크 없음 ⚠️ MEDIUM
+
+**뭐가 문제?**
+`history/[id]`에서 장소 이름이 보이지만 클릭해도 아무 일이 없다.
+`explore/[id]`(장소 상세)로 이동하는 링크가 없다.
+
+**상태**: BACKLOG P1에 이미 추가됨 (오늘).
+
+---
+
+### D3. 온보딩 에러 처리 없음 ⚠️ MEDIUM
+
+**뭐가 문제?**
+`onboarding/page.tsx`에서 Supabase upsert 실패 시 에러 UI가 없다.
+닉네임 중복 체크 실패도 무시됨.
+
+**해결**: try/catch + 에러 상태 표시 추가.
+
+---
+
+### D4. 스토리 공유/다운로드 성공 피드백 없음 ⚠️ MEDIUM
+
+**뭐가 문제?**
+Share/Download 버튼 클릭 후 성공/실패 여부를 유저가 알 수 없다.
+
+**해결**: 토스트 메시지 컴포넌트 추가.
+
+---
+
+### D5. JSON.parse 무방비 9곳 ⚠️ MEDIUM
+
+**뭐가 문제?**
+localStorage에서 읽은 값을 `JSON.parse()`로 파싱할 때 try/catch가 없다.
+손상된 데이터가 있으면 페이지가 크래시한다.
+
+| 파일 | 대상 |
 |------|------|
-| `src/app/log/deep/page.tsx` | :110-138 |
-| `src/app/place/add/page.tsx` | :131-151 |
+| `src/app/log/page.tsx` | `currentLog`, `selectedPlace` |
+| `src/app/log/deep/page.tsx` | `currentLog` |
+| `src/app/story/page.tsx` | `storyLog` |
+| `src/app/complete/page.tsx` | `currentLog` |
+| `src/app/story/edit/page.tsx` | `storyLog` |
+| `src/app/history/[id]/page.tsx` | 없음 (DB 직접) ✅ |
 
-둘 다 `SelectButton`을 감싼 래퍼 컴포넌트. deep/page.tsx 버전은 `multiple` prop을 지원하고, add/page.tsx 버전은 항상 배열 기반이라 약간 다름.
+**해결 A (추천 ✅)**: `utils.ts`에 `safeParse<T>(key: string, fallback: T): T` 헬퍼 추가.
+```typescript
+function safeParse<T>(json: string | null, fallback: T): T {
+  if (!json) return fallback
+  try { return JSON.parse(json) } catch { return fallback }
+}
+```
 
-- ✅ 제거 가능: `src/components/ui/chip-select.tsx`로 통합 (multiple 지원 포함)
-- 영향 파일: 위 2개 파일
-- 기능 변경: 없음 (두 인터페이스의 합집합으로 설계)
-
----
-
-## 10. `TRIBE_COLORS` 매핑 3곳 중복
-
-CSS 변수 참조 컬러맵이 3곳에 분산:
-
-| 파일 | 라인 | 이름 |
-|------|------|------|
-| `src/constants/content.ts` | :36-40 | `TRIBE_COLORS` (private, TRIBES 내부용) |
-| `src/app/explore/page.tsx` | :56-60 | `TYPE_TAB_COLORS` |
-| `src/app/history/page.tsx` | :20-24 | `TRIBE_COLORS` |
-
-모두 `{ saunner: 'var(--color-saunner)', bather: 'var(--color-bather)', jimi: 'var(--color-jimi)' }` 동일.
-
-- ✅ 제거 가능: `src/constants/content.ts`의 TRIBE_COLORS를 export하면 2곳에서 재사용 가능
-- 영향 파일: `src/app/explore/page.tsx`, `src/app/history/page.tsx`
-- 기능 변경: 없음
+**해결 B**: 각 파일에 개별 try/catch. 단점: 또 복붙.
+**추천**: 해결 A ✅
 
 ---
 
-## 11. `bath_gender` 타입 리터럴 하드코딩 5+곳
+### D6. 설정 하위 페이지 뒤로가기 버튼 없음 ⚠️ LOW
 
-`'male-only' | 'female-only' | 'private' | 'mixed'` 리터럴 유니온이 여러 곳에 하드코딩:
+`/settings/nickname`, `/settings/type`, `/settings/gender`에 뒤로가기 버튼이 없다.
 
-| 파일 | 라인 |
+---
+
+## Part E. 보류 항목 (현재 수정 불필요)
+
+| 항목 | 이유 |
 |------|------|
-| `src/types/index.ts` | :24 |
-| `src/lib/places-service.ts` | :27, :118 |
-| `src/app/place/add/page.tsx` | :42, :400 |
-| `src/app/explore/page.tsx` | :212, :215 |
-| `src/constants/content.ts` | :636 (EXPLORE_FILTERS.GENDER.options) |
-
-- ✅ 제거 가능: `src/types/index.ts`에서 `PlaceBathGender` 타입을 정의하거나, `PLACE_BATH_TYPE`의 id에서 자동 추출
-- 영향 파일: 위 모든 파일
-- 기능 변경: 없음
+| EXPLORE_FILTERS label ↔ PLACE_SPECS label 수동 중복 | 필터는 PLACE_SPECS의 부분집합. 구조 변경 시 위험. 현재 유지 |
+| LogData (sticker-content) 필드 중복 | 스토리 렌더 전용. 용도 분리 합리적 |
+| next/font/google | 기능 아닌 최적화. 후순위 |
+| placeStatsMap useMemo 2곳 | usePlaceStats 훅이 이미 개별 조회 지원. 별도 통합 불필요 |
 
 ---
 
-## 12. `LogData` 타입 vs `LogWithPlace` / `SavedLog` 중복 필드
+## 실행 계획 — 우선순위별 3단계
 
-| 파일 | 타입명 |
-|------|--------|
-| `src/types/index.ts` | `LogWithPlace` |
-| `src/lib/storage.ts` | `SavedLog` |
-| `src/components/story-editor/sticker-content.tsx` | `LogData` |
+### Phase 1: 안전 제거 + 크리티컬 수정 (추천: 다음 세션)
 
-3가지 모두 `sauna_temp`, `cold_bath_temp`, `repeat`, `totono`, `water_quality`, `hot_bath_temp`, `cleanliness`, `jjim_temp`, `revisit_score` 등의 필드를 독립적으로 정의한다. `SavedLog`는 추가로 `savedAt` 등을 가지고, `LogData`는 `_editId` 등 스토리용 필드가 있어 완전히 동일하지는 않지만 핵심 필드가 반복됨.
+| # | 작업 | 영향 파일 | 난이도 |
+|---|------|----------|--------|
+| D1 | 기록 삭제 구현 | logs-service + history/[id] | 중간 |
+| C1 | food → food_eaten 이름 수정 | types + 서비스 + 페이지 | 쉬움 |
+| D5 | safeParse 헬퍼 + 적용 | utils + 5개 페이지 | 쉬움 |
+| B1-B4 | 죽은 코드 제거 | content.ts, types, sticker-templates | 쉬움 |
 
-- ❌ 즉시 제거 어려움: 각 타입의 용도가 다름 (DB 조인, localStorage, 스토리 렌더). 다만 공통 필드를 base interface로 추출하여 `extends` 가능
-- 영향 파일: 3개 파일
-- 기능 변경: 리팩토링 시 import 경로 변경
+### Phase 2: 중복 제거 리팩토링
 
----
+| # | 작업 | 영향 파일 | 난이도 |
+|---|------|----------|--------|
+| A1 | getFacilityLabel 통합 | utils + 4 페이지 | 쉬움 |
+| A2 | useFavorites 훅 추출 | 신규 훅 + 3 페이지 | 중간 |
+| A3 | TRIBE_COLORS export | content.ts + 2 페이지 | 쉬움 |
+| A4 | PlaceStatsDisplay 추출 | 신규 컴포넌트 + 2 페이지 | 쉬움 |
+| A5 | ChipSelect 추출 | 신규 컴포넌트 + 2 페이지 | 쉬움 |
+| A8-A9 | AMENITY_LABEL_MAP 제거 + ICON_MAP 생성 | content.ts + filter-controls | 쉬움 |
 
-## 13. `EXPLORE_FILTERS` label이 `PLACE_SPECS` label과 수동 중복
+### Phase 3: 타입 정리 + UX 개선
 
-| 항목 | EXPLORE_FILTERS | PLACE_SPECS |
-|------|----------------|-------------|
-| 온열 시설 | `EXPLORE_FILTERS.HEAT.label` (613) | `PLACE_SPECS.HEAT.label` (299) |
-| 냉각 시설 | `EXPLORE_FILTERS.ICE.label` (618) | `PLACE_SPECS.ICE.label` (312) |
-| 휴식 시설 | `EXPLORE_FILTERS.PAUSE.label` (623) | `PLACE_SPECS.PAUSE.label` (321) |
-| 편의시설 | `EXPLORE_FILTERS.AMENITIES.label` (631) | `PLACE_SPECS.AMENITIES.label` (340) |
-
-EXPLORE_FILTERS의 label 4개가 PLACE_SPECS의 label과 동일. EXPLORE_FILTERS.BEYOND.label만 `'특별 시설'`로 PLACE_SPECS.BEYOND.label `'추가 시설'`과 다름 (의도적일 수 있음).
-
-또한 EXPLORE_FILTERS의 options 배열은 PLACE_SPECS options의 id 부분집합을 하드코딩한 것.
-
-- ❌ 단순 제거 어려움: EXPLORE_FILTERS는 PLACE_SPECS의 **부분집합**이며 필터에 표시할 항목만 선별함. BEYOND.label이 의도적으로 다를 수 있음. 다만 label은 PLACE_SPECS에서 참조하도록 개선 가능
-- 영향 파일: `src/constants/content.ts`, `src/components/features/filter-controls.tsx`
-- 기능 변경: label 참조만 바꾸면 없음, options 구조 변경 시 주의 필요
-
----
-
-## 14. `storage` (utils.ts) vs `storage.ts` (lib/) 이중 스토리지 시스템
-
-| 파일 | 기능 |
-|------|------|
-| `src/lib/utils.ts:87-113` | 범용 `storage.get/set/remove` + `STORAGE_KEYS` |
-| `src/lib/storage.ts:1-58` | `SavedLog` 전용 `saveLogToHistory/getSavedLogs` |
-
-두 파일 모두 localStorage를 다루지만 서로 참조하지 않고 독립적으로 존재.
-
-- ❌ 즉시 통합 어려움: `storage.ts`는 LAUNCH_CHECKLIST에서 Supabase 교체 예정으로 명시됨. 통합보다는 `storage.ts` 제거 시점에 정리하는 것이 적절
-- 영향 파일: `src/lib/storage.ts`, `src/lib/utils.ts`
-- 기능 변경: 마이그레이션 시 변경 필수
+| # | 작업 | 영향 파일 | 난이도 |
+|---|------|----------|--------|
+| A6-A7 | SortType + UseDataState 통합 | hooks + types | 쉬움 |
+| A10 | FacilityType 타입 추출 | types + 5개 파일 | 중간 |
+| A12 | insertDeepLog/saveOrUpdateDeepLog 통합 | logs-service + complete | 쉬움 |
+| D3 | 온보딩 에러 처리 | onboarding/page | 쉬움 |
+| D4 | 토스트 피드백 | 신규 컴포넌트 + story | 중간 |
 
 ---
 
-## 15. `facilityIconMap` 빌드 로직 — filter-controls.tsx에만 존재하지만 FACILITY_LABEL_MAP 패턴과 중복
+## 수치 요약
 
-`src/components/features/filter-controls.tsx:8-18`에서 PLACE_SPECS + PLACE_BATH_TYPE을 순회하여 `id -> icon` 맵을 빌드하는데, 이는 `content.ts:654-666`의 FACILITY_LABEL_MAP 빌드 패턴과 동일한 순회 로직.
-
-- ✅ 제거 가능: `content.ts`에 `FACILITY_ICON_MAP`도 함께 자동 생성하면 filter-controls.tsx의 빌드 로직 불필요
-- 영향 파일: `src/constants/content.ts`, `src/components/features/filter-controls.tsx`
-- 기능 변경: 없음
-
----
-
-## 요약 (안전 제거 가능 목록)
-
-| # | 중복 항목 | 영향도 | 난이도 |
-|---|----------|--------|--------|
-| ✅1 | AMENITY_LABEL_MAP 제거 | 낮음 (1파일) | 쉬움 |
-| ✅2 | getFacilityLabel() 통합 | 낮음 (4파일 import 변경) | 쉬움 |
-| ✅3 | 즐겨찾기 유틸 → 훅 추출 | 중간 (3파일 리팩토링) | 중간 |
-| ✅4 | getFavoriteCount() → 훅 포함 | 낮음 (2파일) | 쉬움 |
-| ✅5 | placeStatsMap → 훅 추출 | 낮음 (2파일) | 쉬움 |
-| ✅6 | PlaceStatsDisplay → 컴포넌트 추출 | 낮음 (2파일) | 쉬움 |
-| ✅7 | SortType 중복 제거 | 낮음 (1파일) | 쉬움 |
-| ✅8 | UseDataState → types에 통합 | 낮음 (2파일) | 쉬움 |
-| ✅9 | ChipSelect → 컴포넌트 추출 | 낮음 (2파일) | 쉬움 |
-| ✅10 | TRIBE_COLORS export 통합 | 낮음 (2파일) | 쉬움 |
-| ✅11 | bath_gender 타입 추출 | 중간 (5+파일) | 중간 |
-| ✅15 | FACILITY_ICON_MAP 자동 생성 | 낮음 (2파일) | 쉬움 |
-| ❌12 | LogData/SavedLog/LogWithPlace 필드 중복 | 높음 | 어려움 |
-| ❌13 | EXPLORE_FILTERS label/options 분리 유지 | 중간 | 중간 |
-| ❌14 | storage 이중 시스템 | Supabase 마이그레이션 시 해결 | 보류 |
-
-**총 발견: 15건 중 12건 안전 제거 가능 (✅), 3건 보류 (❌)**
+| 카테고리 | 건수 | 제거 가능 라인 (추정) |
+|----------|------|-----------------------|
+| 중복 코드 통합 | 12건 | ~250줄 |
+| 죽은 코드 제거 | 4건 | ~30줄 |
+| 타입/상수 정합성 | 3건 | 이름 변경 위주 |
+| UX/UI 기능 갭 | 6건 | +80줄 (신규 구현) |
+| **합계** | **25건** | 순감 ~200줄 |
