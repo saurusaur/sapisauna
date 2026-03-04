@@ -33,11 +33,11 @@ export const APP = {
 // ============================================
 // 타입별 포인트 색상 (globals.css의 CSS 변수 참조)
 // ============================================
-const TRIBE_COLORS = {
+export const TRIBE_COLORS: Record<string, string> = {
   bather: 'var(--color-bather)',
   saunner: 'var(--color-saunner)',
   jimi: 'var(--color-jimi)',
-} as const
+}
 
 // 장소 특성: "이 시설은 어떤 종류?" (places.facility_type)
 // 미선택(NULL) = 일반 남녀분리 시설
@@ -635,22 +635,9 @@ export const EXPLORE_FILTERS = {
   },
 } as const
 
-// AMENITIES id → 표시 라벨 매핑 (PLACE_SPECS에서 참조)
-export const AMENITY_LABEL_MAP: Record<string, string> = {
-  'store': '매점',
-  'gym': '운동시설',
-  'massage': '마사지',
-  'sleep-room': '수면실',
-  'workspace': '작업공간',
-  'dryer-free': '드라이기 무료',
-  'towel': '수건 무제한',
-  'shampoo-bodywash': '샴푸/바디워시',
-  'charging': '충전 스테이션',
-}
-
-// 전체 시설 ID → 라벨 통합 매핑 (PLACE_SPECS 모든 섹션 + AMENITY_LABEL_MAP + PLACE_BATH_TYPE)
+// 전체 시설 ID → 라벨 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_BATH_TYPE)
 export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
-  const map: Record<string, string> = { ...AMENITY_LABEL_MAP }
+  const map: Record<string, string> = {}
   const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
   for (const section of sections) {
     for (const opt of section.options) {
@@ -659,6 +646,21 @@ export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
   }
   for (const opt of PLACE_BATH_TYPE) {
     map[opt.id] = opt.label
+  }
+  return map
+})()
+
+// 전체 시설 ID → 아이콘 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_BATH_TYPE)
+export const FACILITY_ICON_MAP: Record<string, string> = (() => {
+  const map: Record<string, string> = {}
+  const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
+  for (const section of sections) {
+    for (const opt of section.options) {
+      map[opt.id] = opt.icon
+    }
+  }
+  for (const opt of PLACE_BATH_TYPE) {
+    map[opt.id] = opt.icon
   }
   return map
 })()

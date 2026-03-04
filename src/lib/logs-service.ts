@@ -141,33 +141,6 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
   return data.id as string
 }
 
-// 딥로그 INSERT
-export async function insertDeepLog(logId: string, deepData: Record<string, unknown>): Promise<void> {
-  const { error } = await supabase
-    .from('deep_logs')
-    .insert({
-      log_id: logId,
-      companion: deepData.companion ?? null,
-      purposes: deepData.purposes ?? [],
-      cost: deepData.cost ?? null,
-      memo: deepData.memo ?? null,
-      used_sauna_types: deepData.used_sauna_types ?? [],
-      used_rooms: deepData.used_rooms ?? [],
-      used_amenities: deepData.used_amenities ?? [],
-      bath_gender: deepData.bath_gender ?? null,
-      crowd: deepData.crowd ?? null,
-      has_scrub: deepData.has_scrub ?? false,
-      scrub_satisfaction: deepData.scrub_satisfaction ?? null,
-      scrub_price: deepData.scrub_price ?? null,
-      has_store: deepData.has_store ?? false,
-      store_score: deepData.store_score ?? null,
-      store_memo: deepData.store_memo ?? null,
-      food_eaten: deepData.food_eaten ?? [],
-    })
-
-  if (error) throw error
-}
-
 // 로그 삭제 — deep_logs는 ON DELETE CASCADE로 자동 삭제
 export async function deleteLog(logId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()

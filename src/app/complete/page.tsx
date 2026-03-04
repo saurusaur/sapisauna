@@ -13,7 +13,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
-import { insertLog, insertDeepLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
+import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { safeParse } from '@/lib/utils'
 
 // sessionStorage 키 (에디터와 공유)
@@ -61,7 +61,7 @@ export default function Complete() {
             // 새 기록: INSERT
             const logId = await insertLog(parsed)
             if (parsed.deep_log) {
-              await insertDeepLog(logId, parsed.deep_log)
+              await saveOrUpdateDeepLog(logId, parsed.deep_log)
             }
           }
           // 성공 시 정리: 기록 흐름 종료

@@ -1,4 +1,5 @@
-import { ICONS, FACILITY_LABEL_MAP } from '@/constants/content'
+import { ICONS } from '@/constants/content'
+import { getFacilityLabel } from '@/lib/utils'
 import type { Place } from '@/types'
 import { usePlaceStats } from '@/hooks/use-places'
 import Chip from '@/components/ui/chip'
@@ -10,10 +11,6 @@ interface PlaceCardProps {
     onToggleFavorite: () => void
     onClick: () => void
     variant?: 'default' | 'minimal'
-}
-
-function getFacilityLabel(id: string): string {
-    return FACILITY_LABEL_MAP[id] || id
 }
 
 // 기본 시설 — 카드 표시에서 후순위로 밀기 (상세 페이지에서는 전체 표시)

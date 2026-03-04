@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DEEP_LOG, PLACE_SPECS, LOG_BATH_GENDER } from '@/constants/content'
 import { Slider } from '@/components/slider'
+import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { formatCostInput, safeParse } from '@/lib/utils'
@@ -108,37 +109,6 @@ export default function DeepLog() {
   const handleCancelConfirm = () => {
     router.back()
   }
-
-  // 칩 선택 컴포넌트 (Material Symbols 아이콘 사용)
-  const ChipSelect = ({
-    options,
-    selected,
-    onSelect,
-    multiple = false,
-  }: {
-    options: readonly { id: string; label: string; icon: string }[]
-    selected: string | string[] | null
-    onSelect: (id: string) => void
-    multiple?: boolean
-  }) => (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((option) => {
-        const isSelected = multiple
-          ? (selected as string[])?.includes(option.id)
-          : selected === option.id
-
-        return (
-          <SelectButton
-            key={option.id}
-            label={option.label}
-            icon={option.icon}
-            selected={isSelected}
-            onClick={() => onSelect(option.id)}
-          />
-        )
-      })}
-    </div>
-  )
 
   return (
     <div className="min-h-screen bath-tile-bg pb-8">

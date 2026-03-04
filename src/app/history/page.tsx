@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
+import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, TRIBE_COLORS } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
 import DataState from '@/components/ui/data-state'
@@ -15,13 +15,6 @@ type ViewMode = 'list' | 'calendar'
 
 // 타입 필터 옵션 (이모지는 TRIBE_EMOJI_MAP에서 참조)
 const TRIBE_FILTER_IDS = ['all', 'saunner', 'bather', 'jimi'] as const
-
-// 타입별 컬러
-const TRIBE_COLORS: Record<string, string> = {
-  saunner: 'var(--color-saunner)',
-  bather: 'var(--color-bather)',
-  jimi: 'var(--color-jimi)',
-}
 
 // 요일 헤더 (월요일 시작)
 const WEEKDAYS = ['월', '화', '수', '목', '금', '토', '일']

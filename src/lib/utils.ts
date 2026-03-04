@@ -125,7 +125,7 @@ export const STORAGE_KEYS = {
 // ============================================
 // 점수 관련 유틸
 // ============================================
-import { QUICK_LOG } from '@/constants/content'
+import { QUICK_LOG, FACILITY_LABEL_MAP } from '@/constants/content'
 
 /**
  * steps 배열에서 value 이하인 가장 가까운 라벨을 반환
@@ -163,6 +163,13 @@ export function generateShortAddress(address: string): string {
     .replace(/도$/, '')
   const district = parts[1]
   return `${city} ${district}`
+}
+
+/**
+ * 시설 라벨 (영어 id → 한국어)
+ */
+export function getFacilityLabel(id: string): string {
+  return FACILITY_LABEL_MAP[id] || id
 }
 
 /**

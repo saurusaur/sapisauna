@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PLACE_SPECS } from '@/constants/content'
+import { PLACE_SPECS, PLACE_BATH_TYPE } from '@/constants/content'
+import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { addPlace } from '@/lib/places-service'
-import { PLACE_BATH_TYPE } from '@/constants/content'
 
 // API 검색 결과 타입
 interface SearchResult {
@@ -132,29 +132,6 @@ export default function AddPlace() {
       setIsSaving(false)
     }
   }
-
-  // 칩 선택 래퍼
-  const ChipSelect = ({
-    options,
-    selected,
-    onSelect,
-  }: {
-    options: readonly { id: string; label: string; icon: string }[]
-    selected: string[]
-    onSelect: (id: string) => void
-  }) => (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((option) => (
-        <SelectButton
-          key={option.id}
-          label={option.label}
-          icon={option.icon}
-          selected={selected.includes(option.id)}
-          onClick={() => onSelect(option.id)}
-        />
-      ))}
-    </div>
-  )
 
   return (
     <div className="min-h-screen bath-tile-bg pb-8">
@@ -397,6 +374,7 @@ export default function AddPlace() {
                       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
                     )
                   }}
+                  multiple
                 />
               </div>
             ))}

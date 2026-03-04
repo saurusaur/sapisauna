@@ -1,40 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS,
 } from '@/constants/content'
-import { storage, STORAGE_KEYS } from '@/lib/utils'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
-import type { FavoritesData, FavoriteCollection } from '@/types'
+import { useFavorites } from '@/hooks/use-favorites'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import RecordCard from '@/components/features/record-card'
 import { useAuth } from '@/contexts/auth-context'
-
-// 기본 즐겨찾기 컬렉션
-function getDefaultCollection(): FavoriteCollection {
-  return {
-    id: 'default',
-    name: '좋아요',
-    icon: 'favorite',
-    placeIds: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-}
-
-function loadFavorites(): FavoritesData {
-  const data = storage.get<FavoritesData>(STORAGE_KEYS.FAVORITES)
-  if (data && data.collections?.length > 0) return data
-  return { collections: [getDefaultCollection()] }
-}
-
-function saveFavorites(data: FavoritesData) {
-  storage.set(STORAGE_KEYS.FAVORITES, data)
-}
 
 // PLACE_SPECS 섹션별로 시설 분류
 const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND'] as const
@@ -48,13 +25,9 @@ export default function PlaceDetailPage() {
   const { data: place, loading: placeLoading, error: placeError } = usePlace(placeId)
   const { data: placeLogs, loading: logsLoading } = useLogsByPlace(placeId)
   const { stats } = usePlaceStats(placeId)
-  const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
+  const { toggleFavorite, isFavorited } = useFavorites()
   const { user: authUser } = useAuth()
   const [showAllLogs, setShowAllLogs] = useState(false)
-
-  useEffect(() => {
-    setFavorites(loadFavorites())
-  }, [])
 
   // 로딩/에러/없음 상태
   if (placeLoading) {
@@ -73,24 +46,7 @@ export default function PlaceDetailPage() {
     )
   }
 
-  // 하트 토글
-  const toggleFavorite = () => {
-    setFavorites((prev) => {
-      const updated = { ...prev, collections: [...prev.collections] }
-      const defaultCol = { ...updated.collections[0] }
-      if (defaultCol.placeIds.includes(placeId)) {
-        defaultCol.placeIds = defaultCol.placeIds.filter((id) => id !== placeId)
-      } else {
-        defaultCol.placeIds = [...defaultCol.placeIds, placeId]
-      }
-      defaultCol.updatedAt = new Date().toISOString()
-      updated.collections[0] = defaultCol
-      saveFavorites(updated)
-      return updated
-    })
-  }
-
-  const isFavorited = favorites.collections[0]?.placeIds.includes(placeId) || false
+  const isFavoritedPlace = isFavorited(placeId)
 
   // 시설 분류
   const facilityGroups: { label: string; items: { id: string; label: string; icon: string }[] }[] = []
@@ -150,12 +106,12 @@ export default function PlaceDetailPage() {
           </button>
           <h1 className="text-lg font-bold text-stone-700">{place.name}</h1>
         </div>
-        <button onClick={toggleFavorite} className="p-2">
+        <button onClick={() => toggleFavorite(placeId)} className="p-2">
           <span
             className="material-symbols-outlined text-2xl"
-            style={{ color: isFavorited ? 'var(--color-green)' : '#d6d3d1' }}
+            style={{ color: isFavoritedPlace ? 'var(--color-green)' : '#d6d3d1' }}
           >
-            {isFavorited ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+            {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
           </span>
         </button>
       </header>

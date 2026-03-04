@@ -2,30 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MESSAGES, FACILITY_LABEL_MAP, EXPLORE, ICONS } from '@/constants/content'
-import { usePlaces, usePlaceStats } from '@/hooks/use-places'
+import { MESSAGES, ICONS } from '@/constants/content'
+import { getFacilityLabel } from '@/lib/utils'
+import { usePlaces } from '@/hooks/use-places'
 import DataState from '@/components/ui/data-state'
 import Chip from '@/components/ui/chip'
-
-// 시설 라벨 (영어 id → 한국어)
-function getFacilityLabel(id: string): string {
-  return FACILITY_LABEL_MAP[id] || id
-}
-
-// 장소 통계 표시용 컴포넌트
-function PlaceStatsDisplay({ placeId }: { placeId: string }) {
-  const { stats } = usePlaceStats(placeId)
-  if (stats.count === 0) return null
-  return (
-    <div className="flex items-center gap-1 text-xs">
-      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-        {EXPLORE.REVISIT_LABEL} {stats.avg}
-      </span>
-      <span className="text-stone-300">·</span>
-      <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
-    </div>
-  )
-}
+import PlaceStatsDisplay from '@/components/features/place-stats-display'
 
 export default function PlaceSelection() {
   const router = useRouter()

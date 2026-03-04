@@ -1,56 +1,24 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
-  ICONS, EXPLORE, FACILITY_LABEL_MAP,
+  ICONS, EXPLORE,
   TRIBE_EMOJI_MAP,
 } from '@/constants/content'
-import { storage, STORAGE_KEYS } from '@/lib/utils'
-import { usePlaces, usePlaceStats } from '@/hooks/use-places'
+import { getFacilityLabel } from '@/lib/utils'
+import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
-import type { Place, FavoritesData, FavoriteCollection } from '@/types'
+import { useFavorites } from '@/hooks/use-favorites'
+import type { Place } from '@/types'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import FilterControls from '@/components/features/filter-controls'
+import PlaceStatsDisplay from '@/components/features/place-stats-display'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
-
-// 시설 라벨
-function getFacilityLabel(id: string): string {
-  return FACILITY_LABEL_MAP[id] || id
-}
 
 
 const VALID_TYPES = ['saunner', 'bather', 'jimi'] as const
-
-// 기본 즐겨찾기 컬렉션 생성
-function getDefaultCollection(): FavoriteCollection {
-  return {
-    id: 'default',
-    name: '좋아요',
-    icon: 'favorite',
-    placeIds: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-}
-
-function loadFavorites(): FavoritesData {
-  const data = storage.get<FavoritesData>(STORAGE_KEYS.FAVORITES)
-  if (data && data.collections?.length > 0) return data
-  return { collections: [getDefaultCollection()] }
-}
-
-function saveFavorites(data: FavoritesData) {
-  storage.set(STORAGE_KEYS.FAVORITES, data)
-}
-
-// 장소별 즐겨찾기 수
-function getFavoriteCount(placeId: string, favorites: FavoritesData): number {
-  return favorites.collections.reduce((count, col) =>
-    count + (col.placeIds.includes(placeId) ? 1 : 0), 0
-  )
-}
 
 
 
@@ -59,21 +27,6 @@ const typeDropdownLabel: Record<string, string> = {
   saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner 추천`,
   bather: `${TRIBE_EMOJI_MAP['bather']} Bather 추천`,
   jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi 추천`,
-}
-
-// 장소 통계 표시용 컴포넌트
-function PlaceStatsDisplay({ placeId }: { placeId: string }) {
-  const { stats } = usePlaceStats(placeId)
-  if (stats.count === 0) return null
-  return (
-    <div className="flex items-center gap-1 text-xs">
-      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-        {EXPLORE.REVISIT_LABEL} {stats.avg}
-      </span>
-      <span className="text-stone-300">·</span>
-      <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>
-    </div>
-  )
 }
 
 export default function TypeListPage() {
@@ -93,37 +46,12 @@ export default function TypeListPage() {
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
-  const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
+  const { favorites, toggleFavorite, isFavorited, getFavoriteCount } = useFavorites()
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
   const { data: logs, loading: logsLoading } = useLogs(100)
   const loading = placesLoading || logsLoading
-
-  useEffect(() => {
-    setFavorites(loadFavorites())
-  }, [])
-
-  // 하트 토글
-  const toggleFavorite = (placeId: string) => {
-    setFavorites((prev) => {
-      const updated = { ...prev, collections: [...prev.collections] }
-      const defaultCol = { ...updated.collections[0] }
-      if (defaultCol.placeIds.includes(placeId)) {
-        defaultCol.placeIds = defaultCol.placeIds.filter((id) => id !== placeId)
-      } else {
-        defaultCol.placeIds = [...defaultCol.placeIds, placeId]
-      }
-      defaultCol.updatedAt = new Date().toISOString()
-      updated.collections[0] = defaultCol
-      saveFavorites(updated)
-      return updated
-    })
-  }
-
-  const isFavorited = (placeId: string) => {
-    return favorites.collections[0]?.placeIds.includes(placeId) || false
-  }
 
   // 장소별 통계 캐시
   const placeStatsMap = useMemo(() => {
@@ -199,8 +127,8 @@ export default function TypeListPage() {
       }
 
       if (sortType === 'popular') {
-        const favA = getFavoriteCount(a.id, favorites)
-        const favB = getFavoriteCount(b.id, favorites)
+        const favA = getFavoriteCount(a.id)
+        const favB = getFavoriteCount(b.id)
         if (favA !== favB) return favB - favA
         return statsB.avg - statsA.avg
       }

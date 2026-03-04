@@ -5,14 +5,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { LogWithPlace } from '@/types'
+import type { LogWithPlace, UseDataState } from '@/types'
 import * as logsService from '@/lib/logs-service'
-
-interface UseDataState<T> {
-  data: T
-  loading: boolean
-  error: string | null
-}
 
 // 최근 로그 (전체)
 export function useLogs(limit = 20): UseDataState<LogWithPlace[]> {

@@ -1,31 +1,10 @@
 'use client'
 
-import { ICONS, EXPLORE, EXPLORE_FILTERS, FACILITY_LABEL_MAP, PLACE_SPECS, PLACE_BATH_TYPE } from '@/constants/content'
+import { ICONS, EXPLORE, EXPLORE_FILTERS, FACILITY_ICON_MAP } from '@/constants/content'
+import { getFacilityLabel } from '@/lib/utils'
+import type { SortType } from '@/hooks/use-explore-filters'
 import Chip from '@/components/ui/chip'
 import ToggleSwitch from '@/components/ui/toggle-switch'
-
-// PLACE_SPECS + PLACE_BATH_TYPE에서 시설 id → 아이콘 찾기
-const facilityIconMap: Record<string, string> = {}
-for (const section of Object.values(PLACE_SPECS)) {
-    if ('options' in section && Array.isArray(section.options)) {
-        for (const opt of section.options) {
-            facilityIconMap[opt.id] = opt.icon
-        }
-    }
-}
-for (const opt of PLACE_BATH_TYPE) {
-    facilityIconMap[opt.id] = opt.icon
-}
-
-function getFacilityLabel(id: string): string {
-    return FACILITY_LABEL_MAP[id] || id
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────────────
-
-export type SortType = 'recommended' | 'popular'
 
 interface FilterControlsProps {
     // Filter state
@@ -137,7 +116,7 @@ export default function FilterControls({
                                         <Chip
                                             key={optionId}
                                             label={getFacilityLabel(optionId)}
-                                            icon={facilityIconMap[optionId]}
+                                            icon={FACILITY_ICON_MAP[optionId]}
                                             selected={selectedFilters.includes(optionId)}
                                             onClick={() => onToggleFilter(optionId)}
                                         />

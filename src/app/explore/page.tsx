@@ -4,12 +4,12 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ICONS, EXPLORE,
-  TRIBE_EMOJI_MAP,
+  TRIBE_EMOJI_MAP, TRIBE_COLORS,
 } from '@/constants/content'
-import { storage, STORAGE_KEYS } from '@/lib/utils'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
-import type { Place, FavoritesData, FavoriteCollection } from '@/types'
+import { useFavorites } from '@/hooks/use-favorites'
+import type { Place } from '@/types'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
 import DataState from '@/components/ui/data-state'
@@ -19,45 +19,6 @@ import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 
 
-// 기본 즐겨찾기 컬렉션 생성
-function getDefaultCollection(): FavoriteCollection {
-  return {
-    id: 'default',
-    name: '좋아요',
-    icon: 'favorite',
-    placeIds: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-}
-
-// 즐겨찾기 데이터 로드
-function loadFavorites(): FavoritesData {
-  const data = storage.get<FavoritesData>(STORAGE_KEYS.FAVORITES)
-  if (data && data.collections?.length > 0) return data
-  return { collections: [getDefaultCollection()] }
-}
-
-// 즐겨찾기 저장
-function saveFavorites(data: FavoritesData) {
-  storage.set(STORAGE_KEYS.FAVORITES, data)
-}
-
-// 장소별 즐겨찾기 수 (전체 유저 = 현재 유저만)
-function getFavoriteCount(placeId: string, favorites: FavoritesData): number {
-  return favorites.collections.reduce((count, col) =>
-    count + (col.placeIds.includes(placeId) ? 1 : 0), 0
-  )
-}
-
-
-
-// 타입별 탭 컬러 (공용)
-const TYPE_TAB_COLORS: Record<string, string> = {
-  saunner: 'var(--color-saunner)',
-  bather: 'var(--color-bather)',
-  jimi: 'var(--color-jimi)',
-}
 
 // 추천 탭 라벨 매핑
 const recTabLabel: Record<string, string> = {
@@ -77,7 +38,7 @@ export default function ExplorePage() {
     sortType, setSortType,
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
-  const [favorites, setFavorites] = useState<FavoritesData>({ collections: [getDefaultCollection()] })
+  const { favorites, toggleFavorite, isFavorited, getFavoriteCount } = useFavorites()
   const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
@@ -88,31 +49,6 @@ export default function ExplorePage() {
 
   const loading = placesLoading || logsLoading
   const error = placesError || logsError
-
-  useEffect(() => {
-    setFavorites(loadFavorites())
-  }, [])
-
-  // 하트 토글
-  const toggleFavorite = (placeId: string) => {
-    setFavorites((prev) => {
-      const updated = { ...prev, collections: [...prev.collections] }
-      const defaultCol = { ...updated.collections[0] }
-      if (defaultCol.placeIds.includes(placeId)) {
-        defaultCol.placeIds = defaultCol.placeIds.filter((id) => id !== placeId)
-      } else {
-        defaultCol.placeIds = [...defaultCol.placeIds, placeId]
-      }
-      defaultCol.updatedAt = new Date().toISOString()
-      updated.collections[0] = defaultCol
-      saveFavorites(updated)
-      return updated
-    })
-  }
-
-  const isFavorited = (placeId: string) => {
-    return favorites.collections[0]?.placeIds.includes(placeId) || false
-  }
 
 
   // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
@@ -151,8 +87,8 @@ export default function ExplorePage() {
 
         if (sortType === 'popular') {
           // 인기순: 즐겨찾기 수 ↓ → 평균 점수 ↓
-          const favA = getFavoriteCount(a.id, favorites)
-          const favB = getFavoriteCount(b.id, favorites)
+          const favA = getFavoriteCount(a.id)
+          const favB = getFavoriteCount(b.id)
           if (favB !== favA) return favB - favA
           return (sb.sum / sb.count) - (sa.sum / sa.count)
         }
@@ -245,8 +181,8 @@ export default function ExplorePage() {
       }
 
       if (sortType === 'popular') {
-        const favA = getFavoriteCount(a.id, favorites)
-        const favB = getFavoriteCount(b.id, favorites)
+        const favA = getFavoriteCount(a.id)
+        const favB = getFavoriteCount(b.id)
         if (favA !== favB) return favB - favA
         return statsB.avg - statsA.avg
       }
@@ -332,7 +268,7 @@ export default function ExplorePage() {
                         label={recTabLabel[type]}
                         active={activeTab === type}
                         onClick={() => setActiveTab(type)}
-                        color={TYPE_TAB_COLORS[type]}
+                        color={TRIBE_COLORS[type]}
                       />
                     ))}
                   </div>

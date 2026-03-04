@@ -2,6 +2,13 @@
  * 타입 정의
  */
 
+// 공용 데이터 로딩 상태 타입 (use-logs, use-places 등에서 공유)
+export interface UseDataState<T> {
+  data: T
+  loading: boolean
+  error: string | null
+}
+
 // 사용자 트라이브 ID
 export type TribeId = 'bather' | 'saunner' | 'jimi'
 

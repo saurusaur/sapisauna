@@ -5,14 +5,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import type { Place } from '@/types'
+import type { Place, UseDataState } from '@/types'
 import * as placesService from '@/lib/places-service'
-
-interface UseDataState<T> {
-  data: T
-  loading: boolean
-  error: string | null
-}
 
 // 전체 장소 목록
 export function usePlaces(): UseDataState<Place[]> {
