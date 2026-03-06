@@ -4,7 +4,7 @@
 
 import { supabase } from './supabase'
 import { generateShortAddress } from './utils'
-import type { Place, PlaceSource } from '@/types'
+import type { Place, PlaceSource, FacilityType } from '@/types'
 
 // DB 행 → Place 변환 (place_sources 조인 포함)
 function toPlace(row: Record<string, unknown>): Place {
@@ -24,7 +24,7 @@ function toPlace(row: Record<string, unknown>): Place {
     longitude: row.longitude as number | null,
     facilities: (row.facilities as string[]) || [],
     is_24h: (row.is_24h as boolean) || false,
-    facility_type: (row.facility_type as 'public' | 'male-only' | 'female-only' | 'private' | 'mixed') || 'public',
+    facility_type: (row.facility_type as FacilityType) || 'gender-bath',
     coordinate_source: (row.coordinate_source as 'naver' | 'google' | 'manual' | null) || null,
     status: (row.status as string) || 'active',
     merged: (row.merged as boolean) || false,
@@ -125,7 +125,7 @@ export async function addPlace(params: {
   longitude?: number | null
   facilities: string[]
   is_24h: boolean
-  facility_type?: 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
+  facility_type?: FacilityType
   country_code?: string
   source?: 'naver' | 'google' | 'manual'
   external_id?: string
@@ -177,7 +177,7 @@ export async function addPlace(params: {
           facilities: mergedFacilities,
           is_24h: is_24h || nearby.is_24h,
           merged: true,
-          facility_type: facility_type || 'public',
+          facility_type: facility_type || 'gender-bath',
         })
         .eq('id', nearby.id)
 
@@ -196,7 +196,7 @@ export async function addPlace(params: {
       facilities,
       is_24h,
       coordinate_source: source,
-      facility_type: facility_type || 'public',
+      facility_type: facility_type || 'gender-bath',
     })
     .select()
     .single()

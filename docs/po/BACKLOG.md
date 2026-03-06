@@ -13,23 +13,22 @@
 <!-- P1: 네비게이션 -->
 - [ ] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04
 <!-- P1: 리팩토링 -->
-- [ ] [리팩토링] 중복 로직 제거 — AMENITY_LABEL_MAP 제거, getFacilityLabel 통합, 즐겨찾기 훅 추출, ChipSelect/PlaceStatsDisplay 컴포넌트화, SortType/UseDataState/TRIBE_COLORS 통합, FACILITY_ICON_MAP 자동생성. 상세: `docs/plans/REVIEW_duplicate_logic.md` | priority: P1 | added: 2026-03-01
+- [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
 <!-- P1 -->
 - [ ] [기능] 기록 날짜/시간 편집 — 로그 작성·편집 시 created_at을 date/time picker로 수정 가능하게. 현재는 저장 시점 자동 기록만 지원 | priority: P1 | added: 2026-03-04
-- [ ] [UX] 비용 통화 자동 표시 — 장소 countryCode 기반 통화 표시 (KR→원, JP→¥, US→$ 등). countryCode를 deep 로그 페이지까지 전달하는 파이프라인 추가 필요 | priority: P1 | added: 2026-03-04
+- [ ] [기능] 비용 통화 선택 — DB에 currency 컬럼 추가 (logs 또는 deep_logs). 유저가 입장료 기록 시 통화 직접 선택 (KRW/JPY/USD 등). 장소 countryCode 기반 기본값 자동 설정 + 수동 변경 가능. 향후 환율 API 연동으로 환산 표시 확장 가능 | priority: P1 | added: 2026-03-04
 - [ ] [버그] Naver 장소 지도 링크 미작동 — Naver external_id가 좌표 조합(mapx_mapy)이라 entry/place URL 미작동. place_id 또는 주소+이름 검색 URL로 전환 필요 | priority: P1 | added: 2026-02-27
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
 - [ ] [UX] 하단 네비게이션 바 — 정리 & 플리 기능 플레이스홀더 추가. (기록 버튼 제거 완료) | priority: P1 | added: 2026-02-28
 - [ ] [기능] 홈 화면 — 최근 기록을 달력 보기로 전환 + 더보기로 리스트 보기. 달력 내 '오늘' 버튼(스크롤 중 오늘 일자로 복귀), 연도 탭 시 연/월/일 입력으로 해당 날짜 바로 이동. 타입별 카운트 란은 높이 고정 — 데이터 유무에 따라 문구만 표시/숨김, 레이아웃 시프트 없이 | priority: P1 | added: 2026-02-28
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
-<!-- P1 -->
-- [ ] [기능] 기록 상세→장소 상세 네비게이션 — history/[id] 장소명 클릭 시 장소 상세보기 페이지로 이동. 장소 상세 페이지 신규 생성 필요 (place/[id]) | priority: P1 | added: 2026-03-04
+- [ ] [리팩토링] user-context localStorage 제거 — DB를 single source of truth로 통일. localStorage 캐시 제거하여 sync 문제 원천 차단. 영향: user-context.tsx, onboarding/page.tsx, 설정 페이지들 | priority: P2 | added: 2026-03-06
 <!-- P2 -->
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
 - [ ] [버그/아키텍처] 스토리 미리보기↔에디터 간 요소 사이즈/배치 불일치 — 경쟁앱 리서치 후 dev-cycle 진행 | priority: P2 | added: 2026-02-28
 - [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비 | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
-- [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델 | priority: P2 | added: 2026-02-27
+- [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 스토리 에디터 완성도 점검 (스티커/배경/크롭) | priority: P2 | added: 2026-02-27
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
@@ -48,6 +47,8 @@
 - [ ] [리마인더] 베타테스터 단계에서 사용자 행동 분석 — 기능별 사용 빈도 확인, 미사용 기능 제거 (오프라인 진행) | priority: P3 | added: 2026-02-28
 
 ## Done
+
+- [x] [리팩토링] 중복 로직 제거 — Phase 1(safeParse·dead code) + Phase 2(훅·컴포넌트·상수 통합, -303줄) | priority: P1 | added: 2026-03-01 | done: 2026-03-06
 
 - [x] [인프라] Supabase 연동 및 Auth(로그인) 시스템 구현 | priority: P1 | added: 2026-02-27 | done: 2026-02-28
 - [x] [버그] 장소 신규 추가 — API 키 설정 + Google 검색 필터 최적화 | priority: P1 | added: 2026-02-28 | done: 2026-02-28

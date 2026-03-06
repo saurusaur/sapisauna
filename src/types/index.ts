@@ -12,6 +12,12 @@ export interface UseDataState<T> {
 // 사용자 트라이브 ID
 export type TribeId = 'bather' | 'saunner' | 'jimi'
 
+// 장소 시설 유형 (places.facility_type)
+export type FacilityType = 'gender-bath' | 'male-only' | 'female-only' | 'private-bath' | 'mixed-bath'
+
+// 딥로그 탕 구분 (deep_logs.bath_gender)
+export type BathGender = 'male' | 'female' | 'mixed' | 'private'
+
 // 사용자 프로필
 export interface UserProfile {
   id: string
@@ -28,7 +34,7 @@ export interface Place {
   longitude: number | null
   facilities: string[]
   is_24h: boolean
-  facility_type: 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
+  facility_type: FacilityType
   coordinate_source?: 'naver' | 'google' | 'manual' | null
   status: string
   merged: boolean
@@ -161,7 +167,7 @@ export interface LogWithPlace {
   cleanliness?: number
   jjim_temp?: number
   deep_log?: {
-    bath_gender?: 'male' | 'female' | 'mixed' | 'private'
+    bath_gender?: BathGender
     companion?: string | null
     purposes?: string[]
     cost?: number | null

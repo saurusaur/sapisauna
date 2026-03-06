@@ -145,10 +145,10 @@ export default function ExplorePage() {
     // 시설 필터 + 탕 구분 필터 (AND 조건)
     if (selectedFilters.length > 0) {
       const genderFilters = selectedFilters.filter((f) =>
-        ['male-only', 'female-only', 'private', 'mixed'].includes(f)
+        ['male-only', 'female-only', 'private-bath', 'mixed-bath'].includes(f)
       )
       const facilityFilters = selectedFilters.filter((f) =>
-        !['male-only', 'female-only', 'private', 'mixed'].includes(f)
+        !['male-only', 'female-only', 'private-bath', 'mixed-bath'].includes(f)
       )
 
       if (facilityFilters.length > 0) {

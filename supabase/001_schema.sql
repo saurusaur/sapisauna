@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS places (
   facilities TEXT[] DEFAULT '{}',
   is_24h BOOLEAN DEFAULT false,
   -- 시설 유형 (기본값: 일반 대중탕)
-  facility_type TEXT NOT NULL DEFAULT 'public' CHECK (facility_type IN ('public', 'male-only', 'female-only', 'private', 'mixed')),
+  facility_type TEXT NOT NULL DEFAULT 'gender-bath' CHECK (facility_type IN ('gender-bath', 'male-only', 'female-only', 'private-bath', 'mixed-bath')),
   -- 대표 좌표 출처
   coordinate_source TEXT CHECK (coordinate_source IN ('naver', 'google', 'manual')),
   -- 영업 상태

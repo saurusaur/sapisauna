@@ -20,12 +20,16 @@ export default function Onboarding() {
 
   // Step 1: 닉네임
   const [nickname, setNickname] = useState('')
-  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid'>('idle')
+  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid' | 'error'>('idle')
 
   // Step 2: 타입 선택
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [lastToggledType, setLastToggledType] = useState<string | null>(null)
   const [lastToggleAction, setLastToggleAction] = useState<'selected' | 'deselected' | null>(null)
+
+  // 제출 상태
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   // 닉네임 유효성 검사
   const isNicknameValid = nickname.length >= 2 && nickname.length <= 10
@@ -55,8 +59,7 @@ export default function Onboarding() {
         setNicknameStatus('available')
       }
     } catch {
-      // 에러 시에도 일단 available로 처리 (실제 저장 시 재확인)
-      setNicknameStatus('available')
+      setNicknameStatus('error')
     }
   }
 
@@ -96,27 +99,45 @@ export default function Onboarding() {
     }
   }
 
-  // 최종 제출 - Supabase + localStorage 저장
+  // 최종 제출 - DB 저장 성공 후 localStorage 캐시 + 홈 이동
   const handleSubmit = async () => {
+    setIsSubmitting(true)
+    setSubmitError(null)
+
     const userData = {
       nickname,
       user_types: selectedTypes,
       primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
     }
 
-    // Supabase에 프로필 저장 (인증된 경우)
-    if (authUser) {
-      await supabase.from('users').upsert({
-        id: authUser.id,
-        nickname: userData.nickname,
-        user_types: userData.user_types,
-        primary_type: userData.primary_type,
-      })
-    }
+    try {
+      // DB 저장 (source of truth)
+      if (authUser) {
+        const { error } = await supabase.from('users').upsert({
+          id: authUser.id,
+          nickname: userData.nickname,
+          user_types: userData.user_types,
+          primary_type: userData.primary_type,
+        })
+        if (error) {
+          // 닉네임 UNIQUE 제약 위반
+          if (error.code === '23505') {
+            setNicknameStatus('duplicate')
+            setStep('nickname')
+            return
+          }
+          throw error
+        }
+      }
 
-    // Context + localStorage에 저장
-    setUser(userData)
-    router.push('/home')
+      // DB 성공 → 캐시 저장 + 홈 이동
+      setUser(userData)
+      router.push('/home')
+    } catch {
+      setSubmitError('저장에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -168,7 +189,7 @@ export default function Onboarding() {
             {/* 상태 메시지 */}
             <p className={`mt-2 text-sm ${
               nicknameStatus === 'available' ? 'text-green' :
-              nicknameStatus === 'duplicate' || nicknameStatus === 'invalid' ? 'text-red-500' :
+              nicknameStatus === 'duplicate' || nicknameStatus === 'invalid' || nicknameStatus === 'error' ? 'text-red-500' :
               'text-stone-500'
             }`}>
               {nicknameStatus === 'available' && (
@@ -180,6 +201,7 @@ export default function Onboarding() {
               {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
               {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
               {nicknameStatus === 'checking' && ONBOARDING.NICKNAME.CHECKING}
+              {nicknameStatus === 'error' && '확인에 실패했습니다. 다시 시도해주세요.'}
             </p>
           </div>
 
@@ -270,12 +292,17 @@ export default function Onboarding() {
             )}
           </div>
 
+          {/* 제출 에러 */}
+          {submitError && (
+            <p className="text-red-500 text-sm mb-3">{submitError}</p>
+          )}
+
           <button
             onClick={handleSubmit}
-            disabled={selectedTypes.length === 0}
+            disabled={selectedTypes.length === 0 || isSubmitting}
             className={`
               w-full max-w-xs py-4 px-6 font-semibold rounded-2xl transition-all duration-200
-              ${selectedTypes.length > 0
+              ${selectedTypes.length > 0 && !isSubmitting
                 ? 'text-white hover:opacity-90'
                 : 'bg-stone-200 text-stone-400 cursor-not-allowed'
               }

@@ -8,7 +8,7 @@
  */
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { APP } from '@/constants/content'
@@ -76,6 +76,16 @@ export default function Story() {
   const cardRef = useRef<HTMLDivElement>(null)
   const [log, setLog] = useState<LogData | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const messageTimer = useRef<NodeJS.Timeout>()
+
+  const showMessage = useCallback((text: string, type: 'success' | 'error') => {
+    setExportMessage({ text, type })
+    clearTimeout(messageTimer.current)
+    messageTimer.current = setTimeout(() => setExportMessage(null), 2500)
+  }, [])
+
+  useEffect(() => () => clearTimeout(messageTimer.current), [])
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   // 에디터에서 돌아온 상태
@@ -109,8 +119,9 @@ export default function Story() {
     try {
       const blob = await captureCard(cardRef.current)
       await shareImage(blob, `sauna-log-${log.place_name}`)
+      showMessage('공유되었어요!', 'success')
     } catch {
-      // 공유 실패
+      showMessage('공유를 지원하지 않는 환경이에요', 'error')
     } finally {
       setIsExporting(false)
     }
@@ -123,8 +134,9 @@ export default function Story() {
       const blob = await captureCard(cardRef.current)
       const date = new Date(log.created_at || log.date || '').toISOString().slice(0, 10)
       downloadImage(blob, `sauna-log-${date}.png`)
+      showMessage('저장되었어요!', 'success')
     } catch {
-      // 저장 실패
+      showMessage('저장에 실패했어요', 'error')
     } finally {
       setIsExporting(false)
     }
@@ -403,6 +415,15 @@ export default function Story() {
               <span className="material-symbols-outlined">download</span>
               저장
             </button>
+          </div>
+
+          {/* 공유/저장 피드백 */}
+          <div className="h-6 flex items-center justify-center">
+            {exportMessage && (
+              <p className={`text-sm font-medium ${exportMessage.type === 'success' ? 'text-green' : 'text-red-500'}`}>
+                {exportMessage.text}
+              </p>
+            )}
           </div>
 
           <button

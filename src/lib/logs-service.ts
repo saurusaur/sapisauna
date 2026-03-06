@@ -3,7 +3,7 @@
  */
 
 import { supabase } from './supabase'
-import type { LogWithPlace } from '@/types'
+import type { LogWithPlace, BathGender } from '@/types'
 
 // DB 행 → LogWithPlace 변환
 function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
@@ -41,7 +41,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     cleanliness: row.cleanliness as number | undefined,
     jjim_temp: row.jjim_temp as number | undefined,
     deep_log: dl ? {
-      bath_gender: dl.bath_gender as 'male' | 'female' | 'mixed' | 'private' | undefined,
+      bath_gender: dl.bath_gender as BathGender | undefined,
       companion: dl.companion as string | null,
       purposes: (dl.purposes as string[]) || [],
       cost: dl.cost as number | null,

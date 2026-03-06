@@ -8,9 +8,7 @@ import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { formatCostInput, safeParse } from '@/lib/utils'
-
-// 탕 선택 타입 (딥로그용: 오늘 이용한 탕)
-type BathGender = 'male' | 'female' | 'mixed' | 'private'
+import type { BathGender } from '@/types'
 
 export default function DeepLog() {
   const router = useRouter()

@@ -42,11 +42,11 @@ export const TRIBE_COLORS: Record<string, string> = {
 // 장소 특성: "이 시설은 어떤 종류?" (places.facility_type)
 // 미선택(NULL) = 일반 남녀분리 시설
 export const PLACE_BATH_TYPE = [
-  { id: 'public', label: '일반 대중탕', icon: 'public' },
+  { id: 'gender-bath', label: '일반 대중탕', icon: 'public' },
   { id: 'male-only', label: '남성전용', icon: 'male' },
   { id: 'female-only', label: '여성전용', icon: 'female' },
-  { id: 'private', label: '개인', icon: 'person' },
-  { id: 'mixed', label: '혼탕', icon: 'wc' },
+  { id: 'private-bath', label: '개인', icon: 'person' },
+  { id: 'mixed-bath', label: '혼탕', icon: 'wc' },
 ] as const
 
 // 딥로그 기록: "오늘 나는 어디 이용?" (deep_logs.bath_gender)
@@ -631,7 +631,7 @@ export const EXPLORE_FILTERS = {
   },
   GENDER: {
     label: '탕 구분',
-    options: ['male-only', 'female-only', 'private', 'mixed'],
+    options: ['male-only', 'female-only', 'private-bath', 'mixed-bath'],
   },
 } as const
 

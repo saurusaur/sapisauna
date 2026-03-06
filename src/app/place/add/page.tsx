@@ -8,6 +8,7 @@ import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { addPlace } from '@/lib/places-service'
+import type { FacilityType } from '@/types'
 
 // API 검색 결과 타입
 interface SearchResult {
@@ -40,7 +41,7 @@ export default function AddPlace() {
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
-  const [bathGender, setBathGender] = useState<'public' | 'male-only' | 'female-only' | 'private' | 'mixed'>('public')
+  const [bathGender, setBathGender] = useState<FacilityType>('gender-bath')
 
   // 저장 상태
   const [isSaving, setIsSaving] = useState(false)
@@ -353,7 +354,7 @@ export default function AddPlace() {
                     icon={option.icon}
                     selected={bathGender === option.id}
                     onClick={() => setBathGender(
-                      bathGender === option.id ? 'public' : option.id as 'public' | 'male-only' | 'female-only' | 'private' | 'mixed'
+                      bathGender === option.id ? 'gender-bath' : option.id as FacilityType
                     )}
                   />
                 ))}
