@@ -17,7 +17,7 @@
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
 - [x] [리팩토링] TribeId 타입 통합 — 리터럴 반복 제거 + TRIBE_IDS·FALLBACK_TRIBE 상수화. 13파일 통합 | priority: P2 | added: 2026-03-08 | done: 2026-03-08
 <!-- P1 -->
-- [ ] [기능] 기록 날짜/시간 편집 — 로그 작성·편집 시 created_at을 date/time picker로 수정 가능하게. 현재는 저장 시점 자동 기록만 지원 | priority: P1 | added: 2026-03-04
+- [x] [기능] 기록 날짜/시간 편집 — record_date 컬럼 추가 + 네이티브 date picker + 커스텀 시간 셀렉트. 달력에서 날짜 선택 후 기록 추가 연동 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
 - [ ] [기능] 비용 통화 선택 — DB에 currency 컬럼 추가 (logs 또는 deep_logs). 유저가 입장료 기록 시 통화 직접 선택 (KRW/JPY/USD 등). 장소 countryCode 기반 기본값 자동 설정 + 수동 변경 가능. 향후 환율 API 연동으로 환산 표시 확장 가능 | priority: P1 | added: 2026-03-04
 - [x] [버그] Naver 장소 지도 링크 미작동 — 좌표 조합 external_id 대신 검색 URL 사용으로 해결 | priority: P1 | added: 2026-02-27 | done: 2026-03-08
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
