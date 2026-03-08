@@ -39,8 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    // localStorage 유저 데이터도 정리
-    localStorage.removeItem('user')
   }
 
   return (

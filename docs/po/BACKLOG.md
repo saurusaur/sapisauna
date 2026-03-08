@@ -12,9 +12,10 @@
 - [x] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02 | done: 2026-03-08
 - [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
 <!-- P1: 네비게이션 -->
-- [ ] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04
+- [x] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
 <!-- P1: 리팩토링 -->
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
+- [ ] [리팩토링] TribeId 타입 통합 — `'bather' | 'saunner' | 'jimi'` 리터럴이 20곳+ 반복. types/index.ts의 TribeId를 참조하도록 통합 + 기본값 `'saunner'`를 상수화 (DEFAULT_TRIBE). 영향: user-context, onboarding, settings, log, story, complete 등 | priority: P2 | added: 2026-03-08
 <!-- P1 -->
 - [ ] [기능] 기록 날짜/시간 편집 — 로그 작성·편집 시 created_at을 date/time picker로 수정 가능하게. 현재는 저장 시점 자동 기록만 지원 | priority: P1 | added: 2026-03-04
 - [ ] [기능] 비용 통화 선택 — DB에 currency 컬럼 추가 (logs 또는 deep_logs). 유저가 입장료 기록 시 통화 직접 선택 (KRW/JPY/USD 등). 장소 countryCode 기반 기본값 자동 설정 + 수동 변경 가능. 향후 환율 API 연동으로 환산 표시 확장 가능 | priority: P1 | added: 2026-03-04
@@ -24,7 +25,7 @@
 - [ ] [기능] 홈 화면 — 최근 기록을 달력 보기로 전환 + 더보기로 리스트 보기. 달력 내 '오늘' 버튼(스크롤 중 오늘 일자로 복귀), 연도 탭 시 연/월/일 입력으로 해당 날짜 바로 이동. 타입별 카운트 란은 높이 고정 — 데이터 유무에 따라 문구만 표시/숨김, 레이아웃 시프트 없이 | priority: P1 | added: 2026-02-28
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
-- [ ] [리팩토링] user-context localStorage 제거 — DB를 single source of truth로 통일. localStorage 캐시 제거하여 sync 문제 원천 차단. 영향: user-context.tsx, onboarding/page.tsx, 설정 페이지들. user-context JSON.parse 2건 safeParse 교체 포함 | priority: P2 | added: 2026-03-06
+- [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
 - [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
 <!-- P2 -->
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
@@ -39,7 +40,7 @@
 - [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
 - [ ] [UX] 폐업 배지 + 필터링 — place-card에 status='closed' 배지 표시, 탐색 목록에서 폐업 장소 숨김/흐리게 | priority: P2 | added: 2026-03-02
 - [ ] [기능] "폐업했어요" 버튼 + Google 검증 — 유저 신고 → Google business_status API 확인 → 상태 업데이트 or 어드민 큐 | priority: P2 | added: 2026-03-02
-- [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교 | priority: P2 | added: 2026-03-02
+- [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교. 유저 관리 시 users.status 컬럼(active/suspended/banned) 도입 검토 — 프로필 행 삭제 대신 소프트 밴 방식으로 차단. user-context에서 status 체크 후 차단 안내 화면 표시 | priority: P2 | added: 2026-03-02
 - [ ] [기능] "다른 장소에요" 신고 — 잘못 병합된 장소 유저 신고 → 어드민 큐 | priority: P2 | added: 2026-03-02
 <!-- P3 -->
 - [ ] [기능] 크로스 소스 장소 매칭 — 네이버 등록 시 구글 Nearby Search로 place_id 확보, 사용자 확인 1탭 (외국인 유저 대응) | priority: P3 | added: 2026-03-01

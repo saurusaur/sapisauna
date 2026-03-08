@@ -14,7 +14,6 @@ const publicRoutes = [
   '/api',
   '/home',
   '/explore',
-  '/onboarding',
 ]
 
 // 정적 파일 패턴
