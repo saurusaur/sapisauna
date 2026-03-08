@@ -127,10 +127,14 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
       <main className="p-4 space-y-4">
         {/* 장소 정보 */}
         <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-          <div className="flex items-center justify-center gap-1 text-stone-500 mb-1">
-            <span className="material-symbols-outlined text-xs">{ICONS.PLACE}</span>
+          <button
+            onClick={() => router.push(`/explore/${log.place_id}`)}
+            className="flex items-center justify-center gap-1 mb-1 hover:opacity-70 transition-opacity"
+          >
+            <span className="material-symbols-outlined text-xs text-stone-500">{ICONS.PLACE}</span>
             <span className="font-semibold text-lg text-stone-700">{log.place_name}</span>
-          </div>
+            <span className="material-symbols-outlined text-sm text-stone-400">chevron_right</span>
+          </button>
           <p className="text-sm text-stone-400 mb-2">{log.address}</p>
           <p className="text-sm text-stone-500">{formatDateTime(new Date(log.date))}</p>
         </div>
