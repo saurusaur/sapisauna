@@ -4,48 +4,54 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import type { LogWithPlace, UseDataState } from '@/types'
 import * as logsService from '@/lib/logs-service'
 
-// 최근 로그 (전체)
+// 최근 로그 (전체) — 탭 전환 시 자동 refetch
 export function useLogs(limit = 20): UseDataState<LogWithPlace[]> {
   const [data, setData] = useState<LogWithPlace[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
+  const hasLoaded = useRef(false)
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
+    // 첫 로딩만 로딩 UI 표시, 이후 탭 전환은 이전 데이터 유지하며 백그라운드 갱신
+    if (!hasLoaded.current) setLoading(true)
 
     logsService.getRecentLogs(limit)
-      .then((logs) => { if (!cancelled) setData(logs) })
+      .then((logs) => { if (!cancelled) { setData(logs); hasLoaded.current = true } })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [limit])
+  }, [limit, pathname])
 
   return { data, loading, error }
 }
 
-// 현재 유저 로그
+// 현재 유저 로그 — 탭 전환 시 자동 refetch
 export function useUserLogs(): UseDataState<LogWithPlace[]> {
   const [data, setData] = useState<LogWithPlace[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
+  const hasLoaded = useRef(false)
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
+    if (!hasLoaded.current) setLoading(true)
 
     logsService.getUserLogs()
-      .then((logs) => { if (!cancelled) setData(logs) })
+      .then((logs) => { if (!cancelled) { setData(logs); hasLoaded.current = true } })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [])
+  }, [pathname])
 
   return { data, loading, error }
 }

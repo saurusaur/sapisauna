@@ -15,14 +15,14 @@
 - [x] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
 <!-- P1: 리팩토링 -->
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
-- [ ] [리팩토링] TribeId 타입 통합 — `'bather' | 'saunner' | 'jimi'` 리터럴이 20곳+ 반복. types/index.ts의 TribeId를 참조하도록 통합 + 기본값 `'saunner'`를 상수화 (DEFAULT_TRIBE). 영향: user-context, onboarding, settings, log, story, complete 등 | priority: P2 | added: 2026-03-08
+- [x] [리팩토링] TribeId 타입 통합 — 리터럴 반복 제거 + TRIBE_IDS·FALLBACK_TRIBE 상수화. 13파일 통합 | priority: P2 | added: 2026-03-08 | done: 2026-03-08
 <!-- P1 -->
 - [ ] [기능] 기록 날짜/시간 편집 — 로그 작성·편집 시 created_at을 date/time picker로 수정 가능하게. 현재는 저장 시점 자동 기록만 지원 | priority: P1 | added: 2026-03-04
 - [ ] [기능] 비용 통화 선택 — DB에 currency 컬럼 추가 (logs 또는 deep_logs). 유저가 입장료 기록 시 통화 직접 선택 (KRW/JPY/USD 등). 장소 countryCode 기반 기본값 자동 설정 + 수동 변경 가능. 향후 환율 API 연동으로 환산 표시 확장 가능 | priority: P1 | added: 2026-03-04
-- [ ] [버그] Naver 장소 지도 링크 미작동 — Naver external_id가 좌표 조합(mapx_mapy)이라 entry/place URL 미작동. place_id 또는 주소+이름 검색 URL로 전환 필요 | priority: P1 | added: 2026-02-27
+- [x] [버그] Naver 장소 지도 링크 미작동 — 좌표 조합 external_id 대신 검색 URL 사용으로 해결 | priority: P1 | added: 2026-02-27 | done: 2026-03-08
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
-- [ ] [UX] 하단 네비게이션 바 — 정리 & 플리 기능 플레이스홀더 추가. (기록 버튼 제거 완료) | priority: P1 | added: 2026-02-28
-- [ ] [기능] 홈 화면 — 최근 기록을 달력 보기로 전환 + 더보기로 리스트 보기. 달력 내 '오늘' 버튼(스크롤 중 오늘 일자로 복귀), 연도 탭 시 연/월/일 입력으로 해당 날짜 바로 이동. 타입별 카운트 란은 높이 고정 — 데이터 유무에 따라 문구만 표시/숨김, 레이아웃 시프트 없이 | priority: P1 | added: 2026-02-28
+- [x] [UX] 하단 네비게이션 바 — 5항목 구조(4탭+center raised 기록 버튼), 사-리스트 비활성 플레이스홀더 | priority: P1 | added: 2026-02-28 | done: 2026-03-08
+- [x] [기능] 홈 화면 — 주간/월간 전환 달력 + 날짜별 기록 카드 캐러셀 + 추천 섹션 플레이스홀더. 상세: `docs/plans/home-redesign-plan.md` | priority: P1 | added: 2026-02-28 | done: 2026-03-08
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
 - [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
@@ -51,6 +51,8 @@
 - [ ] [리마인더] 베타테스터 단계에서 사용자 행동 분석 — 기능별 사용 빈도 확인, 미사용 기능 제거 (오프라인 진행) | priority: P3 | added: 2026-02-28
 
 ## Done
+
+- [x] [버그] 로그 삭제 후 탐색 탭 stale 데이터 — useLogs/useUserLogs에 pathname 의존성 추가로 탭 전환 시 자동 refetch + 깜빡임 방지 | priority: P1 | added: 2026-03-08 | done: 2026-03-08
 
 - [x] [리팩토링] 중복 로직 제거 — Phase 1(safeParse·dead code) + Phase 2(훅·컴포넌트·상수 통합, -303줄) | priority: P1 | added: 2026-03-01 | done: 2026-03-06
 
