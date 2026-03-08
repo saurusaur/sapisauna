@@ -474,8 +474,21 @@ export const TRIBE_DEFAULTS = {
 // ============================================
 export const MESSAGES = {
   HOME: {
+    GREETING: 'HELLO SA-PIEN',
+    CALENDAR_HEADING: (name?: string) => name ? `${name}의 기록` : '나의 기록',
     NO_RECORDS: '아직 기록이 없어요',
     RECENT_RECORDS: '최근 기록',
+    TODAY: '오늘',
+    VIEW_ALL: '전체보기',
+    TOOLTIP_CTA: '오늘 사우나 어땠어요?',
+    EMPTY_RECORD: {
+      saunner: '사우나 가고싶다..',
+      bather: '목욕 하고싶다..',
+      jimi: '지지고 싶다..',
+    },
+    RECOMMEND_HEADING: '다음은 여기 어때요?',
+    RECOMMEND_PLACEHOLDER: 'coming soon',
+    LOADING: '로딩 중...',
   },
   LOG: {
     SELECT_PLACE: '장소 선택',
@@ -538,6 +551,8 @@ export const ICONS = {
   PHOTO: 'photo_camera',
   CHEVRON_RIGHT: 'chevron_right',
   CHEVRON_DOWN: 'expand_more',
+  CHEVRON_UP: 'expand_less',
+  SA_LIST: 'diagnosis',
   INFO: 'info',
   STAR: 'star',
   THERMOMETER: 'device_thermostat',
@@ -558,8 +573,11 @@ export const TRIBE_ICON_MAP: Record<string, string> = {
 export const NAV = {
   HOME: '홈',
   HISTORY: '기록',
+  SA_LIST: '사-리스트',
   EXPLORE: '탐색',
   MY: '마이',
+  ADD_RECORD: '기록하기',
+  COMING_SOON: 'coming soon',
 }
 
 // ============================================

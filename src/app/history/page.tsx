@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, TRIBE_COLORS, TRIBE_IDS } from '@/constants/content'
+import { ICONS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, TRIBE_COLORS, TRIBE_IDS, MESSAGES } from '@/constants/content'
+import { useUser } from '@/contexts/user-context'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
 import DataState from '@/components/ui/data-state'
@@ -56,7 +57,9 @@ function getLogsByDate(logs: LogWithPlace[]) {
 
 export default function History() {
   const router = useRouter()
+  const { user } = useUser()
   const [searchQuery, setSearchQuery] = useState('')
+  // 기본 뷰: list (홈 달력에서 "전체보기"로 진입하므로 리스트가 자연스러움)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [typeFilter, setTypeFilter] = useState<string>('all')
 
@@ -141,7 +144,7 @@ export default function History() {
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-lg font-bold text-stone-700">기록</h1>
+          <h1 className="text-lg font-bold text-stone-700">{MESSAGES.HOME.CALENDAR_HEADING(user?.nickname)}</h1>
         </div>
 
         {/* 뷰 모드 토글 */}
