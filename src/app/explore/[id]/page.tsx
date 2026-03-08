@@ -67,14 +67,12 @@ export default function PlaceDetailPage() {
   const displayedLogs = showAllLogs ? placeLogs : placeLogs.slice(0, 3)
 
   // 지도 URL — external_id(place_id) 우선, fallback은 좌표/이름 기반
-  const naverSource = place.sources.find(s => s.source === 'naver')
   const googleSource = place.sources.find(s => s.source === 'google')
 
-  const naverMapUrl = naverSource?.external_id
-    ? `https://map.naver.com/v5/entry/place/${naverSource.external_id}`
-    : place.latitude
-      ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
-      : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
+  // Naver external_id는 좌표 조합(mapx_mapy)이라 place URL로 사용 불가 → 검색 URL 사용
+  const naverMapUrl = place.latitude
+    ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
+    : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
 
   const googleMapUrl = googleSource?.external_id
     ? `https://www.google.com/maps/place/?q=place_id:${googleSource.external_id}`
