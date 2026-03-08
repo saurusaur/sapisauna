@@ -89,17 +89,27 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
     return map
   }, [logs])
 
-  // 선택 날짜의 월 계산
-  const selectedMonth = useMemo(() => {
-    const d = new Date(selectedDate + 'T00:00:00')
-    return d.getMonth()
-  }, [selectedDate])
-
   const today = new Date()
   const todayKey = toDateKey(today)
 
   // 주간/월간 데이터
   const weekDays = useMemo(() => getWeekDays(weekBase), [weekBase])
+
+  // 주간 뷰 기준 월
+  // - 월 걸침 없음 → 그 월 고정
+  // - 월 걸침 + 선택 날짜가 이 주에 있음 → 선택 날짜 기준
+  // - 월 걸침 + 선택 날짜가 이 주에 없음 → 과반 월 (목요일 기준)
+  const weekMonth = useMemo(() => {
+    const monMonth = weekDays[0].getMonth()
+    const sunMonth = weekDays[6].getMonth()
+    if (monMonth === sunMonth) return monMonth
+    // 월 걸침 → 선택 날짜가 이 주에 있는지 확인
+    const weekKeys = weekDays.map(toDateKey)
+    if (weekKeys.includes(selectedDate)) {
+      return new Date(selectedDate + 'T00:00:00').getMonth()
+    }
+    return weekDays[3].getMonth()
+  }, [weekDays, selectedDate])
   const monthGrid = useMemo(
     () => getMonthGrid(monthView.year, monthView.month),
     [monthView.year, monthView.month]
@@ -216,14 +226,19 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
     )
   }
 
-  // 표시할 월 (선택 날짜 기준)
+  // 표시할 월
   const displayMonth = useMemo(() => {
     if (expanded) {
       return `${monthView.year}년 ${monthView.month + 1}월`
     }
-    const d = new Date(selectedDate + 'T00:00:00')
-    return `${d.getMonth() + 1}월`
-  }, [expanded, monthView, selectedDate])
+    // 주간 뷰: weekMonth 기준 (연도가 다르면 연도도 표시)
+    const refDate = weekDays.find(d => d.getMonth() === weekMonth) || weekDays[3]
+    const now = new Date()
+    if (refDate.getFullYear() !== now.getFullYear()) {
+      return `${refDate.getFullYear()}년 ${weekMonth + 1}월`
+    }
+    return `${weekMonth + 1}월`
+  }, [expanded, monthView, weekDays, weekMonth])
 
   return (
     <div className="bg-white rounded-xl shadow-sm">
@@ -284,7 +299,7 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
           {/* 주간 뷰 */}
           {!expanded && (
             <div className="grid grid-cols-7">
-              {weekDays.map((date) => renderDateCell(date, selectedMonth))}
+              {weekDays.map((date) => renderDateCell(date, weekMonth))}
             </div>
           )}
 

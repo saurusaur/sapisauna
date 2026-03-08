@@ -36,7 +36,7 @@ type LogData = {
   _editId?: string
   place_name: string
   tribe_id: TribeId
-  created_at?: string
+  record_date?: string
   date?: string
   // saunner
   sauna_temp?: number
@@ -49,7 +49,6 @@ type LogData = {
   refreshed_score?: number
   // jimi
   rest_quality?: number
-  cleanliness?: number
   jjim_temp?: number
   // common
   revisit_score: number
@@ -133,7 +132,7 @@ export default function Story() {
     setIsExporting(true)
     try {
       const blob = await captureCard(cardRef.current)
-      const date = new Date(log.created_at || log.date || '').toISOString().slice(0, 10)
+      const date = new Date(log.record_date || log.date || '').toISOString().slice(0, 10)
       downloadImage(blob, `sauna-log-${date}.png`)
       showMessage('저장되었어요!', 'success')
     } catch {
@@ -221,7 +220,7 @@ export default function Story() {
       case 'jimi':
         return (
           <JimiGraph
-            cleanliness={log.cleanliness || 3}
+            restQuality={log.rest_quality || 3}
             jjimTemp={log.jjim_temp}
           />
         )
@@ -331,7 +330,7 @@ export default function Story() {
                     className="text-white/50 text-[12.5px] mt-1.5 italic"
                     style={{ fontFamily: 'var(--font-serif)' }}
                   >
-                    {new Date(log.created_at || log.date || '').toISOString().slice(0, 10).replace(/-/g, '.')}
+                    {new Date(log.record_date || log.date || '').toISOString().slice(0, 10).replace(/-/g, '.')}
                   </p>
                 </div>
 

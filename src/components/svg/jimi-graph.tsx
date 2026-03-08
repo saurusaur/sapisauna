@@ -3,21 +3,21 @@
  * - 링: 얇은 흰색 테두리, 바깥으로 넓게 퍼지는 세련된 디퓨즈 글로우
  * - 내부: 액체가 아래에서 위로 차오르는 느낌 (출렁이는 두 겹의 반투명 물 표면)
  * - jjimTemp 높을수록 동그라미가 꽉 참 (60°C ≈ 10%, 100°C = 100%)
- * - cleanliness → 글로우 색상/강도
+ * - restQuality → 글로우 색상/강도
  */
 
 interface JimiGraphProps {
-  cleanliness: number
-  jjimTemp?: number  // 선택 — 한증막 없는 찜질방 또는 미입력 시 undefined
+  restQuality: number
+  jjimTemp?: number
 }
 
-export default function JimiGraph({ cleanliness, jjimTemp }: JimiGraphProps) {
+export default function JimiGraph({ restQuality, jjimTemp }: JimiGraphProps) {
   const size = 280
   const center = size / 2
   const ringRadius = 90
   const strokeWidth = 1.2 // 얇은 테두리
 
-  // 청결도에 따른 글로우 색상 (링은 흰색, 글로우만 색상)
+  // 휴식 퀄리티에 따른 글로우 색상 (링은 흰색, 글로우만 색상)
   // 1: 탁한 올리브 → 5: 빛나는 에메랄드
   const getGlowColor = (clean: number) => {
     const colors = [
@@ -30,10 +30,10 @@ export default function JimiGraph({ cleanliness, jjimTemp }: JimiGraphProps) {
     return colors[clean - 1] || colors[2]
   }
 
-  const glowStyle = getGlowColor(cleanliness)
+  const glowStyle = getGlowColor(restQuality)
 
   // 글로우 강도 (크기가 아닌 짙기로 표현)
-  const glowIntensity = 0.15 + cleanliness * 0.12 // 0.27 ~ 0.75
+  const glowIntensity = 0.15 + restQuality * 0.12 // 0.27 ~ 0.75
 
   // 물 채워짐 높이 — jjimTemp 기반
   // 60°C → fillRatio 0.1 (거의 빔), 100°C → fillRatio 1.0 (꽉 참)
@@ -105,7 +105,7 @@ export default function JimiGraph({ cleanliness, jjimTemp }: JimiGraphProps) {
           <circle cx={center} cy={center} r={ringRadius - 2} />
         </clipPath>
 
-        {/* 물 그라데이션 (청결도 색상 기반) - 위에서 아래로 진해짐 */}
+        {/* 물 그라데이션 (휴식 퀄리티 색상 기반) - 위에서 아래로 진해짐 */}
         <linearGradient id="jimi-water-grad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={glowStyle.glow} stopOpacity="0.5" />
           <stop offset="100%" stopColor={glowStyle.glow} stopOpacity="0.7" />

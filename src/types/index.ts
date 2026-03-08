@@ -84,8 +84,7 @@ export interface QuickLogData {
   totonoScore?: number  // 1-5, 토토노이
 
   // 찜질파
-  restQuality?: number  // 1-5, 가벼움
-  cleanliness?: number  // 1-5
+  restQuality?: number  // 1-5, 휴식 퀄리티
   jjimTemp?: number     // 60-100°C (선택)
 }
 
@@ -95,6 +94,7 @@ export interface DeepLogData {
   companion?: string
   purposes?: string[]
   cost?: number
+  currency?: string
   memo?: string
 
   // 목욕파
@@ -151,8 +151,10 @@ export interface LogWithPlace {
   id: string
   place_id: string
   place_name: string
+  place_country_code: string
   address: string
-  date: string
+  date: string          // 표시용 (record_date ?? created_at)
+  record_date?: string  // 유저 지정 방문 날짜·시간
   tribe_id: TribeId
   revisit_score: number
   heat_time?: number
@@ -164,13 +166,14 @@ export interface LogWithPlace {
   totono_score?: number
   water_quality?: number
   hot_bath_temp?: number
-  cleanliness?: number
+  rest_quality?: number
   jjim_temp?: number
   deep_log?: {
     bath_gender?: BathGender
     companion?: string | null
     purposes?: string[]
     cost?: number | null
+    currency?: string | null
     crowd?: string | null
     memo?: string
     has_scrub?: boolean

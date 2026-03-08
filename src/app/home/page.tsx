@@ -103,7 +103,11 @@ export default function Home() {
               </div>
             ) : selectedDateLogs.length === 0 ? (
               <button
-                onClick={() => router.push('/place')}
+                onClick={() => {
+                  // 선택한 날짜를 기록 페이지에 전달
+                  localStorage.setItem('selectedRecordDate', selectedDate)
+                  router.push('/place')
+                }}
                 className="w-full h-full bg-white/60 rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/80 transition-colors"
               >
                 <p className="text-stone-400 text-sm mb-2">{emptyMessage}</p>

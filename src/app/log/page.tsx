@@ -31,14 +31,13 @@ export default function QuickLog() {
 
   // --- 찜질파 ---
   const [jjimTemp, setJjimTemp] = useState(80)
-  const [jjimTempEnabled, setJjimTempEnabled] = useState(false)
-  const [cleanliness, setCleanliness] = useState(3)
+  const [restQuality, setRestQuality] = useState(3)
 
   // --- 공통 루틴 (null = 미입력/흐릿 상태) ---
   const [heatTime, setHeatTime] = useState<number | null>(null)
   const [iceTime, setIceTime] = useState<number | null>(null)
   const [pauseTime, setPauseTime] = useState<number | null>(null)
-  const [repeat, setRepeat] = useState(3)
+  const [repeat, setRepeat] = useState<number | null>(primaryTribe === 'saunner' ? 3 : null)
 
   // --- 공통 ---
   const [revisit, setRevisit] = useState(3)
@@ -46,10 +45,21 @@ export default function QuickLog() {
   // 편집 모드에서 기존 값 보존
   const [editId, setEditId] = useState<string | null>(null)
   const [showBackConfirm, setShowBackConfirm] = useState(false)
-  const [existingCreatedAt, setExistingCreatedAt] = useState<string | null>(null)
   const [existingDeepLog, setExistingDeepLog] = useState<Record<string, unknown> | null>(null)
 
+  // --- 방문 날짜·시간 ---
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const [recordDate, setRecordDate] = useState(todayStr)
+  const [recordHour, setRecordHour] = useState<number | null>(null) // null = 미지정
+
   useEffect(() => {
+    // 달력에서 선택한 날짜 복원
+    const presetDate = localStorage.getItem('selectedRecordDate')
+    if (presetDate) {
+      setRecordDate(presetDate)
+      localStorage.removeItem('selectedRecordDate')
+    }
+
     // 장소 정보 복원 — 없으면 장소 선택 페이지로 redirect
     const placeData = localStorage.getItem('selectedPlace')
     if (placeData) {
@@ -72,7 +82,12 @@ export default function QuickLog() {
       // 편집 모드: 기존 값 보존
       if (log._editId) {
         setEditId(log._editId)
-        if (log.created_at) setExistingCreatedAt(log.created_at)
+      }
+      // record_date 복원
+      if (log.record_date) {
+        const rd = new Date(log.record_date)
+        setRecordDate(rd.toISOString().slice(0, 10))
+        setRecordHour(rd.getHours())
       }
       if (log.deep_log) setExistingDeepLog(log.deep_log)
       if (log.tribe_id) setTribeId(log.tribe_id as TribeId)
@@ -93,13 +108,17 @@ export default function QuickLog() {
       }
       if (log.water_quality) setWaterQuality(log.water_quality)
       // 찜질파
-      if (log.jjim_temp) {
-        setJjimTemp(log.jjim_temp)
-        setJjimTempEnabled(true)
-      }
-      if (log.cleanliness) setCleanliness(log.cleanliness)
+      if (log.jjim_temp) setJjimTemp(log.jjim_temp)
+      if (log.rest_quality) setRestQuality(log.rest_quality)
     }
   }, [])
+
+  // record_date 생성: 날짜 + 시간(선택) → ISO 문자열
+  const buildRecordDate = (): string => {
+    const date = new Date(recordDate + 'T00:00:00')
+    if (recordHour !== null) date.setHours(recordHour)
+    return date.toISOString()
+  }
 
   // 저장 처리
   const handleSave = () => {
@@ -107,14 +126,15 @@ export default function QuickLog() {
       ...(editId && { _editId: editId }),
       place_id: placeId,
       place_name: placeName,
+      place_country_code: placeCountryCode,
       tribe_id: logType,
-      created_at: existingCreatedAt ?? new Date().toISOString(),
+      record_date: buildRecordDate(),
       revisit_score: revisit,
       // 루틴 (입력된 경우만 포함)
       ...(heatTime !== null && { heat_time: heatTime }),
       ...(iceTime !== null && { ice_time: iceTime }),
       ...(pauseTime !== null && { pause_time: pauseTime }),
-      repeat,
+      ...(repeat !== null && { repeat }),
       // 타입별 데이터
       ...(logType === 'saunner' && {
         sauna_temp: saunaTemp,
@@ -127,8 +147,8 @@ export default function QuickLog() {
         water_quality: waterQuality,
       }),
       ...(logType === 'jimi' && {
-        ...(jjimTempEnabled && { jjim_temp: jjimTemp }),
-        cleanliness,
+        jjim_temp: jjimTemp,
+        rest_quality: restQuality,
       }),
       // 기존 deep_log 보존 (숏기록 수정 후 다시 저장할 때 deep_log가 날아가지 않도록)
       ...(existingDeepLog && { deep_log: existingDeepLog }),
@@ -160,6 +180,33 @@ export default function QuickLog() {
       </header>
 
       <main className="p-4">
+        {/* 방문 날짜·시간 */}
+        <div className="bg-white rounded-xl shadow-sm px-4 py-2.5 mb-4">
+          <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase mb-1.5">방문일시</p>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '16px' }}>calendar_today</span>
+            <input
+              type="date"
+              value={recordDate}
+              onChange={(e) => setRecordDate(e.target.value)}
+              className="text-xs text-stone-700 bg-transparent border-none outline-none"
+            />
+            <span className="text-stone-200 text-xs">|</span>
+            <select
+              value={recordHour ?? ''}
+              onChange={(e) => setRecordHour(e.target.value === '' ? null : Number(e.target.value))}
+              className="text-xs text-stone-500 bg-transparent border-none outline-none appearance-none cursor-pointer"
+            >
+              <option value="">시간 미지정</option>
+              {Array.from({ length: 24 }, (_, h) => (
+                <option key={h} value={h}>
+                  {h < 12 ? `오전 ${h === 0 ? 12 : h}시` : `오후 ${h === 12 ? 12 : h - 12}시`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* 타입 선택 드롭다운 */}
         <div className="relative mb-4">
           <button
@@ -272,7 +319,6 @@ export default function QuickLog() {
           {/* ── 찜질파 ── */}
           {logType === 'jimi' && (
             <>
-              {/* 한증막 온도 (선택 — 탭으로 활성화) */}
               <Slider
                 label={QUICK_LOG.JIMI.JJIM_TEMP.label}
                 value={jjimTemp}
@@ -281,18 +327,14 @@ export default function QuickLog() {
                 unit={QUICK_LOG.JIMI.JJIM_TEMP.unit}
                 steps={[...QUICK_LOG.JIMI.JJIM_TEMP.steps]}
                 onChange={setJjimTemp}
-                inactive={!jjimTempEnabled}
-                onActivate={() => setJjimTempEnabled(true)}
-                showReset={jjimTempEnabled}
-                onReset={() => setJjimTempEnabled(false)}
               />
               <Slider
-                label={QUICK_LOG.JIMI.CLEANLINESS.label}
-                value={cleanliness}
-                min={QUICK_LOG.JIMI.CLEANLINESS.min}
-                max={QUICK_LOG.JIMI.CLEANLINESS.max}
-                steps={[...QUICK_LOG.JIMI.CLEANLINESS.steps]}
-                onChange={setCleanliness}
+                label={QUICK_LOG.JIMI.REST_QUALITY.label}
+                value={restQuality}
+                min={QUICK_LOG.JIMI.REST_QUALITY.min}
+                max={QUICK_LOG.JIMI.REST_QUALITY.max}
+                steps={[...QUICK_LOG.JIMI.REST_QUALITY.steps]}
+                onChange={setRestQuality}
               />
             </>
           )}
@@ -329,14 +371,27 @@ export default function QuickLog() {
               unit={QUICK_LOG.COMMON.ROUTINE.PAUSE.unit}
               onChange={setPauseTime}
             />
-            <Counter
-              label={QUICK_LOG.COMMON.ROUTINE.REPEAT.label}
-              value={repeat}
-              min={QUICK_LOG.COMMON.ROUTINE.REPEAT.min}
-              max={QUICK_LOG.COMMON.ROUTINE.REPEAT.max}
-              unit={QUICK_LOG.COMMON.ROUTINE.REPEAT.unit}
-              onChange={setRepeat}
-            />
+            {/* 세트 수 — 사우너: 필수(Counter), 목욕파/찜질파: 옵셔널(RoutineCounter) */}
+            {logType === 'saunner' ? (
+              <Counter
+                label={QUICK_LOG.COMMON.ROUTINE.REPEAT.label}
+                value={repeat ?? 3}
+                min={QUICK_LOG.COMMON.ROUTINE.REPEAT.min}
+                max={QUICK_LOG.COMMON.ROUTINE.REPEAT.max}
+                unit={QUICK_LOG.COMMON.ROUTINE.REPEAT.unit}
+                onChange={setRepeat}
+              />
+            ) : (
+              <RoutineCounter
+                label={QUICK_LOG.COMMON.ROUTINE.REPEAT.label}
+                value={repeat}
+                placeholder={QUICK_LOG.COMMON.ROUTINE.REPEAT.min}
+                min={QUICK_LOG.COMMON.ROUTINE.REPEAT.min}
+                max={QUICK_LOG.COMMON.ROUTINE.REPEAT.max}
+                unit={QUICK_LOG.COMMON.ROUTINE.REPEAT.unit}
+                onChange={setRepeat}
+              />
+            )}
           </div>
 
           {/* ── 공통: 또 갈래요 ── */}

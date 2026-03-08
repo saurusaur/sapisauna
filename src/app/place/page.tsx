@@ -24,9 +24,9 @@ export default function PlaceSelection() {
   )
 
   // 장소 선택
-  const handlePlaceSelect = (placeId: string, placeName: string) => {
+  const handlePlaceSelect = (placeId: string, placeName: string, countryCode?: string) => {
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName, countryCode }))
     router.push('/log')
   }
 
@@ -69,7 +69,7 @@ export default function PlaceSelection() {
               {recentPlaces.map((place) => (
                 <button
                   key={place.id}
-                  onClick={() => handlePlaceSelect(place.id, place.name)}
+                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
                   className="w-full bg-white p-3 rounded-xl shadow-sm text-left hover:shadow-md transition-all flex items-center gap-3"
                 >
                   <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>
@@ -102,7 +102,7 @@ export default function PlaceSelection() {
               return (
                 <button
                   key={place.id}
-                  onClick={() => handlePlaceSelect(place.id, place.name)}
+                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
                   className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between mb-2">

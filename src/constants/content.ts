@@ -284,15 +284,15 @@ export const QUICK_LOG = {
         { value: 90, label: '지글지글' },
       ],
     },
-    CLEANLINESS: {
-      label: '청결도',
+    REST_QUALITY: {
+      label: '휴식 퀄리티',
       min: 1,
       max: 5,
       steps: [
         { value: 1, label: '별로' },
         { value: 2, label: '아쉬움' },
         { value: 3, label: '보통' },
-        { value: 4, label: '깨끗' },
+        { value: 4, label: '편안' },
         { value: 5, label: '완벽' },
       ],
     },
@@ -415,7 +415,8 @@ export const DEEP_LOG = {
   COST: {
     label: '비용',
     placeholder: '입장료를 입력해주세요',
-    unit: '원',
+    // 상단 고정 통화 (셀렉터에서 구분선 위에 표시)
+    pinnedCurrencies: ['USD', 'KRW', 'JPY', 'EUR'] as const,
   },
   MEMO: {
     label: '자유 메모',

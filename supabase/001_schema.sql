@@ -132,6 +132,9 @@ CREATE TABLE IF NOT EXISTS logs (
   rest_quality INT CHECK (rest_quality BETWEEN 1 AND 5),
   cleanliness INT CHECK (cleanliness BETWEEN 1 AND 5),
 
+  -- 유저 지정 방문 날짜·시간 (없으면 created_at 사용)
+  record_date TIMESTAMPTZ,
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -159,7 +162,8 @@ CREATE TABLE IF NOT EXISTS deep_logs (
 
   companion TEXT CHECK (companion IN ('alone', 'friend', 'family', 'partner')),
   purposes TEXT[] DEFAULT '{}',
-  cost INT,
+  cost INT,                    -- 입장료
+  currency TEXT DEFAULT 'KRW', -- 통화 코드 (ISO 4217)
   memo TEXT,
 
   used_sauna_types TEXT[] DEFAULT '{}',

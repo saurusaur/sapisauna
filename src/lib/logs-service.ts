@@ -25,8 +25,10 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     id: row.id as string,
     place_id: row.place_id as string,
     place_name: placeName,
+    place_country_code: (place?.country_code as string) || 'KR',
     address,
-    date: row.created_at as string,
+    date: (row.record_date as string) || (row.created_at as string),
+    record_date: row.record_date as string | undefined,
     tribe_id: row.tribe_id as LogWithPlace['tribe_id'],
     revisit_score: (row.revisit_score as number) || 0,
     heat_time: row.heat_time as number | undefined,
@@ -38,13 +40,14 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     totono_score: row.totono_score as number | undefined,
     water_quality: row.water_quality as number | undefined,
     hot_bath_temp: row.hot_bath_temp as number | undefined,
-    cleanliness: row.cleanliness as number | undefined,
+    rest_quality: row.rest_quality as number | undefined,
     jjim_temp: row.jjim_temp as number | undefined,
     deep_log: dl ? {
       bath_gender: dl.bath_gender as BathGender | undefined,
       companion: dl.companion as string | null,
       purposes: (dl.purposes as string[]) || [],
       cost: dl.cost as number | null,
+      currency: dl.currency as string | null,
       crowd: dl.crowd as string | null,
       memo: dl.memo as string | undefined,
       has_scrub: dl.has_scrub as boolean | undefined,
@@ -63,7 +66,7 @@ export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
-    .order('created_at', { ascending: false })
+    .order('record_date', { ascending: false })
     .limit(limit)
 
   if (error) throw error
@@ -75,7 +78,7 @@ export async function getUserLogs(): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
-    .order('created_at', { ascending: false })
+    .order('record_date', { ascending: false })
 
   if (error) throw error
   return (data || []).map(toLogWithPlace)
@@ -102,7 +105,7 @@ export async function getLogsByPlace(placeId: string): Promise<LogWithPlace[]> {
     .from('logs')
     .select(LOG_SELECT)
     .eq('place_id', placeId)
-    .order('created_at', { ascending: false })
+    .order('record_date', { ascending: false })
 
   if (error) throw error
   return (data || []).map(toLogWithPlace)
@@ -132,7 +135,7 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
       refreshed_score: logData.refreshed_score ?? null,
       jjim_temp: logData.jjim_temp ?? null,
       rest_quality: logData.rest_quality ?? null,
-      cleanliness: logData.cleanliness ?? null,
+      record_date: logData.record_date ?? null,
     })
     .select('id')
     .single()
@@ -180,7 +183,7 @@ export async function updateLog(logId: string, logData: Record<string, unknown>)
       refreshed_score: logData.refreshed_score ?? null,
       jjim_temp: logData.jjim_temp ?? null,
       rest_quality: logData.rest_quality ?? null,
-      cleanliness: logData.cleanliness ?? null,
+      record_date: logData.record_date ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', logId)
@@ -203,6 +206,7 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     companion: deepData.companion ?? null,
     purposes: deepData.purposes ?? [],
     cost: deepData.cost ?? null,
+    currency: deepData.currency ?? 'KRW',
     memo: deepData.memo ?? null,
     used_sauna_types: deepData.used_sauna_types ?? [],
     used_rooms: deepData.used_rooms ?? [],

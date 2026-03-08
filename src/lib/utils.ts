@@ -143,10 +143,10 @@ export function getWaterQualityLabel(score: number): string {
 }
 
 /**
- * 청결도 레이블 반환 (content.ts SSOT)
+ * 휴식 퀄리티 레이블 반환 (content.ts SSOT)
  */
-export function getCleanlinessLabel(score: number): string {
-  return getStepLabel(QUICK_LOG.JIMI.CLEANLINESS.steps, score)
+export function getRestQualityLabel(score: number): string {
+  return getStepLabel(QUICK_LOG.JIMI.REST_QUALITY.steps, score)
 }
 
 /**
@@ -175,16 +175,14 @@ export function getFacilityLabel(id: string): string {
 /**
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
-export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; cleanliness?: number }): string {
+export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; rest_quality?: number }): string {
   switch (log.tribe_id) {
     case 'saunner':
       return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.repeat}세트`
     case 'bather':
       return `수질 ${getWaterQualityLabel(log.water_quality || 3)} · 온탕 ${log.hot_bath_temp}°C`
     case 'jimi':
-      return log.jjim_temp
-        ? `한증막 ${log.jjim_temp}°C · 청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
-        : `청결 ${getCleanlinessLabel(log.cleanliness || 3)}`
+      return `한증막 ${log.jjim_temp}°C · 휴식 ${getRestQualityLabel(log.rest_quality || 3)}`
     default:
       return ''
   }

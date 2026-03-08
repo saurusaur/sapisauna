@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DEEP_LOG, PLACE_SPECS, LOG_BATH_GENDER } from '@/constants/content'
+import countryToCurrency from 'country-to-currency'
 import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
@@ -24,6 +25,7 @@ export default function DeepLog() {
   const [companion, setCompanion] = useState<string | null>(null)
   const [purposes, setPurposes] = useState<string[]>([])
   const [cost, setCost] = useState('')
+  const [currency, setCurrency] = useState('KRW')
   const [crowd, setCrowd] = useState<string | null>(null)
   const [memo, setMemo] = useState('')
 
@@ -47,13 +49,22 @@ export default function DeepLog() {
       if (!parsed) return
       const isEdit = Boolean(parsed._editId)
       if (isEdit) setIsEditMode(true)
-      // 편집 모드일 때만 기존 딥로그 데이터 복원
-      const dl = isEdit ? parsed.deep_log : null
+
+      // 장소 countryCode 기반 기본 통화 설정
+      const countryCode = parsed.place_country_code as string | undefined
+      if (countryCode) {
+        const mapped = (countryToCurrency as Record<string, string>)[countryCode]
+        if (mapped) setCurrency(mapped)
+      }
+
+      // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
+      const dl = parsed.deep_log ?? null
       if (dl) {
         if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
         if (dl.companion) setCompanion(dl.companion)
         if (dl.purposes) setPurposes(dl.purposes)
         if (dl.cost) setCost(dl.cost.toLocaleString())
+        if (dl.currency) setCurrency(dl.currency)
         if (dl.crowd) setCrowd(dl.crowd)
         if (dl.memo) setMemo(dl.memo)
         if (dl.has_scrub) { setHasScrub(true); setScrubSatisfaction(dl.scrub_satisfaction || 3) }
@@ -82,6 +93,7 @@ export default function DeepLog() {
       companion,
       purposes,
       cost: cost ? parseInt(cost.replace(/,/g, '')) : null,
+      currency,
       crowd,
       memo,
       // 세신
@@ -194,16 +206,34 @@ export default function DeepLog() {
               <label className="block text-sm font-medium text-stone-700 mb-2">
                 {DEEP_LOG.COST.label}
               </label>
-              <div className="relative">
+              <div className="flex gap-2">
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="px-3 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-sm bg-white appearance-none cursor-pointer"
+                  style={{ minWidth: '5rem' }}
+                >
+                  {/* 상단 고정 통화 */}
+                  {DEEP_LOG.COST.pinnedCurrencies.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                  <option disabled>──────</option>
+                  {/* 전체 통화 (고정 통화 제외, 알파벳순) */}
+                  {Array.from(new Set(Object.values(countryToCurrency as Record<string, string>)))
+                    .filter((c) => !(DEEP_LOG.COST.pinnedCurrencies as readonly string[]).includes(c))
+                    .sort()
+                    .map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                </select>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={cost}
                   onChange={(e) => setCost(formatCostInput(e.target.value))}
                   placeholder={DEEP_LOG.COST.placeholder}
-                  className="w-full px-4 py-3 pr-12 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-right"
+                  className="flex-1 px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 text-right"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">원</span>
               </div>
             </div>
 

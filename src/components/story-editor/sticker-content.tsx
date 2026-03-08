@@ -16,7 +16,7 @@ export type LogData = {
   _editId?: string
   place_name: string
   tribe_id: TribeId
-  created_at?: string
+  record_date?: string
   date?: string
   sauna_temp?: number
   cold_bath_temp?: number
@@ -26,7 +26,6 @@ export type LogData = {
   hot_bath_temp?: number
   refreshed_score?: number
   rest_quality?: number
-  cleanliness?: number
   jjim_temp?: number
   revisit_score: number
   heat_time?: number
@@ -171,7 +170,7 @@ function GraphSticker({ log, isPreview }: { log: LogData; isPreview?: boolean })
       return (
         <div className={size}>
           <JimiGraph
-            cleanliness={log.cleanliness || 3}
+            restQuality={log.rest_quality || 3}
             jjimTemp={log.jjim_temp}
           />
         </div>
@@ -203,7 +202,7 @@ function LocationSticker({ log, isPreview }: { log: LogData; isPreview?: boolean
 }
 
 function TimestampSticker({ log, isPreview }: { log: LogData; isPreview?: boolean }) {
-  const dateStr = new Date(log.created_at || log.date || '')
+  const dateStr = new Date(log.record_date || log.date || '')
     .toISOString().slice(0, 10).replace(/-/g, '.')
 
   return (

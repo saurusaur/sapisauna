@@ -17,6 +17,7 @@ interface SearchResult {
   name: string
   address: string
   shortAddress: string
+  countryCode: string
   latitude: number | null
   longitude: number | null
   source: 'naver' | 'google'
@@ -110,7 +111,7 @@ export default function AddPlace() {
   // 저장 완료 후 공통 처리
   const navigateToLog = (place: Place) => {
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code }))
     router.push('/log')
   }
 
@@ -123,7 +124,7 @@ export default function AddPlace() {
     facilities: selectedFacilities,
     is_24h: is24h,
     facility_type: bathGender,
-    country_code: source === 'naver' ? 'KR' : undefined,
+    country_code: selectedPlace?.countryCode || (source === 'naver' ? 'KR' : undefined),
     source: (selectedPlace ? selectedPlace.source : 'manual') as 'naver' | 'google' | 'manual',
     external_id: selectedPlace?.external_id,
   })

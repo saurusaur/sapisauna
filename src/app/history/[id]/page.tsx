@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
-import { formatDateTime, formatShortDate, getWaterQualityLabel, getCleanlinessLabel, getStepLabel, getDetailText } from '@/lib/utils'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText } from '@/lib/utils'
 import { useLog, useLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
 import DataState from '@/components/ui/data-state'
@@ -91,8 +91,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 _editId: log.id,
                 place_id: log.place_id,
                 place_name: log.place_name,
+                place_country_code: log.place_country_code,
                 tribe_id: log.tribe_id,
-                created_at: log.date,
+                record_date: log.record_date || log.date,
                 revisit_score: log.revisit_score,
                 repeat: log.repeat,
                 heat_time: log.heat_time,
@@ -104,11 +105,11 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 hot_bath_temp: log.hot_bath_temp,
                 water_quality: log.water_quality,
                 jjim_temp: log.jjim_temp,
-                cleanliness: log.cleanliness,
+                rest_quality: log.rest_quality,
                 ...(log.deep_log && { deep_log: log.deep_log }),
               }
               localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name }))
+              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
               router.push('/log')
             }}
             className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
@@ -195,8 +196,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-stone-500">청결도</span>
-                  <span className="font-medium text-stone-700">{getCleanlinessLabel(log.cleanliness || 3)}</span>
+                  <span className="text-stone-500">휴식 퀄리티</span>
+                  <span className="font-medium text-stone-700">{getRestQualityLabel(log.rest_quality || 3)}</span>
                 </div>
               </>
             )}
@@ -239,7 +240,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {log.deep_log.cost && (
                 <div className="flex justify-between">
                   <span className="text-stone-500">비용</span>
-                  <span className="font-medium text-stone-700">{log.deep_log.cost.toLocaleString()}원</span>
+                  <span className="font-medium text-stone-700">{log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}</span>
                 </div>
               )}
               {log.deep_log.crowd && (

@@ -23,7 +23,7 @@ const EDITOR_STATE_KEY = 'story-editor-state'
 type CompletedLog = {
   place_name: string
   tribe_id: TribeId
-  created_at?: string
+  record_date?: string
   deep_log?: { [key: string]: unknown }
   _editId?: string
   [key: string]: unknown
@@ -68,6 +68,7 @@ export default function Complete() {
           // 성공 시 정리: 기록 흐름 종료
           localStorage.removeItem('currentLog')
           localStorage.removeItem('selectedPlace')
+          localStorage.removeItem('selectedRecordDate')
           sessionStorage.removeItem(EDITOR_STATE_KEY)
         } catch (err) {
           hasSaved.current = false
@@ -91,8 +92,9 @@ export default function Complete() {
 
   const emoji = log ? TRIBE_EMOJI_MAP[log.tribe_id] ?? '🛁' : '🛁'
 
-  const dateStr = log?.created_at
-    ? new Date(log.created_at).toLocaleDateString('ko-KR', {
+  const displayDate = log?.record_date
+  const dateStr = displayDate
+    ? new Date(displayDate).toLocaleDateString('ko-KR', {
         month: 'long',
         day: 'numeric',
         weekday: 'short',
