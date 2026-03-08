@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, QUICK_LOG } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, TRIBE_IDS, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { safeParse } from '@/lib/utils'
-
-type LogType = 'bather' | 'saunner' | 'jimi'
+import type { TribeId } from '@/types'
 
 export default function QuickLog() {
   const router = useRouter()
@@ -16,7 +15,7 @@ export default function QuickLog() {
   const [placeName, setPlaceName] = useState('장소')
   const [placeId, setPlaceId] = useState<string | null>(null)
   const [placeCountryCode, setPlaceCountryCode] = useState<string | undefined>(undefined)
-  const [logType, setLogType] = useState<LogType>(primaryTribe as LogType)
+  const [logType, setTribeId] = useState<TribeId>(primaryTribe as TribeId)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
   // --- 사우너파 ---
@@ -76,7 +75,7 @@ export default function QuickLog() {
         if (log.created_at) setExistingCreatedAt(log.created_at)
       }
       if (log.deep_log) setExistingDeepLog(log.deep_log)
-      if (log.tribe_id) setLogType(log.tribe_id as LogType)
+      if (log.tribe_id) setTribeId(log.tribe_id as TribeId)
       if (log.revisit_score) setRevisit(log.revisit_score)
       if (log.repeat) setRepeat(log.repeat)
       if (log.heat_time) setHeatTime(log.heat_time)
@@ -176,11 +175,11 @@ export default function QuickLog() {
 
           {showTypeDropdown && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
-              {(['bather', 'saunner', 'jimi'] as LogType[]).map((type) => (
+              {([...TRIBE_IDS] as TribeId[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => {
-                    setLogType(type)
+                    setTribeId(type)
                     setShowTypeDropdown(false)
                   }}
                   className="w-full p-4 flex items-center justify-between hover:bg-stone-50 transition-colors"

@@ -15,13 +15,14 @@ import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { safeParse } from '@/lib/utils'
+import type { TribeId } from '@/types'
 
 // sessionStorage 키 (에디터와 공유)
 const EDITOR_STATE_KEY = 'story-editor-state'
 
 type CompletedLog = {
   place_name: string
-  tribe_id: 'bather' | 'saunner' | 'jimi'
+  tribe_id: TribeId
   created_at?: string
   deep_log?: { [key: string]: unknown }
   _editId?: string

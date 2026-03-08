@@ -4,19 +4,21 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './auth-context'
 import { supabase } from '@/lib/supabase'
+import { FALLBACK_TRIBE } from '@/constants/content'
+import type { TribeId } from '@/types'
 
 // 유저 데이터 타입 (DB users 테이블과 동일 구조)
 export interface UserData {
   nickname: string
   user_types: string[]
-  primary_type: 'bather' | 'saunner' | 'jimi'
+  primary_type: TribeId
   gender?: 'male' | 'female'
 }
 
 // Context가 제공하는 값
 interface UserContextValue {
   user: UserData | null           // 유저 데이터 (없으면 null = 온보딩 전)
-  primaryTribe: 'bather' | 'saunner' | 'jimi'  // user.primary_type 바로 접근 (기본값: 'saunner')
+  primaryTribe: TribeId           // user.primary_type 바로 접근 (폴백: FALLBACK_TRIBE)
   updateUser: (updates: Partial<UserData>) => Promise<void>  // DB + state 부분 업데이트
   setUser: (data: UserData) => void                          // state 전체 세팅 (온보딩 직후)
 }
@@ -99,7 +101,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [authUser, user])
 
-  const primaryTribe: 'bather' | 'saunner' | 'jimi' = user?.primary_type || 'saunner'
+  const primaryTribe: TribeId = user?.primary_type || FALLBACK_TRIBE
 
   // DB 로드 전 로딩 표시
   if (!isLoaded) {

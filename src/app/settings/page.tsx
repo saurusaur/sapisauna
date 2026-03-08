@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP, SETTINGS, MY_PAGE, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP } from '@/constants/content'
+import { APP, SETTINGS, MY_PAGE, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, FALLBACK_TRIBE } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useUser } from '@/contexts/user-context'
@@ -85,12 +85,12 @@ export default function SettingsPage() {
               className="w-full flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xl">{TRIBE_EMOJI_MAP[user?.primary_type || 'saunner']}</span>
+                <span className="text-xl">{TRIBE_EMOJI_MAP[user?.primary_type || FALLBACK_TRIBE]}</span>
                 <span className="font-medium text-stone-700">나의 스타일</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
-                  {TRIBE_PERSONA_MAP[user?.primary_type || 'saunner']}
+                  {TRIBE_PERSONA_MAP[user?.primary_type || FALLBACK_TRIBE]}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>

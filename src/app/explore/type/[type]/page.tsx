@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE,
-  TRIBE_EMOJI_MAP,
+  TRIBE_EMOJI_MAP, TRIBE_IDS, FALLBACK_TRIBE,
 } from '@/constants/content'
 import { getFacilityLabel } from '@/lib/utils'
 import { usePlaces } from '@/hooks/use-places'
@@ -18,7 +18,7 @@ import PlaceStatsDisplay from '@/components/features/place-stats-display'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 
 
-const VALID_TYPES = ['saunner', 'bather', 'jimi'] as const
+const VALID_TYPES = TRIBE_IDS
 
 
 
@@ -32,10 +32,10 @@ const typeDropdownLabel: Record<string, string> = {
 export default function TypeListPage() {
   const router = useRouter()
   const params = useParams()
-  const initialType = (params.type as string) || 'saunner'
+  const initialType = (params.type as string) || FALLBACK_TRIBE
 
   const [currentType, setCurrentType] = useState(
-    VALID_TYPES.includes(initialType as typeof VALID_TYPES[number]) ? initialType : 'saunner'
+    VALID_TYPES.includes(initialType as typeof VALID_TYPES[number]) ? initialType : FALLBACK_TRIBE
   )
   const [searchQuery, setSearchQuery] = useState('')
   const {

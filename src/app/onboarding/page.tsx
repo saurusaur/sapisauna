@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { APP, ONBOARDING, TRIBES } from '@/constants/content'
+import type { TribeId } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
@@ -107,7 +108,7 @@ export default function Onboarding() {
     const userData = {
       nickname,
       user_types: selectedTypes,
-      primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
+      primary_type: selectedTypes[0] as TribeId,
     }
 
     try {

@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { APP } from '@/constants/content'
+import type { TribeId } from '@/types'
 import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import EditorCanvas from '@/components/story-editor/editor-canvas'
@@ -34,7 +35,7 @@ type EditorSessionState = {
 type LogData = {
   _editId?: string
   place_name: string
-  tribe_id: 'bather' | 'saunner' | 'jimi'
+  tribe_id: TribeId
   created_at?: string
   date?: string
   // saunner

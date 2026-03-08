@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ICONS, EXPLORE, EXPLORE_FILTERS,
-  TRIBE_EMOJI_MAP, TRIBE_COLORS,
+  TRIBE_EMOJI_MAP, TRIBE_COLORS, TRIBE_IDS,
 } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
@@ -53,7 +53,7 @@ export default function ExplorePage() {
 
   // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
   const recommendations = useMemo(() => {
-    const typeKeys = ['saunner', 'bather', 'jimi'] as const
+    const typeKeys = TRIBE_IDS
     const result: Record<string, Place[]> = {}
 
     for (const type of typeKeys) {
@@ -102,7 +102,7 @@ export default function ExplorePage() {
 
   // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
   const recommendationOrder = useMemo(() => {
-    const types = ['saunner', 'bather', 'jimi']
+    const types = [...TRIBE_IDS]
     const sorted = [primaryTribe, ...types.filter((t) => t !== primaryTribe)]
     return sorted.filter((t) => recommendations[t]?.length > 0)
   }, [primaryTribe, recommendations])

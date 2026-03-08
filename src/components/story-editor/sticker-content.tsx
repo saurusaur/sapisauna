@@ -5,6 +5,7 @@
 'use client'
 
 import { TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, EXPLORE, APP } from '@/constants/content'
+import type { TribeId } from '@/types'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
@@ -14,7 +15,7 @@ import type { StickerType } from '@/lib/sticker-templates'
 export type LogData = {
   _editId?: string
   place_name: string
-  tribe_id: 'bather' | 'saunner' | 'jimi'
+  tribe_id: TribeId
   created_at?: string
   date?: string
   sauna_temp?: number

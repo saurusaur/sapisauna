@@ -8,6 +8,7 @@
 import StickerContent from './sticker-content'
 import type { LogData } from './sticker-content'
 import type { Sticker, StickerType } from '@/lib/sticker-templates'
+import { TRIBE_PERSONA_MAP } from '@/constants/content'
 import { RITUAL_TYPES } from '@/lib/sticker-templates'
 
 interface StickerDrawerProps {
@@ -48,7 +49,7 @@ function getStickerGroups(tribeId: string): StickerGroup[] {
         { type: 'comment', label: '코멘트' },
         { type: 'score', label: '점수' },
         { type: 'nickname', label: '닉네임' },
-        { type: 'tribe', label: tribeId === 'saunner' ? 'Saunner' : tribeId === 'bather' ? 'Bather' : 'Jimi' },
+        { type: 'tribe', label: TRIBE_PERSONA_MAP[tribeId] || 'Saunner' },
       ],
     },
     {

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TRIBES } from '@/constants/content'
+import type { TribeId } from '@/types'
 import { useUser } from '@/contexts/user-context'
 
 export default function TypeEdit() {
@@ -30,7 +31,7 @@ export default function TypeEdit() {
 
     updateUser({
       user_types: selectedTypes,
-      primary_type: selectedTypes[0] as 'bather' | 'saunner' | 'jimi',
+      primary_type: selectedTypes[0] as TribeId,
     })
 
     router.back()

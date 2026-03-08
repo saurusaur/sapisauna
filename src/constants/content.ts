@@ -31,9 +31,17 @@ export const APP = {
 }
 
 // ============================================
+// 트라이브 ID 상수
+// ============================================
+import type { TribeId } from '@/types'
+
+export const TRIBE_IDS = ['bather', 'saunner', 'jimi'] as const
+export const FALLBACK_TRIBE: TribeId = 'saunner'
+
+// ============================================
 // 타입별 포인트 색상 (globals.css의 CSS 변수 참조)
 // ============================================
-export const TRIBE_COLORS: Record<string, string> = {
+export const TRIBE_COLORS: Record<TribeId, string> = {
   bather: 'var(--color-bather)',
   saunner: 'var(--color-saunner)',
   jimi: 'var(--color-jimi)',
