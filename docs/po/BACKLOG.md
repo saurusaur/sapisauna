@@ -9,7 +9,8 @@
 
 <!-- P0 -->
 <!-- P0: Dedup & DB 변경 연동 (프론트엔드) -->
-- [ ] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02
+- [x] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02 | done: 2026-03-08
+- [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
 <!-- P1: 네비게이션 -->
 - [ ] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04
 <!-- P1: 리팩토링 -->
@@ -22,7 +23,9 @@
 - [ ] [UX] 하단 네비게이션 바 — 정리 & 플리 기능 플레이스홀더 추가. (기록 버튼 제거 완료) | priority: P1 | added: 2026-02-28
 - [ ] [기능] 홈 화면 — 최근 기록을 달력 보기로 전환 + 더보기로 리스트 보기. 달력 내 '오늘' 버튼(스크롤 중 오늘 일자로 복귀), 연도 탭 시 연/월/일 입력으로 해당 날짜 바로 이동. 타입별 카운트 란은 높이 고정 — 데이터 유무에 따라 문구만 표시/숨김, 레이아웃 시프트 없이 | priority: P1 | added: 2026-02-28
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
-- [ ] [리팩토링] user-context localStorage 제거 — DB를 single source of truth로 통일. localStorage 캐시 제거하여 sync 문제 원천 차단. 영향: user-context.tsx, onboarding/page.tsx, 설정 페이지들 | priority: P2 | added: 2026-03-06
+- [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
+- [ ] [리팩토링] user-context localStorage 제거 — DB를 single source of truth로 통일. localStorage 캐시 제거하여 sync 문제 원천 차단. 영향: user-context.tsx, onboarding/page.tsx, 설정 페이지들. user-context JSON.parse 2건 safeParse 교체 포함 | priority: P2 | added: 2026-03-06
+- [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
 <!-- P2 -->
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
 - [ ] [버그/아키텍처] 스토리 미리보기↔에디터 간 요소 사이즈/배치 불일치 — 경쟁앱 리서치 후 dev-cycle 진행 | priority: P2 | added: 2026-02-28

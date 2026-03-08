@@ -7,8 +7,10 @@ import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
-import { addPlace } from '@/lib/places-service'
-import type { FacilityType } from '@/types'
+import PlaceMergeModal from '@/components/ui/place-merge-modal'
+import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
+import { supabase } from '@/lib/supabase'
+import type { Place, FacilityType } from '@/types'
 
 // API 검색 결과 타입
 interface SearchResult {
@@ -47,6 +49,7 @@ export default function AddPlace() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [showBackConfirm, setShowBackConfirm] = useState(false)
+  const [mergeCandidates, setMergeCandidates] = useState<Place[] | null>(null)
 
   // 입력이 시작되었는지 (워닝 표시 기준)
   const hasInput = Boolean(name || selectedPlace || selectedFacilities.length > 0)
@@ -104,7 +107,28 @@ export default function AddPlace() {
     setSearchQuery('')
   }
 
-  // 저장 — Supabase places + place_sources
+  // 저장 완료 후 공통 처리
+  const navigateToLog = (place: Place) => {
+    localStorage.removeItem('currentLog')
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name }))
+    router.push('/log')
+  }
+
+  // 현재 입력값으로 공통 파라미터 생성
+  const buildParams = () => ({
+    name,
+    address,
+    latitude: selectedPlace?.latitude || null,
+    longitude: selectedPlace?.longitude || null,
+    facilities: selectedFacilities,
+    is_24h: is24h,
+    facility_type: bathGender,
+    country_code: source === 'naver' ? 'KR' : undefined,
+    source: (selectedPlace ? selectedPlace.source : 'manual') as 'naver' | 'google' | 'manual',
+    external_id: selectedPlace?.external_id,
+  })
+
+  // 저장 — 검사 → 모달 or 직접 생성
   const handleSave = async () => {
     if (!canSave) return
 
@@ -112,22 +136,86 @@ export default function AddPlace() {
     setSaveError(null)
 
     try {
-      const newPlace = await addPlace({
-        name,
-        address,
-        latitude: selectedPlace?.latitude || null,
-        longitude: selectedPlace?.longitude || null,
-        facilities: selectedFacilities,
-        is_24h: is24h,
-        facility_type: bathGender,
-        country_code: source === 'naver' ? 'KR' : undefined,
-        source: selectedPlace ? selectedPlace.source : 'manual',
-        external_id: selectedPlace?.external_id,
-      })
+      const currentSource = selectedPlace ? selectedPlace.source : 'manual'
+      const externalId = selectedPlace?.external_id
 
-      localStorage.removeItem('currentLog')
-      localStorage.setItem('selectedPlace', JSON.stringify({ id: newPlace.id, name: newPlace.name }))
-      router.push('/log')
+      // Stage 1: source + external_id 정확 매칭
+      if (externalId) {
+        const { data: existing } = await supabase
+          .from('place_sources')
+          .select('place_id')
+          .eq('source', currentSource)
+          .eq('external_id', externalId)
+          .single()
+
+        if (existing) {
+          // 이미 등록된 장소 → 바로 이동
+          const { getPlaceById } = await import('@/lib/places-service')
+          const place = await getPlaceById(existing.place_id)
+          if (place) {
+            navigateToLog(place)
+            return
+          }
+        }
+      }
+
+      // Stage 2: 좌표 기반 근처 장소 검색
+      const lat = selectedPlace?.latitude
+      const lng = selectedPlace?.longitude
+      if (lat && lng) {
+        try {
+          const nearby = await findNearbyPlaces(lat, lng)
+          if (nearby.length > 0) {
+            // 후보 있음 → 모달 표시, 유저가 판단
+            setMergeCandidates(nearby)
+            setIsSaving(false)
+            return
+          }
+        } catch {
+          // 검색 실패 → 신규 생성으로 폴백
+        }
+      }
+
+      // Stage 3: 신규 생성
+      const place = await createNewPlace(buildParams())
+      navigateToLog(place)
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
+      setIsSaving(false)
+    }
+  }
+
+  // 모달: "같은 장소" 선택 → 병합
+  const handleMerge = async (placeId: string) => {
+    setMergeCandidates(null)
+    setIsSaving(true)
+    setSaveError(null)
+
+    try {
+      const params = buildParams()
+      const place = await mergeWithPlace(
+        placeId,
+        { source: params.source, external_id: params.external_id, name, address, latitude: params.latitude, longitude: params.longitude },
+        params.facilities,
+        params.is_24h,
+        params.facility_type,
+      )
+      navigateToLog(place)
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : '병합에 실패했어요')
+      setIsSaving(false)
+    }
+  }
+
+  // 모달: "새 장소" 선택 → 신규 생성
+  const handleNewPlace = async () => {
+    setMergeCandidates(null)
+    setIsSaving(true)
+    setSaveError(null)
+
+    try {
+      const place = await createNewPlace(buildParams())
+      navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
       setIsSaving(false)
@@ -399,6 +487,16 @@ export default function AddPlace() {
           cancelLabel="계속 입력"
           onConfirm={() => router.back()}
           onCancel={() => setShowBackConfirm(false)}
+        />
+      )}
+
+      {mergeCandidates && (
+        <PlaceMergeModal
+          candidates={mergeCandidates}
+          newPlaceName={name}
+          onMerge={handleMerge}
+          onNewPlace={handleNewPlace}
+          onCancel={() => setMergeCandidates(null)}
         />
       )}
     </div>

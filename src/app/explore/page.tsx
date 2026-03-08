@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ICONS, EXPLORE,
+  ICONS, EXPLORE, EXPLORE_FILTERS,
   TRIBE_EMOJI_MAP, TRIBE_COLORS,
 } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
@@ -144,12 +144,9 @@ export default function ExplorePage() {
 
     // 시설 필터 + 탕 구분 필터 (AND 조건)
     if (selectedFilters.length > 0) {
-      const genderFilters = selectedFilters.filter((f) =>
-        ['male-only', 'female-only', 'private-bath', 'mixed-bath'].includes(f)
-      )
-      const facilityFilters = selectedFilters.filter((f) =>
-        !['male-only', 'female-only', 'private-bath', 'mixed-bath'].includes(f)
-      )
+      const genderSet = new Set<string>(EXPLORE_FILTERS.GENDER.options)
+      const genderFilters = selectedFilters.filter((f) => genderSet.has(f))
+      const facilityFilters = selectedFilters.filter((f) => !genderSet.has(f))
 
       if (facilityFilters.length > 0) {
         filtered = filtered.filter((p) =>

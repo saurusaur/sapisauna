@@ -218,6 +218,105 @@ export async function addPlace(params: {
   return result!
 }
 
+// 기존 장소에 새 소스를 병합 (Stage 2 추출)
+export async function mergeWithPlace(
+  placeId: string,
+  sourceInfo: {
+    source: 'naver' | 'google' | 'manual'
+    external_id?: string
+    name: string
+    address: string
+    latitude?: number | null
+    longitude?: number | null
+    plus_code?: string
+  },
+  facilities: string[],
+  is_24h: boolean,
+  facility_type?: FacilityType,
+): Promise<Place> {
+  const existing = await getPlaceById(placeId)
+  if (!existing) throw new Error('병합 대상 장소를 찾을 수 없습니다')
+
+  // 소스 추가
+  await supabase.from('place_sources').insert({
+    place_id: placeId,
+    source: sourceInfo.source,
+    external_id: sourceInfo.external_id || null,
+    name_original: sourceInfo.name,
+    address_original: sourceInfo.address,
+    latitude: sourceInfo.latitude || null,
+    longitude: sourceInfo.longitude || null,
+    plus_code: sourceInfo.plus_code || null,
+  })
+
+  // 시설 정보 병합 + merged 플래그
+  const mergedFacilities = Array.from(new Set([...existing.facilities, ...facilities]))
+  await supabase
+    .from('places')
+    .update({
+      facilities: mergedFacilities,
+      is_24h: is_24h || existing.is_24h,
+      merged: true,
+      facility_type: facility_type || 'gender-bath',
+    })
+    .eq('id', placeId)
+
+  const updated = await getPlaceById(placeId)
+  return updated!
+}
+
+// 신규 장소 + 소스 생성 (Stage 3 추출)
+export async function createNewPlace(params: {
+  name: string
+  address: string
+  latitude?: number | null
+  longitude?: number | null
+  facilities: string[]
+  is_24h: boolean
+  facility_type?: FacilityType
+  country_code?: string
+  source?: 'naver' | 'google' | 'manual'
+  external_id?: string
+  plus_code?: string
+}): Promise<Place> {
+  const {
+    name, address, latitude, longitude,
+    facilities, is_24h, facility_type,
+    country_code = 'KR',
+    source = 'manual', external_id, plus_code,
+  } = params
+
+  const { data: newPlace, error: placeError } = await supabase
+    .from('places')
+    .insert({
+      country_code,
+      latitude: latitude || null,
+      longitude: longitude || null,
+      facilities,
+      is_24h,
+      coordinate_source: source,
+      facility_type: facility_type || 'gender-bath',
+    })
+    .select()
+    .single()
+
+  if (placeError) throw placeError
+
+  await supabase.from('place_sources').insert({
+    place_id: newPlace.id,
+    source,
+    external_id: external_id || null,
+    name_original: name,
+    address_original: address,
+    latitude: latitude || null,
+    longitude: longitude || null,
+    plus_code: plus_code || null,
+  })
+
+  const result = await getPlaceById(newPlace.id)
+  return result!
+}
+
 // 장소별 통계 (RPC)
 export async function getPlaceStats(placeId: string): Promise<{ avg: number; count: number }> {
   const { data, error } = await supabase
