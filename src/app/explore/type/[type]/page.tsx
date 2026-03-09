@@ -6,15 +6,13 @@ import {
   ICONS, EXPLORE,
   TRIBE_EMOJI_MAP, TRIBE_IDS, FALLBACK_TRIBE,
 } from '@/constants/content'
-import { getFacilityLabel } from '@/lib/utils'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
 import { useFavorites } from '@/hooks/use-favorites'
 import type { Place } from '@/types'
-import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import FilterControls from '@/components/features/filter-controls'
-import PlaceStatsDisplay from '@/components/features/place-stats-display'
+import PlaceCard from '@/components/features/place-card'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 
 
@@ -233,58 +231,15 @@ export default function TypeListPage() {
         {/* 장소 리스트 */}
         <DataState loading={loading} error={placesError} isEmpty={filteredPlaces.length === 0} emptyIcon="search_off" emptyMessage={EXPLORE.NO_RESULTS}>
           <div className="space-y-3">
-            {filteredPlaces.map((place) => {
-              const mainFacilities = place.facilities.slice(0, 5)
-
-              return (
-                <button
-                  key={place.id}
-                  onClick={() => router.push(`/explore/${place.id}`)}
-                  className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-stone-700">{place.name}</span>
-                        {place.is_24h && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
-                            24h
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleFavorite(place.id)
-                      }}
-                      className="p-1"
-                    >
-                      <span
-                        className="material-symbols-outlined text-xl"
-                        style={{ color: isFavorited(place.id) ? 'var(--color-green)' : '#d6d3d1' }}
-                      >
-                        {isFavorited(place.id) ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* 시설 칩 */}
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {mainFacilities.map((f) => (
-                      <Chip key={f} label={getFacilityLabel(f)} size="sm" />
-                    ))}
-                    {place.facilities.length > 5 && (
-                      <Chip label={`+${place.facilities.length - 5}`} size="sm" />
-                    )}
-                  </div>
-
-                  {/* 평점 */}
-                  <PlaceStatsDisplay placeId={place.id} />
-                </button>
-              )
-            })}
+            {filteredPlaces.map((place) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onClick={() => router.push(`/explore/${place.id}`)}
+                isFavorited={isFavorited(place.id)}
+                onToggleFavorite={() => toggleFavorite(place.id)}
+              />
+            ))}
           </div>
         </DataState>
       </main>

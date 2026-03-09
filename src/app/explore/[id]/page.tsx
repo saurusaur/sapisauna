@@ -8,6 +8,7 @@ import {
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
 import { useFavorites } from '@/hooks/use-favorites'
+import Badge24h from '@/components/ui/badge-24h'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import RecordCard from '@/components/features/record-card'
@@ -121,11 +122,7 @@ export default function PlaceDetailPage() {
             <div>
               <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
               <p className="text-sm text-stone-500 mt-1">{place.address}</p>
-              {place.is_24h && (
-                <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
-                  24h 영업
-                </span>
-              )}
+              {place.is_24h && <span className="inline-block mt-2"><Badge24h /></span>}
             </div>
           </div>
 

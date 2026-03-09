@@ -92,7 +92,7 @@ export default function FilterControls({
 
             {/* 필터 패널 */}
             {showFilters && (
-                <div className="bg-white rounded-xl shadow-sm p-4 mb-4 space-y-4">
+                <div className="glass-card p-4 mb-4 space-y-4">
                     {(Object.entries(EXPLORE_FILTERS) as [string, { label: string; options: readonly string[] }][]).map(
                         ([key, section], index) => (
                             <div key={key}>

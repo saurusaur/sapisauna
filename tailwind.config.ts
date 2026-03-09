@@ -18,19 +18,36 @@ const config: Config = {
     extend: {
       colors: {
         // 브랜드 컬러 - CSS 변수 참조
+        primary: 'var(--color-primary)',
+        'primary-light': 'var(--color-primary-light)',
+        accent: 'var(--color-accent)',
+        'accent-light': 'var(--color-accent-light)',
+        // 하위 호환 별칭
         green: 'var(--color-green)',
         'green-light': 'var(--color-green-light)',
         orange: 'var(--color-orange)',
         'orange-light': 'var(--color-orange-light)',
+        // 타입별 컬러
         bather: 'var(--color-bather)',
         sauner: 'var(--color-sauner)',
         jimi: 'var(--color-jimi)',
+        // UI 컬러
+        card: 'var(--color-card)',
+        border: 'var(--color-border)',
+        muted: 'var(--color-muted)',
+        'muted-fg': 'var(--color-muted-fg)',
       },
       borderWidth: {
         '3': '3px',
       },
       ringWidth: {
         '3': '3px',
+      },
+      borderRadius: {
+        glass: 'var(--radius)',
+      },
+      boxShadow: {
+        glass: 'var(--glass-shadow)',
       },
     },
   },

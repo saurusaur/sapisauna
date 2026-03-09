@@ -10,32 +10,53 @@
  * tailwind.config.ts에서 이 변수들을 참조합니다.
  */
 :root {
-  /* 베이스 컬러 */
-  --foreground-rgb: 68, 64, 60;
-  --background-rgb: 250, 249, 247;
+  /* 베이스 컬러 — Lovable 따뜻한 베이지 톤 */
+  --foreground-rgb: 42, 34, 34;       /* #2a2222 다크 브라운 */
+  --background-rgb: 245, 242, 239;    /* #f5f2ef 따뜻한 베이지 */
 
-  /* Primary (그린) */
-  --color-green: #2d8a6e;
-  --color-green-light: #e6f4ef;
+  /* Primary (레드) */
+  --color-primary: #cc1a1a;
+  --color-primary-light: #fde8e8;
 
-  /* Secondary (오렌지) */
-  --color-orange: #e07b3c;
-  --color-orange-light: #fef3eb;
+  /* Accent (밝은 레드) */
+  --color-accent: #d44040;
+  --color-accent-light: #fde8e8;
 
-  /* 타입별 포인트 컬러 */
+  /* 하위 호환: 기존 green/orange 변수 → 새 값으로 매핑 */
+  --color-green: var(--color-primary);
+  --color-green-light: var(--color-primary-light);
+  --color-orange: var(--color-accent);
+  --color-orange-light: var(--color-accent-light);
+
+  /* 타입별 포인트 컬러 (유지 — 페이지별 확인 후 조정) */
   --color-bather: #3B82F6;    /* 목욕파 = 파랑 */
-  --color-saunner: #F97316;    /* 사우너파 = 오렌지 */
+  --color-saunner: #F97316;   /* 사우너파 = 오렌지 */
   --color-jimi: #22C55E;      /* 찜질파 = 초록 */
 
   /* 스토리 카드 배경 컬러 */
-  --story-bg-saunner: #c25c4a;   /* 따뜻한 코랄 */
-  --story-bg-bather: #4a8b9c;    /* 차분한 틸 */
-  --story-bg-jimi: #61906d;      /* 차분한 그린 */
+  --story-bg-saunner: #c25c4a;
+  --story-bg-bather: #4a8b9c;
+  --story-bg-jimi: #61906d;
 
-  /* 폰트 패밀리 - 클래식 에디토리얼 */
-  --font-serif: 'Cormorant Garamond', Georgia, serif;  /* 타이틀용 세리프 */
-  --font-display: 'DM Sans', -apple-system, sans-serif;  /* 숫자/영문 */
-  --font-sans: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;  /* 한글 */
+  /* UI 컬러 — Lovable 토큰 */
+  --color-card: #faf8f6;
+  --color-border: #e2deda;
+  --color-muted: #e8e4e0;
+  --color-muted-fg: #726e6e;
+
+  /* 글래스모픽 */
+  --glass: 0 0% 100% / .35;
+  --glass-border: 0 0% 100% / .45;
+  --glass-highlight: 0 0% 100% / .2;
+  --glass-shadow: 0 12px 40px -8px hsl(0 10% 15% / .1),
+                  0 4px 16px -4px hsl(0 10% 15% / .08),
+                  0 0 0 .5px hsl(0 0% 100% / .3);
+  --radius: 0.75rem;
+
+  /* 폰트 패밀리 */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-display: 'DM Sans', -apple-system, sans-serif;
+  --font-sans: 'DM Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 기본 body 스타일 */
@@ -43,6 +64,8 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   font-family: var(--font-sans);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* 스토리 카드용 폰트 클래스 */
@@ -54,9 +77,35 @@ body {
   font-family: var(--font-sans);
 }
 
-/* 목욕탕 타일 느낌의 배경 */
+/* 따뜻한 베이지 배경 */
 .bath-tile-bg {
-  background: linear-gradient(135deg, #faf9f7 0%, #f5f2ed 100%);
+  background: linear-gradient(135deg, #f5f2ef 0%, #ede8e3 100%);
+}
+
+/* ============================================
+ * 글래스모픽 유틸리티 클래스
+ * ============================================ */
+.glass-card {
+  background: hsl(var(--glass));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 0.5px solid hsl(var(--glass-border));
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius);
+}
+
+.glass-input {
+  background: hsl(0 0% 100% / .5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.glass-chip {
+  background: hsl(0 0% 100% / .3);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
 }
 
 /* 모바일 최적화 */
@@ -92,7 +141,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--color-orange);
+  background: var(--color-primary);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
@@ -101,7 +150,7 @@ input[type="range"]::-moz-range-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--color-orange);
+  background: var(--color-primary);
   cursor: pointer;
   border: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);

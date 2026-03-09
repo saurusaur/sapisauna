@@ -49,7 +49,7 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-stone-200 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t z-50" style={{ borderColor: 'var(--color-border)' }}>
       <div className="flex items-end justify-around py-2 max-w-md mx-auto relative">
         {/* 좌측 탭들 */}
         {LEFT_TABS.map(renderTab)}

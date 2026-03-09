@@ -9,8 +9,8 @@ export default function PlaceStatsDisplay({ placeId }: { placeId: string }) {
   if (stats.count === 0) return null
   return (
     <div className="flex items-center gap-1 text-xs">
-      <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-        {EXPLORE.REVISIT_LABEL} {stats.avg}
+      <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
+        ★ {stats.avg}
       </span>
       <span className="text-stone-300">·</span>
       <span className="text-stone-500">{EXPLORE.LOG_COUNT(stats.count)}</span>

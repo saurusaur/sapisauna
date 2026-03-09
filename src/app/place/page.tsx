@@ -3,11 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MESSAGES, ICONS } from '@/constants/content'
-import { getFacilityLabel } from '@/lib/utils'
 import { usePlaces } from '@/hooks/use-places'
 import DataState from '@/components/ui/data-state'
-import Chip from '@/components/ui/chip'
-import PlaceStatsDisplay from '@/components/features/place-stats-display'
+import PlaceCard from '@/components/features/place-card'
 
 export default function PlaceSelection() {
   const router = useRouter()
@@ -96,44 +94,13 @@ export default function PlaceSelection() {
         {/* 장소 목록 */}
         <DataState loading={loading} error={error} isEmpty={filteredPlaces.length === 0} emptyIcon="location_off" emptyMessage="등록된 장소가 없습니다">
           <div className="space-y-3 mb-6">
-            {filteredPlaces.map((place) => {
-              const mainFacilities = place.facilities.slice(0, 5)
-
-              return (
-                <button
-                  key={place.id}
-                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
-                  className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-stone-700">{place.name}</span>
-                        {place.is_24h && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 font-medium">
-                            24h
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
-                    </div>
-                  </div>
-
-                  {/* 시설 칩 */}
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {mainFacilities.map((f) => (
-                      <Chip key={f} label={getFacilityLabel(f)} size="sm" />
-                    ))}
-                    {place.facilities.length > 5 && (
-                      <Chip label={`+${place.facilities.length - 5}`} size="sm" />
-                    )}
-                  </div>
-
-                  {/* 또갈래요 평점 */}
-                  <PlaceStatsDisplay placeId={place.id} />
-                </button>
-              )
-            })}
+            {filteredPlaces.map((place) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
+              />
+            ))}
           </div>
         </DataState>
 

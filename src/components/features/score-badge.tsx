@@ -13,8 +13,8 @@ export default function ScoreBadge({ score, count, className = '' }: ScoreBadgeP
 
     return (
         <div className={`flex items-center gap-1 text-xs ${className}`}>
-            <span className="font-medium" style={{ color: 'var(--color-orange)' }}>
-                {label} {score}
+            <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
+                ★ {score}
             </span>
 
             {count !== undefined && (

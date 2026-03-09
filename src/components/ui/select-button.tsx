@@ -32,7 +32,7 @@ export default function SelectButton({
         inline-flex items-center gap-1
         ${selected
           ? 'text-white shadow-sm'
-          : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
+          : 'glass-chip text-stone-600 hover:bg-white/50'
         }
       `}
       style={selected ? { backgroundColor: color } : {}}

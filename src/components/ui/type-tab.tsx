@@ -19,7 +19,7 @@ export default function TypeTab({
   label,
   active = false,
   onClick,
-  color = 'var(--color-green)',
+  color = 'var(--color-primary)',
 }: TypeTabProps) {
   return (
     <button
@@ -27,11 +27,15 @@ export default function TypeTab({
       className={`
         px-2.5 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap
         ${active
-          ? 'text-white shadow-sm'
-          : 'bg-white text-stone-500 shadow-sm hover:shadow-md'
+          ? 'shadow-sm border'
+          : 'glass-chip text-stone-500 hover:bg-white/50'
         }
       `}
-      style={active ? { backgroundColor: color } : {}}
+      style={active ? {
+        backgroundColor: `color-mix(in srgb, ${color} 15%, white)`,
+        borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
+        color: color,
+      } : {}}
     >
       {label}
     </button>
