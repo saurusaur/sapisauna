@@ -50,16 +50,17 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Glass 배경 레이어 — 버튼 뒤에 깔림 */}
+      {/* Glass 배경 — 떠있는 느낌의 깊은 그림자 */}
       <div className="absolute inset-0 backdrop-blur-xl"
         style={{
           background: 'hsl(var(--glass))',
           borderTop: '0.5px solid hsl(var(--glass-border))',
-          boxShadow: '0 -8px 32px -4px hsl(0 10% 15% / .06)',
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.06), 0 -12px 40px rgba(0,0,0,0.04)',
         }}
       />
-      {/* Center raised: + 기록 버튼 — nav 위로 삐져나옴 */}
-      <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-10 flex flex-col items-center">
+
+      {/* Center raised: + 버튼 */}
+      <div className="absolute left-1/2 -translate-x-1/2 -top-4 z-10 flex flex-col items-center">
         {/* 말풍선 tooltip */}
         {showTooltip && (
           <div className="absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap">
@@ -78,20 +79,22 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
 
         <button
           onClick={() => router.push('/place')}
-          className="flex items-center gap-1 px-6 py-3 rounded-full text-white font-semibold shadow-lg transition-all hover:shadow-xl hover:scale-105 active:scale-95"
-          style={{ backgroundColor: 'var(--color-green)' }}
+          className="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+          style={{
+            backgroundColor: 'var(--color-green)',
+            boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
+          }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
-          <span className="text-sm">{NAV.ADD_RECORD}</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>add</span>
         </button>
       </div>
 
-      <div className="flex items-end justify-around py-2 max-w-md mx-auto relative">
+      <div className="flex items-center justify-around py-2.5 pb-3 max-w-md mx-auto relative">
         {/* 좌측 탭들 */}
         {LEFT_TABS.map(renderTab)}
 
-        {/* 중앙 빈 공간 — 버튼 자리 확보 */}
-        <div className="min-w-[120px]" />
+        {/* 중앙 빈 공간 — 버튼 자리 */}
+        <div className="min-w-[56px]" />
 
         {/* 우측 탭들 */}
         {RIGHT_TABS.map(renderTab)}
