@@ -23,7 +23,7 @@
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
 - [x] [UX] 하단 네비게이션 바 — 5항목 구조(4탭+center raised 기록 버튼), 사-리스트 비활성 플레이스홀더 | priority: P1 | added: 2026-02-28 | done: 2026-03-08
 - [x] [기능] 홈 화면 — 주간/월간 전환 달력 + 날짜별 기록 카드 캐러셀 + 추천 섹션 플레이스홀더. 상세: `docs/plans/home-redesign-plan.md` | priority: P1 | added: 2026-02-28 | done: 2026-03-08
-- [ ] [UX] 기록 추가 흐름 수정 — 숏로그 후 딥로그/스토리 분기 UI 추가 + 스토리 에디터 단순화(사진 추가/삭제만). 상세: `docs/plans/TODO_record_flow_redesign.md` | priority: P1 | added: 2026-03-09
+- [x] [UX] 기록 추가 흐름 수정 — 숏로그 후 딥로그/스토리 분기 UI 추가 + 스토리 에디터 단순화(사진 추가/삭제만). 상세: `docs/plans/archive/TODO_record_flow_redesign.md` | priority: P1 | added: 2026-03-09 | done: 2026-03-09
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
 - [ ] [버그] 달력 날짜 1일 밀림 — TIMESTAMPTZ UTC 변환 후 `slice(0,10)`이 로컬 날짜가 아닌 UTC 날짜 추출. 시간 변경 시나리오(자정 근처 기록, 타임존 이동)도 함께 점검. 영향: 홈 달력, 홈 기록 필터, 히스토리 등 `log.date.slice(0,10)` 사용처 전체 | priority: P1 | added: 2026-03-09
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
@@ -31,12 +31,12 @@
 - [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
 <!-- P2 -->
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
-- [ ] [버그/아키텍처] 스토리 미리보기↔에디터 간 요소 사이즈/배치 불일치 — 경쟁앱 리서치 후 dev-cycle 진행 | priority: P2 | added: 2026-02-28
+- [ ] [UX] 성공 토스트 고도화 — SaveSuccessToast 컴포넌트 추출 + 폭죽&스팀 CSS 애니메이션. 현재 인라인 토스트 구현됨 | priority: P2 | added: 2026-03-09
 - [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비 | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
-- [ ] [기능] 스토리 에디터 완성도 점검 (스티커/배경/크롭) | priority: P2 | added: 2026-02-27
+- [x] [기능] 스토리 에디터 완성도 점검 (스티커/배경/크롭) — 에디터 제거, 사진 추가/삭제로 단순화 | priority: P2 | added: 2026-02-27 | done: 2026-03-09
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
@@ -47,7 +47,7 @@
 <!-- P3 -->
 - [ ] [기능] 크로스 소스 장소 매칭 — 네이버 등록 시 구글 Nearby Search로 place_id 확보, 사용자 확인 1탭 (외국인 유저 대응) | priority: P3 | added: 2026-03-01
 - [ ] [기능] 목록 공유 링크 및 구독(팔로우) 시스템 | priority: P3 | added: 2026-02-27
-- [ ] [기능] log/nudge 페이지 완성 및 푸시 알림 연동 | priority: P3 | added: 2026-02-27
+- [x] [기능] log/nudge 페이지 완성 및 푸시 알림 연동 — nudge 제거, 분기 모달로 대체 | priority: P3 | added: 2026-02-27 | done: 2026-03-09
 - [ ] [인프라] PWA 오프라인 지원 및 동기화 전략 | priority: P3 | added: 2026-02-27
 - [ ] [기능] 커머스 — 특가/한정 공구 진행 기능 | priority: P3 | added: 2026-02-28
 - [ ] [리마인더] 베타테스터 단계에서 사용자 행동 분석 — 기능별 사용 빈도 확인, 미사용 기능 제거 (오프라인 진행) | priority: P3 | added: 2026-02-28
