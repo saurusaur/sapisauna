@@ -17,6 +17,10 @@ export async function GET(request: Request) {
     // code → session 교환
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
+    if (error) {
+      console.error('[Auth Callback] code 교환 실패:', error.message, error.status)
+    }
+
     if (!error) {
       // 현재 유저 가져오기
       const { data: { user } } = await supabase.auth.getUser()
