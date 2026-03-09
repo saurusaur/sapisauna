@@ -54,9 +54,9 @@
   --radius: 0.75rem;
 
   /* 폰트 패밀리 */
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-display: 'DM Sans', -apple-system, sans-serif;
-  --font-sans: 'DM Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Oswald', -apple-system, sans-serif;
+  --font-display: 'Oswald', -apple-system, sans-serif;
+  --font-sans: 'Libre Franklin', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 기본 body 스타일 */
@@ -68,7 +68,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 스토리 카드용 폰트 클래스 */
+/* 폰트 유틸리티 클래스 */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
 .font-display {
   font-family: var(--font-display);
 }
@@ -105,11 +109,12 @@ body {
 }
 
 .glass-input {
-  background: hsl(0 0% 100% / .5);
+  background: hsl(0 0% 100% / .65);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--color-border);
+  border: 0.5px solid hsl(0 0% 100% / .8);
   border-radius: var(--radius);
+  box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08);
 }
 
 .glass-chip {

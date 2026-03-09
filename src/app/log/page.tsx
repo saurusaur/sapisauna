@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, TRIBE_IDS, QUICK_LOG } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, TRIBE_PERSONA_MAP, TRIBE_IDS, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 import ConfirmModal from '@/components/ui/confirm-modal'
@@ -54,6 +54,14 @@ export default function QuickLog() {
   const todayStr = new Date().toISOString().slice(0, 10)
   const [recordDate, setRecordDate] = useState(todayStr)
   const [recordHour, setRecordHour] = useState<number | null>(null) // null = 미지정
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showTimePicker, setShowTimePicker] = useState(false)
+  const datePickerRef = useRef<HTMLDivElement>(null)
+  // 달력 네비용: 표시 중인 월
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date(todayStr)
+    return { year: d.getFullYear(), month: d.getMonth() }
+  })
 
   useEffect(() => {
     // 달력에서 선택한 날짜 복원
@@ -114,6 +122,19 @@ export default function QuickLog() {
       if (log.rest_quality) setRestQuality(log.rest_quality)
     }
   }, [])
+
+  // 피커 바깥 클릭 닫기
+  useEffect(() => {
+    if (!showDatePicker && !showTimePicker) return
+    const handleClick = (e: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setShowDatePicker(false)
+        setShowTimePicker(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showDatePicker, showTimePicker])
 
   // record_date 생성: 날짜 + 시간(선택) → ISO 문자열
   const buildRecordDate = (): string => {
@@ -201,62 +222,203 @@ export default function QuickLog() {
     router.push('/log/deep')
   }
 
+  // 날짜 표시 포맷: 2026.03.08
+  const displayDate = recordDate.replace(/-/g, '.')
+
+  // 시간 표시 포맷
+  const formatHour = (h: number) =>
+    h < 12 ? `오전 ${h === 0 ? 12 : h}시` : `오후 ${h === 12 ? 12 : h - 12}시`
+  const displayTime = recordHour !== null ? formatHour(recordHour) : '미지정'
+
+  // 달력 생성 헬퍼
+  const buildCalendarDays = () => {
+    const { year, month } = calendarMonth
+    const firstDaySun = new Date(year, month, 1).getDay() // 0=일
+    const firstDay = firstDaySun === 0 ? 6 : firstDaySun - 1 // 월=0 기준으로 변환
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const days: (number | null)[] = Array(firstDay).fill(null)
+    for (let d = 1; d <= daysInMonth; d++) days.push(d)
+    return days
+  }
+  const calendarDays = buildCalendarDays()
+  const monthLabel = `${calendarMonth.year}.${String(calendarMonth.month + 1).padStart(2, '0')}`
+  const DAY_HEADERS = ['월', '화', '수', '목', '금', '토', '일']
+
   return (
     <div className="min-h-screen bath-tile-bg pb-24">
-      {/* 헤더 — sticky */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center gap-4 sticky top-0 z-20">
+      {/* 헤더 — 장소명 크게 + 기록 취소 */}
+      <header className="px-5 pt-8 pb-2 flex items-baseline justify-between">
+        <h1 className="text-xl font-bold text-stone-800">{placeName}</h1>
         <button
           onClick={() => setShowBackConfirm(true)}
-          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+          className="text-xs font-medium transition-colors"
+          style={{ color: 'var(--color-primary)' }}
         >
-          <span className="material-symbols-outlined">arrow_back</span>
+          기록 취소
         </button>
-        <h1 className="text-lg font-bold text-stone-700">{placeName}</h1>
       </header>
 
-      <main className="p-4">
-        {/* 방문 날짜·시간 */}
-        <div className="bg-white rounded-xl shadow-sm px-4 py-2.5 mb-4">
-          <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase mb-1.5">방문일시</p>
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '16px' }}>calendar_today</span>
-            <input
-              type="date"
-              value={recordDate}
-              onChange={(e) => setRecordDate(e.target.value)}
-              className="text-xs text-stone-700 bg-transparent border-none outline-none"
-            />
-            <span className="text-stone-200 text-xs">|</span>
-            <select
-              value={recordHour ?? ''}
-              onChange={(e) => setRecordHour(e.target.value === '' ? null : Number(e.target.value))}
-              className="text-xs text-stone-500 bg-transparent border-none outline-none appearance-none cursor-pointer"
+      <main className="px-5">
+        {/* 방문 날짜·시간 — 인라인 커스텀 피커 */}
+        <div className="relative mb-4" ref={datePickerRef}>
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <button
+              onClick={() => { setShowDatePicker(!showDatePicker); setShowTimePicker(false) }}
+              className="flex items-center gap-1 hover:text-stone-700 transition-colors"
             >
-              <option value="">시간 미지정</option>
-              {Array.from({ length: 24 }, (_, h) => (
-                <option key={h} value={h}>
-                  {h < 12 ? `오전 ${h === 0 ? 12 : h}시` : `오후 ${h === 12 ? 12 : h - 12}시`}
-                </option>
-              ))}
-            </select>
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>calendar_today</span>
+              <span className="text-xs underline underline-offset-2 decoration-stone-300">{displayDate}</span>
+            </button>
+            <span className="text-stone-300 text-xs">·</span>
+            <button
+              onClick={() => { setShowTimePicker(!showTimePicker); setShowDatePicker(false) }}
+              className="flex items-center gap-1 hover:text-stone-700 transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>schedule</span>
+              <span className="text-xs underline underline-offset-2 decoration-stone-300">{displayTime}</span>
+            </button>
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>edit_square</span>
           </div>
+
+          {/* 날짜 피커 — 미니 달력 */}
+          {showDatePicker && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg z-30 p-4 w-[280px]">
+              {/* 월 네비게이션 */}
+              <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={() => setCalendarMonth(prev => {
+                    const d = new Date(prev.year, prev.month - 1, 1)
+                    return { year: d.getFullYear(), month: d.getMonth() }
+                  })}
+                  className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors"
+                >
+                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>chevron_left</span>
+                </button>
+                <span className="text-sm font-semibold text-stone-700">{monthLabel}</span>
+                <button
+                  onClick={() => setCalendarMonth(prev => {
+                    const d = new Date(prev.year, prev.month + 1, 1)
+                    return { year: d.getFullYear(), month: d.getMonth() }
+                  })}
+                  className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors"
+                >
+                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>chevron_right</span>
+                </button>
+              </div>
+
+              {/* 요일 헤더 */}
+              <div className="grid grid-cols-7 mb-1">
+                {DAY_HEADERS.map((d) => (
+                  <span key={d} className="text-[10px] text-stone-400 text-center font-medium">{d}</span>
+                ))}
+              </div>
+
+              {/* 날짜 그리드 */}
+              <div className="grid grid-cols-7 gap-y-1">
+                {calendarDays.map((day, i) => {
+                  if (day === null) return <span key={`e-${i}`} />
+                  const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                  const isSelected = dateStr === recordDate
+                  const isToday = dateStr === todayStr
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => {
+                        setRecordDate(dateStr)
+                        setShowDatePicker(false)
+                      }}
+                      className={`w-8 h-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                        isSelected
+                          ? 'text-white'
+                          : isToday
+                            ? 'font-bold text-stone-700 ring-1 ring-stone-300'
+                            : 'text-stone-600 hover:bg-stone-100'
+                      }`}
+                      style={isSelected ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                    >
+                      {day}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 시간 피커 — 칩 그리드 */}
+          {showTimePicker && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg z-30 p-4 w-[280px]">
+              <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase mb-2.5">시간 선택</p>
+
+              {/* 미지정 옵션 */}
+              <button
+                onClick={() => { setRecordHour(null); setShowTimePicker(false) }}
+                className={`w-full mb-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  recordHour === null
+                    ? 'text-white'
+                    : 'text-stone-500 bg-stone-50 hover:bg-stone-100'
+                }`}
+                style={recordHour === null ? { backgroundColor: 'var(--color-primary)' } : undefined}
+              >
+                미지정
+              </button>
+
+              {/* 오전 */}
+              <p className="text-[10px] text-stone-400 mb-1.5">오전</p>
+              <div className="grid grid-cols-6 gap-1.5 mb-3">
+                {Array.from({ length: 12 }, (_, h) => (
+                  <button
+                    key={h}
+                    onClick={() => { setRecordHour(h); setShowTimePicker(false) }}
+                    className={`py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                      recordHour === h
+                        ? 'text-white'
+                        : 'text-stone-600 bg-stone-50 hover:bg-stone-100'
+                    }`}
+                    style={recordHour === h ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                  >
+                    {h === 0 ? '12' : String(h)}
+                  </button>
+                ))}
+              </div>
+
+              {/* 오후 */}
+              <p className="text-[10px] text-stone-400 mb-1.5">오후</p>
+              <div className="grid grid-cols-6 gap-1.5">
+                {Array.from({ length: 12 }, (_, i) => {
+                  const h = i + 12
+                  return (
+                    <button
+                      key={h}
+                      onClick={() => { setRecordHour(h); setShowTimePicker(false) }}
+                      className={`py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                        recordHour === h
+                          ? 'text-white'
+                          : 'text-stone-600 bg-stone-50 hover:bg-stone-100'
+                      }`}
+                      style={recordHour === h ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                    >
+                      {h === 12 ? '12' : String(h - 12)}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* 타입 선택 드롭다운 */}
-        <div className="relative mb-4">
+        {/* 타입 선택 — 인라인 드롭다운 */}
+        <div className="relative mb-5">
           <button
             onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-            className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center justify-between"
+            className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-800 transition-colors"
           >
-            <span className="flex items-center gap-2 font-medium text-stone-700">
-              <span className="text-xl">{TRIBE_EMOJI_MAP[logType]}</span>
-              {TRIBE_CATEGORY_MAP[logType]}
-            </span>
-            <span className="material-symbols-outlined text-stone-400">expand_more</span>
+            <span className="text-base">{TRIBE_EMOJI_MAP[logType]}</span>
+            <span>{TRIBE_PERSONA_MAP[logType]}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>expand_more</span>
           </button>
 
           {showTypeDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg overflow-hidden z-10">
+            <div className="absolute top-full left-0 mt-1.5 bg-white rounded-xl shadow-lg overflow-hidden z-10 min-w-[180px]">
               {([...TRIBE_IDS] as TribeId[]).map((type) => (
                 <button
                   key={type}
@@ -264,14 +426,14 @@ export default function QuickLog() {
                     setTribeId(type)
                     setShowTypeDropdown(false)
                   }}
-                  className="w-full p-4 flex items-center justify-between hover:bg-stone-50 transition-colors"
+                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-stone-50 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="text-xl">{TRIBE_EMOJI_MAP[type]}</span>
-                    {TRIBE_CATEGORY_MAP[type]}
+                  <span className="flex items-center gap-2 text-sm">
+                    <span className="text-base">{TRIBE_EMOJI_MAP[type]}</span>
+                    {TRIBE_PERSONA_MAP[type]}
                   </span>
                   {logType === type && (
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-green)' }}>check</span>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: '20px' }}>check</span>
                   )}
                 </button>
               ))}
@@ -279,8 +441,8 @@ export default function QuickLog() {
           )}
         </div>
 
-        {/* 입력 폼 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        {/* 입력 폼 — 카드 */}
+        <div className="bg-white rounded-2xl shadow-sm p-5">
 
           {/* ── 목욕파 ── */}
           {logType === 'bather' && (
@@ -315,6 +477,7 @@ export default function QuickLog() {
                 max={QUICK_LOG.BATHER.WATER_QUALITY.max}
                 steps={[...QUICK_LOG.BATHER.WATER_QUALITY.steps]}
                 onChange={setWaterQuality}
+                variant="chip"
               />
             </>
           )}
@@ -347,6 +510,7 @@ export default function QuickLog() {
                 max={QUICK_LOG.SAUNER.TOTONO.max}
                 steps={[...QUICK_LOG.SAUNER.TOTONO.steps]}
                 onChange={setTotono}
+                variant="chip"
               />
             </>
           )}
@@ -370,13 +534,14 @@ export default function QuickLog() {
                 max={QUICK_LOG.JIMI.REST_QUALITY.max}
                 steps={[...QUICK_LOG.JIMI.REST_QUALITY.steps]}
                 onChange={setRestQuality}
+                variant="chip"
               />
             </>
           )}
 
-          {/* ── 공통 루틴 (전 타입) ── */}
-          <div className="border-t border-stone-100 mt-1">
-            <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase pt-2.5 pb-0.5">
+          {/* ── 공통 루틴 (전 타입) — 글래스 카드 ── */}
+          <div className="mt-3 glass-card-light px-4 py-3">
+            <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase pb-0.5">
               ROUTINE
             </p>
             <RoutineCounter
@@ -430,7 +595,7 @@ export default function QuickLog() {
           </div>
 
           {/* ── 공통: 또 갈래요 ── */}
-          <div className="border-t border-stone-100 mt-1">
+          <div className="mt-1">
             <Slider
               label={QUICK_LOG.COMMON.REVISIT.label}
               value={revisit}
@@ -438,17 +603,18 @@ export default function QuickLog() {
               max={QUICK_LOG.COMMON.REVISIT.max}
               steps={QUICK_LOG.COMMON.REVISIT.steps}
               onChange={setRevisit}
+              variant="chip"
             />
           </div>
         </div>
       </main>
 
-      {/* 하단 고정 "다음" 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t border-stone-100 z-20">
+      {/* 하단 고정 "다음" 버튼 — 띠 없이 플로팅 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={handleComplete}
-          className="w-full py-3.5 rounded-xl font-semibold text-white transition-all hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-green)' }}
+          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto"
+          style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' }}
         >
           다음
         </button>
@@ -494,7 +660,7 @@ export default function QuickLog() {
               onClick={handleDirectStory}
               disabled={isSaving}
               className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-green)' }}
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {isSaving ? (
                 <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

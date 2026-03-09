@@ -3,6 +3,7 @@
  *
  * - Slider: 가로 한 줄 [라벨] [슬라이더] [디스크립터 값]
  *   inactive 옵션: 활성화 전 흐릿하게 표시, 탭하면 활성화
+ *   variant="chip": 원형 넘버 칩 (1-5), 선택 시 빨간 배경
  * - RoutineCounter: 가로 한 줄 [라벨] [-] [값 mins] [+]
  *   value=null → 비활성(흐릿), 탭하면 예시값으로 활성화
  * - Counter: 가로 한 줄 [라벨] [-] [값] [+] [단위]
@@ -23,6 +24,7 @@ export function Slider({
   onActivate,
   showReset = false,
   onReset,
+  variant = 'slider',
 }: {
   label: string
   value: number
@@ -37,6 +39,8 @@ export function Slider({
   /** true이면 우측에 × 리셋 버튼 표시 */
   showReset?: boolean
   onReset?: () => void
+  /** "slider" = 기본 슬라이더, "chip" = 원형 넘버 칩 */
+  variant?: 'slider' | 'chip'
 }) {
   // 현재 값 이하인 step 중 가장 큰 value의 label
   const descriptor = steps.length > 0
@@ -44,6 +48,41 @@ export function Slider({
       ?? steps[0]?.label
     : null
 
+  // ── chip variant ──
+  if (variant === 'chip') {
+    return (
+      <div className={`py-3 ${label ? 'border-b border-stone-100' : ''}`}>
+        {label && <span className="text-sm font-medium text-stone-700">{label}</span>}
+        <div className={`flex items-start gap-3 justify-center ${label ? 'mt-3' : 'mt-1'}`}>
+          {steps.map((step) => (
+            <button
+              key={step.value}
+              onClick={() => onChange(step.value)}
+              className="flex-1 flex flex-col items-center gap-1.5"
+            >
+              <div
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  value === step.value
+                    ? 'text-white shadow-md scale-110'
+                    : 'bg-stone-100 text-stone-500'
+                }`}
+                style={value === step.value ? { backgroundColor: 'var(--color-primary)' } : undefined}
+              >
+                {step.value}
+              </div>
+              <span className={`text-[10px] ${
+                value === step.value ? 'font-semibold text-stone-700' : 'text-stone-400'
+              }`}>
+                {step.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ── slider variant (기본) ──
   return (
     <div
       className={`py-3 border-b border-stone-100 ${inactive ? 'cursor-pointer select-none' : ''}`}
@@ -52,15 +91,16 @@ export function Slider({
       {/* 상단: 라벨(좌) + descriptor·값(우) */}
       <div className="flex justify-between items-baseline mb-2">
         <span className="text-sm font-medium text-stone-700">{label}</span>
-        <div className={`flex items-baseline gap-1 transition-opacity ${inactive ? 'opacity-30' : ''}`}>
+        <div className={`flex items-baseline gap-1.5 transition-opacity ${inactive ? 'opacity-30' : ''}`}>
           {descriptor && (
             <span className="text-xs text-stone-400">{descriptor}</span>
           )}
           <span
-            className="text-sm font-semibold tabular-nums"
-            style={{ color: inactive ? undefined : 'var(--color-orange)' }}
+            className={`font-bold tabular-nums ${unit ? 'text-2xl' : 'text-sm'}`}
+            style={{ color: inactive ? undefined : 'var(--color-primary)' }}
           >
-            {value}{unit}
+            {value}
+            {unit && <span className="text-base font-semibold ml-0.5">{unit}</span>}
           </span>
           {/* × 리셋 버튼 (활성 optional 슬라이더에만) */}
           {showReset && onReset && (
@@ -143,7 +183,7 @@ export function RoutineCounter({
 
         <span
           className="text-sm font-bold w-8 text-center tabular-nums"
-          style={{ color: isActive ? 'var(--color-orange)' : undefined }}
+          style={{ color: isActive ? 'var(--color-primary)' : undefined }}
         >
           {displayValue}
         </span>
@@ -189,7 +229,7 @@ export function Counter({
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>remove</span>
         </button>
-        <span className="text-sm font-bold w-8 text-center tabular-nums" style={{ color: 'var(--color-orange)' }}>
+        <span className="text-sm font-bold w-8 text-center tabular-nums" style={{ color: 'var(--color-primary)' }}>
           {value}
         </span>
         <button

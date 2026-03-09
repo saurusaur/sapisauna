@@ -31,11 +31,14 @@ export default function SelectButton({
         px-3 py-1.5 rounded-full text-xs font-medium transition-all
         inline-flex items-center gap-1
         ${selected
-          ? 'text-white shadow-sm'
-          : 'glass-chip text-stone-600 hover:bg-white/50'
+          ? 'text-white shadow-md'
+          : 'text-stone-600 hover:shadow-md'
         }
       `}
-      style={selected ? { backgroundColor: color } : {}}
+      style={selected
+        ? { backgroundColor: color }
+        : { background: 'hsl(0 0% 100% / .65)', border: '0.5px solid hsl(0 0% 100% / .8)', boxShadow: '0 2px 8px -2px hsl(0 10% 15% / .08)' }
+      }
     >
       {icon && <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{icon}</span>}
       {label}

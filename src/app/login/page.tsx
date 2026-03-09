@@ -22,7 +22,7 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bath-tile-bg">
       {/* 로고 영역 */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-2 text-stone-700" style={{ fontFamily: 'var(--font-serif)' }}>
+        <h1 className="text-4xl font-bold mb-2 text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>
           {APP.NAME}
         </h1>
         <p className="text-stone-500">{APP.TAGLINE}</p>

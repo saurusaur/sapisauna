@@ -24,12 +24,22 @@ const TYPE_BG_COLORS: Record<string, string> = {
   jimi: 'var(--story-bg-jimi)',
 }
 
-// 타입별 표시 이름 (이탤릭 세리프)
+// 타입별 표시 이름
 const TYPE_DISPLAY_NAMES: Record<string, string> = {
-  saunner: 'Saunner',
-  bather: 'Bather',
-  jimi: 'Jimi',
+  saunner: 'SAUNNER',
+  bather: 'BATHER',
+  jimi: 'JIMI',
 }
+
+// 타입별 점 색상
+const TYPE_DOT_COLORS: Record<string, string> = {
+  saunner: 'var(--color-primary)',
+  bather: 'var(--color-bather)',
+  jimi: 'var(--color-jimi)',
+}
+
+// 요일 약어
+const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
 export default function Story() {
   const router = useRouter()
@@ -38,8 +48,7 @@ export default function Story() {
   const [isLoading, setIsLoading] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
   const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
-  const [showSaveToast, setShowSaveToast] = useState(false)
-  const [bgPhoto, setBgPhoto] = useState<string | null>(null) // 배경 사진 data URL
+  const [bgPhoto, setBgPhoto] = useState<string | null>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const messageTimer = useRef<NodeJS.Timeout>()
 
@@ -64,9 +73,6 @@ export default function Story() {
         const fetched = await getLogById(logId)
         if (fetched) {
           setLog(fetched)
-          // 성공 토스트 표시
-          setShowSaveToast(true)
-          setTimeout(() => setShowSaveToast(false), 3000)
         } else {
           router.replace('/home')
         }
@@ -122,7 +128,6 @@ export default function Story() {
     const reader = new FileReader()
     reader.onload = () => setBgPhoto(reader.result as string)
     reader.readAsDataURL(file)
-    // input 초기화 (같은 파일 재선택 가능하도록)
     e.target.value = ''
   }
 
@@ -136,21 +141,34 @@ export default function Story() {
     switch (log.tribe_id) {
       case 'saunner': {
         const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
-        return { value: String(deltaT), unit: '°C', label: 'temperature delta' }
+        return { value: String(deltaT), unit: '°C', label: 'TEMP DELTA' }
       }
       case 'bather': {
         const temp = log.hot_bath_temp || 40
-        return { value: String(temp), unit: '°C', label: 'immersion temperature' }
+        return { value: String(temp), unit: '°C', label: 'IMMERSION TEMP' }
       }
       case 'jimi': {
         const temp = log.jjim_temp
         return temp
-          ? { value: String(temp), unit: '°C', label: 'jjimjilbang temperature' }
-          : { value: '—', unit: '', label: 'jjimjilbang' }
+          ? { value: String(temp), unit: '°C', label: 'JJIMJILBANG TEMP' }
+          : { value: '—', unit: '', label: 'JJIMJILBANG' }
       }
       default:
         return { value: '', unit: '', label: '' }
     }
+  }
+
+  // 루틴 숫자 뱃지 (입력값이 있는 것만 표시)
+  const getRoutineBadges = () => {
+    if (!log) return []
+    const badges: { value: number; label: string }[] = []
+
+    if (log.heat_time) badges.push({ value: log.heat_time, label: 'HEAT' })
+    if (log.ice_time) badges.push({ value: log.ice_time, label: 'ICE' })
+    if (log.pause_time) badges.push({ value: log.pause_time, label: 'PAUSE' })
+    if (log.repeat) badges.push({ value: log.repeat, label: 'RPT' })
+
+    return badges
   }
 
   const renderGraph = () => {
@@ -186,6 +204,15 @@ export default function Story() {
     }
   }
 
+  // 날짜 포맷: 2026.03.08 · SAT
+  const formatDate = () => {
+    if (!log) return ''
+    const d = new Date(log.record_date || log.date || '')
+    const dateStr = d.toISOString().slice(0, 10).replace(/-/g, '.')
+    const day = DAY_NAMES[d.getDay()]
+    return `${dateStr} · ${day}`
+  }
+
   if (isLoading || !log) {
     return (
       <div className="min-h-screen bath-tile-bg flex items-center justify-center">
@@ -195,51 +222,59 @@ export default function Story() {
   }
 
   const bgColor = TYPE_BG_COLORS[log.tribe_id] || TYPE_BG_COLORS.saunner
-  const displayName = TYPE_DISPLAY_NAMES[log.tribe_id] || 'Saunner'
+  const displayName = TYPE_DISPLAY_NAMES[log.tribe_id] || 'SAUNNER'
+  const dotColor = TYPE_DOT_COLORS[log.tribe_id] || TYPE_DOT_COLORS.saunner
   const metric = getMainMetric()
+  const routineBadges = getRoutineBadges()
 
   return (
     <div className="min-h-screen bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <h1 className="text-lg font-bold text-stone-700">스토리 카드</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              localStorage.removeItem('savedLogId')
-              router.push('/history')
-            }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-100 transition-colors"
-          >
-            내 기록
-          </button>
-          <button
-            onClick={() => {
-              localStorage.removeItem('savedLogId')
-              router.push('/home')
-            }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-100 transition-colors"
-          >
-            홈으로
-          </button>
-        </div>
+      {/* 헤더 — 미니멀 아이콘 */}
+      <header className="flex items-center justify-between px-4 pt-6 pb-2">
+        <button
+          onClick={() => {
+            localStorage.removeItem('savedLogId')
+            router.push('/home')
+          }}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-stone-200/50 transition-colors"
+        >
+          <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>
+            arrow_back
+          </span>
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem('savedLogId')
+            router.push('/home')
+          }}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-stone-200/50 transition-colors"
+        >
+          <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>
+            home
+          </span>
+        </button>
       </header>
 
-      <main className="p-4">
-        {/* 성공 토스트 */}
-        {showSaveToast && (
-          <div className="mb-4 py-2.5 px-4 rounded-xl bg-green/10 text-center animate-fade-in">
-            <p className="text-sm font-medium" style={{ color: 'var(--color-green)' }}>
-              기록이 저장되었어요!
-            </p>
-          </div>
-        )}
+      {/* 성공 토스트 슬롯 — 추후 SaveSuccessToast 컴포넌트 삽입 */}
+      <div className="h-12 px-4" id="toast-slot" />
 
-        {/* 9:16 카드 프리뷰 */}
+      <main className="px-4 pb-8">
+        {/* 장소명 + 날짜 (카드 바깥) */}
+        <div className="text-center mb-4">
+          <h2 className="text-sm font-semibold text-stone-700">{log.place_name}</h2>
+          <p
+            className="text-xs text-stone-400 mt-0.5 italic"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            {formatDate()}
+          </p>
+        </div>
+
+        {/* 9:16 카드 프리뷰 — 풀폭 */}
         <div className="flex justify-center mb-6">
           <div
             ref={cardRef}
-            className="relative w-full max-w-[280px] rounded-2xl overflow-hidden shadow-xl"
+            className="relative w-full rounded-2xl overflow-hidden shadow-xl"
             style={{
               aspectRatio: '9 / 16',
               backgroundColor: bgColor,
@@ -251,86 +286,105 @@ export default function Story() {
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${bgPhoto})` }}
               >
-                {/* 오버레이: 텍스트 가독성 확보 */}
-                <div className="absolute inset-0 bg-black/30" />
+                <div className="absolute inset-0 bg-black/35" />
               </div>
             )}
+
             <div className="relative h-full flex flex-col px-6 py-8">
-              {/* 상단: 장소명 + 날짜 */}
+              {/* 상단: 장소명 + 날짜 (카드 내부) */}
               <div className="text-center">
-                <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-md px-2.5 py-1">
-                  <span
-                    className="material-symbols-outlined text-white/50 leading-none"
-                    style={{ fontSize: '12px' }}
-                  >
-                    onsen
-                  </span>
-                  <h2
-                    className="text-white/50 text-xs font-normal"
-                    style={{ fontFamily: 'var(--font-sans)' }}
-                  >
-                    {log.place_name}
-                  </h2>
-                </div>
+                <h2 className="text-white/60 text-xs font-medium tracking-wide">
+                  {log.place_name}
+                </h2>
                 <p
-                  className="text-white/50 text-[12.5px] mt-1.5 italic"
-                  style={{ fontFamily: 'var(--font-serif)' }}
+                  className="text-white/40 text-[11px] mt-1 italic"
+                  style={{ fontFamily: 'var(--font-heading)' }}
                 >
-                  {new Date(log.record_date || log.date || '').toISOString().slice(0, 10).replace(/-/g, '.')}
+                  {formatDate()}
                 </p>
               </div>
 
-              {/* 중앙: 숫자 + 그래프 (겹침) */}
-              <div className="flex-1 flex flex-col items-center justify-center relative">
-                <div className="text-center z-10 mb-[-40px]">
-                  <p
-                    className="text-white/40 text-[10px] tracking-[0.2em] uppercase mb-2"
-                    style={{ fontFamily: 'var(--font-serif)' }}
+              {/* 중앙: 메인 수치 */}
+              <div className="flex-1 flex flex-col items-center justify-center">
+                {/* 라벨 */}
+                <p
+                  className="text-white/40 text-[10px] tracking-[0.2em] uppercase mb-2"
+                  style={{ fontFamily: 'var(--font-heading)' }}
+                >
+                  {metric.label}
+                </p>
+
+                {/* 큰 숫자 */}
+                <div className="flex items-baseline justify-center">
+                  <span
+                    className="text-white text-8xl font-light tracking-tight"
+                    style={{ fontFamily: 'var(--font-heading)' }}
                   >
-                    {metric.label}
-                  </p>
-                  <div className="flex items-baseline justify-center">
-                    <span
-                      className="text-white text-8xl font-light tracking-tight"
-                      style={{ fontFamily: 'var(--font-serif)' }}
-                    >
-                      {metric.value}
-                    </span>
-                    <span
-                      className="text-white/70 text-2xl font-light ml-1"
-                      style={{ fontFamily: 'var(--font-serif)' }}
-                    >
-                      {metric.unit}
-                    </span>
-                  </div>
+                    {metric.value}
+                  </span>
+                  <span
+                    className="text-white/70 text-2xl font-light ml-1"
+                    style={{ fontFamily: 'var(--font-heading)' }}
+                  >
+                    {metric.unit}
+                  </span>
                 </div>
 
-                <div className="w-full h-[200px]">
+                {/* 루틴 뱃지 (입력값 있을 때만) */}
+                {routineBadges.length > 0 && (
+                  <div className="flex items-center gap-3 mt-5">
+                    {routineBadges.map((badge) => (
+                      <div key={badge.label} className="flex flex-col items-center gap-1">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                          style={{ backgroundColor: 'var(--color-primary)' }}
+                        >
+                          {badge.value}
+                        </div>
+                        <span
+                          className="text-white/40 text-[8px] tracking-wider uppercase"
+                          style={{ fontFamily: 'var(--font-heading)' }}
+                        >
+                          {badge.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 그래프 */}
+                <div className="w-full h-[180px] mt-2">
                   {renderGraph()}
                 </div>
               </div>
 
-              {/* 하단: 타입태그 + 워터마크 */}
-              <div className="text-center">
-                <p
-                  className="text-white/60 text-xs italic mb-1"
-                  style={{ fontFamily: 'var(--font-serif)' }}
-                >
-                  {displayName}
-                </p>
-                <p
-                  className="text-white/20 text-[9px] tracking-[0.25em] uppercase"
-                  style={{ fontFamily: 'var(--font-serif)' }}
+              {/* 하단: 타입 + 워터마크 */}
+              <div className="flex items-end justify-between">
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: dotColor }}
+                  />
+                  <span
+                    className="text-white/60 text-[10px] font-semibold tracking-wider"
+                    style={{ fontFamily: 'var(--font-heading)' }}
+                  >
+                    {displayName}
+                  </span>
+                </div>
+                <span
+                  className="text-white/20 text-[9px] tracking-[0.2em] uppercase"
+                  style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   {APP.NAME}
-                </p>
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 사진 추가/삭제 */}
-        <div className="flex justify-center gap-3 mb-4">
+        {/* 액션 버튼 3개 — 빨간 라운드 사각 */}
+        <div className="flex justify-center gap-4 mb-3">
           <input
             ref={photoInputRef}
             type="file"
@@ -338,87 +392,89 @@ export default function Story() {
             onChange={handleAddPhoto}
             className="hidden"
           />
-          {bgPhoto ? (
-            <button
-              onClick={handleRemovePhoto}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+
+          <button
+            onClick={handleDownload}
+            disabled={isExporting}
+            className="flex flex-col items-center gap-1.5 disabled:opacity-50"
+          >
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md hover:opacity-90 transition-all"
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>delete</span>
-              사진 삭제
-            </button>
-          ) : (
-            <button
-              onClick={() => photoInputRef.current?.click()}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>download</span>
+            </div>
+            <span className="text-[11px] font-medium text-stone-500">저장</span>
+          </button>
+
+          <button
+            onClick={handleShare}
+            disabled={isExporting}
+            className="flex flex-col items-center gap-1.5 disabled:opacity-50"
+          >
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md hover:opacity-90 transition-all"
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add_photo_alternate</span>
-              사진 추가
-            </button>
-          )}
-          {bgPhoto && (
-            <button
-              onClick={() => photoInputRef.current?.click()}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>share</span>
+            </div>
+            <span className="text-[11px] font-medium text-stone-500">공유</span>
+          </button>
+
+          <button
+            onClick={() => bgPhoto ? handleRemovePhoto() : photoInputRef.current?.click()}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-md hover:opacity-90 transition-all ${
+                bgPhoto ? 'border-2 bg-white' : 'text-white'
+              }`}
+              style={bgPhoto
+                ? { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }
+                : { backgroundColor: 'var(--color-primary)' }
+              }
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>swap_horiz</span>
-              사진 변경
-            </button>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
+                {bgPhoto ? 'delete' : 'add_photo_alternate'}
+              </span>
+            </div>
+            <span className="text-[11px] font-medium text-stone-500">
+              {bgPhoto ? '사진 삭제' : '사진'}
+            </span>
+          </button>
+        </div>
+
+        {/* 공유/저장 피드백 */}
+        <div className="h-6 flex items-center justify-center mb-4">
+          {exportMessage && (
+            <p className={`text-sm font-medium ${exportMessage.type === 'success' ? 'text-stone-600' : 'text-red-500'}`}>
+              {exportMessage.text}
+            </p>
           )}
         </div>
 
-        {/* 액션 버튼 */}
-        <div className="space-y-3">
-          <div className="flex gap-3">
-            <button
-              onClick={handleShare}
-              disabled={isExporting}
-              className="flex-1 py-4 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-green)' }}
-            >
-              <span className="material-symbols-outlined">share</span>
-              공유
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={isExporting}
-              className="flex-1 py-4 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-green)' }}
-            >
-              <span className="material-symbols-outlined">download</span>
-              저장
-            </button>
-          </div>
-
-          {/* 공유/저장 피드백 */}
-          <div className="h-6 flex items-center justify-center">
-            {exportMessage && (
-              <p className={`text-sm font-medium ${exportMessage.type === 'success' ? 'text-green' : 'text-red-500'}`}>
-                {exportMessage.text}
-              </p>
-            )}
-          </div>
-
-          {/* 네비게이션 */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                localStorage.removeItem('savedLogId')
-                router.push('/place')
-              }}
-              className="flex-1 py-3.5 rounded-2xl font-semibold text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 transition-all"
-            >
-              한 번 더 기록
-            </button>
-            <button
-              onClick={() => {
-                localStorage.removeItem('savedLogId')
-                router.push('/home')
-              }}
-              className="flex-1 py-3.5 rounded-2xl font-semibold text-stone-400 hover:text-stone-600 transition-all"
-            >
-              홈으로
-            </button>
-          </div>
+        {/* 하단 네비게이션 — 텍스트 링크 */}
+        <div className="flex justify-center gap-8">
+          <button
+            onClick={() => {
+              localStorage.removeItem('savedLogId')
+              router.push('/place')
+            }}
+            className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-700 transition-colors"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
+            추가 기록
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem('savedLogId')
+              router.push('/history')
+            }}
+            className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-700 transition-colors"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>schedule</span>
+            지난 기록
+          </button>
         </div>
       </main>
     </div>
