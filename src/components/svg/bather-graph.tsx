@@ -57,7 +57,7 @@ export default function BatherGraph({ waterQuality, hotBathTemp, coldBathTemp }:
   }
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" preserveAspectRatio="xMinYMid meet">
       <defs>
         {/* 가장자리 페이드아웃 마스크 */}
         <radialGradient id="bather-fade" cx="50%" cy="50%" r="50%">

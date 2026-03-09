@@ -134,7 +134,7 @@ export default function SaunnerGraph({ saunaTemp, coldBathTemp, repeat, totono_s
   }
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMinYMid meet">
       <defs>
         {/* 디퓨즈 글로우 필터 (totono_score에 따라 블러 크기 조절) */}
         <filter id="saunner-diffuse" x="-50%" y="-40%" width="160%" height="190%">

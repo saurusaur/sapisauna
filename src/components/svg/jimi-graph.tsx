@@ -88,7 +88,7 @@ export default function JimiGraph({ restQuality, jjimTemp }: JimiGraphProps) {
   const waveAmplitude = 4 + (1 - fillRatio) * 6
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" preserveAspectRatio="xMinYMid meet">
       <defs>
         {/* 세련된 디퓨즈 글로우 */}
         <filter id="jimi-diffuse-glow" x="-50%" y="-50%" width="200%" height="200%">

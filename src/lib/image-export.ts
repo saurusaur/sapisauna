@@ -8,15 +8,13 @@ import { toBlob } from 'html-to-image'
 
 /**
  * DOM 요소를 이미지로 캡처
- * 캡처 대상은 고정 픽셀 크기여야 함
- * 출력: ~1080×1920 (인스타 스토리 규격)
+ * 카드는 1080×1920 고정 크기 — pixelRatio 1:1 캡처
  */
 export async function captureCard(element: HTMLElement): Promise<Blob> {
-  const scale = 1080 / element.offsetWidth
   const blob = await toBlob(element, {
-    width: element.offsetWidth,
-    height: element.offsetHeight,
-    pixelRatio: scale,
+    width: 1080,
+    height: 1920,
+    pixelRatio: 1,
     cacheBust: true,
   })
 
