@@ -39,6 +39,8 @@ export default function Story() {
   const [isExporting, setIsExporting] = useState(false)
   const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const [showSaveToast, setShowSaveToast] = useState(false)
+  const [bgPhoto, setBgPhoto] = useState<string | null>(null) // 배경 사진 data URL
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const messageTimer = useRef<NodeJS.Timeout>()
 
   const showMessage = useCallback((text: string, type: 'success' | 'error') => {
@@ -112,6 +114,20 @@ export default function Story() {
       setIsExporting(false)
     }
   }
+
+  // 사진 추가
+  const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setBgPhoto(reader.result as string)
+    reader.readAsDataURL(file)
+    // input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = ''
+  }
+
+  // 사진 삭제 → 트라이브 기본 배경 복원
+  const handleRemovePhoto = () => setBgPhoto(null)
 
   // 타입별 메인 수치
   const getMainMetric = () => {
@@ -229,7 +245,17 @@ export default function Story() {
               backgroundColor: bgColor,
             }}
           >
-            <div className="h-full flex flex-col px-6 py-8">
+            {/* 배경 사진 레이어 */}
+            {bgPhoto && (
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${bgPhoto})` }}
+              >
+                {/* 오버레이: 텍스트 가독성 확보 */}
+                <div className="absolute inset-0 bg-black/30" />
+              </div>
+            )}
+            <div className="relative h-full flex flex-col px-6 py-8">
               {/* 상단: 장소명 + 날짜 */}
               <div className="text-center">
                 <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-md px-2.5 py-1">
@@ -301,6 +327,43 @@ export default function Story() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 사진 추가/삭제 */}
+        <div className="flex justify-center gap-3 mb-4">
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAddPhoto}
+            className="hidden"
+          />
+          {bgPhoto ? (
+            <button
+              onClick={handleRemovePhoto}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>delete</span>
+              사진 삭제
+            </button>
+          ) : (
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add_photo_alternate</span>
+              사진 추가
+            </button>
+          )}
+          {bgPhoto && (
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>swap_horiz</span>
+              사진 변경
+            </button>
+          )}
         </div>
 
         {/* 액션 버튼 */}

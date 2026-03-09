@@ -338,7 +338,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         {/* 스토리 만들기 버튼 */}
         <button
           onClick={() => {
-            localStorage.setItem('currentLog', JSON.stringify(log))
+            localStorage.setItem('savedLogId', log.id)
             router.push('/story')
           }}
           className="w-full py-4 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-all"
