@@ -41,7 +41,7 @@ export default function Home() {
     return (
       <div className="min-h-screen pb-24 bath-tile-bg">
         <header className="p-5 pt-8">
-          <h1 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-heading)' }}>
+          <h1 className="text-3xl font-extrabold italic" style={{ fontFamily: 'var(--font-heading)' }}>
             HELLO{' '}
             <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
           </h1>
@@ -72,7 +72,7 @@ export default function Home() {
       {/* 헤더 */}
       <header className="p-5 pt-8">
         <h1
-          className="text-3xl font-bold italic"
+          className="text-3xl font-extrabold italic"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
           HELLO{' '}

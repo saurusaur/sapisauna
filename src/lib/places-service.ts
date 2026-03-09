@@ -33,7 +33,7 @@ function toPlace(row: Record<string, unknown>): Place {
     updated_at: row.updated_at as string,
     name,
     address,
-    short_address: generateShortAddress(address),
+    short_address: generateShortAddress(address, (row.country_code as string) || 'KR'),
     sources,
   }
 }

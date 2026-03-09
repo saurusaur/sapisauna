@@ -46,9 +46,9 @@ export default function FilterControls({
                 {/* 필터 버튼 */}
                 <button
                     onClick={onToggleFilters}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all relative shadow-sm ${hasActiveFilters
-                        ? 'text-white'
-                        : 'bg-white text-stone-600'
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all relative ${hasActiveFilters
+                        ? 'text-white shadow-md'
+                        : 'glass-card-light text-stone-600'
                         }`}
                     style={hasActiveFilters ? { backgroundColor: 'var(--color-green)' } : {}}
                 >
@@ -80,9 +80,10 @@ export default function FilterControls({
                             key={s.key}
                             onClick={() => onSortChange(s.key)}
                             className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
-                                ? 'bg-stone-700 text-white'
-                                : 'text-stone-400 hover:text-stone-600'
+                                ? 'text-white shadow-md'
+                                : 'glass-card-light text-stone-500 hover:text-stone-700'
                                 }`}
+                            style={sortType === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
                         >
                             {s.label}
                         </button>

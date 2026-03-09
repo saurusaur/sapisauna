@@ -94,64 +94,78 @@ export default function PlaceDetailPage() {
 
   return (
     <div className="min-h-screen pb-24 bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">{ICONS.BACK}</span>
-          </button>
-          <h1 className="text-lg font-bold text-stone-700">{place.name}</h1>
-        </div>
-        <button onClick={() => toggleFavorite(placeId)} className="p-2">
-          <span
-            className="material-symbols-outlined text-2xl"
-            style={{ color: isFavoritedPlace ? 'var(--color-green)' : '#d6d3d1' }}
-          >
-            {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
-          </span>
+      {/* A. 헤더 — 투명, ← 만 */}
+      <header className="p-4 flex items-center justify-between">
+        <button
+          onClick={() => router.back()}
+          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          <span className="material-symbols-outlined">{ICONS.BACK}</span>
         </button>
       </header>
 
       <main className="p-4 space-y-4">
-        {/* 장소 정보 카드 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
-              <p className="text-sm text-stone-500 mt-1">{place.address}</p>
-              {place.is_24h && <span className="inline-block mt-2"><Badge24h /></span>}
+        {/* B. 장소 정보 카드 — 평점 통합 + 하트 이름과 같은 줄 */}
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
+            {place.is_24h && <Badge24h />}
+            <div onClick={() => toggleFavorite(placeId)} className="ml-auto flex-shrink-0 cursor-pointer">
+              <span
+                className="material-symbols-outlined text-lg"
+                style={{ color: isFavoritedPlace ? 'var(--color-primary)' : '#d6d3d1' }}
+              >
+                {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+              </span>
             </div>
           </div>
+          <p className="text-xs text-stone-400 mt-1">{place.address}</p>
 
-          {/* 지도 링크 */}
-          <div className="flex gap-3 mt-4">
-            <a
-              href={naverMapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-50 text-stone-600 text-sm hover:bg-stone-100 transition-colors"
-            >
-              <span className="material-symbols-outlined text-base">{ICONS.MAP}</span>
-              {PLACE_DETAIL.NAVER_MAP}
-            </a>
+          {/* 평점 통합 */}
+          {stats.count > 0 && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
+                또 갈래요 {stats.avg}
+              </span>
+              <span className="text-sm text-stone-400">
+                · {EXPLORE.LOG_COUNT(stats.count)}
+              </span>
+            </div>
+          )}
+
+          {/* 지도 링크 — 국내: 네이버+구글, 해외: 구글만 */}
+          <div className="flex items-center gap-3 mt-3">
+            {place.country_code === 'KR' && (
+              <>
+                <a
+                  href={naverMapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs font-medium transition-colors hover:opacity-70"
+                  style={{ color: 'var(--color-primary)' }}
+                >
+                  {PLACE_DETAIL.NAVER_MAP}
+                  <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                </a>
+                <span className="text-stone-300">|</span>
+              </>
+            )}
             <a
               href={googleMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-50 text-stone-600 text-sm hover:bg-stone-100 transition-colors"
+              className="flex items-center gap-1 text-xs font-medium transition-colors hover:opacity-70"
+              style={{ color: 'var(--color-primary)' }}
             >
-              <span className="material-symbols-outlined text-base">public</span>
               {PLACE_DETAIL.GOOGLE_MAP}
+              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
             </a>
           </div>
         </div>
 
-        {/* 시설 정보 */}
+        {/* C. 시설 정보 — glass-card */}
         {facilityGroups.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="glass-card p-4">
             <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.FACILITIES}</h3>
             <div className="space-y-3">
               {facilityGroups.map((group) => (
@@ -168,9 +182,9 @@ export default function PlaceDetailPage() {
           </div>
         )}
 
-        {/* 편의시설 */}
+        {/* D. 편의시설 — glass-card */}
         {amenities.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="glass-card p-4">
             <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.AMENITIES}</h3>
             <div className="flex flex-wrap gap-1.5">
               {amenities.map((a) => (
@@ -180,24 +194,9 @@ export default function PlaceDetailPage() {
           </div>
         )}
 
-        {/* 평균 평가 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.AVG_RATING}</h3>
-          {stats.count > 0 ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold" style={{ color: 'var(--color-orange)' }}>
-                또 갈래요 {stats.avg}
-              </span>
-              <span className="text-sm text-stone-400">
-                · {EXPLORE.LOG_COUNT(stats.count)}
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm text-stone-400">{PLACE_DETAIL.NO_LOGS}</p>
-          )}
-        </div>
+        {/* E. 평균 평가 — B에 통합됨, 삭제 */}
 
-        {/* 이 장소의 기록 리스트 */}
+        {/* F. 이 장소의 기록 리스트 */}
         <div>
           <h3 className="text-sm font-semibold text-stone-500 mb-3">{PLACE_DETAIL.LOGS_TITLE}</h3>
 
@@ -211,11 +210,12 @@ export default function PlaceDetailPage() {
                 />
               ))}
 
-              {/* 더보기 */}
+              {/* 더보기 — 레드 텍스트 링크 */}
               {!showAllLogs && placeLogs.length > 3 && (
                 <button
                   onClick={() => setShowAllLogs(true)}
-                  className="w-full text-center text-sm text-stone-400 hover:text-stone-600 py-2 bg-white rounded-xl shadow-sm"
+                  className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
+                  style={{ color: 'var(--color-primary)' }}
                 >
                   {PLACE_DETAIL.MORE_LOGS} ({placeLogs.length - 3}건 더)
                 </button>
@@ -225,12 +225,15 @@ export default function PlaceDetailPage() {
         </div>
       </main>
 
-      {/* CTA 버튼 (하단 고정) */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-sm border-t border-stone-200">
+      {/* G. CTA 버튼 — 퀵/딥로그와 동일 스타일 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={handleRecord}
-          className="w-full py-3 rounded-xl text-white font-semibold text-base hover:opacity-90 transition-all"
-          style={{ backgroundColor: 'var(--color-green)' }}
+          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto"
+          style={{
+            backgroundColor: 'var(--color-primary)',
+            boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)',
+          }}
         >
           {PLACE_DETAIL.RECORD_CTA}
         </button>

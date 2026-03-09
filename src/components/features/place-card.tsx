@@ -13,8 +13,8 @@ import Chip from '@/components/ui/chip'
 export function Badge24h() {
     return (
         <span
-            className="text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 text-white"
-            style={{ backgroundColor: 'var(--color-accent)' }}
+            className="text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
+            style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
         >
             24H
         </span>
@@ -49,43 +49,41 @@ export default function PlaceCard({
     const { stats } = usePlaceStats(place.id)
     const showFavorite = onToggleFavorite !== undefined
 
-    // 공통: 이름 + 24h + 주소 헤더
+    // 공통: 이름 + 24h + 좋아요 + 주소 헤더
     const placeHeader = (
         <>
             <div className="flex items-center gap-2">
                 <span className="font-medium text-sm text-stone-700 truncate">{place.name}</span>
                 {place.is_24h && <Badge24h />}
+                {showFavorite && (
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onToggleFavorite()
+                        }}
+                        className="ml-auto flex-shrink-0"
+                    >
+                        <span
+                            className="material-symbols-outlined text-sm"
+                            style={{ color: isFavorited ? 'var(--color-primary)' : '#d6d3d1' }}
+                        >
+                            {isFavorited ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+                        </span>
+                    </div>
+                )}
             </div>
             <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
         </>
     )
 
-    // 공통: 즐겨찾기 버튼
-    const favoriteButton = showFavorite && (
-        <div
-            onClick={(e) => {
-                e.stopPropagation()
-                onToggleFavorite()
-            }}
-            className="p-1 flex-shrink-0 ml-2"
-        >
-            <span
-                className="material-symbols-outlined text-lg"
-                style={{ color: isFavorited ? 'var(--color-primary)' : '#d6d3d1' }}
-            >
-                {isFavorited ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
-            </span>
-        </div>
-    )
-
     // 공통: 시설 칩
     const facilityChips = place.facilities.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-1">
-            {sortFacilities(place.facilities).slice(0, 4).map((f) => (
+            {sortFacilities(place.facilities).slice(0, 3).map((f) => (
                 <Chip key={f} label={getFacilityLabel(f)} size="sm" />
             ))}
-            {place.facilities.length > 4 && (
-                <Chip label={`+${place.facilities.length - 4}`} size="sm" />
+            {place.facilities.length > 3 && (
+                <Chip label={`+${place.facilities.length - 3}`} size="sm" />
             )}
         </div>
     )
@@ -105,13 +103,10 @@ export default function PlaceCard({
         return (
             <button
                 onClick={onClick}
-                className="w-full glass-card p-3 text-left hover:shadow-md transition-all flex items-start justify-between"
+                className="w-full glass-card p-3 text-left hover:shadow-md transition-all"
             >
-                <div className="flex-1 min-w-0">
-                    {placeHeader}
-                    {stats.count > 0 && <div className="mt-1">{scoreDisplay}</div>}
-                </div>
-                {favoriteButton}
+                {placeHeader}
+                {stats.count > 0 && <div className="mt-1">{scoreDisplay}</div>}
             </button>
         )
     }
@@ -122,10 +117,7 @@ export default function PlaceCard({
             onClick={onClick}
             className="w-full glass-card p-3 text-left hover:shadow-md transition-all"
         >
-            <div className="flex items-start justify-between mb-1">
-                <div className="flex-1 min-w-0">{placeHeader}</div>
-                {favoriteButton}
-            </div>
+            <div className="mb-1">{placeHeader}</div>
             {facilityChips}
             {scoreDisplay}
         </button>

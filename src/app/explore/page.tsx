@@ -22,9 +22,9 @@ import { useExploreFilters } from '@/hooks/use-explore-filters'
 
 // 추천 탭 라벨 매핑
 const recTabLabel: Record<string, string> = {
-  saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner`,
-  bather: `${TRIBE_EMOJI_MAP['bather']} Bather`,
-  jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi`,
+  saunner: `${TRIBE_EMOJI_MAP['saunner']} SAUNNER`,
+  bather: `${TRIBE_EMOJI_MAP['bather']} BATHER`,
+  jimi: `${TRIBE_EMOJI_MAP['jimi']} JIMI`,
 }
 
 export default function ExplorePage() {
@@ -195,15 +195,20 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen pb-20 bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm">
-        <h1 className="text-xl font-bold text-stone-700">{EXPLORE.TITLE}</h1>
+      {/* 헤더 — 홈과 동일 스타일 */}
+      <header className="p-5 pt-8">
+        <h1
+          className="text-3xl font-extrabold italic"
+          style={{ fontFamily: 'var(--font-heading)' }}
+        >
+          EXPLORE
+        </h1>
       </header>
 
       <main className="p-4">
         {/* 검색바 */}
-        <div className="relative mb-4">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl">
+        <div className="relative mb-4 group">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl transition-colors group-focus-within:text-[var(--color-primary)]">
             {ICONS.SEARCH}
           </span>
           <input
@@ -212,7 +217,7 @@ export default function ExplorePage() {
             placeholder={EXPLORE.SEARCH_PLACEHOLDER}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-white rounded-xl shadow-sm text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
+            className="w-full pl-10 pr-10 py-3 glass-input text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
           />
           {searchQuery && (
             <button
@@ -250,7 +255,7 @@ export default function ExplorePage() {
                 <h2 className="text-sm font-semibold text-stone-500">
                   TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
                 </h2>
-                <span className="material-symbols-outlined text-base text-stone-400">
+                <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-primary)' }}>
                   {showRecommendations ? 'expand_less' : 'expand_more'}
                 </span>
               </button>
@@ -353,10 +358,10 @@ export default function ExplorePage() {
                         searchRef.current?.focus()
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
-                      className="w-full py-4 rounded-xl border border-dashed border-stone-300 flex items-center justify-center gap-2 text-stone-400 hover:text-stone-600 hover:border-stone-400 transition-all text-sm"
+                      className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
+                      style={{ color: 'var(--color-primary)' }}
                     >
-                      <span className="material-symbols-outlined text-base">{ICONS.SEARCH}</span>
-                      검색으로 더 찾아보세요
+                      검색으로 더 찾아보기
                     </button>
                   )}
                 </div>

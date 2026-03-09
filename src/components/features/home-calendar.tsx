@@ -203,12 +203,12 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate }: HomeC
             isOtherMonth
               ? 'text-stone-300'
               : isToday
-                ? 'font-bold text-white w-6 h-6 rounded-full flex items-center justify-center'
+                ? 'font-bold'
                 : isSelected
                   ? 'font-bold text-stone-700'
                   : 'text-stone-600'
           }`}
-          style={isToday && !isOtherMonth ? { backgroundColor: 'var(--color-primary)' } : undefined}
+          style={isToday && !isOtherMonth ? { color: 'var(--color-primary)' } : undefined}
         >
           {date.getDate()}
         </span>

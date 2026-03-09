@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE,
-  TRIBE_EMOJI_MAP, TRIBE_IDS, FALLBACK_TRIBE,
+  TRIBE_EMOJI_MAP, TRIBE_COLORS, TRIBE_IDS, FALLBACK_TRIBE,
 } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
@@ -20,11 +20,25 @@ const VALID_TYPES = TRIBE_IDS
 
 
 
-// 타입 드롭다운 라벨 매핑
+// 타입 드롭다운 라벨 매핑 (영문)
 const typeDropdownLabel: Record<string, string> = {
-  saunner: `${TRIBE_EMOJI_MAP['saunner']} Saunner 추천`,
-  bather: `${TRIBE_EMOJI_MAP['bather']} Bather 추천`,
-  jimi: `${TRIBE_EMOJI_MAP['jimi']} Jimi 추천`,
+  saunner: 'Saunner',
+  bather: 'Bather',
+  jimi: 'Jimi',
+}
+
+// 헤딩용: tribe 이름 / PICKS 분리 (트라이브 컬러 적용용)
+const typeTribeName: Record<string, string> = {
+  saunner: 'SAUNNER',
+  bather: 'BATHER',
+  jimi: 'JIMI',
+}
+
+// 헤딩용 영문 대문자
+const typeHeading: Record<string, string> = {
+  saunner: 'SAUNNER PICKS',
+  bather: 'BATHER PICKS',
+  jimi: 'JIMI PICKS',
 }
 
 export default function TypeListPage() {
@@ -139,8 +153,8 @@ export default function TypeListPage() {
 
   return (
     <div className="min-h-screen pb-8 bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm sticky top-0 z-20">
+      {/* 헤더 — 뒤로가기 + 헤딩 같은 라인 */}
+      <header className="p-5 pt-8">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -149,20 +163,29 @@ export default function TypeListPage() {
             <span className="material-symbols-outlined">{ICONS.BACK}</span>
           </button>
 
+          <h1
+            className="text-2xl font-extrabold italic"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            <span style={{ color: TRIBE_COLORS[currentType as keyof typeof TRIBE_COLORS] }}>
+              {typeTribeName[currentType]}
+            </span>
+            {' '}PICKS
+          </h1>
+
           {/* 타입 드롭다운 */}
-          <div className="relative flex-1">
+          <div className="relative">
             <button
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-              className="flex items-center gap-2 text-lg font-bold text-stone-700"
+              className="flex items-center text-stone-400 hover:text-stone-600 transition-colors"
             >
-              {typeDropdownLabel[currentType]}
-              <span className="material-symbols-outlined text-base text-stone-400">
+              <span className="material-symbols-outlined text-xl">
                 {ICONS.CHEVRON_DOWN}
               </span>
             </button>
 
             {showTypeDropdown && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden z-30 min-w-[200px]">
+              <div className="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden z-30 min-w-[180px]">
                 {VALID_TYPES.map((type) => (
                   <button
                     key={type}
@@ -194,8 +217,8 @@ export default function TypeListPage() {
 
       <main className="p-4">
         {/* 검색바 */}
-        <div className="relative mb-4">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl">
+        <div className="relative mb-4 group">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl transition-colors group-focus-within:text-[var(--color-primary)]">
             {ICONS.SEARCH}
           </span>
           <input
@@ -203,7 +226,7 @@ export default function TypeListPage() {
             placeholder={EXPLORE.SEARCH_PLACEHOLDER}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-white rounded-xl shadow-sm text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
+            className="w-full pl-10 pr-10 py-3 glass-input text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
           />
           {searchQuery && (
             <button

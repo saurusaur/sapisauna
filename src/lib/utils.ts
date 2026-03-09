@@ -150,14 +150,27 @@ export function getRestQualityLabel(score: number): string {
 }
 
 /**
- * 주소에서 짧은 주소 생성 (예: "서울특별시 강남구 영동대로 513" → "서울 강남구")
+ * 주소에서 짧은 주소 생성
+ * - 한국: "서울특별시 강남구 영동대로 513" → "서울 강남구"
+ * - 해외: "123 Main St, Brooklyn, New York" → "Brooklyn, New York"
  */
-export function generateShortAddress(address: string): string {
+export function generateShortAddress(address: string, countryCode?: string): string {
   if (!address) return ''
+
+  // 해외 주소: 숫자/기호 제거 → 콤마 있으면 콤마로, 없으면 공백으로 분리 → 뒤에서 2개
+  if (countryCode && countryCode !== 'KR') {
+    const cleaned = address.replace(/[〒#\d-]+/g, '').replace(/\s+/g, ' ').trim()
+    const hasComma = cleaned.includes(',')
+    const parts = hasComma
+      ? cleaned.split(',').map(p => p.trim()).filter(Boolean)
+      : cleaned.split(/\s+/).filter(Boolean)
+    if (parts.length >= 2) return parts.slice(-2).join(hasComma ? ', ' : ' ')
+    return parts[0] || address
+  }
+
+  // 한국 주소: 앞에서 2개(시/도, 구/군)
   const parts = address.split(/\s+/)
   if (parts.length < 2) return address
-
-  // "서울특별시" → "서울", "경기도" → "경기" 등
   const city = parts[0]
     .replace(/특별시|광역시|특별자치시|특별자치도/, '')
     .replace(/도$/, '')

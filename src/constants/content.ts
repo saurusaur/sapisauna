@@ -480,7 +480,7 @@ export const MESSAGES = {
     NO_RECORDS: '아직 기록이 없어요',
     RECENT_RECORDS: '최근 기록',
     TODAY: '오늘',
-    VIEW_ALL: '전체보기',
+    VIEW_ALL: '기록 전체보기',
     TOOLTIP_CTA: '오늘 사우나 어땠어요?',
     EMPTY_RECORD: {
       saunner: '사우나 가고싶다..',
@@ -621,8 +621,8 @@ export const PLACE_DETAIL = {
   LOGS_TITLE: '이 장소의 기록',
   MORE_LOGS: '더보기',
   RECORD_CTA: '이 장소에서 기록하기',
-  NAVER_MAP: 'Naver Map',
-  GOOGLE_MAP: 'Google Maps',
+  NAVER_MAP: '네이버 지도',
+  GOOGLE_MAP: '구글 지도',
 }
 
 // ============================================

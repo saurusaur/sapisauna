@@ -49,38 +49,49 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t z-50" style={{ borderColor: 'var(--color-border)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Glass 배경 레이어 — 버튼 뒤에 깔림 */}
+      <div className="absolute inset-0 backdrop-blur-xl"
+        style={{
+          background: 'hsl(var(--glass))',
+          borderTop: '0.5px solid hsl(var(--glass-border))',
+          boxShadow: '0 -8px 32px -4px hsl(0 10% 15% / .06)',
+        }}
+      />
+      {/* Center raised: + 기록 버튼 — nav 위로 삐져나옴 */}
+      <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-10 flex flex-col items-center">
+        {/* 말풍선 tooltip */}
+        {showTooltip && (
+          <div className="absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <div
+              className="px-3 py-1.5 rounded-lg text-white text-[11px] font-medium shadow-md relative"
+              style={{ backgroundColor: 'var(--color-green)' }}
+            >
+              {MESSAGES.HOME.TOOLTIP_CTA}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 rotate-45"
+                style={{ backgroundColor: 'var(--color-green)' }}
+              />
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => router.push('/place')}
+          className="flex items-center gap-1 px-6 py-3 rounded-full text-white font-semibold shadow-lg transition-all hover:shadow-xl hover:scale-105 active:scale-95"
+          style={{ backgroundColor: 'var(--color-green)' }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
+          <span className="text-sm">{NAV.ADD_RECORD}</span>
+        </button>
+      </div>
+
       <div className="flex items-end justify-around py-2 max-w-md mx-auto relative">
         {/* 좌측 탭들 */}
         {LEFT_TABS.map(renderTab)}
 
-        {/* Center raised: + 기록 버튼 */}
-        <div className="flex flex-col items-center relative -mt-7">
-          {/* 말풍선 tooltip */}
-          {showTooltip && (
-            <div className="absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <div
-                className="px-3 py-1.5 rounded-lg text-white text-[11px] font-medium shadow-md relative"
-                style={{ backgroundColor: 'var(--color-green)' }}
-              >
-                {MESSAGES.HOME.TOOLTIP_CTA}
-                <div
-                  className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 rotate-45"
-                  style={{ backgroundColor: 'var(--color-green)' }}
-                />
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={() => router.push('/place')}
-            className="flex items-center gap-1 px-6 py-3 rounded-full text-white font-semibold shadow-xl transition-all hover:shadow-2xl hover:scale-105 active:scale-95 border-4 border-white"
-            style={{ backgroundColor: 'var(--color-green)' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
-            <span className="text-sm">{NAV.ADD_RECORD}</span>
-          </button>
-        </div>
+        {/* 중앙 빈 공간 — 버튼 자리 확보 */}
+        <div className="min-w-[120px]" />
 
         {/* 우측 탭들 */}
         {RIGHT_TABS.map(renderTab)}

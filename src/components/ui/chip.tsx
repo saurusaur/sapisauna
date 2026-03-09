@@ -35,8 +35,8 @@ export default function Chip({
   const stateClass = selected
     ? 'text-white shadow-sm'
     : isInteractive
-      ? 'glass-chip text-stone-600 hover:bg-white/50'
-      : 'glass-chip text-stone-500'
+      ? 'glass-chip shadow-sm text-stone-600 hover:bg-white/50'
+      : 'glass-chip shadow-sm text-stone-500'
 
   const Tag = isInteractive ? 'button' : 'span'
 

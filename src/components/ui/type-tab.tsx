@@ -25,17 +25,13 @@ export default function TypeTab({
     <button
       onClick={onClick}
       className={`
-        px-2.5 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap
+        px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap
         ${active
-          ? 'shadow-sm border'
-          : 'glass-chip text-stone-500 hover:bg-white/50'
+          ? 'text-white shadow-md'
+          : 'glass-card-light text-stone-500 hover:text-stone-700'
         }
       `}
-      style={active ? {
-        backgroundColor: `color-mix(in srgb, ${color} 15%, white)`,
-        borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
-        color: color,
-      } : {}}
+      style={active ? { backgroundColor: color } : {}}
     >
       {label}
     </button>
