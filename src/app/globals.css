@@ -94,6 +94,16 @@ body {
   border-radius: var(--radius);
 }
 
+.glass-card-light {
+  background: hsl(var(--glass));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 0.5px solid hsl(var(--glass-border));
+  box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08),
+              0 0 0 .5px hsl(0 0% 100% / .3);
+  border-radius: var(--radius);
+}
+
 .glass-input {
   background: hsl(0 0% 100% / .5);
   backdrop-filter: blur(8px);

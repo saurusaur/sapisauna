@@ -11,7 +11,6 @@ interface HomeCalendarProps {
   logs: LogWithPlace[]
   selectedDate: string
   onSelectDate: (date: string) => void
-  onViewAll?: () => void
 }
 
 // 월요일 시작 기준으로 해당 날짜가 속한 주의 7일 반환
@@ -65,7 +64,7 @@ function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewAll }: HomeCalendarProps) {
+export default function HomeCalendar({ logs, selectedDate, onSelectDate }: HomeCalendarProps) {
   const [expanded, setExpanded] = useState(false)
   const [weekBase, setWeekBase] = useState(() => new Date())
   const [monthView, setMonthView] = useState(() => {
@@ -195,8 +194,8 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
       <button
         key={key}
         onClick={() => onSelectDate(key)}
-        className={`py-2 flex flex-col items-center gap-1 rounded-lg transition-all ${
-          isSelected ? 'bg-stone-100' : ''
+        className={`py-1.5 flex flex-col items-center gap-0.5 rounded-lg transition-all ${
+          isSelected ? 'bg-[var(--color-primary-light)]' : ''
         }`}
       >
         <span
@@ -204,11 +203,12 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
             isOtherMonth
               ? 'text-stone-300'
               : isToday
-                ? 'font-bold text-white bg-stone-700 w-6 h-6 rounded-full flex items-center justify-center'
+                ? 'font-bold text-white w-6 h-6 rounded-full flex items-center justify-center'
                 : isSelected
                   ? 'font-bold text-stone-700'
                   : 'text-stone-600'
           }`}
+          style={isToday && !isOtherMonth ? { backgroundColor: 'var(--color-primary)' } : undefined}
         >
           {date.getDate()}
         </span>
@@ -226,40 +226,41 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
     )
   }
 
-  // 표시할 월
+  // 표시할 월 — 주간/월간 동일 형식
   const displayMonth = useMemo(() => {
     if (expanded) {
       return `${monthView.year}년 ${monthView.month + 1}월`
     }
-    // 주간 뷰: weekMonth 기준 (연도가 다르면 연도도 표시)
     const refDate = weekDays.find(d => d.getMonth() === weekMonth) || weekDays[3]
-    const now = new Date()
-    if (refDate.getFullYear() !== now.getFullYear()) {
-      return `${refDate.getFullYear()}년 ${weekMonth + 1}월`
-    }
-    return `${weekMonth + 1}월`
+    return `${refDate.getFullYear()}년 ${weekMonth + 1}월`
   }, [expanded, monthView, weekDays, weekMonth])
 
   return (
-    <div className="bg-white rounded-xl shadow-sm">
-      {/* 상단: 월 + 오늘 + 기록 전체보기 */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <span className="font-bold text-stone-700 text-base">{displayMonth}</span>
-        <div className="flex items-center gap-3">
+    <div className="glass-card px-4 pt-3 pb-1">
+      {/* 상단: < 월 > + 오늘 */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
           <button
-            onClick={goToToday}
-            className="text-xs font-medium px-2 py-1 rounded-md text-stone-500 hover:bg-stone-100 transition-colors"
+            onClick={expanded ? goToPrevMonth : goToPrevWeek}
+            className="p-0.5 text-stone-400 hover:text-stone-600 transition-colors"
           >
-            {MESSAGES.HOME.TODAY}
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
           </button>
+          <span className="font-bold text-stone-700 text-base min-w-[90px] text-center">{displayMonth}</span>
           <button
-            onClick={onViewAll}
-            className="text-xs font-medium text-stone-400 hover:text-stone-600 transition-colors flex items-center gap-0.5"
+            onClick={expanded ? goToNextMonth : goToNextWeek}
+            className="p-0.5 text-stone-400 hover:text-stone-600 transition-colors"
           >
-            {MESSAGES.HOME.VIEW_ALL}
-            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
           </button>
         </div>
+        <button
+          onClick={goToToday}
+          className="text-xs font-semibold px-2 py-1 rounded-md hover:bg-stone-100 transition-colors"
+          style={{ color: 'var(--color-primary)' }}
+        >
+          {MESSAGES.HOME.TODAY}
+        </button>
       </div>
 
       {/* 달력 영역 — 스와이프 대상 */}
@@ -267,53 +268,34 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, onViewA
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="px-2 relative"
         style={{ touchAction: 'pan-y' }}
       >
-        {/* 좌측 화살표 */}
-        <button
-          onClick={expanded ? goToPrevMonth : goToPrevWeek}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 text-stone-300 hover:text-stone-500 transition-colors"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_left</span>
-        </button>
-
-        {/* 우측 화살표 */}
-        <button
-          onClick={expanded ? goToNextMonth : goToNextWeek}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 text-stone-300 hover:text-stone-500 transition-colors"
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
-        </button>
-
-        <div className="px-5">
-          {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 mb-1">
-            {WEEKDAYS.map((day) => (
-              <div key={day} className="text-center text-xs font-medium text-stone-400 py-1">
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* 주간 뷰 */}
-          {!expanded && (
-            <div className="grid grid-cols-7">
-              {weekDays.map((date) => renderDateCell(date, weekMonth))}
+        {/* 요일 헤더 */}
+        <div className="grid grid-cols-7 mb-2">
+          {WEEKDAYS.map((day) => (
+            <div key={day} className="text-center text-xs font-medium text-stone-400 py-1">
+              {day}
             </div>
-          )}
-
-          {/* 월간 뷰 */}
-          {expanded && (
-            <div className="grid grid-cols-7">
-              {monthGrid.map((date) => renderDateCell(date, monthView.month))}
-            </div>
-          )}
+          ))}
         </div>
+
+        {/* 주간 뷰 */}
+        {!expanded && (
+          <div className="grid grid-cols-7">
+            {weekDays.map((date) => renderDateCell(date, weekMonth))}
+          </div>
+        )}
+
+        {/* 월간 뷰 */}
+        {expanded && (
+          <div className="grid grid-cols-7">
+            {monthGrid.map((date) => renderDateCell(date, monthView.month))}
+          </div>
+        )}
       </div>
 
       {/* 확장/축소 chevron */}
-      <div className="flex justify-center pb-2">
+      <div className="flex justify-center pt-1">
         <button
           onClick={() => {
             if (!expanded) {

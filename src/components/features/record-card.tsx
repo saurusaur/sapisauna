@@ -15,7 +15,7 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
     return (
         <button
             onClick={onClick}
-            className="w-full glass-card p-3 text-left hover:shadow-md transition-all"
+            className="w-full glass-card-light p-3 text-left hover:shadow-md transition-all"
         >
             {/* Row1: 장소명 / 딥로그 아이콘 + 타입 이모지 */}
             <div className="flex items-center justify-between mb-1">

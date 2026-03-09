@@ -23,7 +23,9 @@
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
 - [x] [UX] 하단 네비게이션 바 — 5항목 구조(4탭+center raised 기록 버튼), 사-리스트 비활성 플레이스홀더 | priority: P1 | added: 2026-02-28 | done: 2026-03-08
 - [x] [기능] 홈 화면 — 주간/월간 전환 달력 + 날짜별 기록 카드 캐러셀 + 추천 섹션 플레이스홀더. 상세: `docs/plans/home-redesign-plan.md` | priority: P1 | added: 2026-02-28 | done: 2026-03-08
+- [ ] [UX] 기록 추가 흐름 수정 — 숏로그 후 딥로그/스토리 분기 UI 추가 + 스토리 에디터 단순화(사진 추가/삭제만). 상세: `docs/plans/TODO_record_flow_redesign.md` | priority: P1 | added: 2026-03-09
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
+- [ ] [버그] 달력 날짜 1일 밀림 — TIMESTAMPTZ UTC 변환 후 `slice(0,10)`이 로컬 날짜가 아닌 UTC 날짜 추출. 시간 변경 시나리오(자정 근처 기록, 타임존 이동)도 함께 점검. 영향: 홈 달력, 홈 기록 필터, 히스토리 등 `log.date.slice(0,10)` 사용처 전체 | priority: P1 | added: 2026-03-09
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
 - [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
 - [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
