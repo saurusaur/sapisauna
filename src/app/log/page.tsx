@@ -6,6 +6,7 @@ import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, TRIBE_IDS, QUICK_LOG } from '@/con
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import { insertLog, updateLog } from '@/lib/logs-service'
 import { safeParse } from '@/lib/utils'
 import type { TribeId } from '@/types'
 
@@ -45,7 +46,9 @@ export default function QuickLog() {
   // 편집 모드에서 기존 값 보존
   const [editId, setEditId] = useState<string | null>(null)
   const [showBackConfirm, setShowBackConfirm] = useState(false)
-  const [existingDeepLog, setExistingDeepLog] = useState<Record<string, unknown> | null>(null)
+  const [showBranchModal, setShowBranchModal] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // --- 방문 날짜·시간 ---
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -89,7 +92,6 @@ export default function QuickLog() {
         setRecordDate(rd.toISOString().slice(0, 10))
         setRecordHour(rd.getHours())
       }
-      if (log.deep_log) setExistingDeepLog(log.deep_log)
       if (log.tribe_id) setTribeId(log.tribe_id as TribeId)
       if (log.revisit_score) setRevisit(log.revisit_score)
       if (log.repeat) setRepeat(log.repeat)
@@ -120,63 +122,96 @@ export default function QuickLog() {
     return date.toISOString()
   }
 
-  // 저장 처리
-  const handleSave = () => {
-    const logData = {
-      ...(editId && { _editId: editId }),
-      place_id: placeId,
-      place_name: placeName,
-      place_country_code: placeCountryCode,
-      tribe_id: logType,
-      record_date: buildRecordDate(),
-      revisit_score: revisit,
-      // 루틴 (입력된 경우만 포함)
-      ...(heatTime !== null && { heat_time: heatTime }),
-      ...(iceTime !== null && { ice_time: iceTime }),
-      ...(pauseTime !== null && { pause_time: pauseTime }),
-      ...(repeat !== null && { repeat }),
-      // 타입별 데이터
-      ...(logType === 'saunner' && {
-        sauna_temp: saunaTemp,
-        cold_bath_temp: coldBathTemp,
-        totono_score: totono,
-      }),
-      ...(logType === 'bather' && {
-        hot_bath_temp: hotBathTemp,
-        ...(batherColdEnabled && { cold_bath_temp: batherColdBathTemp }),
-        water_quality: waterQuality,
-      }),
-      ...(logType === 'jimi' && {
-        jjim_temp: jjimTemp,
-        rest_quality: restQuality,
-      }),
-      // 기존 deep_log 보존 (숏기록 수정 후 다시 저장할 때 deep_log가 날아가지 않도록)
-      ...(existingDeepLog && { deep_log: existingDeepLog }),
-    }
+  // 폼 데이터 수집
+  const buildLogData = () => ({
+    ...(editId && { _editId: editId }),
+    place_id: placeId,
+    place_name: placeName,
+    place_country_code: placeCountryCode,
+    tribe_id: logType,
+    record_date: buildRecordDate(),
+    revisit_score: revisit,
+    // 루틴 (입력된 경우만 포함)
+    ...(heatTime !== null && { heat_time: heatTime }),
+    ...(iceTime !== null && { ice_time: iceTime }),
+    ...(pauseTime !== null && { pause_time: pauseTime }),
+    ...(repeat !== null && { repeat }),
+    // 타입별 데이터
+    ...(logType === 'saunner' && {
+      sauna_temp: saunaTemp,
+      cold_bath_temp: coldBathTemp,
+      totono_score: totono,
+    }),
+    ...(logType === 'bather' && {
+      hot_bath_temp: hotBathTemp,
+      ...(batherColdEnabled && { cold_bath_temp: batherColdBathTemp }),
+      water_quality: waterQuality,
+    }),
+    ...(logType === 'jimi' && {
+      jjim_temp: jjimTemp,
+      rest_quality: restQuality,
+    }),
+  })
 
+  // 완료 버튼 → 분기 모달 열기
+  const handleComplete = () => {
+    const logData = buildLogData()
+    // 기존 deep_log 보존 (편집 모드에서 히스토리가 넣어준 deep_log가 유실되지 않도록)
+    const existing = safeParse<Record<string, unknown>>(localStorage.getItem('currentLog') || '{}', {})
+    if (existing.deep_log) {
+      (logData as Record<string, unknown>).deep_log = existing.deep_log
+    }
     localStorage.setItem('currentLog', JSON.stringify(logData))
-    router.push('/story')
+    setSaveError(null)
+    setShowBranchModal(true)
+  }
+
+  // "바로 스토리로" → DB 저장 후 스토리 이동
+  const handleDirectStory = async () => {
+    setIsSaving(true)
+    setSaveError(null)
+    try {
+      const logData = buildLogData()
+      let logId: string
+
+      if (editId) {
+        await updateLog(editId, logData)
+        logId = editId
+      } else {
+        logId = await insertLog(logData)
+      }
+
+      // 저장 성공 → 정리 후 스토리로
+      localStorage.setItem('savedLogId', logId)
+      localStorage.removeItem('currentLog')
+      localStorage.removeItem('selectedPlace')
+      localStorage.removeItem('selectedRecordDate')
+      router.push('/story')
+    } catch (err) {
+      console.error('저장 실패:', err)
+      setSaveError('저장에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // "상세 기록 추가" → 딥로그 페이지로 이동 (localStorage는 이미 저장됨)
+  const handleGoDeepLog = () => {
+    setShowBranchModal(false)
+    router.push('/log/deep')
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowBackConfirm(true)}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-lg font-bold text-stone-700">{placeName}</h1>
-        </div>
+    <div className="min-h-screen bath-tile-bg pb-24">
+      {/* 헤더 — sticky */}
+      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center gap-4 sticky top-0 z-20">
         <button
-          onClick={handleSave}
-          className="flex items-center gap-1 px-4 py-2 rounded-xl font-semibold text-stone-600 bg-white border border-stone-200 transition-all hover:bg-stone-50"
+          onClick={() => setShowBackConfirm(true)}
+          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
         >
-          카드 생성
+          <span className="material-symbols-outlined">arrow_back</span>
         </button>
+        <h1 className="text-lg font-bold text-stone-700">{placeName}</h1>
       </header>
 
       <main className="p-4">
@@ -408,6 +443,18 @@ export default function QuickLog() {
         </div>
       </main>
 
+      {/* 하단 고정 "다음" 버튼 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t border-stone-100 z-20">
+        <button
+          onClick={handleComplete}
+          className="w-full py-3.5 rounded-xl font-semibold text-white transition-all hover:opacity-90"
+          style={{ backgroundColor: 'var(--color-green)' }}
+        >
+          다음
+        </button>
+      </div>
+
+      {/* 뒤로가기 확인 모달 */}
       {showBackConfirm && (
         <ConfirmModal
           message={editId
@@ -418,6 +465,46 @@ export default function QuickLog() {
           onConfirm={() => router.back()}
           onCancel={() => setShowBackConfirm(false)}
         />
+      )}
+
+      {/* 분기 모달: 상세 기록 vs 바로 스토리 */}
+      {showBranchModal && (
+        <ConfirmModal onCancel={() => setShowBranchModal(false)}>
+          <p className="text-sm font-semibold text-stone-700 text-center mb-1">
+            {editId ? '수정 완료!' : '기록 완성!'}
+          </p>
+          <p className="text-xs text-stone-400 text-center mb-5">
+            상세 기록을 추가하거나 바로 스토리를 만들 수 있어요
+          </p>
+
+          {saveError && (
+            <p className="text-xs text-red-500 text-center mb-3">{saveError}</p>
+          )}
+
+          <div className="space-y-2.5">
+            <button
+              onClick={handleGoDeepLog}
+              disabled={isSaving}
+              className="w-full py-3 rounded-xl text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit_note</span>
+              {editId ? '상세 기록 편집하기' : '상세 기록 추가하기'}
+            </button>
+            <button
+              onClick={handleDirectStory}
+              disabled={isSaving}
+              className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50"
+              style={{ backgroundColor: 'var(--color-green)' }}
+            >
+              {isSaving ? (
+                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>auto_awesome</span>
+              )}
+              바로 스토리로
+            </button>
+          </div>
+        </ConfirmModal>
       )}
     </div>
   )

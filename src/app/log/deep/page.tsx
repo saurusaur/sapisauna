@@ -8,6 +8,7 @@ import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
 import type { BathGender } from '@/types'
 
@@ -16,7 +17,10 @@ export default function DeepLog() {
 
   // 편집 모드 여부
   const [isEditMode, setIsEditMode] = useState(false)
+  const [editId, setEditId] = useState<string | null>(null)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // 탕 선택 (남탕/여탕/혼탕) - 직전 선택값 기본 적용
   const [bathGender, setBathGender] = useState<BathGender | null>(null)
@@ -48,7 +52,10 @@ export default function DeepLog() {
       const parsed = safeParse(currentLog, null)
       if (!parsed) return
       const isEdit = Boolean(parsed._editId)
-      if (isEdit) setIsEditMode(true)
+      if (isEdit) {
+        setIsEditMode(true)
+        setEditId(parsed._editId as string)
+      }
 
       // 장소 countryCode 기반 기본 통화 설정
       const countryCode = parsed.place_country_code as string | undefined
@@ -81,8 +88,11 @@ export default function DeepLog() {
     }
   }, [])
 
-  // 저장 처리
-  const handleSave = () => {
+  // 저장 처리: 숏로그 + 딥로그를 DB에 저장 후 스토리로 이동
+  const handleSave = async () => {
+    setIsSaving(true)
+    setSaveError(null)
+
     // 탕 선택값 저장 (다음에 기본값으로 사용)
     if (bathGender) {
       localStorage.setItem('lastBathGender', bathGender)
@@ -96,23 +106,43 @@ export default function DeepLog() {
       currency,
       crowd,
       memo,
-      // 세신
       has_scrub: hasScrub,
       scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
-      // 매점
       has_store: hasStore,
       store_score: hasStore ? storeScore : null,
       store_memo: hasStore ? storeMemo : null,
     }
 
-    // 기존 로그 데이터와 병합
-    const currentLog = localStorage.getItem('currentLog')
-    if (currentLog) {
-      const merged = { ...safeParse(currentLog, {}), deep_log: deepLogData }
-      localStorage.setItem('currentLog', JSON.stringify(merged))
-    }
+    try {
+      const currentLog = localStorage.getItem('currentLog')
+      if (!currentLog) throw new Error('기록 데이터가 없습니다')
+      const logData = safeParse<Record<string, unknown>>(currentLog, {})
 
-    router.back()
+      let logId: string
+
+      if (editId) {
+        // 편집 모드: UPDATE
+        await updateLog(editId, logData)
+        await saveOrUpdateDeepLog(editId, deepLogData)
+        logId = editId
+      } else {
+        // 새 기록: INSERT
+        logId = await insertLog(logData)
+        await saveOrUpdateDeepLog(logId, deepLogData)
+      }
+
+      // 저장 성공 → 정리 후 스토리로
+      localStorage.setItem('savedLogId', logId)
+      localStorage.removeItem('currentLog')
+      localStorage.removeItem('selectedPlace')
+      localStorage.removeItem('selectedRecordDate')
+      router.push('/story')
+    } catch (err) {
+      console.error('저장 실패:', err)
+      setSaveError('저장에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // 취소: 딥로그 입력 내용 버리고 돌아가기
@@ -121,36 +151,24 @@ export default function DeepLog() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg pb-8">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowCancelConfirm(true)}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-lg font-bold text-stone-700">Deep Log</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowCancelConfirm(true)}
-            className="p-2 text-stone-400 hover:text-stone-600 text-xs transition-colors"
-          >
-            {isEditMode ? '편집 취소' : '입력 취소'}
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 rounded-xl font-semibold text-white transition-all hover:opacity-90"
-            style={{ backgroundColor: 'var(--color-green)' }}
-          >
-            {isEditMode ? '편집 저장' : '기록 저장'}
-          </button>
-        </div>
+    <div className="min-h-screen bath-tile-bg pb-24">
+      {/* 헤더 — sticky */}
+      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center gap-4 sticky top-0 z-20">
+        <button
+          onClick={() => setShowCancelConfirm(true)}
+          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 className="text-lg font-bold text-stone-700">Deep Log</h1>
       </header>
 
       <main className="p-4 space-y-4">
+        {saveError && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-xl">
+            {saveError}
+          </div>
+        )}
         {/* 오늘의 경험 섹션 */}
         <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
           {/* 탕 선택 — 섹션 상단 */}
@@ -325,6 +343,21 @@ export default function DeepLog() {
           />
         </div>
       </main>
+
+      {/* 하단 고정 저장 버튼 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t border-stone-100 z-20">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="w-full py-3.5 rounded-xl font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+          style={{ backgroundColor: 'var(--color-green)' }}
+        >
+          {isSaving && (
+            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          )}
+          {isEditMode ? '수정 저장' : '기록 저장'}
+        </button>
+      </div>
 
       {/* 취소 확인 모달 */}
       {showCancelConfirm && (
