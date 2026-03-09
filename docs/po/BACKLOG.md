@@ -32,7 +32,7 @@
 <!-- P2 -->
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
 - [ ] [UX] 성공 토스트 고도화 — SaveSuccessToast 컴포넌트 추출 + 폭죽&스팀 CSS 애니메이션. 현재 인라인 토스트 구현됨 | priority: P2 | added: 2026-03-09
-- [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비 | priority: P2 | added: 2026-02-28
+- [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비. 스토리·네비·홈·탐색 디자인 오버홀 진행 중 (Phase 5-11 남음) | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
