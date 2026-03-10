@@ -22,11 +22,6 @@
   --color-accent: #d44040;
   --color-accent-light: #fde8e8;
 
-  /* 하위 호환: 기존 green/orange 변수 → 새 값으로 매핑 */
-  --color-green: var(--color-primary);
-  --color-green-light: var(--color-primary-light);
-  --color-orange: var(--color-accent);
-  --color-orange-light: var(--color-accent-light);
 
   /* 타입별 포인트 컬러 (유지 — 페이지별 확인 후 조정) */
   --color-bather: #3B82F6;    /* 목욕파 = 파랑 */

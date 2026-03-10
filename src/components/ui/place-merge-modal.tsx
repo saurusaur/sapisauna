@@ -52,12 +52,12 @@ export default function PlaceMergeModal({
                   : 'border-stone-200 bg-stone-50 hover:border-stone-300'
                 }
               `}
-              style={idx === selectedIdx ? { borderColor: 'var(--color-green)' } : {}}
+              style={idx === selectedIdx ? { borderColor: 'var(--color-primary)' } : {}}
             >
               <div className="flex items-start gap-2.5">
                 <span
                   className="material-symbols-outlined text-lg mt-0.5"
-                  style={{ color: idx === selectedIdx ? 'var(--color-green)' : undefined }}
+                  style={{ color: idx === selectedIdx ? 'var(--color-primary)' : undefined }}
                 >
                   {idx === selectedIdx ? 'check_circle' : 'location_on'}
                 </span>
@@ -85,7 +85,7 @@ export default function PlaceMergeModal({
           <button
             onClick={() => onMerge(selected.id)}
             className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: 'var(--color-green)' }}
+            style={{ backgroundColor: 'var(--color-primary)' }}
           >
             네, 같은 장소
           </button>

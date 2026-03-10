@@ -13,13 +13,13 @@
 interface ToggleSwitchProps {
   checked: boolean
   onChange: (value: boolean) => void
-  color?: string             // on 상태 배경색 (기본: var(--color-green))
+  color?: string             // on 상태 배경색 (기본: var(--color-primary))
 }
 
 export default function ToggleSwitch({
   checked,
   onChange,
-  color = 'var(--color-green)',
+  color = 'var(--color-primary)',
 }: ToggleSwitchProps) {
   return (
     <button

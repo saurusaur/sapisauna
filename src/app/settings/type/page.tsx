@@ -60,7 +60,7 @@ export default function TypeEdit() {
               : 'bg-stone-200 text-stone-400'
             }
           `}
-          style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-green)' } : {}}
+          style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-primary)' } : {}}
         >
           <span className="material-symbols-outlined">check</span>
         </button>

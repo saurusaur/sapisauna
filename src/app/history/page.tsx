@@ -177,7 +177,7 @@ export default function History() {
               label={emoji ? `${emoji} ${label.toUpperCase()}` : label}
               active={typeFilter === id}
               onClick={() => setTypeFilter(id)}
-              color={id === 'all' ? 'var(--color-green)' : TRIBE_COLORS[id]}
+              color={id === 'all' ? 'var(--color-primary)' : TRIBE_COLORS[id]}
             />
           )
         })}

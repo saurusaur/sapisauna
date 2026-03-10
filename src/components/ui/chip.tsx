@@ -15,7 +15,7 @@ interface ChipProps {
   selected?: boolean
   onClick?: () => void
   size?: 'sm' | 'md'        // sm: 카드 미니태그, md: 필터/상세 (기본)
-  color?: string             // active 배경색 (기본: var(--color-green))
+  color?: string             // active 배경색 (기본: var(--color-primary))
 }
 
 export default function Chip({
@@ -24,7 +24,7 @@ export default function Chip({
   selected = false,
   onClick,
   size = 'md',
-  color = 'var(--color-green)',
+  color = 'var(--color-primary)',
 }: ChipProps) {
   const isInteractive = !!onClick
 

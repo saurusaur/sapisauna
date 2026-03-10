@@ -310,7 +310,7 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate }: HomeC
         >
           <span
             className="material-symbols-outlined"
-            style={{ fontSize: '20px', color: 'var(--color-green)' }}
+            style={{ fontSize: '20px', color: 'var(--color-primary)' }}
           >
             {expanded ? 'expand_less' : 'expand_more'}
           </span>

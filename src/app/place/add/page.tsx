@@ -246,7 +246,7 @@ export default function AddPlace() {
               : 'bg-stone-200 text-stone-400'
             }
           `}
-          style={canSave ? { backgroundColor: 'var(--color-green)' } : {}}
+          style={canSave ? { backgroundColor: 'var(--color-primary)' } : {}}
         >
           {isSaving ? (
             <span className="material-symbols-outlined animate-spin">progress_activity</span>
@@ -370,7 +370,7 @@ export default function AddPlace() {
           {/* 선택된 장소 표시 */}
           {selectedPlace && (
             <div className="mt-3 p-3 bg-green-light rounded-xl flex items-center gap-3">
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-green)' }}>check_circle</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>check_circle</span>
               <div className="flex-1">
                 <p className="font-medium text-stone-700">{selectedPlace.name}</p>
                 <p className="text-sm text-stone-500">{selectedPlace.address}</p>

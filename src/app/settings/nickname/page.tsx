@@ -76,7 +76,7 @@ export default function NicknameEdit() {
               : 'bg-stone-200 text-stone-400'
             }
           `}
-          style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-green)' } : {}}
+          style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-primary)' } : {}}
         >
           <span className="material-symbols-outlined">check</span>
         </button>
@@ -101,7 +101,7 @@ export default function NicknameEdit() {
             onClick={checkNickname}
             disabled={!nickname || nicknameStatus === 'checking'}
             className="w-full py-3 rounded-xl font-medium transition-all disabled:opacity-50"
-            style={{ backgroundColor: 'var(--color-green-light)', color: 'var(--color-green)' }}
+            style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
           >
             {nicknameStatus === 'checking' ? '확인 중...' : ONBOARDING.NICKNAME.CHECK_BUTTON}
           </button>

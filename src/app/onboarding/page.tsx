@@ -181,7 +181,7 @@ export default function Onboarding() {
                 onClick={checkNickname}
                 disabled={!nickname || nicknameStatus === 'checking'}
                 className="px-4 py-3 rounded-xl hover:opacity-80 disabled:opacity-50 font-medium transition-all"
-                style={{ backgroundColor: 'var(--color-green-light)', color: 'var(--color-green)' }}
+                style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
               >
                 {nicknameStatus === 'checking' ? '...' : ONBOARDING.NICKNAME.CHECK_BUTTON}
               </button>
@@ -216,7 +216,7 @@ export default function Onboarding() {
                 : 'bg-stone-200 text-stone-400 cursor-not-allowed'
               }
             `}
-            style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-green)' } : {}}
+            style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-primary)' } : {}}
           >
             {ONBOARDING.NEXT_BUTTON}
           </button>
@@ -308,7 +308,7 @@ export default function Onboarding() {
                 : 'bg-stone-200 text-stone-400 cursor-not-allowed'
               }
             `}
-            style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-green)' } : {}}
+            style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-primary)' } : {}}
           >
             {ONBOARDING.START_BUTTON}
           </button>
@@ -323,7 +323,7 @@ export default function Onboarding() {
             className={`h-2 rounded-full transition-all ${
               step === s ? 'w-6' : 'w-2 bg-stone-300'
             }`}
-            style={step === s ? { backgroundColor: 'var(--color-green)' } : {}}
+            style={step === s ? { backgroundColor: 'var(--color-primary)' } : {}}
           />
         ))}
       </div>

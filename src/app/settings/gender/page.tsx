@@ -38,7 +38,7 @@ export default function GenderEdit() {
               : 'bg-stone-200 text-stone-400'
             }
           `}
-          style={gender ? { backgroundColor: 'var(--color-green)' } : {}}
+          style={gender ? { backgroundColor: 'var(--color-primary)' } : {}}
         >
           <span className="material-symbols-outlined">check</span>
         </button>

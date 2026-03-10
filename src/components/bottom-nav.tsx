@@ -40,7 +40,7 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
               ? ''
               : 'text-stone-400 hover:text-stone-600'
         }`}
-        style={isActive && !isDisabled ? { color: 'var(--color-green)' } : {}}
+        style={isActive && !isDisabled ? { color: 'var(--color-primary)' } : {}}
       >
         <span className="material-symbols-outlined">{item.icon}</span>
         <span className="text-[10px] mt-0.5 leading-tight">{item.label}</span>
@@ -66,12 +66,12 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
           <div className="absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap">
             <div
               className="px-3 py-1.5 rounded-lg text-white text-[11px] font-medium shadow-md relative"
-              style={{ backgroundColor: 'var(--color-green)' }}
+              style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {MESSAGES.HOME.TOOLTIP_CTA}
               <div
                 className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 rotate-45"
-                style={{ backgroundColor: 'var(--color-green)' }}
+                style={{ backgroundColor: 'var(--color-primary)' }}
               />
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
           onClick={() => router.push('/place')}
           className="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
           style={{
-            backgroundColor: 'var(--color-green)',
+            backgroundColor: 'var(--color-primary)',
             boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
           }}
         >

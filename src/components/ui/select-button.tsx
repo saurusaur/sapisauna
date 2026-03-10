@@ -14,7 +14,7 @@ interface SelectButtonProps {
   icon?: string              // Material Symbols 아이콘명
   selected?: boolean
   onClick: () => void
-  color?: string             // active 배경색 (기본: var(--color-green))
+  color?: string             // active 배경색 (기본: var(--color-primary))
 }
 
 export default function SelectButton({
@@ -22,7 +22,7 @@ export default function SelectButton({
   icon,
   selected = false,
   onClick,
-  color = 'var(--color-green)',
+  color = 'var(--color-primary)',
 }: SelectButtonProps) {
   return (
     <button

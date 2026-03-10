@@ -51,7 +51,8 @@ export default function QuickLog() {
   const [saveError, setSaveError] = useState<string | null>(null)
 
   // --- 방문 날짜·시간 ---
-  const todayStr = new Date().toISOString().slice(0, 10)
+  const now = new Date()
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const [recordDate, setRecordDate] = useState(todayStr)
   const [recordHour, setRecordHour] = useState<number | null>(null) // null = 미지정
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -97,7 +98,7 @@ export default function QuickLog() {
       // record_date 복원
       if (log.record_date) {
         const rd = new Date(log.record_date)
-        setRecordDate(rd.toISOString().slice(0, 10))
+        setRecordDate(log.record_date.slice(0, 10))
         setRecordHour(rd.getHours())
       }
       if (log.tribe_id) setTribeId(log.tribe_id as TribeId)
@@ -136,11 +137,12 @@ export default function QuickLog() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showDatePicker, showTimePicker])
 
-  // record_date 생성: 날짜 + 시간(선택) → ISO 문자열
+  // record_date 생성: 날짜 + 시간(선택) → 로컬 시간 문자열 (TZ 변환 없음)
   const buildRecordDate = (): string => {
-    const date = new Date(recordDate + 'T00:00:00')
-    if (recordHour !== null) date.setHours(recordHour)
-    return date.toISOString()
+    if (recordHour !== null) {
+      return `${recordDate}T${String(recordHour).padStart(2, '0')}:00:00`
+    }
+    return `${recordDate}T00:00:00`
   }
 
   // 폼 데이터 수집

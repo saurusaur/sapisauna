@@ -138,7 +138,7 @@ export default function Story() {
     setIsExporting(true)
     try {
       const blob = await captureCard(cardRef.current)
-      const date = new Date(log.record_date || log.date || '').toISOString().slice(0, 10)
+      const date = log.date.slice(0, 10)
       downloadImage(blob, `sauna-log-${date}.png`)
       showMessage('저장되었어요!', 'success')
     } catch {
@@ -232,8 +232,8 @@ export default function Story() {
   // 날짜 포맷: 2026.03.08 · SAT
   const formatDate = () => {
     if (!log) return ''
-    const d = new Date(log.record_date || log.date || '')
-    const dateStr = d.toISOString().slice(0, 10).replace(/-/g, '.')
+    const d = new Date(log.date)
+    const dateStr = log.date.slice(0, 10).replace(/-/g, '.')
     const day = DAY_NAMES[d.getDay()]
     return `${dateStr} · ${day}`
   }

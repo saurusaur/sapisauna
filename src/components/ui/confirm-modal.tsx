@@ -47,7 +47,7 @@ export default function ConfirmModal({
               <button
                 onClick={onConfirm}
                 className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: 'var(--color-orange)' }}
+                style={{ backgroundColor: 'var(--color-accent)' }}
               >
                 {confirmLabel}
               </button>

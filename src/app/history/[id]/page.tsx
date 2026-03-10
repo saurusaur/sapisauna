@@ -93,7 +93,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 place_name: log.place_name,
                 place_country_code: log.place_country_code,
                 tribe_id: log.tribe_id,
-                record_date: log.record_date || log.date,
+                record_date: log.date,
                 revisit_score: log.revisit_score,
                 repeat: log.repeat,
                 heat_time: log.heat_time,
@@ -167,7 +167,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">토토노이 강도</span>
-                  <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
                     {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono_score || 0)}
                   </span>
                 </div>
@@ -203,7 +203,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             )}
 
             <div className="pt-3 border-t border-stone-100 flex justify-end items-center gap-2">
-              <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
                 {getRevisitLabel(log.revisit_score)}
               </span>
             </div>
@@ -302,7 +302,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs text-stone-400">{getDetailText(item)}</p>
-                    <span className="text-sm font-medium" style={{ color: 'var(--color-orange)' }}>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
                       {getRevisitLabel(item.revisit_score)}
                     </span>
                   </div>
@@ -314,7 +314,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 <button
                   onClick={() => setShowAllSamePlace(true)}
                   className="w-full py-3 text-sm font-medium rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-colors flex items-center justify-center gap-1"
-                  style={{ color: 'var(--color-green)' }}
+                  style={{ color: 'var(--color-primary)' }}
                 >
                   <span className="material-symbols-outlined text-sm">expand_more</span>
                   더보기 ({samePlaceLogs.length - 2}개)
@@ -342,7 +342,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             router.push('/story')
           }}
           className="w-full py-4 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-all"
-          style={{ backgroundColor: 'var(--color-orange)' }}
+          style={{ backgroundColor: 'var(--color-accent)' }}
         >
           <span className="material-symbols-outlined">photo_camera</span>
           스토리 만들기

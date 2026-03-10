@@ -12,7 +12,7 @@ interface TypeTabProps {
   label: string
   active?: boolean
   onClick: () => void
-  color?: string             // active 배경색 (기본: var(--color-green))
+  color?: string             // active 배경색 (기본: var(--color-primary))
 }
 
 export default function TypeTab({

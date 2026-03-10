@@ -50,7 +50,7 @@ export default function FilterControls({
                         ? 'text-white shadow-md'
                         : 'glass-card-light text-stone-600'
                         }`}
-                    style={hasActiveFilters ? { backgroundColor: 'var(--color-green)' } : {}}
+                    style={hasActiveFilters ? { backgroundColor: 'var(--color-primary)' } : {}}
                 >
                     필터
                     {hasActiveFilters && (
