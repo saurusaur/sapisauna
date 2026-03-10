@@ -7,36 +7,23 @@
 
 ## Backlog
 
-<!-- P0 -->
-<!-- P0: Dedup & DB 변경 연동 (프론트엔드) -->
-- [x] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI. 자동 병합 오매칭 방지. 상세: `docs/plans/PLAN_place_dedup_logic.md` | priority: P0 | added: 2026-03-02 | done: 2026-03-08
-- [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
-<!-- P1: 네비게이션 -->
-- [x] [UX] 기록 상세 → 장소 상세 링크 — history/[id] 페이지에서 장소 이름 탭하면 explore/[id]로 이동. 장소 간 탐색 동선 연결 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
-<!-- P1: 리팩토링 -->
-- [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
-- [x] [리팩토링] TribeId 타입 통합 — 리터럴 반복 제거 + TRIBE_IDS·FALLBACK_TRIBE 상수화. 13파일 통합 | priority: P2 | added: 2026-03-08 | done: 2026-03-08
 <!-- P1 -->
-- [x] [기능] 기록 날짜/시간 편집 — record_date 컬럼 추가 + 네이티브 date picker + 커스텀 시간 셀렉트. 달력에서 날짜 선택 후 기록 추가 연동 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
-- [ ] [기능] 비용 통화 선택 — DB에 currency 컬럼 추가 (logs 또는 deep_logs). 유저가 입장료 기록 시 통화 직접 선택 (KRW/JPY/USD 등). 장소 countryCode 기반 기본값 자동 설정 + 수동 변경 가능. 향후 환율 API 연동으로 환산 표시 확장 가능 | priority: P1 | added: 2026-03-04
-- [x] [버그] Naver 장소 지도 링크 미작동 — 좌표 조합 external_id 대신 검색 URL 사용으로 해결 | priority: P1 | added: 2026-02-27 | done: 2026-03-08
+- [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
-- [x] [UX] 하단 네비게이션 바 — 5항목 구조(4탭+center raised 기록 버튼), 사-리스트 비활성 플레이스홀더 | priority: P1 | added: 2026-02-28 | done: 2026-03-08
-- [x] [기능] 홈 화면 — 주간/월간 전환 달력 + 날짜별 기록 카드 캐러셀 + 추천 섹션 플레이스홀더. 상세: `docs/plans/home-redesign-plan.md` | priority: P1 | added: 2026-02-28 | done: 2026-03-08
-- [x] [UX] 기록 추가 흐름 수정 — 숏로그 후 딥로그/스토리 분기 UI 추가 + 스토리 에디터 단순화(사진 추가/삭제만). 상세: `docs/plans/archive/TODO_record_flow_redesign.md` | priority: P1 | added: 2026-03-09 | done: 2026-03-09
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
-- [ ] [버그] 달력 날짜 1일 밀림 — TIMESTAMPTZ UTC 변환 후 `slice(0,10)`이 로컬 날짜가 아닌 UTC 날짜 추출. 시간 변경 시나리오(자정 근처 기록, 타임존 이동)도 함께 점검. 영향: 홈 달력, 홈 기록 필터, 히스토리 등 `log.date.slice(0,10)` 사용처 전체 | priority: P1 | added: 2026-03-09
-- [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
+- [x] [버그] 달력 날짜 1일 밀림 — record_date를 TIMESTAMP(TZ 없음)로 변경 + 저장/표시에서 UTC 변환 전부 제거. 7파일 수정 | priority: P1 | added: 2026-03-09 | done: 2026-03-10
 - [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
-- [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
 <!-- P2 -->
+- [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
+- [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
+- [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P2 | added: 2026-03-10
+- [ ] [UX] 스토리 사진 버튼 대안 탐색 — 현재 "사진" 토글 버튼이 직관적이지 않음. 카메라 아이콘, 배경 변경 스와이프, 롱프레스 등 대안 UX 리서치 필요 | priority: P2 | added: 2026-03-10
 - [ ] [UX] 성공 토스트 고도화 — SaveSuccessToast 컴포넌트 추출 + 폭죽&스팀 CSS 애니메이션. 현재 인라인 토스트 구현됨 | priority: P2 | added: 2026-03-09
 - [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비. 스토리·네비·홈·탐색 디자인 오버홀 진행 중 (Phase 5-11 남음) | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
-- [x] [기능] 스토리 에디터 완성도 점검 (스티커/배경/크롭) — 에디터 제거, 사진 추가/삭제로 단순화 | priority: P2 | added: 2026-02-27 | done: 2026-03-09
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
@@ -45,31 +32,40 @@
 - [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교. 유저 관리 시 users.status 컬럼(active/suspended/banned) 도입 검토 — 프로필 행 삭제 대신 소프트 밴 방식으로 차단. user-context에서 status 체크 후 차단 안내 화면 표시 | priority: P2 | added: 2026-03-02
 - [ ] [기능] "다른 장소에요" 신고 — 잘못 병합된 장소 유저 신고 → 어드민 큐 | priority: P2 | added: 2026-03-02
 <!-- P3 -->
+- [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06
 - [ ] [기능] 크로스 소스 장소 매칭 — 네이버 등록 시 구글 Nearby Search로 place_id 확보, 사용자 확인 1탭 (외국인 유저 대응) | priority: P3 | added: 2026-03-01
 - [ ] [기능] 목록 공유 링크 및 구독(팔로우) 시스템 | priority: P3 | added: 2026-02-27
-- [x] [기능] log/nudge 페이지 완성 및 푸시 알림 연동 — nudge 제거, 분기 모달로 대체 | priority: P3 | added: 2026-02-27 | done: 2026-03-09
 - [ ] [인프라] PWA 오프라인 지원 및 동기화 전략 | priority: P3 | added: 2026-02-27
 - [ ] [기능] 커머스 — 특가/한정 공구 진행 기능 | priority: P3 | added: 2026-02-28
 - [ ] [리마인더] 베타테스터 단계에서 사용자 행동 분석 — 기능별 사용 빈도 확인, 미사용 기능 제거 (오프라인 진행) | priority: P3 | added: 2026-02-28
 
 ## Done
 
-- [x] [버그] 로그 삭제 후 탐색 탭 stale 데이터 — useLogs/useUserLogs에 pathname 의존성 추가로 탭 전환 시 자동 refetch + 깜빡임 방지 | priority: P1 | added: 2026-03-08 | done: 2026-03-08
-
-- [x] [리팩토링] 중복 로직 제거 — Phase 1(safeParse·dead code) + Phase 2(훅·컴포넌트·상수 통합, -303줄) | priority: P1 | added: 2026-03-01 | done: 2026-03-06
-
-- [x] [인프라] Supabase 연동 및 Auth(로그인) 시스템 구현 | priority: P1 | added: 2026-02-27 | done: 2026-02-28
+- [x] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI | priority: P0 | added: 2026-03-02 | done: 2026-03-08
+- [x] [UX] 기록 상세 → 장소 상세 링크 — history/[id] → explore/[id] 이동 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
+- [x] [리팩토링] TribeId 타입 통합 — 리터럴 반복 제거 + 상수화. 13파일 통합 | priority: P2 | added: 2026-03-08 | done: 2026-03-08
+- [x] [기능] 기록 날짜/시간 편집 — record_date 컬럼 + date picker + 시간 셀렉트 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
+- [x] [기능] 비용 통화 선택 — DB currency 컬럼 + 딥로그 통화 셀렉터 + countryCode 기반 기본값 | priority: P1 | added: 2026-03-04 | done: 2026-03-10
+- [x] [버그] Naver 장소 지도 링크 미작동 — 검색 URL 사용으로 해결 | priority: P1 | added: 2026-02-27 | done: 2026-03-08
+- [x] [UX] 하단 네비게이션 바 — 5항목 구조(4탭+center raised 기록 버튼) | priority: P1 | added: 2026-02-28 | done: 2026-03-08
+- [x] [기능] 홈 화면 — 주간/월간 달력 + 날짜별 기록 카드 캐러셀 + 추천 섹션 | priority: P1 | added: 2026-02-28 | done: 2026-03-08
+- [x] [UX] 기록 추가 흐름 수정 — 숏로그 후 딥로그/스토리 분기 UI + 스토리 단순화 | priority: P1 | added: 2026-03-09 | done: 2026-03-09
+- [x] [기능] 스토리 에디터 완성도 점검 — 에디터 제거, 사진 추가/삭제로 단순화 | priority: P2 | added: 2026-02-27 | done: 2026-03-09
+- [x] [기능] log/nudge 페이지 완성 및 푸시 알림 연동 — nudge 제거, 분기 모달로 대체 | priority: P3 | added: 2026-02-27 | done: 2026-03-09
+- [x] [버그] 로그 삭제 후 탐색 탭 stale 데이터 — pathname 의존성 추가로 자동 refetch | priority: P1 | added: 2026-03-08 | done: 2026-03-08
+- [x] [리팩토링] 중복 로직 제거 — Phase 1-2, -303줄 | priority: P1 | added: 2026-03-01 | done: 2026-03-06
+- [x] [인프라] Supabase 연동 및 Auth 시스템 구현 | priority: P1 | added: 2026-02-27 | done: 2026-02-28
 - [x] [버그] 장소 신규 추가 — API 키 설정 + Google 검색 필터 최적화 | priority: P1 | added: 2026-02-28 | done: 2026-02-28
-- [x] [버그] 사우너파 그래프 — 사용자 오인 확인, 정상 동작 | priority: P1 | added: 2026-02-28 | done: 2026-02-28
-- [x] [인프라] 장소 데이터 실제 DB 연동 — Supabase places 테이블 전환, CRUD 연결 | priority: P0 | added: 2026-03-01 | done: 2026-03-03
-- [x] [인프라] places-service 함수 업데이트 — link 제거·coordinate_source 추가·place_sources lat/lng·findNearbyPlaces 복수형 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
-- [x] [인프라] 타입 정의 DB 동기화 — PlaceSource/Place 타입 DB 스키마 일치 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
-- [x] [UX] 지도 랜딩 URL 변경 — Naver 주소+이름 검색 URL, Google place_id 기반 URL 구현 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
-- [x] [인프라] 로그 수정(UPDATE) 함수 구현 — updateLog + saveOrUpdateDeepLog + edit/insert 분기 + useRef 가드 + created_at/place_id 보존 | priority: P0 | added: 2026-03-01 | done: 2026-03-04
-- [x] [버그] Naver 검색 HTML 엔티티 미디코딩 — stripHtml()에 &amp; 등 엔티티 디코딩 추가 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [인프라] display_id 불필요 코드 제거 — generate-id.ts 삭제 + 7개 파일 정리. DB에 저장된 적 없는 죽은 코드 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [인프라] localStorage 레거시 정리 — storage.ts 삭제 + 장소 선택 DB 기반 전환 + 마이그레이션 백로그 제거 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [버그] 최근 등록 장소 레거시 데이터 — localStorage 대신 DB places 최신 3개 표시 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [버그] 딥로그 신규 기록 시 이전 데이터 복원 — 편집 모드일 때만 deep_log 복원하도록 수정 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [UX] 기록 이탈 시 미저장 워닝 — place/add, log, log/deep, story 뒤로가기에 확인 모달 추가 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
-- [x] [UX] 장소 등록 유형 선택 개선 — "탕 구분"→"유형 선택", 맨 위 배치, "일반 대중탕" 기본값, 아로마사우나 삭제 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [버그] 사우너파 그래프 — 정상 동작 확인 | priority: P1 | added: 2026-02-28 | done: 2026-02-28
+- [x] [인프라] 장소 데이터 실제 DB 연동 — Supabase places 테이블 전환 | priority: P0 | added: 2026-03-01 | done: 2026-03-03
+- [x] [인프라] places-service 함수 업데이트 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
+- [x] [인프라] 타입 정의 DB 동기화 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
+- [x] [UX] 지도 랜딩 URL 변경 — Naver/Google URL 구현 | priority: P0 | added: 2026-03-02 | done: 2026-03-03
+- [x] [인프라] 로그 수정(UPDATE) 함수 구현 | priority: P0 | added: 2026-03-01 | done: 2026-03-04
+- [x] [버그] Naver 검색 HTML 엔티티 미디코딩 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [인프라] display_id 불필요 코드 제거 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [인프라] localStorage 레거시 정리 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [버그] 최근 등록 장소 레거시 데이터 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [버그] 딥로그 신규 기록 시 이전 데이터 복원 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [UX] 기록 이탈 시 미저장 워닝 | priority: P1 | added: 2026-03-04 | done: 2026-03-04
+- [x] [UX] 장소 등록 유형 선택 개선 | priority: P1 | added: 2026-03-04 | done: 2026-03-04

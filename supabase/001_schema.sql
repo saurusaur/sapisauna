@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS logs (
   rest_quality INT CHECK (rest_quality BETWEEN 1 AND 5),
   cleanliness INT CHECK (cleanliness BETWEEN 1 AND 5),
 
-  -- 유저 지정 방문 날짜·시간 (없으면 created_at 사용)
-  record_date TIMESTAMPTZ,
+  -- 유저 지정 방문 날짜·시간 (로컬 타임존 기준, TZ 변환 없음)
+  record_date TIMESTAMP,
 
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -165,10 +165,6 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   cost INT,                    -- 입장료
   currency TEXT DEFAULT 'KRW', -- 통화 코드 (ISO 4217)
   memo TEXT,
-
-  used_sauna_types TEXT[] DEFAULT '{}',
-  used_rooms TEXT[] DEFAULT '{}',
-  used_amenities TEXT[] DEFAULT '{}',
 
   bath_gender TEXT CHECK (bath_gender IN ('male', 'female', 'mixed', 'private')),
   crowd TEXT CHECK (crowd IN ('empty', 'moderate', 'busy', 'full')),

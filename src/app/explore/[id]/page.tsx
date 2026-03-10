@@ -14,9 +14,8 @@ import DataState from '@/components/ui/data-state'
 import RecordCard from '@/components/features/record-card'
 import { useAuth } from '@/contexts/auth-context'
 
-// PLACE_SPECS 섹션별로 시설 분류
-const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND'] as const
-const amenitiesSection = 'AMENITIES' as const
+// PLACE_SPECS 섹션별로 시설 분류 (AMENITIES 포함)
+const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const
 
 export default function PlaceDetailPage() {
   const router = useRouter()
@@ -58,11 +57,6 @@ export default function PlaceDetailPage() {
       facilityGroups.push({ label: section.label, items: items.map((o) => ({ id: o.id, label: o.label, icon: o.icon })) })
     }
   }
-
-  // 편의시설
-  const amenities = PLACE_SPECS[amenitiesSection].options.filter((opt) =>
-    place.facilities.includes(opt.id)
-  )
 
   // 표시할 기록 (기본 3개, 더보기 시 전체)
   const displayedLogs = showAllLogs ? placeLogs : placeLogs.slice(0, 3)
@@ -119,22 +113,22 @@ export default function PlaceDetailPage() {
               </span>
             </div>
           </div>
-          <p className="text-xs text-stone-400 mt-1">{place.address}</p>
+          <p className="text-xs text-stone-400 mt-2">{place.address}</p>
 
           {/* 평점 통합 */}
           {stats.count > 0 && (
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
+              <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>
                 또 갈래요 {stats.avg}
               </span>
-              <span className="text-sm text-stone-400">
+              <span className="text-xs text-stone-400">
                 · {EXPLORE.LOG_COUNT(stats.count)}
               </span>
             </div>
           )}
 
           {/* 지도 링크 — 국내: 네이버+구글, 해외: 구글만 */}
-          <div className="flex items-center gap-3 mt-3">
+          <div className="flex items-center gap-3 mt-2">
             {place.country_code === 'KR' && (
               <>
                 <a
@@ -166,7 +160,6 @@ export default function PlaceDetailPage() {
         {/* C. 시설 정보 — glass-card */}
         {facilityGroups.length > 0 && (
           <div className="glass-card p-4">
-            <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.FACILITIES}</h3>
             <div className="space-y-3">
               {facilityGroups.map((group) => (
                 <div key={group.label}>
@@ -182,21 +175,7 @@ export default function PlaceDetailPage() {
           </div>
         )}
 
-        {/* D. 편의시설 — glass-card */}
-        {amenities.length > 0 && (
-          <div className="glass-card p-4">
-            <h3 className="text-sm font-semibold text-stone-700 mb-3">{PLACE_DETAIL.AMENITIES}</h3>
-            <div className="flex flex-wrap gap-1.5">
-              {amenities.map((a) => (
-                <Chip key={a.id} label={a.label} icon={a.icon} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* E. 평균 평가 — B에 통합됨, 삭제 */}
-
-        {/* F. 이 장소의 기록 리스트 */}
+        {/* D. 이 장소의 기록 리스트 */}
         <div>
           <h3 className="text-sm font-semibold text-stone-500 mb-3">{PLACE_DETAIL.LOGS_TITLE}</h3>
 

@@ -6,7 +6,7 @@
  * 이 파일에서 앱의 모든 텍스트와 설정값을 관리합니다.
  *
  * 색상 관리:
- * → globals.css의 CSS 변수에서 관리 (--color-green, --color-orange 등)
+ * → globals.css의 CSS 변수에서 관리 (--color-primary, --color-accent 등)
  * → 아래 TRIBE_COLORS는 타입 선택 UI에서만 사용
  *
  * 구조:
@@ -305,7 +305,7 @@ export const QUICK_LOG = {
 export const PLACE_SPECS = {
   // 온열 시설
   HEAT: {
-    label: '온열 시설',
+    label: 'HEAT 온열',
     options: [
       { id: 'hot-bath', label: '온탕', icon: 'heat', category: 'heat', tempRange: [35, 43] },
       { id: 'very-hot-bath', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
@@ -317,7 +317,7 @@ export const PLACE_SPECS = {
   },
   // 냉각 시설
   ICE: {
-    label: '냉각 시설',
+    label: 'ICE 냉각',
     options: [
       { id: 'cold-bath', label: '냉탕', icon: 'ac_unit', category: 'ice', tempRange: [15, 30] },
       { id: 'ice-bath', label: '급냉탕', icon: 'severe_cold', category: 'ice', tempRange: [0, 20] },
@@ -326,7 +326,7 @@ export const PLACE_SPECS = {
   },
   // 휴식 시설
   PAUSE: {
-    label: '휴식 시설',
+    label: 'PAUSE 휴식',
     options: [
       { id: 'outdoor-rest', label: '외기욕(바깥)', icon: 'chair_umbrella', category: 'pause' },
       { id: 'indoor-rest', label: '내기욕(실내)', icon: 'living', category: 'pause' },
@@ -334,29 +334,27 @@ export const PLACE_SPECS = {
   },
   // 추가 시설
   BEYOND: {
-    label: '추가 시설',
+    label: 'BEYOND 추가',
     options: [
       { id: 'open-air-bath', label: '노천탕', icon: 'bath_outdoor', category: 'beyond', tempRange: [35, 45] },
-      { id: 'lukewarm-bath', label: '미온탕', icon: 'thermostat', category: 'beyond', tempRange: [30, 37] },
       { id: 'jjimjilbang', label: '찜질방', icon: 'foundation', category: 'beyond' },
       { id: 'aufguss', label: '아우프구스', icon: 'airwave', category: 'beyond' },
       { id: 'self-loyly', label: '셀프 로울루', icon: 'format_color_fill', category: 'beyond' },
       { id: 'scrub', label: '세신', icon: 'spa', category: 'beyond' },
+      { id: 'massage', label: '마사지', icon: 'massage', category: 'beyond' },
     ],
   },
-  // 편의시설
+  // 편의 정보
   AMENITIES: {
-    label: '편의시설',
+    label: 'COMFORT 편의',
     options: [
       { id: 'dryer-free', label: '드라이기 무료', icon: 'air', category: 'amenities' },
       { id: 'towel', label: '수건 무제한', icon: 'dry_cleaning', category: 'amenities' },
       { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'clean_hands', category: 'amenities' },
-      { id: 'charging', label: '충전 스테이션', icon: 'battery_charging_full', category: 'amenities' },
+      { id: 'tattoo-friendly', label: '타투가능', icon: 'brush', category: 'amenities' },
       { id: 'workspace', label: '작업 공간', icon: 'laptop', category: 'amenities' },
-      { id: 'gym', label: '운동시설', icon: 'fitness_center', category: 'amenities' },
+      { id: 'food', label: '매점', icon: 'dining', category: 'amenities' },
       { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat', category: 'amenities' },
-      { id: 'store', label: '매점', icon: 'dining', category: 'amenities' },
-      { id: 'massage', label: '마사지', icon: 'massage', category: 'amenities' },
     ],
   },
   // 매점 토글/평가 (Deep Log 전용 — 건드리지 않음)
@@ -483,7 +481,7 @@ export const MESSAGES = {
     VIEW_ALL: '기록 전체보기',
     TOOLTIP_CTA: '오늘 사우나 어땠어요?',
     EMPTY_RECORD: {
-      saunner: '사우나 가고싶다..',
+      saunner: '사우나 땡긴다..',
       bather: '목욕 하고싶다..',
       jimi: '지지고 싶다..',
     },
@@ -614,7 +612,6 @@ export const EXPLORE = {
 // ============================================
 export const PLACE_DETAIL = {
   FACILITIES: '시설 정보',
-  AMENITIES: '편의시설',
   AVG_RATING: '평균 평가',
   RATING_SUMMARY: (avg: string, count: number) => `평균 ${avg} · ${count}건의 기록`,
   NO_LOGS: '아직 기록이 없어요',
@@ -637,24 +634,24 @@ export const MY_PAGE = {
 // ============================================
 export const EXPLORE_FILTERS = {
   HEAT: {
-    label: '온열 시설',
+    label: PLACE_SPECS.HEAT.label,
     options: ['hot-bath', 'very-hot-bath', 'dry-sauna', 'wet-sauna', 'bulgama', 'salt-sauna'],
   },
   ICE: {
-    label: '냉각 시설',
+    label: PLACE_SPECS.ICE.label,
     options: ['cold-bath', 'ice-bath', 'ice-room'],
   },
   PAUSE: {
-    label: '휴식 시설',
+    label: PLACE_SPECS.PAUSE.label,
     options: ['outdoor-rest', 'indoor-rest'],
   },
   BEYOND: {
-    label: '특별 시설',
-    options: ['open-air-bath', 'aufguss', 'self-loyly'],
+    label: PLACE_SPECS.BEYOND.label,
+    options: ['open-air-bath', 'aufguss', 'self-loyly', 'massage'],
   },
   AMENITIES: {
-    label: '편의시설',
-    options: ['store', 'gym', 'massage', 'sleep-room', 'workspace'],
+    label: PLACE_SPECS.AMENITIES.label,
+    options: ['food', 'sleep-room', 'workspace', 'tattoo-friendly'],
   },
   GENDER: {
     label: '탕 구분',

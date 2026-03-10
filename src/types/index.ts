@@ -153,8 +153,7 @@ export interface LogWithPlace {
   place_name: string
   place_country_code: string
   address: string
-  date: string          // 표시용 (record_date ?? created_at)
-  record_date?: string  // 유저 지정 방문 날짜·시간
+  date: string          // 유저 지정 방문 날짜·시간 (record_date, 로컬 시간)
   tribe_id: TribeId
   revisit_score: number
   heat_time?: number

@@ -22,7 +22,8 @@ export const THEMED_BACKGROUNDS: ThemedBackground[] = [
 
 /** 현재 활성 테마만 필터 */
 export function getActiveThemes(): ThemedBackground[] {
-  const now = new Date().toISOString().slice(0, 10)
+  const d = new Date()
+  const now = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   return THEMED_BACKGROUNDS.filter(t => {
     if (t.availableFrom && now < t.availableFrom) return false
     if (t.availableUntil && now > t.availableUntil) return false
