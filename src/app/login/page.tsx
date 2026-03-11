@@ -20,13 +20,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bath-tile-bg">
-      {/* 로고 영역 */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-2 text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>
-          {APP.NAME}
-        </h1>
-        <p className="text-stone-500">{APP.TAGLINE}</p>
+      {/* 로고 Placeholder */}
+      <div className="mb-4 w-28 h-28 rounded-3xl bg-stone-200/50 flex items-center justify-center">
+        <span className="text-4xl text-stone-300">SA</span>
       </div>
+      <p className="text-stone-500 mb-12">{APP.TAGLINE}</p>
 
       {/* 에러 메시지 */}
       {error && (
@@ -35,10 +33,10 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* Google 로그인 버튼 */}
+      {/* Google 로그인 버튼 — glass card 스타일 */}
       <button
         onClick={handleGoogleLogin}
-        className="w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all text-stone-700 font-medium"
+        className="w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 glass-card-light rounded-xl hover:shadow-md transition-all text-stone-700 font-medium"
       >
         <svg width="20" height="20" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>

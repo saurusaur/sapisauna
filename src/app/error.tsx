@@ -18,8 +18,7 @@ export default function GlobalError({
         </p>
         <button
           onClick={reset}
-          className="w-full rounded-2xl font-semibold px-6 py-3 text-white mb-3"
-          style={{ backgroundColor: 'var(--color-primary)' }}
+          className="btn-primary"
         >
           다시 시도
         </button>

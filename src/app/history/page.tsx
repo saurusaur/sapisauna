@@ -76,8 +76,7 @@ export default function History() {
           </button>
 
           <h1
-            className="text-2xl font-extrabold italic"
-            style={{ fontFamily: 'var(--font-heading)' }}
+            className="text-2xl font-extrabold italic font-heading"
           >
             HISTORY
           </h1>

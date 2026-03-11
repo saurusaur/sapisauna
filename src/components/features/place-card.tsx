@@ -65,7 +65,7 @@ export default function PlaceCard({
                     >
                         <span
                             className="material-symbols-outlined text-sm"
-                            style={{ color: isFavorited ? 'var(--color-primary)' : '#d6d3d1' }}
+                            style={{ color: isFavorited ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
                         >
                             {isFavorited ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
                         </span>

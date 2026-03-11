@@ -8,6 +8,7 @@
 ## Backlog
 
 <!-- P1 -->
+- [ ] [인프라] DB 마이그레이션 — `logs.sweat_quality` integer nullable 추가 + `deep_logs.purposes` 컬럼 DROP | priority: P1 | added: 2026-03-11
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
 - [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
 - [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
@@ -20,9 +21,9 @@
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
 - [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P2 | added: 2026-03-10
 - [ ] [UX] 스토리 사진 버튼 대안 탐색 — 현재 "사진" 토글 버튼이 직관적이지 않음. 카메라 아이콘, 배경 변경 스와이프, 롱프레스 등 대안 UX 리서치 필요 | priority: P2 | added: 2026-03-10
-- [ ] [UX] 성공 토스트 고도화 — SaveSuccessToast 컴포넌트 추출 + 폭죽&스팀 CSS 애니메이션. 현재 인라인 토스트 구현됨 | priority: P2 | added: 2026-03-09
+- [x] [UX] 성공 토스트 고도화 — canvas-confetti 폭죽 애니메이션 구현 완료 (새 기록 시만 발동, 편집 시 미발동) | priority: P2 | added: 2026-03-09 | done: 2026-03-11
 - [ ] [UX] 히스토리 뷰 모드별 부가 기능 — 리스트 뷰: 정렬/필터 옵션(날짜순, 평점순, 타입별), 캘린더 뷰: 월별 stats(방문 횟수, 타입 분포 등) 표시 | priority: P2 | added: 2026-03-10
-- [ ] [디자인] UI 디자인 체계 업데이트 — Phase 0-8,10 완료. 남은: 로그인 페이지 스타일, Phase 9(스토리), 11(최종검증). 상세: `docs/plans/PLAN_design_overhaul_implementation.md` | priority: P2 | added: 2026-02-28
+- [ ] [디자인] UI 디자인 체계 업데이트 — Phase 0-10 완료. 남은: Phase 11(최종검증). 상세: `docs/plans/PLAN_design_overhaul_implementation.md` | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27

@@ -242,8 +242,7 @@ export default function AddPlace() {
           </button>
 
           <h1
-            className="text-2xl font-extrabold italic"
-            style={{ fontFamily: 'var(--font-heading)' }}
+            className="text-2xl font-extrabold italic font-heading"
           >
             ADD PLACE
           </h1>
@@ -506,8 +505,7 @@ export default function AddPlace() {
         <button
           onClick={handleSave}
           disabled={!canSave}
-          className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canSave ? 'opacity-40' : 'hover:opacity-90'}`}
-          style={{ backgroundColor: 'var(--color-primary)', boxShadow: canSave ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+          className="btn-primary"
         >
           {isSaving ? (
             <span className="material-symbols-outlined animate-spin">progress_activity</span>

@@ -164,8 +164,7 @@ export default function TypeListPage() {
           </button>
 
           <h1
-            className="text-2xl font-extrabold italic"
-            style={{ fontFamily: 'var(--font-heading)' }}
+            className="text-2xl font-extrabold italic font-heading"
           >
             <span style={{ color: TRIBE_COLORS[currentType as keyof typeof TRIBE_COLORS] }}>
               {typeTribeName[currentType]}

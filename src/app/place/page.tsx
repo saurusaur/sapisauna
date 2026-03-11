@@ -30,15 +30,21 @@ export default function PlaceSelection() {
 
   return (
     <div className="min-h-screen bath-tile-bg">
-      {/* 헤더 */}
-      <header className="glass-card-light p-4 flex items-center gap-4">
-        <button
-          onClick={() => router.back()}
-          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className="text-lg font-bold text-stone-700">{MESSAGES.LOG.SELECT_PLACE}</h1>
+      {/* 헤더 — 앱 통일 패턴 */}
+      <header className="p-5 pt-8">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+          >
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <h1
+            className="text-2xl font-extrabold italic font-heading"
+          >
+            SELECT PLACE
+          </h1>
+        </div>
       </header>
 
       <main className="p-4">
@@ -52,7 +58,7 @@ export default function PlaceSelection() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={MESSAGES.LOG.SEARCH_PLACEHOLDER}
-            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 placeholder-stone-400"
+            className="w-full pl-12 pr-4 py-3 glass-input rounded-xl focus:outline-none text-stone-700 placeholder-stone-400"
           />
         </div>
 

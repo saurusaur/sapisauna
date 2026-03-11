@@ -28,19 +28,23 @@
 - Step 1 (닉네임): 로고 placeholder + glass-input + 중복확인 아래 중앙 (활성 레드/체크 후 그레이) + emerald 사용 가능 메시지 + 하단 고정 버튼
 - Step 2 (트라이브): "PICK YOUR TRIBE" 서브페이지 헤더 + 카드 glass-card-light/선택 시 tribe color + BATHER/SAUNNER/JIMI 헤딩 폰트 라벨 + 한글 서브라벨 + 하단 고정 버튼
 
-### 5. 설정 서브페이지 디자인
+### 5. 로그인 페이지 디자인
+- 로고 placeholder + 태그라인 (헤더 없이)
+- 구글 버튼: `bg-white shadow-md` → `glass-card-light`
+
+### 6. 설정 서브페이지 디자인
 - `/settings/nickname`: 카드 제거, 입력 단독 배치 + 중복확인 중앙 + 하단 고정 저장 버튼
 - `/settings/type`: 헤딩 "MY TRIBE" + 우측 체크 제거 + 하단 고정 저장 버튼
 - `/settings`: 리마인더 알림 섹션 제거 (미구현), "나의 스타일" → "나의 트라이브"
 - `/explore/[id]`: "PLACE" 서브페이지 헤더 추가, 시설 정보 헤더 추가, 기록 제목 → "사-피엔스의 흔적"
 
-### 6. 기타
+### 7. 기타
 - 퀵로그 기본 시간: 미지정(null) → 현재 시각(now.getHours())
 - BACKLOG 보상체계 참조 파일 추가
 - `목욕탕파` → `목욕파` 명칭 수정
 
-## 디자인 오버홀 남은 Phase
-- 로그인 페이지 스타일 (Phase 8 잔여)
+## Next Steps
+- `/settings/type` 트라이브 선택 UI → 온보딩 Step 2 스타일과 통일 (PICK YOUR TRIBE 헤딩 폰트 라벨, tribe color 카드, 한글 서브라벨 등)
 - Phase 9: 스토리 (구조 변경됨, 스타일만)
 - Phase 11: 최종 검증
 

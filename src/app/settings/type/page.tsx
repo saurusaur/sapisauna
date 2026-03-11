@@ -50,8 +50,7 @@ export default function TypeEdit() {
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
             <h1
-              className="text-2xl font-extrabold italic"
-              style={{ fontFamily: 'var(--font-heading)' }}
+              className="text-2xl font-extrabold italic font-heading"
             >
               MY TRIBE
             </h1>
@@ -60,12 +59,9 @@ export default function TypeEdit() {
       </header>
 
       <main className="p-5 pb-24">
-        <div className="mb-6">
-          <p className="text-stone-700 font-medium mb-1">순서대로 우선순위가 정해져요</p>
-          <p className="text-sm text-stone-400">(첫 번째 = 홈 메시지, 퀵로그 기본값)</p>
-        </div>
+        <p className="text-sm text-stone-400 mb-8 text-center">순서대로 우선순위가 정해져요 (첫 번째 = 기본값)</p>
 
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex justify-center gap-4 mb-6">
           {Object.values(TRIBES).map((type) => {
             const rank = getSelectionRank(type.id)
             const isSelected = rank !== null
@@ -75,48 +71,59 @@ export default function TypeEdit() {
                 <button
                   onClick={() => handleTypeClick(type.id)}
                   className={`
-                    relative w-24 h-24 rounded-2xl flex items-center justify-center text-4xl
-                    transition-all duration-200 cursor-pointer border-3
+                    relative w-24 h-24 rounded-xl flex items-center justify-center text-4xl
+                    transition-all duration-200 cursor-pointer
                     ${isSelected
-                      ? 'scale-110 shadow-lg border-transparent'
-                      : 'glass-card-light border-stone-200 hover:border-stone-300'
+                      ? 'shadow-md scale-105'
+                      : 'glass-card-light text-stone-500 hover:shadow-sm'
                     }
                   `}
-                  style={{
-                    backgroundColor: isSelected ? type.color : undefined,
-                    borderColor: isSelected ? type.color : undefined,
-                  }}
+                  style={isSelected ? { backgroundColor: type.color } : {}}
                 >
                   {type.emoji}
 
                   {isSelected && (
                     <span
-                      className="absolute -top-2 -right-2 px-2 py-0.5 bg-white rounded-full
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full
                                  flex items-center justify-center text-xs font-bold shadow-md"
                       style={{ color: type.color }}
                     >
-                      #{rank}
+                      {rank}
                     </span>
                   )}
                 </button>
 
-                <span
-                  className={`
-                    text-sm font-medium transition-all duration-200
-                    ${isSelected ? 'opacity-100' : 'opacity-60'}
-                  `}
-                  style={{ color: isSelected ? type.color : '#78716c' }}
-                >
-                  {type.name}
-                </span>
+                {/* 메인 라벨: 영문 (헤딩 폰트) + 서브: 한글 */}
+                <div className="text-center">
+                  <span
+                    className={`text-sm font-extrabold italic block transition-all duration-200 font-heading ${isSelected ? '' : 'text-stone-400'}`}
+                    style={{ color: isSelected ? type.color : undefined }}
+                  >
+                    {type.persona.toUpperCase()}
+                  </span>
+                  <span
+                    className={`text-[11px] transition-all duration-200 ${isSelected ? 'font-medium' : 'text-stone-400'}`}
+                    style={isSelected ? { color: type.color } : {}}
+                  >
+                    {type.name}
+                  </span>
+                </div>
               </div>
             )
           })}
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-stone-400 justify-center">
-          <span className="material-symbols-outlined text-sm">drag_indicator</span>
-          <span>탭하여 순서 변경</span>
+        {/* 선택 피드백 */}
+        <div className="text-center h-10 flex items-center justify-center">
+          {selectedTypes.length > 0 ? (
+            <p className="text-sm text-stone-600">
+              &ldquo;{Object.values(TRIBES).find(t => t.id === selectedTypes[selectedTypes.length - 1])?.description}&rdquo;
+            </p>
+          ) : (
+            <p className="text-sm text-stone-400">
+              좋아하는 순서대로 선택해주세요
+            </p>
+          )}
         </div>
       </main>
 
@@ -125,8 +132,7 @@ export default function TypeEdit() {
         <button
           onClick={handleSave}
           disabled={selectedTypes.length === 0}
-          className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${selectedTypes.length === 0 ? 'opacity-40' : 'hover:opacity-90'}`}
-          style={{ backgroundColor: 'var(--color-primary)', boxShadow: selectedTypes.length > 0 ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+          className="btn-primary"
         >
           저장
         </button>

@@ -16,17 +16,17 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['Oswald', 'var(--font-heading)', 'sans-serif'],
+      },
       colors: {
         // 브랜드 컬러 - CSS 변수 참조
         primary: 'var(--color-primary)',
         'primary-light': 'var(--color-primary-light)',
         accent: 'var(--color-accent)',
         'accent-light': 'var(--color-accent-light)',
-        // 하위 호환 별칭
-        green: 'var(--color-green)',
-        'green-light': 'var(--color-green-light)',
-        orange: 'var(--color-orange)',
-        'orange-light': 'var(--color-orange-light)',
+        // 비활성 아이콘
+        'icon-inactive': 'var(--color-icon-inactive)',
         // 타입별 컬러
         bather: 'var(--color-bather)',
         sauner: 'var(--color-sauner)',

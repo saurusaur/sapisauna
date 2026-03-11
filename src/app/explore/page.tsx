@@ -198,8 +198,7 @@ export default function ExplorePage() {
       {/* 헤더 — 홈과 동일 스타일 */}
       <header className="p-5 pt-8">
         <h1
-          className="text-3xl font-extrabold italic"
-          style={{ fontFamily: 'var(--font-heading)' }}
+          className="text-3xl font-extrabold italic font-heading"
         >
           EXPLORE
         </h1>

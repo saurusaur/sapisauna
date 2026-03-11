@@ -13,6 +13,7 @@ import { APP } from '@/constants/content'
 import type { LogWithPlace, TribeId } from '@/types'
 import { getLogById } from '@/lib/logs-service'
 import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
+import confetti from 'canvas-confetti'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
 import JimiGraph from '@/components/svg/jimi-graph'
@@ -100,6 +101,15 @@ export default function Story() {
         const fetched = await getLogById(logId)
         if (fetched) {
           setLog(fetched)
+          // 새 기록일 때만 폭죽 발사
+          const isNew = localStorage.getItem('isNewLog')
+          if (isNew) {
+            localStorage.removeItem('isNewLog')
+            setTimeout(() => {
+              confetti({ particleCount: 60, spread: 55, origin: { x: 0.3, y: 0.6 } })
+              confetti({ particleCount: 60, spread: 55, origin: { x: 0.7, y: 0.6 } })
+            }, 300)
+          }
         } else {
           router.replace('/home')
         }
@@ -254,7 +264,7 @@ export default function Story() {
   const routineBadges = getRoutineBadges()
 
   return (
-    <div className="min-h-screen bath-tile-bg">
+    <div className="min-h-screen bath-tile-bg overflow-hidden">
       <main className="px-10 pt-12 pb-8">
         {/* 9:16 카드 프리뷰 — 1080×1920 고정, scale로 축소 표시 */}
         <div
@@ -262,6 +272,26 @@ export default function Story() {
           className="relative w-full mb-4 flex justify-center"
           style={{ height: cardScale ? 1920 * cardScale + 16 : 0 }}
         >
+          {/* 배경 변경 버튼 — 프리뷰 우측 상단 */}
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAddPhoto}
+            className="hidden"
+          />
+          <button
+            onClick={() => bgPhoto ? handleRemovePhoto() : photoInputRef.current?.click()}
+            className="absolute top-2 right-2 z-10 flex items-center justify-center gap-1 w-[88px] h-[30px] rounded-full transition-all hover:bg-white/25 shadow-lg"
+            style={{ backgroundColor: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+          >
+            <span className="material-symbols-outlined text-white/90" style={{ fontSize: '14px' }}>
+              {bgPhoto ? 'restart_alt' : 'add_photo_alternate'}
+            </span>
+            <span className="text-[11px] font-medium text-white/90">
+              {bgPhoto ? '초기화' : '배경 변경'}
+            </span>
+          </button>
           <div
             ref={cardRef}
             className="absolute top-0 overflow-hidden"
@@ -279,9 +309,9 @@ export default function Story() {
             {bgPhoto && (
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${bgPhoto})` }}
+                style={{ backgroundImage: `url(${bgPhoto})`, filter: 'blur(3px)', transform: 'scale(1.02)' }}
               >
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(${tintRgb},0.85) 0%, rgba(${tintRgb},0.5) 40%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.65) 100%)` }} />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(${tintRgb},0.88) 0%, rgba(${tintRgb},0.65) 25%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.6) 100%)` }} />
               </div>
             )}
 
@@ -292,14 +322,14 @@ export default function Story() {
               {/* 상단: 장소명 + 날짜 */}
               <div style={{ paddingTop: 16 }}>
                 <h2
-                  className="text-white font-bold"
-                  style={{ fontFamily: 'var(--font-heading)', fontSize: 56, letterSpacing: '0.02em' }}
+                  className="text-white font-bold font-heading"
+                  style={{ fontSize: 56, letterSpacing: '0.02em' }}
                 >
                   {log.place_name}
                 </h2>
                 <p
-                  className="text-white/70 italic"
-                  style={{ fontFamily: 'var(--font-heading)', fontSize: 48, marginTop: 12 }}
+                  className="text-white/70 italic font-heading"
+                  style={{ fontSize: 48, marginTop: 12 }}
                 >
                   {formatDate()}
                 </p>
@@ -309,8 +339,8 @@ export default function Story() {
               <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 80 }}>
                 {/* 라벨 */}
                 <p
-                  className="text-white/70 uppercase font-bold"
-                  style={{ fontFamily: 'var(--font-heading)', fontSize: 48, marginBottom: 16, letterSpacing: '0.2em' }}
+                  className="text-white/70 uppercase font-bold font-heading"
+                  style={{ fontSize: 48, marginBottom: 16, letterSpacing: '0.2em' }}
                 >
                   {metric.label}
                 </p>
@@ -318,39 +348,32 @@ export default function Story() {
                 {/* 큰 숫자 + 단위 */}
                 <div className="flex items-start">
                   <span
-                    className="text-white font-bold tracking-tight leading-none"
-                    style={{ fontFamily: 'var(--font-heading)', fontSize: 380, marginLeft: -16 }}
+                    className="text-white font-bold tracking-tight leading-none font-heading"
+                    style={{ fontSize: 380, marginLeft: -16 }}
                   >
                     {metric.value}
                   </span>
                   <span
-                    className="text-white/80 font-semibold"
-                    style={{ fontFamily: 'var(--font-heading)', fontSize: 88, marginTop: 28, marginLeft: 8 }}
+                    className="text-white/80 font-semibold font-heading"
+                    style={{ fontSize: 88, marginTop: 28, marginLeft: 8, ...(bgPhoto ? { textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 16px rgba(0,0,0,0.3)' } : {}) }}
                   >
                     {metric.unit}
                   </span>
                 </div>
 
-                {/* 루틴 뱃지 — 라벨 항상 표시, 숫자는 입력값만 */}
-                {/* 디퓨즈 글로우 — 루틴 뒤, 메인 숫자 아래 */}
-                {bgPhoto && (
-                  <div style={{ position: 'relative', height: 0, overflow: 'visible' }}>
-                    <div style={{ position: 'absolute', left: '-30%', right: '-10%', top: 40, height: 300, filter: 'blur(50px)', background: `radial-gradient(ellipse at 40% center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 75%)` }} />
-                  </div>
-                )}
-
+                {/* 루틴 뱃지 */}
                 <div className="relative flex items-end" style={{ gap: 72, marginTop: 64 }}>
                   {routineBadges.map((badge) => (
                     <div key={badge.label} className="flex flex-col items-center" style={{ gap: 14 }}>
                       <span
-                        className="text-white font-bold leading-none"
-                        style={{ fontFamily: 'var(--font-heading)', fontSize: 96, minHeight: 96 }}
+                        className="text-white font-bold leading-none font-heading"
+                        style={{ fontSize: 96, minHeight: 96, ...(bgPhoto ? { textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 16px rgba(0,0,0,0.3)' } : {}) }}
                       >
                         {badge.value ?? '-'}
                       </span>
                       <span
-                        className="text-white/70 tracking-wider uppercase"
-                        style={{ fontFamily: 'var(--font-heading)', fontSize: 42 }}
+                        className="text-white/70 tracking-wider uppercase font-heading"
+                        style={{ fontSize: 42, ...(bgPhoto ? { textShadow: '0 3px 30px rgba(0,0,0,0.5), 0 1px 12px rgba(0,0,0,0.3)' } : {}) }}
                       >
                         {badge.label}
                       </span>
@@ -372,15 +395,15 @@ export default function Story() {
                     style={{ width: 30, height: 30, backgroundColor: dotColor }}
                   />
                   <span
-                    className="text-white/70 font-bold tracking-wider"
-                    style={{ fontFamily: 'var(--font-heading)', fontSize: 42 }}
+                    className="text-white/70 font-bold tracking-wider font-heading"
+                    style={{ fontSize: 42 }}
                   >
                     {displayName}
                   </span>
                 </div>
                 <span
-                  className="text-white/40 font-bold tracking-wider"
-                  style={{ fontFamily: 'var(--font-heading)', fontSize: 42 }}
+                  className="text-white/40 font-bold tracking-wider font-heading"
+                  style={{ fontSize: 42 }}
                 >
                   JOIN THE SA-PIENS
                 </span>
@@ -389,26 +412,18 @@ export default function Story() {
           </div>
         </div>
 
-        {/* 액션 버튼 — 정사각 아이콘 + 라벨 아래 */}
-        <div className="flex justify-center gap-5 mb-5">
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAddPhoto}
-            className="hidden"
-          />
-
+        {/* 액션 버튼 — 네비 바 중앙 버튼 스타일 통일 */}
+        <div className="flex justify-center gap-6 mb-5">
           <button
             onClick={handleDownload}
             disabled={isExporting}
             className="flex flex-col items-center gap-1.5 disabled:opacity-50"
           >
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg hover:opacity-90 transition-all"
-              style={{ backgroundColor: 'var(--color-primary)' }}
+              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>download</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>download</span>
             </div>
             <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>저장</span>
           </button>
@@ -419,34 +434,28 @@ export default function Story() {
             className="flex flex-col items-center gap-1.5 disabled:opacity-50"
           >
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg hover:opacity-90 transition-all"
-              style={{ backgroundColor: 'var(--color-primary)' }}
+              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>share</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>share</span>
             </div>
             <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>공유</span>
           </button>
 
           <button
-            onClick={() => bgPhoto ? handleRemovePhoto() : photoInputRef.current?.click()}
+            onClick={() => {
+              const logId = localStorage.getItem('savedLogId')
+              if (logId) router.push(`/history/${logId}`)
+            }}
             className="flex flex-col items-center gap-1.5"
           >
             <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:opacity-90 transition-all ${
-                bgPhoto ? 'border-2 bg-white' : 'text-white'
-              }`}
-              style={bgPhoto
-                ? { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }
-                : { backgroundColor: 'var(--color-primary)' }
-              }
+              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-                {bgPhoto ? 'delete' : 'add_photo_alternate'}
-              </span>
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>description</span>
             </div>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
-              {bgPhoto ? '삭제' : '사진'}
-            </span>
+            <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>기록 보기</span>
           </button>
         </div>
 
@@ -464,12 +473,12 @@ export default function Story() {
           <button
             onClick={() => {
               localStorage.removeItem('savedLogId')
-              router.push('/history')
+              router.push('/log')
             }}
             className="flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 transition-colors"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>history</span>
-            지난 기록
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
+            추가 기록
           </button>
           <button
             onClick={() => {

@@ -99,8 +99,7 @@ export default function PlaceDetailPage() {
           </button>
 
           <h1
-            className="text-2xl font-extrabold italic"
-            style={{ fontFamily: 'var(--font-heading)' }}
+            className="text-2xl font-extrabold italic font-heading"
           >
             PLACE
           </h1>
@@ -116,7 +115,7 @@ export default function PlaceDetailPage() {
             <div onClick={() => toggleFavorite(placeId)} className="ml-auto flex-shrink-0 cursor-pointer">
               <span
                 className="material-symbols-outlined text-lg"
-                style={{ color: isFavoritedPlace ? 'var(--color-primary)' : '#d6d3d1' }}
+                style={{ color: isFavoritedPlace ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
               >
                 {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
               </span>
@@ -220,11 +219,7 @@ export default function PlaceDetailPage() {
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={handleRecord}
-          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto"
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)',
-          }}
+          className="btn-primary"
         >
           {PLACE_DETAIL.RECORD_CTA}
         </button>

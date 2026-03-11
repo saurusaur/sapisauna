@@ -209,6 +209,7 @@ export default function QuickLog() {
 
       // 저장 성공 → 정리 후 스토리로
       localStorage.setItem('savedLogId', logId)
+      localStorage.setItem('isNewLog', 'true')
       localStorage.removeItem('currentLog')
       localStorage.removeItem('selectedPlace')
       localStorage.removeItem('selectedRecordDate')
@@ -418,7 +419,7 @@ export default function QuickLog() {
             className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-800 transition-colors"
           >
             <span className="text-base">{TRIBE_EMOJI_MAP[logType]}</span>
-            <span>{TRIBE_PERSONA_MAP[logType]}</span>
+            <span>{TRIBE_PERSONA_MAP[logType]?.toUpperCase()}</span>
             <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>expand_more</span>
           </button>
 
@@ -435,7 +436,7 @@ export default function QuickLog() {
                 >
                   <span className="flex items-center gap-2 text-sm">
                     <span className="text-base">{TRIBE_EMOJI_MAP[type]}</span>
-                    {TRIBE_PERSONA_MAP[type]}
+                    {TRIBE_PERSONA_MAP[type]?.toUpperCase()}
                   </span>
                   {logType === type && (
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: '20px' }}>check</span>
@@ -447,7 +448,7 @@ export default function QuickLog() {
         </div>
 
         {/* 입력 폼 — 카드 */}
-        <div className="glass-card-light rounded-2xl p-5">
+        <div className="glass-card-light rounded-xl p-5">
 
           {/* ── 목욕파 ── */}
           {logType === 'bather' && (
@@ -627,8 +628,7 @@ export default function QuickLog() {
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={handleComplete}
-          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto"
-          style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' }}
+          className="btn-primary"
         >
           다음
         </button>

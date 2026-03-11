@@ -143,14 +143,18 @@ export default function Onboarding() {
       {/* Step 1: 닉네임 입력 */}
       {step === 'nickname' && (
         <div className="flex flex-col items-center flex-1 px-6 pb-24">
-          {/* 로고 Placeholder */}
-          <div className="mt-16 mb-4 w-28 h-28 rounded-3xl bg-stone-200/50 flex items-center justify-center">
-            <span className="text-4xl text-stone-300">SA</span>
-          </div>
-          <p className="text-sm text-stone-500 mb-12">{APP.TAGLINE}</p>
+          {/* 헤더 — 홈 스타일 통일 */}
+          <header className="w-full pt-8 mb-12">
+            <h1
+              className="text-3xl font-extrabold italic font-heading"
+            >
+              WELCOME TO{' '}
+              <span style={{ color: 'var(--color-primary)' }}>SA-PI</span>
+            </h1>
+          </header>
 
-          {/* 제목 */}
-          <h2 className="text-xl font-bold text-stone-700 mb-6">{ONBOARDING.NICKNAME.TITLE}</h2>
+          {/* 설명 */}
+          <p className="text-sm text-stone-400 mb-6">{ONBOARDING.NICKNAME.TITLE}</p>
 
           {/* 입력 필드 */}
           <input
@@ -161,7 +165,7 @@ export default function Onboarding() {
               setNicknameStatus('idle')
             }}
             placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
-            className="w-full max-w-xs px-5 py-4 rounded-2xl text-stone-700 glass-input border-2 border-stone-200 focus:outline-none transition-all"
+            className="w-full max-w-xs px-5 py-4 rounded-xl text-stone-700 glass-input border-2 border-stone-200 focus:outline-none transition-all"
             style={nicknameStatus === 'available' ? { borderColor: 'var(--color-primary-light)' } : {}}
             maxLength={10}
           />
@@ -214,8 +218,7 @@ export default function Onboarding() {
                 <span className="material-symbols-outlined">arrow_back</span>
               </button>
               <h1
-                className="text-2xl font-extrabold italic"
-                style={{ fontFamily: 'var(--font-heading)' }}
+                className="text-2xl font-extrabold italic font-heading"
               >
                 PICK YOUR TRIBE
               </h1>
@@ -235,7 +238,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => handleTypeClick(type.id)}
                     className={`
-                      relative w-24 h-24 rounded-2xl flex items-center justify-center text-4xl
+                      relative w-24 h-24 rounded-xl flex items-center justify-center text-4xl
                       transition-all duration-200 cursor-pointer
                       ${isSelected
                         ? 'shadow-md scale-105'
@@ -260,8 +263,8 @@ export default function Onboarding() {
                   {/* 메인 라벨: 영문 (볼드 헤딩 폰트) + 서브: 한글 */}
                   <div className="text-center">
                     <span
-                      className={`text-sm font-extrabold italic block transition-all duration-200 ${isSelected ? '' : 'text-stone-400'}`}
-                      style={{ fontFamily: 'var(--font-heading)', color: isSelected ? type.color : undefined }}
+                      className={`text-sm font-extrabold italic block transition-all duration-200 font-heading ${isSelected ? '' : 'text-stone-400'}`}
+                      style={{ color: isSelected ? type.color : undefined }}
                     >
                       {type.persona.toUpperCase()}
                     </span>
@@ -280,12 +283,12 @@ export default function Onboarding() {
           {/* 선택 피드백 — 선택된 트라이브의 description */}
           <div className="text-center h-10 flex items-center justify-center">
             {lastToggledType && lastToggleAction === 'selected' ? (
-              <p className="text-sm text-stone-600 italic">
+              <p className="text-sm text-stone-600">
                 &ldquo;{Object.values(TRIBES).find(t => t.id === lastToggledType)?.description}&rdquo;
               </p>
             ) : (
-              <p className="text-sm text-stone-400 italic">
-                탭하여 선택 · 순서 = 우선순위
+              <p className="text-sm text-stone-400">
+                좋아하는 순서대로 선택해주세요
               </p>
             )}
           </div>
@@ -303,8 +306,7 @@ export default function Onboarding() {
           <button
             onClick={goToNextStep}
             disabled={!canProceed}
-            className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canProceed ? 'opacity-40' : 'hover:opacity-90'}`}
-            style={{ backgroundColor: 'var(--color-primary)', boxShadow: canProceed ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+            className="btn-primary"
           >
             {ONBOARDING.NEXT_BUTTON}
           </button>
@@ -312,8 +314,7 @@ export default function Onboarding() {
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canSubmit ? 'opacity-40' : 'hover:opacity-90'}`}
-            style={{ backgroundColor: 'var(--color-primary)', boxShadow: canSubmit ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+            className="btn-primary"
           >
             {ONBOARDING.START_BUTTON}
           </button>

@@ -24,8 +24,7 @@ export default function SettingsPage() {
       {/* 헤더 — Home/Explore 통일 스타일 */}
       <header className="p-5 pt-8">
         <h1
-          className="text-3xl font-extrabold italic"
-          style={{ fontFamily: 'var(--font-heading)' }}
+          className="text-3xl font-extrabold italic font-heading"
         >
           SETTINGS
         </h1>
@@ -59,11 +58,11 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl">{TRIBE_EMOJI_MAP[user?.primary_type || FALLBACK_TRIBE]}</span>
-                <span className="font-medium text-stone-700">나의 트라이브</span>
+                <span className="font-medium text-stone-700">MY TRIBE</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
-                  {TRIBE_PERSONA_MAP[user?.primary_type || FALLBACK_TRIBE]}
+                  {TRIBE_PERSONA_MAP[user?.primary_type || FALLBACK_TRIBE]?.toUpperCase()}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>
