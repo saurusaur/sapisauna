@@ -27,15 +27,14 @@ export function formatDate(date: Date): string {
 }
 
 /**
- * 날짜를 "YYYY.MM.DD (요일) 오전/오후 HH:MM" 형식으로 포맷
+ * 날짜를 "YYYY.MM.DD (요일) 오전/오후 H시" 형식으로 포맷
  */
 export function formatDateTime(date: Date): string {
   const datePart = formatDate(date)
   const hour = date.getHours()
   const period = hour < 12 ? '오전' : '오후'
   const hour12 = hour % 12 || 12
-  const minute = date.getMinutes().toString().padStart(2, '0')
-  return `${datePart} ${period} ${hour12}:${minute}`
+  return `${datePart} ${period} ${hour12}시`
 }
 
 /**
@@ -188,14 +187,14 @@ export function getFacilityLabel(id: string): string {
 /**
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
-export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; rest_quality?: number }): string {
+export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
   switch (log.tribe_id) {
     case 'saunner':
-      return `사우나 ${log.sauna_temp}°C · 냉탕 ${log.cold_bath_temp}°C · ${log.repeat}세트`
+      return `사우나 ${log.sauna_temp}° · 냉탕 ${log.cold_bath_temp}° · 토토노 ${log.totono_score || 0}/5`
     case 'bather':
-      return `수질 ${getWaterQualityLabel(log.water_quality || 3)} · 온탕 ${log.hot_bath_temp}°C`
+      return `온탕 ${log.hot_bath_temp}° · 수질 ${log.water_quality || 3}/5 · 냉탕 ${log.cold_bath_temp}°`
     case 'jimi':
-      return `한증막 ${log.jjim_temp}°C · 휴식 ${getRestQualityLabel(log.rest_quality || 3)}`
+      return `한증막 ${log.jjim_temp}° · 발한 ${log.sweat_quality || 3}/5 · 휴식 ${log.rest_quality || 3}/5`
     default:
       return ''
   }

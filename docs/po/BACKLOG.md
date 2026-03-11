@@ -14,22 +14,25 @@
 - [x] [버그] 달력 날짜 1일 밀림 — record_date를 TIMESTAMP(TZ 없음)로 변경 + 저장/표시에서 UTC 변환 전부 제거. 7파일 수정 | priority: P1 | added: 2026-03-09 | done: 2026-03-10
 - [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
 <!-- P2 -->
+- [ ] [UX] 장소 기록 소셜 설계 — ① history/[id]: 같은 장소 내 본인 기록 유지 (현행), 향후 장소별 통계 페이지로 연결하는 확장 고려. ② explore/[id]: 다른 유저의 최근 기록 vs 해당 장소가 포함된 사-리스트(큐레이션) 중 택1 필요. 소셜 범위·프라이버시 설계 포함 | priority: P2 | added: 2026-03-11
 - [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
 - [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P2 | added: 2026-03-10
 - [ ] [UX] 스토리 사진 버튼 대안 탐색 — 현재 "사진" 토글 버튼이 직관적이지 않음. 카메라 아이콘, 배경 변경 스와이프, 롱프레스 등 대안 UX 리서치 필요 | priority: P2 | added: 2026-03-10
 - [ ] [UX] 성공 토스트 고도화 — SaveSuccessToast 컴포넌트 추출 + 폭죽&스팀 CSS 애니메이션. 현재 인라인 토스트 구현됨 | priority: P2 | added: 2026-03-09
-- [ ] [디자인] UI 디자인 체계 업데이트 — 컬러/타이포/스페이싱 시스템 정비. 스토리·네비·홈·탐색 디자인 오버홀 진행 중 (Phase 5-11 남음) | priority: P2 | added: 2026-02-28
+- [ ] [UX] 히스토리 뷰 모드별 부가 기능 — 리스트 뷰: 정렬/필터 옵션(날짜순, 평점순, 타입별), 캘린더 뷰: 월별 stats(방문 횟수, 타입 분포 등) 표시 | priority: P2 | added: 2026-03-10
+- [ ] [디자인] UI 디자인 체계 업데이트 — Phase 0-8,10 완료. 남은: 로그인 페이지 스타일, Phase 9(스토리), 11(최종검증). 상세: `docs/plans/PLAN_design_overhaul_implementation.md` | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
 - [ ] [기능] 장소 찜(북마크) 시스템 — Spotify Playlist 모델. 현재 localStorage 기반 favorites를 DB(user_favorites 테이블)로 전환 포함. 비로그인 시 localStorage 폴백 -> 로그인 시 DB 머지. use-favorites 훅 내부만 교체하여 외부 인터페이스 유지 | priority: P2 | added: 2026-02-27
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
-- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md` | priority: P2 | added: 2026-03-01
+- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md`, `docs/plans/reference_reward_system.md` | priority: P2 | added: 2026-03-01
 - [ ] [UX] 폐업 배지 + 필터링 — place-card에 status='closed' 배지 표시, 탐색 목록에서 폐업 장소 숨김/흐리게 | priority: P2 | added: 2026-03-02
 - [ ] [기능] "폐업했어요" 버튼 + Google 검증 — 유저 신고 → Google business_status API 확인 → 상태 업데이트 or 어드민 큐 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교. 유저 관리 시 users.status 컬럼(active/suspended/banned) 도입 검토 — 프로필 행 삭제 대신 소프트 밴 방식으로 차단. user-context에서 status 체크 후 차단 안내 화면 표시 | priority: P2 | added: 2026-03-02
+- [ ] [기능] 어드민 수동 등록 장소 리뷰 큐 — source='manual' 장소 목록 표시 + 좌표·API 매칭 검증 화면. 장소 추가 시 검색 기반 등록 우선, 수동 입력은 폴백으로만 허용 (구현 완료) | priority: P2 | added: 2026-03-11
 - [ ] [기능] "다른 장소에요" 신고 — 잘못 병합된 장소 유저 신고 → 어드민 큐 | priority: P2 | added: 2026-03-02
 <!-- P3 -->
 - [ ] [최적화] Google Fonts next/font 전환 — layout.tsx의 link 태그를 next/font/google로 교체. 렌더링 성능 개선 | priority: P3 | added: 2026-03-06

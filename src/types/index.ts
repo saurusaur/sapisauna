@@ -84,6 +84,7 @@ export interface QuickLogData {
   totonoScore?: number  // 1-5, 토토노이
 
   // 찜질파
+  sweatQuality?: number // 1-5, 발한 퀄리티
   restQuality?: number  // 1-5, 휴식 퀄리티
   jjimTemp?: number     // 60-100°C (선택)
 }
@@ -166,6 +167,7 @@ export interface LogWithPlace {
   water_quality?: number
   hot_bath_temp?: number
   rest_quality?: number
+  sweat_quality?: number
   jjim_temp?: number
   deep_log?: {
     bath_gender?: BathGender

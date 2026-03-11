@@ -40,6 +40,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     water_quality: row.water_quality as number | undefined,
     hot_bath_temp: row.hot_bath_temp as number | undefined,
     rest_quality: row.rest_quality as number | undefined,
+    sweat_quality: row.sweat_quality as number | undefined,
     jjim_temp: row.jjim_temp as number | undefined,
     deep_log: dl ? {
       bath_gender: dl.bath_gender as BathGender | undefined,
@@ -133,6 +134,7 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
       hot_bath_temp: logData.hot_bath_temp ?? null,
       refreshed_score: logData.refreshed_score ?? null,
       jjim_temp: logData.jjim_temp ?? null,
+      sweat_quality: logData.sweat_quality ?? null,
       rest_quality: logData.rest_quality ?? null,
       record_date: logData.record_date ?? null,
     })
@@ -181,6 +183,7 @@ export async function updateLog(logId: string, logData: Record<string, unknown>)
       hot_bath_temp: logData.hot_bath_temp ?? null,
       refreshed_score: logData.refreshed_score ?? null,
       jjim_temp: logData.jjim_temp ?? null,
+      sweat_quality: logData.sweat_quality ?? null,
       rest_quality: logData.rest_quality ?? null,
       record_date: logData.record_date ?? null,
       updated_at: new Date().toISOString(),
