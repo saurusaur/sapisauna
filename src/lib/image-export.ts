@@ -1,40 +1,31 @@
 /**
  * 이미지 변환 및 공유 유틸리티
- * html-to-image로 DOM → PNG Blob 변환 (브라우저 네이티브 렌더링)
+ * modern-screenshot으로 DOM → PNG Blob 변환
  * Web Share API 또는 다운로드로 내보내기
  */
 
-import { toBlob } from 'html-to-image'
+import { domToBlob } from 'modern-screenshot'
 
 /**
  * DOM 요소를 이미지로 캡처
- * 카드는 1080×1920 고정 크기 — pixelRatio 1:1 캡처
+ * 카드는 1080×1920 고정 크기 — style 오버라이드로 scale 해제 후 캡처
  */
 export async function captureCard(element: HTMLElement): Promise<Blob> {
-  // scale transform 임시 제거 → 원본 1080×1920 크기로 캡처
-  const prevTransform = element.style.transform
-  const prevTransformOrigin = element.style.transformOrigin
-  element.style.transform = 'none'
-  element.style.transformOrigin = ''
+  const blob = await domToBlob(element, {
+    width: 1080,
+    height: 1920,
+    scale: 1,
+    style: {
+      transform: 'none',
+      transformOrigin: 'top center',
+    },
+  })
 
-  try {
-    const blob = await toBlob(element, {
-      width: 1080,
-      height: 1920,
-      pixelRatio: 1,
-      cacheBust: true,
-    })
-
-    if (!blob) {
-      throw new Error('Failed to create image blob')
-    }
-
-    return blob
-  } finally {
-    // 캡처 후 scale 복원
-    element.style.transform = prevTransform
-    element.style.transformOrigin = prevTransformOrigin
+  if (!blob) {
+    throw new Error('Failed to create image blob')
   }
+
+  return blob
 }
 
 /**
