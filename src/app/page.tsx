@@ -15,8 +15,8 @@ export default function RootPage() {
     if (authLoading) return
 
     if (!authUser) {
-      // 미인증 → 홈 (공개 CTA 버전)
-      router.replace('/home')
+      // 미인증 → 로그인
+      router.replace('/login')
     } else if (!profile) {
       // 인증됨 + 프로필 없음 → 온보딩
       router.replace('/onboarding')
