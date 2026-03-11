@@ -79,7 +79,7 @@ export function useLog(id: string): UseDataState<LogWithPlace | null> {
   return { data, loading, error }
 }
 
-// 장소별 로그
+// 장소별 로그 (전체 유저 — explore 장소 상세)
 export function useLogsByPlace(placeId: string): UseDataState<LogWithPlace[]> {
   const [data, setData] = useState<LogWithPlace[]>([])
   const [loading, setLoading] = useState(true)
@@ -92,6 +92,29 @@ export function useLogsByPlace(placeId: string): UseDataState<LogWithPlace[]> {
     setLoading(true)
 
     logsService.getLogsByPlace(placeId)
+      .then((logs) => { if (!cancelled) setData(logs) })
+      .catch((e) => { if (!cancelled) setError(e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [placeId])
+
+  return { data, loading, error }
+}
+
+// 장소별 로그 (본인만 — history 기록 상세)
+export function useMyLogsByPlace(placeId: string): UseDataState<LogWithPlace[]> {
+  const [data, setData] = useState<LogWithPlace[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!placeId) { setLoading(false); return }
+
+    let cancelled = false
+    setLoading(true)
+
+    logsService.getMyLogsByPlace(placeId)
       .then((logs) => { if (!cancelled) setData(logs) })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })

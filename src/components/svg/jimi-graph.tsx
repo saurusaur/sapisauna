@@ -36,10 +36,10 @@ export default function JimiGraph({ restQuality, jjimTemp }: JimiGraphProps) {
   const glowIntensity = 0.15 + restQuality * 0.12 // 0.27 ~ 0.75
 
   // 물 채워짐 높이 — jjimTemp 기반
-  // 60°C → fillRatio 0.1 (거의 빔), 100°C → fillRatio 1.0 (꽉 참)
+  // 70°C → fillRatio 0.1 (거의 빔), 130°C → fillRatio 1.0 (꽉 참)
   // 미입력(undefined) → 0.35 (기본 상태)
   const fillRatio = jjimTemp !== undefined
-    ? Math.min(Math.max((jjimTemp - 60) / 40, 0), 1) * 0.9 + 0.1
+    ? Math.min(Math.max((jjimTemp - 70) / 60, 0), 1) * 0.9 + 0.1
     : 0.35
 
   // 아래에서 위로 채워짐: fillRatio가 높을수록 waterTopY가 위로 올라감

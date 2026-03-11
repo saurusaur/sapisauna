@@ -126,7 +126,7 @@ export default function Onboarding() {
         }
       }
 
-      setUser(userData)
+      setUser({ ...userData, xp: 0, level: 1, active_title: null })
       router.push('/home')
     } catch {
       setSubmitError('저장에 실패했습니다. 다시 시도해주세요.')

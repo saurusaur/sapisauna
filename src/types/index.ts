@@ -23,6 +23,9 @@ export interface UserProfile {
   id: string
   tribes: TribeId[]
   lastUsedTribe: TribeId
+  xp: number
+  level: number
+  activeTitle: string | null
   createdAt: Date
 }
 
@@ -86,7 +89,7 @@ export interface QuickLogData {
   // 찜질파
   sweatQuality?: number // 1-5, 발한 퀄리티
   restQuality?: number  // 1-5, 휴식 퀄리티
-  jjimTemp?: number     // 60-100°C (선택)
+  jjimTemp?: number     // 70-130°C (선택)
 }
 
 // Deep Log 기록
@@ -99,7 +102,6 @@ export interface DeepLogData {
 
   // 목욕파
   scrubSatisfaction?: number
-  scrubPrice?: number
   facilities?: string[]
   hasOutdoorBath?: boolean
 
@@ -168,6 +170,7 @@ export interface LogWithPlace {
   rest_quality?: number
   sweat_quality?: number
   jjim_temp?: number
+  user_nickname?: string
   deep_log?: {
     bath_gender?: BathGender
     companion?: string | null

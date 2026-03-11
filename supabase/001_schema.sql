@@ -16,7 +16,10 @@ CREATE TABLE IF NOT EXISTS users (
   user_types TEXT[] DEFAULT '{}',
   -- 최선호 타입 (user_types[0], 홈/퀵로그 기본값)
   primary_type TEXT CHECK (primary_type IN ('bather', 'saunner', 'jimi')),
-  last_used_template TEXT DEFAULT 'minimal' CHECK (last_used_template IN ('minimal', 'dark', 'gradient', 'retro')),
+  -- 리워드 시스템: 누적 경험치 + 현재 레벨 + 활성 칭호
+  xp BIGINT DEFAULT 0,
+  level INT DEFAULT 1,
+  active_title TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -128,9 +131,10 @@ CREATE TABLE IF NOT EXISTS logs (
   totono_score INT CHECK (totono_score BETWEEN 1 AND 5),
 
   -- 찜질파 전용
-  jjim_temp INT CHECK (jjim_temp BETWEEN 60 AND 100),
+  jjim_temp INT CHECK (jjim_temp BETWEEN 70 AND 130),
   rest_quality INT CHECK (rest_quality BETWEEN 1 AND 5),
-  cleanliness INT CHECK (cleanliness BETWEEN 1 AND 5),
+  -- 공통: 땀 질 평가
+  sweat_quality INT CHECK (sweat_quality BETWEEN 1 AND 5),
 
   -- 유저 지정 방문 날짜·시간 (로컬 타임존 기준, TZ 변환 없음)
   record_date TIMESTAMP,
@@ -171,8 +175,6 @@ CREATE TABLE IF NOT EXISTS deep_logs (
 
   has_scrub BOOLEAN DEFAULT false,
   scrub_satisfaction INT CHECK (scrub_satisfaction BETWEEN 1 AND 5),
-  scrub_price INT,
-
   -- 매점
   has_store BOOLEAN DEFAULT false,
   store_score INT CHECK (store_score BETWEEN 1 AND 5),

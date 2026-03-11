@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
-import { useLog, useLogsByPlace } from '@/hooks/use-logs'
+import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
@@ -25,7 +25,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
   // DB 로그 로드
   const { data: log, loading, error } = useLog(params.id)
-  const { data: allPlaceLogs } = useLogsByPlace(log?.place_id || '')
+  const { data: allPlaceLogs } = useMyLogsByPlace(log?.place_id || '')
 
   // 같은 장소 과거 기록 (현재 기록 제외)
   const samePlaceLogs = log ? allPlaceLogs.filter(l => l.id !== log.id) : []

@@ -34,7 +34,10 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
             {/* Row3: ScoreBadge / 날짜 */}
             <div className="flex items-center justify-between">
                 <ScoreBadge score={log.revisit_score} />
-                <span className="text-xs text-stone-400">{formatShortDate(new Date(log.date))}</span>
+                <span className="text-xs text-stone-400 truncate text-right">
+                    {log.user_nickname && <>{log.user_nickname} · </>}
+                    {formatShortDate(new Date(log.date))}
+                </span>
             </div>
         </button>
     )

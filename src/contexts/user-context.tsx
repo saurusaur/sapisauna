@@ -13,6 +13,9 @@ export interface UserData {
   user_types: string[]
   primary_type: TribeId
   gender?: 'male' | 'female'
+  xp: number
+  level: number
+  active_title: string | null
 }
 
 // Context가 제공하는 값
@@ -43,7 +46,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           // 로그인 상태 → DB에서 프로필 로드
           const { data } = await supabase
             .from('users')
-            .select('nickname, user_types, primary_type, gender')
+            .select('nickname, user_types, primary_type, gender, xp, level, active_title')
             .eq('id', authUser.id)
             .single()
 
@@ -53,6 +56,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
               user_types: data.user_types || [],
               primary_type: data.primary_type as UserData['primary_type'],
               gender: data.gender as UserData['gender'],
+              xp: data.xp ?? 0,
+              level: data.level ?? 1,
+              active_title: data.active_title ?? null,
             })
           } else {
             // 로그인은 됐지만 프로필 없음 → 온보딩 필요

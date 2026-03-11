@@ -31,7 +31,7 @@ export default function QuickLog() {
   const [waterQuality, setWaterQuality] = useState(3)
 
   // --- 찜질파 ---
-  const [jjimTemp, setJjimTemp] = useState(80)
+  const [jjimTemp, setJjimTemp] = useState(85)
   const [sweatQuality, setSweatQuality] = useState(3)
   const [restQuality, setRestQuality] = useState(3)
 

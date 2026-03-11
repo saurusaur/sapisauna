@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP, SETTINGS, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, FALLBACK_TRIBE } from '@/constants/content'
+import { APP, TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, FALLBACK_TRIBE } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useUser } from '@/contexts/user-context'
@@ -34,7 +34,7 @@ export default function SettingsPage() {
         {/* 프로필 섹션 */}
         <div>
           <p className="text-xs font-bold text-stone-400 mb-2 px-1">
-            {SETTINGS.PROFILE.TITLE}
+            프로필
           </p>
           <div className="glass-card-light rounded-xl divide-y divide-stone-200/60">
             {/* 닉네임 */}
@@ -72,21 +72,21 @@ export default function SettingsPage() {
 
         {/* 앱 정보 섹션 */}
         <div>
-          <p className="text-xs font-bold text-stone-400 mb-2 px-1">{SETTINGS.ABOUT.TITLE}</p>
+          <p className="text-xs font-bold text-stone-400 mb-2 px-1">앱 정보</p>
           <div className="glass-card-light rounded-xl divide-y divide-stone-200/60">
             {/* 버전 */}
             <div className="p-4 flex items-center justify-between">
-              <span className="font-medium text-stone-700">{SETTINGS.ABOUT.VERSION}</span>
+              <span className="font-medium text-stone-700">버전</span>
               <span className="text-sm text-stone-400">v{APP.VERSION}</span>
             </div>
             {/* 이용약관 */}
             <button className="w-full p-4 flex items-center justify-between">
-              <span className="font-medium text-stone-700">{SETTINGS.ABOUT.TERMS}</span>
+              <span className="font-medium text-stone-700">이용약관</span>
               <span className="material-symbols-outlined text-stone-300">chevron_right</span>
             </button>
             {/* 개인정보처리방침 */}
             <button className="w-full p-4 flex items-center justify-between">
-              <span className="font-medium text-stone-700">{SETTINGS.ABOUT.PRIVACY}</span>
+              <span className="font-medium text-stone-700">개인정보처리방침</span>
               <span className="material-symbols-outlined text-stone-300">chevron_right</span>
             </button>
           </div>

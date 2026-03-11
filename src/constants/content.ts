@@ -284,14 +284,15 @@ export const QUICK_LOG = {
     JJIM_TEMP: {
       label: '한증막 온도',
       labelEn: 'JJIMJIL',
-      min: 60,
-      max: 100,
+      min: 70,
+      max: 130,
       unit: '°C',
       steps: [
-        { value: 60, label: '따뜻' },
-        { value: 70, label: '뜨끈' },
-        { value: 80, label: '후끈' },
-        { value: 90, label: '지글지글' },
+        { value: 70, label: '따뜻' },
+        { value: 85, label: '뜨끈' },
+        { value: 100, label: '후끈' },
+        { value: 115, label: '지글지글' },
+        { value: 130, label: '용암' },
       ],
     },
     SWEAT_QUALITY: {
@@ -538,7 +539,7 @@ export const BUTTONS = {
   DONE: '완료',
   SHARE: '공유',
   VIEW_LIST: '리스트 보기',
-  CREATE_STORY: '스토리 만들기',
+  CREATE_STORY: '카드 만들기',
   ADD_RECORD: '오늘의 기록',
   RETRY: '다시 시도',
 }
@@ -614,13 +615,13 @@ export const EXPLORE = {
   },
   TOGGLE_24H: '24시 영업',
   RECOMMENDATION: {
-    SAUNNER: 'Saunner PICK',
-    BATHER: 'Bather PICK',
-    JIMI: 'Jimi PICK',
+    SAUNNER: 'SAUNNER PICK',
+    BATHER: 'BATHER PICK',
+    JIMI: 'JIMI PICK',
   },
   NO_RESULTS: '조건에 맞는 장소가 없습니다',
   AVG_RATING: '평균',
-  LOG_COUNT: (count: number) => `${count}건의 기록`,
+  LOG_COUNT: (count: number) => `${count}건의 흔적`,
   VIEW_ALL: '전체 보기',
   REVISIT_LABEL: '또 갈래요',
 }
@@ -631,7 +632,7 @@ export const EXPLORE = {
 export const PLACE_DETAIL = {
   FACILITIES: '시설 정보',
   AVG_RATING: '평균 평가',
-  RATING_SUMMARY: (avg: string, count: number) => `평균 ${avg} · ${count}건의 기록`,
+  RATING_SUMMARY: (avg: string, count: number) => `평균 ${avg} · ${count}건의 흔적`,
   NO_LOGS: '아직 기록이 없어요',
   LOGS_TITLE: '사-피엔스의 흔적',
   MORE_LOGS: '더보기',
@@ -707,20 +708,3 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   return map
 })()
 
-export const SETTINGS = {
-  TITLE: '설정',
-  PROFILE: {
-    TITLE: '프로필',
-    CHANGE_TYPE: '타입 변경',
-  },
-  NOTIFICATION: {
-    TITLE: '알림',
-    REMINDER: '기록 리마인더',
-  },
-  ABOUT: {
-    TITLE: '앱 정보',
-    VERSION: '버전',
-    TERMS: '이용약관',
-    PRIVACY: '개인정보처리방침',
-  },
-}

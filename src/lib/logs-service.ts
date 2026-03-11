@@ -17,6 +17,10 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   const placeName = (preferred?.name_original as string) || '알 수 없는 장소'
   const address = (preferred?.address_original as string) || ''
 
+  // users 조인 (닉네임)
+  const userJoin = row.users as Record<string, unknown> | null
+  const userNickname = (userJoin?.nickname as string) || undefined
+
   // deep_logs 조인 (1:1)
   const deepLogs = row.deep_logs as Array<Record<string, unknown>> | null
   const dl = deepLogs?.[0]
@@ -27,6 +31,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     place_name: placeName,
     place_country_code: (place?.country_code as string) || 'KR',
     address,
+    user_nickname: userNickname,
     date: row.record_date as string,
     tribe_id: row.tribe_id as LogWithPlace['tribe_id'],
     revisit_score: (row.revisit_score as number) || 0,
@@ -58,7 +63,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   }
 }
 
-const LOG_SELECT = '*, places!inner(*, place_sources(*)), deep_logs(*)'
+const LOG_SELECT = '*, users(nickname), places!inner(*, place_sources(*)), deep_logs(*)'
 
 // 최근 로그 (전체 공개용 — explore 등)
 export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
@@ -98,12 +103,28 @@ export async function getLogById(id: string): Promise<LogWithPlace | null> {
   return toLogWithPlace(data)
 }
 
-// 장소별 로그
+// 장소별 로그 (전체 유저 — explore 장소 상세)
 export async function getLogsByPlace(placeId: string): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
     .eq('place_id', placeId)
+    .order('record_date', { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(toLogWithPlace)
+}
+
+// 장소별 로그 (본인만 — history 기록 상세)
+export async function getMyLogsByPlace(placeId: string): Promise<LogWithPlace[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('logs')
+    .select(LOG_SELECT)
+    .eq('place_id', placeId)
+    .eq('user_id', user.id)
     .order('record_date', { ascending: false })
 
   if (error) throw error
@@ -212,7 +233,6 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     crowd: deepData.crowd ?? null,
     has_scrub: deepData.has_scrub ?? false,
     scrub_satisfaction: deepData.scrub_satisfaction ?? null,
-    scrub_price: deepData.scrub_price ?? null,
     has_store: deepData.has_store ?? false,
     store_score: deepData.store_score ?? null,
     store_memo: deepData.store_memo ?? null,
