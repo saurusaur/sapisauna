@@ -127,7 +127,7 @@ export const LOGIN = {
 export const ONBOARDING = {
   // Step 1: 닉네임
   NICKNAME: {
-    TITLE: '닉네임을 입력해주세요',
+    TITLE: '닉네임을 정해주세요',
     PLACEHOLDER: '닉네임 (2-10자)',
     CHECK_BUTTON: '중복 확인',
     AVAILABLE: '사용 가능한 닉네임이에요',
@@ -138,7 +138,7 @@ export const ONBOARDING = {
   // Step 2: 타입 선택
   TYPE: {
     TITLE: '나의 사우나 라이프 스타일은?',
-    SUBTITLE: '좋아하는 순서대로 선택해주세요',
+    SUBTITLE: '나의 사우나 스타일은?',
   },
   // 공통
   NEXT_BUTTON: '다음',
@@ -426,21 +426,6 @@ export const DEEP_LOG = {
       { id: 'friend', label: '친구', icon: 'group' },
       { id: 'family', label: '가족', icon: 'family_restroom' },
       { id: 'partner', label: '연인', icon: 'partner_heart' },
-    ],
-  },
-  PURPOSE: {
-    label: '방문 목적',
-    multiple: true,
-    options: [
-      { id: 'healing', label: '힐링', icon: 'self_improvement' },
-      { id: 'after-workout', label: '운동 후', icon: 'fitness_center' },
-      { id: 'hangover', label: '숙취해소', icon: 'beer_meal' },
-      { id: 'date', label: '데이트', icon: 'favorite' },
-      { id: 'travel', label: '여행', icon: 'luggage' },
-      { id: 'leisure', label: '여가', icon: 'beach_access' },
-      { id: 'work', label: '작업', icon: 'laptop' },
-      { id: 'sleep', label: '수면', icon: 'bedtime' },
-      { id: 'meal', label: '식사', icon: 'restaurant' },
     ],
   },
   COST: {

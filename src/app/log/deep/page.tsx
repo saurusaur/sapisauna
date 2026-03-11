@@ -29,7 +29,6 @@ export default function DeepLog() {
 
   // 오늘의 경험
   const [companion, setCompanion] = useState<string | null>(null)
-  const [purposes, setPurposes] = useState<string[]>([])
   const [cost, setCost] = useState('')
   const [currency, setCurrency] = useState('KRW')
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
@@ -86,7 +85,6 @@ export default function DeepLog() {
       if (dl) {
         if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
         if (dl.companion) setCompanion(dl.companion)
-        if (dl.purposes) setPurposes(dl.purposes)
         if (dl.cost) setCost(dl.cost.toLocaleString())
         if (dl.currency) setCurrency(dl.currency)
         if (dl.crowd) setCrowd(dl.crowd)
@@ -131,7 +129,6 @@ export default function DeepLog() {
     const deepLogData = {
       bath_gender: bathGender,
       companion,
-      purposes,
       cost: cost ? parseInt(cost.replace(/,/g, '')) : null,
       currency,
       crowd,
@@ -163,6 +160,7 @@ export default function DeepLog() {
 
       // 저장 성공 → 정리 후 스토리로
       localStorage.setItem('savedLogId', logId)
+      localStorage.setItem('isNewLog', 'true')
       localStorage.removeItem('currentLog')
       localStorage.removeItem('selectedPlace')
       localStorage.removeItem('selectedRecordDate')
@@ -229,23 +227,6 @@ export default function DeepLog() {
             options={DEEP_LOG.COMPANION.options}
             selected={companion}
             onSelect={setCompanion}
-          />
-        </div>
-
-        {/* 방문 목적 (복수 선택) */}
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            {DEEP_LOG.PURPOSE.label}
-          </label>
-          <ChipSelect
-            options={DEEP_LOG.PURPOSE.options}
-            selected={purposes}
-            onSelect={(id) => {
-              setPurposes(prev =>
-                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-              )
-            }}
-            multiple
           />
         </div>
 
@@ -446,8 +427,7 @@ export default function DeepLog() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 pointer-events-auto"
-          style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' }}
+          className="btn-primary flex items-center justify-center gap-2"
         >
           {isSaving && (
             <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

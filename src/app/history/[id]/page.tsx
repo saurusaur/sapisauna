@@ -103,8 +103,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           </button>
 
           <h1
-            className="text-2xl font-extrabold italic"
-            style={{ fontFamily: 'var(--font-heading)' }}
+            className="text-2xl font-extrabold italic font-heading"
           >
             RECORD
           </h1>
@@ -185,27 +184,27 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           {/* 메트릭 — 고정 3행 그리드, 모든 타입 동일 높이 */}
           <div className="grid grid-cols-[auto_1fr] grid-rows-3 gap-x-5 items-center">
             {/* 좌 col row1: 라벨 */}
-            <p className="text-xs font-medium uppercase tracking-wider text-stone-400 self-center" style={{ fontFamily: 'var(--font-heading)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider text-stone-400 self-center font-heading">
               {mainMetricLabel}
             </p>
             {/* 우 col row1 */}
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
               {log.tribe_id === 'saunner' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}</span>
-                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.sauna_temp ?? '—'}°</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700 font-heading">{log.sauna_temp ?? '—'}°</span>
                 </>
               )}
               {log.tribe_id === 'bather' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
-                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.cold_bath_temp ?? '—'}°</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700 font-heading">{log.cold_bath_temp ?? '—'}°</span>
                 </>
               )}
               {log.tribe_id === 'jimi' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.JIMI.SWEAT_QUALITY.labelEn}</span>
-                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.JIMI.SWEAT_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
                     <span className="font-medium text-xs text-stone-400 mr-1.5">{getStepLabel(QUICK_LOG.JIMI.SWEAT_QUALITY.steps, log.sweat_quality || 3)}</span>
                     {log.sweat_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
                   </span>
@@ -214,23 +213,23 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             </div>
             {/* 좌 col row2-3: 대형숫자 */}
             <div className="row-span-2 flex items-start">
-              <span className="font-bold text-stone-800 leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)', fontSize: '72px' }}>{mainMetricValue ?? '—'}</span>
+              <span className="font-bold text-stone-800 leading-none tracking-tight font-heading" style={{ fontSize: '72px' }}>{mainMetricValue ?? '—'}</span>
               {mainMetricValue !== null && (
-                <span className="text-stone-400 font-semibold mt-1" style={{ fontFamily: 'var(--font-heading)', fontSize: '20px' }}>°C</span>
+                <span className="text-stone-400 font-semibold mt-1 font-heading" style={{ fontSize: '20px' }}>°C</span>
               )}
             </div>
             {/* 우 col row2 */}
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
               {log.tribe_id === 'saunner' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
-                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.cold_bath_temp ?? '—'}°</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700 font-heading">{log.cold_bath_temp ?? '—'}°</span>
                 </>
               )}
               {log.tribe_id === 'bather' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.BATHER.WATER_QUALITY.labelEn}</span>
-                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.BATHER.WATER_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
                     <span className="font-medium text-xs text-stone-400 mr-1.5">{getWaterQualityLabel(log.water_quality || 3)}</span>
                     {log.water_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
                   </span>
@@ -238,8 +237,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               )}
               {log.tribe_id === 'jimi' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.JIMI.REST_QUALITY.labelEn}</span>
-                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.JIMI.REST_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
                     <span className="font-medium text-xs text-stone-400 mr-1.5">{getRestQualityLabel(log.rest_quality || 3)}</span>
                     {log.rest_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
                   </span>
@@ -250,8 +249,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
               {log.tribe_id === 'saunner' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.SAUNER.TOTONO.labelEn}</span>
-                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.SAUNER.TOTONO.labelEn}</span>
+                  <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
                     <span className="font-medium text-xs text-stone-400 mr-1.5">{getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono_score || 0)}</span>
                     {log.totono_score || 0}<span className="font-medium text-xs text-stone-400">/5</span>
                   </span>
@@ -267,9 +266,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {routineBadges.map((badge) => (
                 <div key={badge.label} className="flex flex-col items-center gap-2">
                   <span
-                    className="font-bold leading-none"
+                    className="font-bold leading-none font-heading"
                     style={{
-                      fontFamily: 'var(--font-heading)',
                       fontSize: '28px',
                       color: badge.value !== null ? '#292524' : '#d6d3d1',
                     }}
@@ -277,8 +275,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                     {badge.value ?? '-'}
                   </span>
                   <span
-                    className="text-[10px] font-bold uppercase tracking-wider leading-none"
-                    style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
+                    className="text-[10px] font-bold uppercase tracking-wider leading-none font-heading"
+                    style={{ color: 'var(--color-primary)' }}
                   >
                     {badge.label}
                   </span>
@@ -318,7 +316,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
                 router.push('/log/deep')
               }}
-              className="w-full h-[104px] glass-card-light rounded-2xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
+              className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
             >
               <p className="text-stone-400 text-sm mb-2">더 자세히 기록해보세요</p>
               <span
@@ -332,7 +330,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         )}
         {log.deep_log && (
           <div>
-            <div className="glass-card-light rounded-2xl p-4 space-y-3">
+            <div className="glass-card-light rounded-xl p-4 space-y-3">
               {log.deep_log.bath_gender && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">탕 선택</span>
@@ -346,17 +344,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <span className="text-xs text-stone-400">동행자</span>
                   <span className="text-sm font-medium text-stone-700">
                     {findOption(DEEP_LOG.COMPANION.options, log.deep_log.companion)?.label ?? log.deep_log.companion}
-                  </span>
-                </div>
-              )}
-              {log.deep_log.purposes && log.deep_log.purposes.length > 0 && (
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">방문 목적</span>
-                  <span className="text-sm font-medium text-stone-700">
-                    {log.deep_log.purposes.map(id => {
-                      const opt = DEEP_LOG.PURPOSE.options.find(o => o.id === id)
-                      return opt?.label ?? id
-                    }).join(', ')}
                   </span>
                 </div>
               )}
@@ -379,11 +366,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {log.deep_log.has_scrub && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">세신</span>
-                  <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>
-                    {log.deep_log.scrub_satisfaction || 0}{' '}
-                    <span className="font-medium text-xs">
-                      {DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}
-                    </span>
+                  <span className="text-sm font-medium text-stone-700">
+                    <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}</span>
+                    {log.deep_log.scrub_satisfaction || 0}<span className="text-xs text-stone-400">/5</span>
                   </span>
                 </div>
               )}
@@ -391,9 +376,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 <>
                   {log.deep_log.store_score && (
                     <div className="flex justify-between items-baseline">
-                      <span className="text-xs text-stone-400">매점 만족도</span>
-                      <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>
-                        {log.deep_log.store_score}/5
+                      <span className="text-xs text-stone-400">매점</span>
+                      <span className="text-sm font-medium text-stone-700">
+                        <span className="text-xs text-stone-400 mr-1">{log.deep_log.store_score >= 4 ? '만족' : log.deep_log.store_score >= 3 ? '보통' : '아쉬움'}</span>
+                        {log.deep_log.store_score}<span className="text-xs text-stone-400">/5</span>
                       </span>
                     </div>
                   )}
@@ -410,7 +396,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             </div>
 
             {log.deep_log.memo && (
-              <div className="glass-card-light rounded-2xl p-4 mt-3">
+              <div className="glass-card-light rounded-xl p-4 mt-3">
                 <p className="text-sm text-stone-600 leading-relaxed">{log.deep_log.memo}</p>
               </div>
             )}
@@ -472,11 +458,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             localStorage.setItem('savedLogId', log.id)
             router.push('/story')
           }}
-          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)',
-          }}
+          className="btn-primary flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined">photo_camera</span>
           스토리 만들기

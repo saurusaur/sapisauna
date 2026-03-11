@@ -93,7 +93,6 @@ export interface QuickLogData {
 export interface DeepLogData {
   // 공통
   companion?: string
-  purposes?: string[]
   cost?: number
   currency?: string
   memo?: string
@@ -172,7 +171,6 @@ export interface LogWithPlace {
   deep_log?: {
     bath_gender?: BathGender
     companion?: string | null
-    purposes?: string[]
     cost?: number | null
     currency?: string | null
     crowd?: string | null

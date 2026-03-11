@@ -45,7 +45,6 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     deep_log: dl ? {
       bath_gender: dl.bath_gender as BathGender | undefined,
       companion: dl.companion as string | null,
-      purposes: (dl.purposes as string[]) || [],
       cost: dl.cost as number | null,
       currency: dl.currency as string | null,
       crowd: dl.crowd as string | null,
@@ -206,7 +205,6 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   const payload = {
     log_id: logId,
     companion: deepData.companion ?? null,
-    purposes: deepData.purposes ?? [],
     cost: deepData.cost ?? null,
     currency: deepData.currency ?? 'KRW',
     memo: deepData.memo ?? null,

@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   log_id UUID NOT NULL REFERENCES logs(id) ON DELETE CASCADE,
 
   companion TEXT CHECK (companion IN ('alone', 'friend', 'family', 'partner')),
-  purposes TEXT[] DEFAULT '{}',
+  -- purposes 컬럼 제거됨 (2026-03-11)
   cost INT,                    -- 입장료
   currency TEXT DEFAULT 'KRW', -- 통화 코드 (ISO 4217)
   memo TEXT,
