@@ -12,7 +12,6 @@ const publicRoutes = [
   '/login',
   '/auth/callback',
   '/api',
-  '/home',
   '/explore',
 ]
 

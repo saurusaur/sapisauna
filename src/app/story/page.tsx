@@ -228,12 +228,8 @@ export default function Story() {
           />
         )
       case 'jimi':
-        return (
-          <JimiGraph
-            restQuality={log.rest_quality || 3}
-            jjimTemp={log.jjim_temp}
-          />
-        )
+        // TODO: 찜질 그래프 다듬은 후 복원
+        return null
       default:
         return null
     }

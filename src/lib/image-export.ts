@@ -11,18 +11,30 @@ import { toBlob } from 'html-to-image'
  * 카드는 1080×1920 고정 크기 — pixelRatio 1:1 캡처
  */
 export async function captureCard(element: HTMLElement): Promise<Blob> {
-  const blob = await toBlob(element, {
-    width: 1080,
-    height: 1920,
-    pixelRatio: 1,
-    cacheBust: true,
-  })
+  // scale transform 임시 제거 → 원본 1080×1920 크기로 캡처
+  const prevTransform = element.style.transform
+  const prevTransformOrigin = element.style.transformOrigin
+  element.style.transform = 'none'
+  element.style.transformOrigin = ''
 
-  if (!blob) {
-    throw new Error('Failed to create image blob')
+  try {
+    const blob = await toBlob(element, {
+      width: 1080,
+      height: 1920,
+      pixelRatio: 1,
+      cacheBust: true,
+    })
+
+    if (!blob) {
+      throw new Error('Failed to create image blob')
+    }
+
+    return blob
+  } finally {
+    // 캡처 후 scale 복원
+    element.style.transform = prevTransform
+    element.style.transformOrigin = prevTransformOrigin
   }
-
-  return blob
 }
 
 /**
