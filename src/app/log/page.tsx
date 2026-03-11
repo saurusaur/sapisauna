@@ -32,6 +32,7 @@ export default function QuickLog() {
 
   // --- 찜질파 ---
   const [jjimTemp, setJjimTemp] = useState(80)
+  const [sweatQuality, setSweatQuality] = useState(3)
   const [restQuality, setRestQuality] = useState(3)
 
   // --- 공통 루틴 (null = 미입력/흐릿 상태) ---
@@ -54,7 +55,7 @@ export default function QuickLog() {
   const now = new Date()
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const [recordDate, setRecordDate] = useState(todayStr)
-  const [recordHour, setRecordHour] = useState<number | null>(null) // null = 미지정
+  const [recordHour, setRecordHour] = useState<number | null>(now.getHours())
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showTimePicker, setShowTimePicker] = useState(false)
   const datePickerRef = useRef<HTMLDivElement>(null)
@@ -120,6 +121,7 @@ export default function QuickLog() {
       if (log.water_quality) setWaterQuality(log.water_quality)
       // 찜질파
       if (log.jjim_temp) setJjimTemp(log.jjim_temp)
+      if (log.sweat_quality) setSweatQuality(log.sweat_quality)
       if (log.rest_quality) setRestQuality(log.rest_quality)
     }
   }, [])
@@ -172,6 +174,7 @@ export default function QuickLog() {
     }),
     ...(logType === 'jimi' && {
       jjim_temp: jjimTemp,
+      sweat_quality: sweatQuality,
       rest_quality: restQuality,
     }),
   })
@@ -444,7 +447,7 @@ export default function QuickLog() {
         </div>
 
         {/* 입력 폼 — 카드 */}
-        <div className="bg-white rounded-2xl shadow-sm p-5">
+        <div className="glass-card-light rounded-2xl p-5">
 
           {/* ── 목욕파 ── */}
           {logType === 'bather' && (
@@ -528,6 +531,15 @@ export default function QuickLog() {
                 unit={QUICK_LOG.JIMI.JJIM_TEMP.unit}
                 steps={[...QUICK_LOG.JIMI.JJIM_TEMP.steps]}
                 onChange={setJjimTemp}
+              />
+              <Slider
+                label={QUICK_LOG.JIMI.SWEAT_QUALITY.label}
+                value={sweatQuality}
+                min={QUICK_LOG.JIMI.SWEAT_QUALITY.min}
+                max={QUICK_LOG.JIMI.SWEAT_QUALITY.max}
+                steps={[...QUICK_LOG.JIMI.SWEAT_QUALITY.steps]}
+                onChange={setSweatQuality}
+                variant="chip"
               />
               <Slider
                 label={QUICK_LOG.JIMI.REST_QUALITY.label}

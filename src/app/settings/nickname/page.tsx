@@ -54,75 +54,86 @@ export default function NicknameEdit() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-lg font-bold text-stone-700">닉네임 수정</h1>
+    <div className="min-h-screen bath-tile-bg flex flex-col">
+      {/* 헤더 — 앱 통일 패턴 (history/[id], place/add 동일) */}
+      <header className="p-5 pt-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1
+              className="text-2xl font-extrabold italic"
+              style={{ fontFamily: 'var(--font-heading)' }}
+            >
+              NICKNAME
+            </h1>
+          </div>
         </div>
+      </header>
+
+      <main className="p-5 flex flex-col flex-1">
+        {/* 입력 필드 — 카드 없이 단독 */}
+        <input
+          type="text"
+          value={nickname}
+          onChange={(e) => {
+            setNickname(e.target.value)
+            setNicknameStatus('idle')
+          }}
+          placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
+          className="w-full px-5 py-4 rounded-2xl text-stone-700 glass-input border-2 border-stone-200 focus:outline-none transition-all"
+          style={nicknameStatus === 'available' ? { borderColor: 'var(--color-primary-light)' } : {}}
+          maxLength={10}
+        />
+
+        {/* 중복확인 버튼 — 입력 아래 중앙 */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={checkNickname}
+            disabled={!nickname || nicknameStatus === 'checking' || nicknameStatus === 'available'}
+            className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
+              nicknameStatus === 'available'
+                ? 'bg-stone-100 text-stone-400'
+                : 'text-white hover:opacity-90'
+            }`}
+            style={nicknameStatus !== 'available' && nickname ? { backgroundColor: 'var(--color-primary)' } : {}}
+          >
+            {nicknameStatus === 'checking' ? '확인 중...' : '중복 확인'}
+          </button>
+        </div>
+
+        {/* 상태 메시지 — 중앙 */}
+        {nicknameStatus !== 'idle' && nicknameStatus !== 'checking' && (
+          <p className={`mt-3 text-sm flex items-center justify-center gap-1 ${
+            nicknameStatus === 'available' ? 'text-emerald-500' : 'text-stone-500'
+          }`}>
+            {nicknameStatus === 'available' && (
+              <>
+                <span className="material-symbols-outlined text-sm">check</span>
+                {ONBOARDING.NICKNAME.AVAILABLE}
+              </>
+            )}
+            {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
+            {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
+          </p>
+        )}
+      </main>
+
+      {/* 하단 고정 저장 버튼 — 앱 통일 패턴 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={handleSave}
           disabled={nicknameStatus !== 'available'}
-          className={`
-            px-4 py-2 rounded-xl font-semibold transition-all
-            ${nicknameStatus === 'available'
-              ? 'text-white hover:opacity-90'
-              : 'bg-stone-200 text-stone-400'
-            }
-          `}
-          style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-primary)' } : {}}
+          className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${nicknameStatus !== 'available' ? 'opacity-40' : 'hover:opacity-90'}`}
+          style={{ backgroundColor: 'var(--color-primary)', boxShadow: nicknameStatus === 'available' ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
         >
-          <span className="material-symbols-outlined">check</span>
+          저장
         </button>
-      </header>
-
-      <main className="p-6">
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <label className="block text-sm font-medium text-stone-700 mb-2">닉네임</label>
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => {
-              setNickname(e.target.value)
-              setNicknameStatus('idle')
-            }}
-            placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
-            className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700 mb-3"
-            maxLength={10}
-          />
-
-          <button
-            onClick={checkNickname}
-            disabled={!nickname || nicknameStatus === 'checking'}
-            className="w-full py-3 rounded-xl font-medium transition-all disabled:opacity-50"
-            style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
-          >
-            {nicknameStatus === 'checking' ? '확인 중...' : ONBOARDING.NICKNAME.CHECK_BUTTON}
-          </button>
-
-          {/* 상태 메시지 */}
-          {nicknameStatus !== 'idle' && nicknameStatus !== 'checking' && (
-            <p className={`mt-3 text-sm flex items-center gap-1 ${
-              nicknameStatus === 'available' ? 'text-green' : 'text-red-500'
-            }`}>
-              {nicknameStatus === 'available' && (
-                <>
-                  <span className="material-symbols-outlined text-sm">check</span>
-                  {ONBOARDING.NICKNAME.AVAILABLE}
-                </>
-              )}
-              {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
-              {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
-            </p>
-          )}
-        </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -35,9 +35,11 @@ export default function AddPlace() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [hasSearched, setHasSearched] = useState(false)  // 검색 실행 여부 추적
   const [selectedPlace, setSelectedPlace] = useState<SearchResult | null>(null)
 
-  // 수동 입력 (검색 결과 선택 후 수정 가능)
+  // 수동 입력 모드 (기본 숨김, 검색 실패 시 노출)
+  const [manualMode, setManualMode] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
 
@@ -53,9 +55,9 @@ export default function AddPlace() {
   const [mergeCandidates, setMergeCandidates] = useState<Place[] | null>(null)
 
   // 입력이 시작되었는지 (워닝 표시 기준)
-  const hasInput = Boolean(name || selectedPlace || selectedFacilities.length > 0)
+  const hasInput = Boolean(name || selectedPlace || manualMode || selectedFacilities.length > 0)
 
-  const canSave = name && address && !isSaving
+  const canSave = name && address && selectedFacilities.length >= 2 && !isSaving
 
   // 검색 실행 (debounce)
   const executeSearch = useCallback(async (query: string, searchSource: 'naver' | 'google') => {
@@ -75,7 +77,9 @@ export default function AddPlace() {
         throw new Error(data.error || 'Search failed')
       }
 
-      setSearchResults(data.results || [])
+      const results = data.results || []
+      setSearchResults(results)
+      if (results.length === 0) setHasSearched(true)
     } catch (error) {
       setSearchError(error instanceof Error ? error.message : 'Search failed')
       setSearchResults([])
@@ -102,6 +106,8 @@ export default function AddPlace() {
     setSelectedPlace(result)
     setName(result.name)
     setAddress(result.address)
+    setManualMode(false)
+    setHasSearched(false)
 
     // 검색 결과 닫기
     setSearchResults([])
@@ -224,36 +230,24 @@ export default function AddPlace() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg pb-8">
+    <div className="min-h-screen bath-tile-bg pb-24">
       {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-4">
+      <header className="p-5 pt-8">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => hasInput ? setShowBackConfirm(true) : router.back()}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+            onClick={() => (hasInput || canSave) ? setShowBackConfirm(true) : router.back()}
+            className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-lg font-bold text-stone-700">장소 추가</h1>
+
+          <h1
+            className="text-2xl font-extrabold italic"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            ADD PLACE
+          </h1>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={!canSave}
-          className={`
-            px-4 py-2 rounded-xl font-semibold transition-all
-            ${canSave
-              ? 'text-white hover:opacity-90'
-              : 'bg-stone-200 text-stone-400'
-            }
-          `}
-          style={canSave ? { backgroundColor: 'var(--color-primary)' } : {}}
-        >
-          {isSaving ? (
-            <span className="material-symbols-outlined animate-spin">progress_activity</span>
-          ) : (
-            <span className="material-symbols-outlined">check</span>
-          )}
-        </button>
       </header>
 
       <main className="p-4 space-y-4">
@@ -266,7 +260,7 @@ export default function AddPlace() {
         )}
 
         {/* 검색 엔진 선택 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="glass-card-light rounded-xl p-4">
           <label className="block text-sm font-medium text-stone-700 mb-3">
             검색 엔진
           </label>
@@ -276,6 +270,7 @@ export default function AddPlace() {
                 setSource('naver')
                 setSearchResults([])
                 setSelectedPlace(null)
+                setHasSearched(false)
               }}
               className={`
                 flex-1 py-3 rounded-lg text-sm font-medium transition-all flex flex-col items-center justify-center gap-0.5
@@ -296,6 +291,7 @@ export default function AddPlace() {
                 setSource('google')
                 setSearchResults([])
                 setSelectedPlace(null)
+                setHasSearched(false)
               }}
               className={`
                 flex-1 py-3 rounded-lg text-sm font-medium transition-all flex flex-col items-center justify-center gap-0.5
@@ -315,7 +311,7 @@ export default function AddPlace() {
         </div>
 
         {/* 장소 검색 */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="glass-card-light rounded-xl p-4">
           <label className="block text-sm font-medium text-stone-700 mb-2">
             장소 검색
           </label>
@@ -345,8 +341,8 @@ export default function AddPlace() {
             </p>
           )}
 
-          {/* 검색 결과 목록 */}
-          {searchResults.length > 0 && (
+          {/* 검색 결과 목록 (결과 있을 때) 또는 0건 + 직접 입력 폴백 */}
+          {(searchResults.length > 0 || (hasSearched && searchResults.length === 0 && !isSearching && searchQuery.length >= 2)) && (
             <div className="mt-3 border border-stone-200 rounded-xl overflow-hidden">
               {searchResults.map((result, idx) => (
                 <button
@@ -364,12 +360,28 @@ export default function AddPlace() {
                   </div>
                 </button>
               ))}
+              {/* 검색 결과 0건일 때 직접 입력 폴백 */}
+              {hasSearched && searchResults.length === 0 && !isSearching && (
+                <button
+                  onClick={() => {
+                    setManualMode(true)
+                    setSearchQuery('')
+                    setHasSearched(false)
+                  }}
+                  className="w-full p-3 text-center hover:bg-stone-50 transition-colors"
+                >
+                  <p className="text-stone-400 text-xs mb-0.5">검색 결과가 없습니다</p>
+                  <span className="text-xs font-medium text-stone-600 underline underline-offset-2">
+                    직접 입력하기
+                  </span>
+                </button>
+              )}
             </div>
           )}
 
           {/* 선택된 장소 표시 */}
           {selectedPlace && (
-            <div className="mt-3 p-3 bg-green-light rounded-xl flex items-center gap-3">
+            <div className="mt-3 p-3 rounded-xl flex items-center gap-3" style={{ backgroundColor: 'var(--color-primary-light)' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>check_circle</span>
               <div className="flex-1">
                 <p className="font-medium text-stone-700">{selectedPlace.name}</p>
@@ -387,49 +399,57 @@ export default function AddPlace() {
               </button>
             </div>
           )}
+
         </div>
 
-        {/* 장소 이름 (수동 입력/수정) */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            장소 이름 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="장소 이름을 입력하세요"
-            className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700"
-          />
-        </div>
-
-        {/* 주소 (수동 입력/수정) */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            주소/위치 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="주소를 입력하세요"
-            className="w-full px-4 py-3 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-green text-stone-700"
-          />
-        </div>
+        {/* 수동 입력 필드 (manualMode일 때만 노출) */}
+        {manualMode && !selectedPlace && (
+          <div className="glass-card-light rounded-xl p-4 space-y-4">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-stone-700">장소 직접 등록</label>
+              <button
+                onClick={() => { setManualMode(false); setName(''); setAddress('') }}
+                className="p-1 text-stone-400 hover:text-stone-600 transition-colors"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                장소 이름 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="장소 이름을 입력하세요"
+                className="w-full px-4 py-3 glass-input rounded-xl text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                전체 주소 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="주소를 입력하세요"
+                className="w-full px-4 py-3 glass-input rounded-xl text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] transition-all"
+              />
+            </div>
+          </div>
+        )}
 
         {/* 장소 정보 등록 섹션 */}
         <div>
-          <h2 className="text-sm font-bold text-stone-500 mb-4 flex items-center gap-2">
+          <h2 className="text-sm font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
             <span className="w-full h-px bg-stone-200"></span>
-            <span className="whitespace-nowrap px-2">장소 정보 등록</span>
+            <span className="whitespace-nowrap px-2">당신은 사-피 개척자! 어떤 장소인가요?</span>
             <span className="w-full h-px bg-stone-200"></span>
           </h2>
 
-          <p className="text-xs text-stone-400 mb-3 text-center">
-            다른 사용자에게 도움이 돼요 (선택)
-          </p>
-
-          <div className="bg-white rounded-xl shadow-sm p-4 space-y-5">
+          <div className="glass-card-light rounded-xl p-4 space-y-5">
             {/* 유형 선택 — 맨 위 배치 */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
@@ -480,6 +500,22 @@ export default function AddPlace() {
           </div>
         </div>
       </main>
+
+      {/* 하단 고정 저장 버튼 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
+        <button
+          onClick={handleSave}
+          disabled={!canSave}
+          className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canSave ? 'opacity-40' : 'hover:opacity-90'}`}
+          style={{ backgroundColor: 'var(--color-primary)', boxShadow: canSave ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+        >
+          {isSaving ? (
+            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+          ) : (
+            '장소 저장'
+          )}
+        </button>
+      </div>
 
       {showBackConfirm && (
         <ConfirmModal

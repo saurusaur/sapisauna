@@ -277,7 +277,7 @@ export default function ExplorePage() {
 
                   {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
                   {activeTab && recommendations[activeTab] && (
-                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div className="glass-card-light rounded-xl overflow-hidden">
                       {recommendations[activeTab].slice(0, 3).map((place, idx) => (
                         <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
                           <PlaceCard

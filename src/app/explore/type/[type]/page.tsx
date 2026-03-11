@@ -20,11 +20,11 @@ const VALID_TYPES = TRIBE_IDS
 
 
 
-// 타입 드롭다운 라벨 매핑 (영문)
+// 타입 드롭다운 라벨 매핑 (영문 대문자)
 const typeDropdownLabel: Record<string, string> = {
-  saunner: 'Saunner',
-  bather: 'Bather',
-  jimi: 'Jimi',
+  saunner: 'SAUNNER',
+  bather: 'BATHER',
+  jimi: 'JIMI',
 }
 
 // 헤딩용: tribe 이름 / PICKS 분리 (트라이브 컬러 적용용)
@@ -185,7 +185,7 @@ export default function TypeListPage() {
             </button>
 
             {showTypeDropdown && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden z-30 min-w-[180px]">
+              <div className="absolute top-full right-0 mt-1 glass-card rounded-xl overflow-hidden z-30 min-w-[180px]">
                 {VALID_TYPES.map((type) => (
                   <button
                     key={type}
@@ -193,12 +193,12 @@ export default function TypeListPage() {
                       setCurrentType(type)
                       setShowTypeDropdown(false)
                     }}
-                    className={`w-full px-4 py-3 text-left text-sm transition-colors ${currentType === type
-                      ? 'bg-stone-100 font-semibold text-stone-700'
+                    className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${currentType === type
+                      ? 'bg-[var(--color-primary-light)] text-stone-700'
                       : 'text-stone-600 hover:bg-stone-50'
                       }`}
                   >
-                    {typeDropdownLabel[type]}
+                    {TRIBE_EMOJI_MAP[type]} {typeDropdownLabel[type]}
                   </button>
                 ))}
               </div>

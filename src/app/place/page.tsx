@@ -31,7 +31,7 @@ export default function PlaceSelection() {
   return (
     <div className="min-h-screen bath-tile-bg">
       {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center gap-4">
+      <header className="glass-card-light p-4 flex items-center gap-4">
         <button
           onClick={() => router.back()}
           className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
@@ -68,7 +68,7 @@ export default function PlaceSelection() {
                 <button
                   key={place.id}
                   onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
-                  className="w-full bg-white p-3 rounded-xl shadow-sm text-left hover:shadow-md transition-all flex items-center gap-3"
+                  className="w-full glass-card-light p-3 rounded-xl text-left hover:shadow-md transition-all flex items-center gap-3"
                 >
                   <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>
                     {ICONS.PLACE}
@@ -107,10 +107,15 @@ export default function PlaceSelection() {
         {/* 직접 장소 추가 */}
         <button
           onClick={() => router.push('/place/add')}
-          className="w-full py-4 border-2 border-dashed border-stone-300 rounded-xl flex items-center justify-center gap-2 text-stone-500 hover:border-stone-400 hover:text-stone-600 transition-all"
+          className="w-full py-4 flex flex-col items-center justify-center gap-1 transition-colors hover:opacity-70"
         >
-          <span className="material-symbols-outlined">add</span>
-          <span>{MESSAGES.LOG.ADD_PLACE}</span>
+          <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
+          <span
+            className="text-xs font-medium underline underline-offset-2"
+            style={{ color: 'var(--color-primary)' }}
+          >
+            {MESSAGES.LOG.ADD_PLACE}
+          </span>
         </button>
       </main>
     </div>

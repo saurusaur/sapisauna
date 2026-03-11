@@ -52,7 +52,6 @@ export default function Onboarding() {
         .single()
 
       if (error && error.code === 'PGRST116') {
-        // PGRST116 = no rows found = 사용 가능
         setNicknameStatus('available')
       } else if (data) {
         setNicknameStatus('duplicate')
@@ -95,8 +94,6 @@ export default function Onboarding() {
   const goToPrevStep = () => {
     if (step === 'type') {
       setStep('nickname')
-    } else if (step === 'nickname') {
-      router.push('/')
     }
   }
 
@@ -112,7 +109,6 @@ export default function Onboarding() {
     }
 
     try {
-      // DB 저장 (source of truth)
       if (authUser) {
         const { error } = await supabase.from('users').upsert({
           id: authUser.id,
@@ -121,7 +117,6 @@ export default function Onboarding() {
           primary_type: userData.primary_type,
         })
         if (error) {
-          // 닉네임 UNIQUE 제약 위반
           if (error.code === '23505') {
             setNicknameStatus('duplicate')
             setStep('nickname')
@@ -131,7 +126,6 @@ export default function Onboarding() {
         }
       }
 
-      // DB 성공 → 캐시 저장 + 홈 이동
       setUser(userData)
       router.push('/home')
     } catch {
@@ -141,97 +135,97 @@ export default function Onboarding() {
     }
   }
 
+  const canProceed = nicknameStatus === 'available'
+  const canSubmit = selectedTypes.length > 0 && !isSubmitting
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 bath-tile-bg relative">
-      {/* 뒤로가기 버튼 */}
-      <button
-        onClick={goToPrevStep}
-        className="absolute top-6 left-6 p-2 text-stone-500 hover:text-stone-700 transition-colors"
-      >
-        <span className="material-symbols-outlined text-2xl">arrow_back</span>
-      </button>
-
-      {/* 로고 영역 */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-stone-700">{APP.NAME}</h1>
-        <p className="text-stone-500">{APP.TAGLINE}</p>
-      </div>
-
+    <div className="flex flex-col min-h-screen bath-tile-bg">
       {/* Step 1: 닉네임 입력 */}
       {step === 'nickname' && (
-        <>
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold mb-1 text-stone-700">{ONBOARDING.NICKNAME.TITLE}</h2>
+        <div className="flex flex-col items-center flex-1 px-6 pb-24">
+          {/* 로고 Placeholder */}
+          <div className="mt-16 mb-4 w-28 h-28 rounded-3xl bg-stone-200/50 flex items-center justify-center">
+            <span className="text-4xl text-stone-300">SA</span>
+          </div>
+          <p className="text-sm text-stone-500 mb-12">{APP.TAGLINE}</p>
+
+          {/* 제목 */}
+          <h2 className="text-xl font-bold text-stone-700 mb-6">{ONBOARDING.NICKNAME.TITLE}</h2>
+
+          {/* 입력 필드 */}
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => {
+              setNickname(e.target.value)
+              setNicknameStatus('idle')
+            }}
+            placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
+            className="w-full max-w-xs px-5 py-4 rounded-2xl text-stone-700 glass-input border-2 border-stone-200 focus:outline-none transition-all"
+            style={nicknameStatus === 'available' ? { borderColor: 'var(--color-primary-light)' } : {}}
+            maxLength={10}
+          />
+
+          {/* 중복확인 버튼 — 아래 중앙 */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={checkNickname}
+              disabled={!nickname || nicknameStatus === 'checking' || nicknameStatus === 'available'}
+              className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
+                nicknameStatus === 'available'
+                  ? 'bg-stone-100 text-stone-400'
+                  : 'text-white hover:opacity-90'
+              }`}
+              style={nicknameStatus !== 'available' && nickname ? { backgroundColor: 'var(--color-primary)' } : {}}
+            >
+              {nicknameStatus === 'checking' ? '확인 중...' : '중복 확인'}
+            </button>
           </div>
 
-          <div className="w-full max-w-xs mb-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e) => {
-                  setNickname(e.target.value)
-                  setNicknameStatus('idle')
-                }}
-                placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
-                className="flex-1 px-4 py-3 border-2 border-stone-300 rounded-xl focus:outline-none focus:border-green text-stone-800 bg-white placeholder-stone-400"
-                maxLength={10}
-              />
-              <button
-                onClick={checkNickname}
-                disabled={!nickname || nicknameStatus === 'checking'}
-                className="px-4 py-3 rounded-xl hover:opacity-80 disabled:opacity-50 font-medium transition-all"
-                style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
-              >
-                {nicknameStatus === 'checking' ? '...' : ONBOARDING.NICKNAME.CHECK_BUTTON}
-              </button>
-            </div>
-
-            {/* 상태 메시지 */}
-            <p className={`mt-2 text-sm ${
-              nicknameStatus === 'available' ? 'text-green' :
-              nicknameStatus === 'duplicate' || nicknameStatus === 'invalid' || nicknameStatus === 'error' ? 'text-red-500' :
-              'text-stone-500'
+          {/* 상태 메시지 */}
+          {nicknameStatus !== 'idle' && nicknameStatus !== 'checking' && (
+            <p className={`mt-3 text-sm flex items-center gap-1 ${
+              nicknameStatus === 'available' ? 'text-emerald-500' : 'text-stone-500'
             }`}>
               {nicknameStatus === 'available' && (
-                <span className="flex items-center gap-1">
+                <>
                   <span className="material-symbols-outlined text-sm">check</span>
                   {ONBOARDING.NICKNAME.AVAILABLE}
-                </span>
+                </>
               )}
               {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
               {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
-              {nicknameStatus === 'checking' && ONBOARDING.NICKNAME.CHECKING}
               {nicknameStatus === 'error' && '확인에 실패했습니다. 다시 시도해주세요.'}
             </p>
-          </div>
-
-          <button
-            onClick={goToNextStep}
-            disabled={nicknameStatus !== 'available'}
-            className={`
-              w-full max-w-xs py-4 px-6 font-semibold rounded-2xl transition-all duration-200
-              ${nicknameStatus === 'available'
-                ? 'text-white hover:opacity-90'
-                : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-              }
-            `}
-            style={nicknameStatus === 'available' ? { backgroundColor: 'var(--color-primary)' } : {}}
-          >
-            {ONBOARDING.NEXT_BUTTON}
-          </button>
-        </>
+          )}
+        </div>
       )}
 
       {/* Step 2: 타입 선택 */}
       {step === 'type' && (
-        <>
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold mb-1 text-stone-700">{ONBOARDING.TYPE.TITLE}</h2>
-            <p className="text-sm text-stone-500">{ONBOARDING.TYPE.SUBTITLE}</p>
-          </div>
+        <div className="flex flex-col items-center flex-1 px-6 pb-24">
+          {/* 헤더 — 서브페이지 서식 */}
+          <header className="w-full pt-8 pb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={goToPrevStep}
+                className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <h1
+                className="text-2xl font-extrabold italic"
+                style={{ fontFamily: 'var(--font-heading)' }}
+              >
+                PICK YOUR TRIBE
+              </h1>
+            </div>
+          </header>
 
-          <div className="flex gap-4 mb-4">
+          <p className="text-sm text-stone-400 mb-8">{ONBOARDING.TYPE.SUBTITLE}</p>
+
+          {/* 트라이브 카드 */}
+          <div className="flex gap-4 mb-6">
             {Object.values(TRIBES).map((type) => {
               const rank = getSelectionRank(type.id)
               const isSelected = rank !== null
@@ -242,94 +236,102 @@ export default function Onboarding() {
                     onClick={() => handleTypeClick(type.id)}
                     className={`
                       relative w-24 h-24 rounded-2xl flex items-center justify-center text-4xl
-                      transition-all duration-200 cursor-pointer border-3
+                      transition-all duration-200 cursor-pointer
                       ${isSelected
-                        ? 'scale-110 shadow-lg border-transparent'
-                        : 'bg-white border-stone-200 hover:border-stone-300'
+                        ? 'shadow-md scale-105'
+                        : 'glass-card-light text-stone-500 hover:shadow-sm'
                       }
                     `}
-                    style={{
-                      backgroundColor: isSelected ? type.color : undefined,
-                      borderColor: isSelected ? type.color : undefined,
-                    }}
+                    style={isSelected ? { backgroundColor: type.color } : {}}
                   >
                     {type.emoji}
 
                     {isSelected && (
                       <span
-                        className="absolute -top-2 -right-2 px-2 py-0.5 bg-white rounded-full
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full
                                    flex items-center justify-center text-xs font-bold shadow-md"
                         style={{ color: type.color }}
                       >
-                        #{rank}
+                        {rank}
                       </span>
                     )}
                   </button>
 
-                  <span
-                    className={`
-                      text-sm font-medium transition-all duration-200
-                      ${isSelected ? 'opacity-100' : 'opacity-60'}
-                    `}
-                    style={{ color: isSelected ? type.color : '#78716c' }}
-                  >
-                    {type.persona}
-                  </span>
+                  {/* 메인 라벨: 영문 (볼드 헤딩 폰트) + 서브: 한글 */}
+                  <div className="text-center">
+                    <span
+                      className={`text-sm font-extrabold italic block transition-all duration-200 ${isSelected ? '' : 'text-stone-400'}`}
+                      style={{ fontFamily: 'var(--font-heading)', color: isSelected ? type.color : undefined }}
+                    >
+                      {type.persona.toUpperCase()}
+                    </span>
+                    <span
+                      className={`text-[11px] transition-all duration-200 ${isSelected ? 'font-medium' : 'text-stone-400'}`}
+                      style={isSelected ? { color: type.color } : {}}
+                    >
+                      {type.name}
+                    </span>
+                  </div>
                 </div>
               )
             })}
           </div>
 
-          {/* 마지막으로 선택한 타입의 설명 표시 (해제 시 사라짐) */}
-          <div className="text-center mb-8 h-12 flex items-center justify-center">
+          {/* 선택 피드백 — 선택된 트라이브의 description */}
+          <div className="text-center h-10 flex items-center justify-center">
             {lastToggledType && lastToggleAction === 'selected' ? (
               <p className="text-sm text-stone-600 italic">
                 &ldquo;{Object.values(TRIBES).find(t => t.id === lastToggledType)?.description}&rdquo;
               </p>
             ) : (
-              <p className="text-sm text-stone-400">
-                FIND YOUR TRIBE
+              <p className="text-sm text-stone-400 italic">
+                탭하여 선택 · 순서 = 우선순위
               </p>
             )}
           </div>
 
           {/* 제출 에러 */}
           {submitError && (
-            <p className="text-red-500 text-sm mb-3">{submitError}</p>
+            <p className="text-red-500 text-sm mt-3">{submitError}</p>
           )}
+        </div>
+      )}
 
+      {/* 하단 고정 버튼 — 앱 통일 패턴 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
+        {step === 'nickname' ? (
+          <button
+            onClick={goToNextStep}
+            disabled={!canProceed}
+            className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canProceed ? 'opacity-40' : 'hover:opacity-90'}`}
+            style={{ backgroundColor: 'var(--color-primary)', boxShadow: canProceed ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+          >
+            {ONBOARDING.NEXT_BUTTON}
+          </button>
+        ) : (
           <button
             onClick={handleSubmit}
-            disabled={selectedTypes.length === 0 || isSubmitting}
-            className={`
-              w-full max-w-xs py-4 px-6 font-semibold rounded-2xl transition-all duration-200
-              ${selectedTypes.length > 0 && !isSubmitting
-                ? 'text-white hover:opacity-90'
-                : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-              }
-            `}
-            style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-primary)' } : {}}
+            disabled={!canSubmit}
+            className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${!canSubmit ? 'opacity-40' : 'hover:opacity-90'}`}
+            style={{ backgroundColor: 'var(--color-primary)', boxShadow: canSubmit ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
           >
             {ONBOARDING.START_BUTTON}
           </button>
-        </>
-      )}
+        )}
 
-      {/* 단계 표시 (2단계) */}
-      <div className="flex gap-2 mt-8">
-        {(['nickname', 'type'] as OnboardingStep[]).map((s) => (
-          <div
-            key={s}
-            className={`h-2 rounded-full transition-all ${
-              step === s ? 'w-6' : 'w-2 bg-stone-300'
-            }`}
-            style={step === s ? { backgroundColor: 'var(--color-primary)' } : {}}
-          />
-        ))}
+        {/* 단계 표시 */}
+        <div className="flex gap-2 justify-center mt-4 pointer-events-none">
+          {(['nickname', 'type'] as OnboardingStep[]).map((s) => (
+            <div
+              key={s}
+              className={`h-2 rounded-full transition-all ${
+                step === s ? 'w-6' : 'w-2 bg-stone-300'
+              }`}
+              style={step === s ? { backgroundColor: 'var(--color-primary)' } : {}}
+            />
+          ))}
+        </div>
       </div>
-
-      {/* 버전 */}
-      <p className="mt-4 text-xs text-stone-400">v{APP.VERSION}</p>
     </div>
   )
 }

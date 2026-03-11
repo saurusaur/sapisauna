@@ -40,8 +40,8 @@
   --color-muted-fg: #726e6e;
 
   /* 글래스모픽 */
-  --glass: 0 0% 100% / .35;
-  --glass-border: 0 0% 100% / .45;
+  --glass: 0 0% 100% / .45;
+  --glass-border: 0 0% 100% / .55;
   --glass-highlight: 0 0% 100% / .2;
   --glass-shadow: 0 12px 40px -8px hsl(0 10% 15% / .1),
                   0 4px 16px -4px hsl(0 10% 15% / .08),
@@ -89,7 +89,8 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 0.5px solid hsl(var(--glass-border));
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08),
+              0 0 0 .5px hsl(0 0% 100% / .3);
   border-radius: var(--radius);
 }
 
@@ -98,7 +99,8 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 0.5px solid hsl(var(--glass-border));
-  box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08),
+  box-shadow: 0 3px 12px -3px hsl(0 10% 15% / .10),
+              0 1px 3px -1px hsl(0 10% 15% / .06),
               0 0 0 .5px hsl(0 0% 100% / .3);
   border-radius: var(--radius);
 }

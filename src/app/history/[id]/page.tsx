@@ -3,23 +3,19 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
-import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, ICONS, DEEP_LOG, QUICK_LOG } from '@/constants/content'
-import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText } from '@/lib/utils'
+import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@/constants/content'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
 import { useLog, useLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
-import DataState from '@/components/ui/data-state'
+import RecordCard from '@/components/features/record-card'
+import ScoreBadge from '@/components/features/score-badge'
 
 // DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
 function findOption(options: readonly { id: string; label: string; icon: string }[], id: string) {
   return options.find(o => o.id === id)
 }
 
-// 라벨 표시 컴포넌트
-function OptionLabel({ options, id }: { options: readonly { id: string; label: string; icon: string }[]; id: string }) {
-  const option = findOption(options, id)
-  if (!option) return <span>{id}</span>
-  return <span>{option.label}</span>
-}
+// 영문 라벨: COMPUTED_METRICS (메인 계산값) + QUICK_LOG.*.labelEn (서브 항목)
 
 export default function HistoryDetail({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -36,7 +32,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const visibleSamePlaceLogs = showAllSamePlace ? samePlaceLogs : samePlaceLogs.slice(0, 2)
   const hasMoreSamePlaceLogs = samePlaceLogs.length > 2
 
-  // 점수를 descriptor 텍스트로 표시
   const getRevisitLabel = (score: number): string => {
     return getStepLabel(QUICK_LOG.COMMON.REVISIT.steps, score)
   }
@@ -70,23 +65,53 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
     )
   }
 
+  // 타입별 메인 메트릭 (스토리와 동일 로직)
+  const getMainMetricValue = (): number | null => {
+    switch (log.tribe_id) {
+      case 'saunner':
+        return (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
+      case 'bather':
+        return log.hot_bath_temp || 40
+      case 'jimi':
+        return log.jjim_temp || null
+      default:
+        return null
+    }
+  }
+
+  const mainMetricValue = getMainMetricValue()
+  const mainMetricLabel = COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || ''
+
+  // 루틴 뱃지 (항상 4개 표시, 미입력은 '-')
+  const routineBadges = [
+    { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
+    { value: log.ice_time || null, label: 'ICE', unit: 'MIN' },
+    { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
+    { value: log.repeat || null, label: 'RPT', unit: 'SET' },
+  ]
+
   return (
-    <div className="min-h-screen bath-tile-bg pb-8">
+    <div className="min-h-screen bath-tile-bg pb-24">
       {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <header className="p-5 pt-8">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+            className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-lg font-bold text-stone-700">기록 상세</h1>
-        </div>
-        <div className="flex gap-2">
+
+          <h1
+            className="text-2xl font-extrabold italic"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            RECORD
+          </h1>
+
+          <div className="flex gap-2 ml-auto">
           <button
             onClick={() => {
-              // 기존 기록을 currentLog로 설정하고 폼으로 이동
               const logAsCurrentLog = {
                 _editId: log.id,
                 place_id: log.place_id,
@@ -112,124 +137,222 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
               router.push('/log')
             }}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
+            className="p-2 transition-colors hover:opacity-70"
+            style={{ color: 'var(--color-primary)' }}
           >
-            <span className="material-symbols-outlined">edit</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>edit</span>
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="p-2 text-red-400 hover:text-red-600 transition-colors"
+            className="p-2 transition-colors hover:opacity-70"
+            style={{ color: 'var(--color-primary)' }}
           >
-            <span className="material-symbols-outlined">delete</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>delete</span>
           </button>
+          </div>
         </div>
       </header>
 
       <main className="p-4 space-y-4">
-        {/* 장소 정보 */}
-        <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-          <button
-            onClick={() => router.push(`/explore/${log.place_id}`)}
-            className="flex items-center justify-center gap-1 mb-1 hover:opacity-70 transition-opacity"
-          >
-            <span className="material-symbols-outlined text-xs text-stone-500">{ICONS.PLACE}</span>
-            <span className="font-semibold text-lg text-stone-700">{log.place_name}</span>
-            <span className="material-symbols-outlined text-sm text-stone-400">chevron_right</span>
-          </button>
-          <p className="text-sm text-stone-400 mb-2">{log.address}</p>
-          <p className="text-sm text-stone-500">{formatDateTime(new Date(log.date))}</p>
+
+        {/* ── 1. 장소 카드 (장소 상세 페이지 스타일 참조) ── */}
+        <div className="glass-card p-5">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push(`/explore/${log.place_id}`)}
+              className="flex items-center gap-1 hover:opacity-70 transition-opacity"
+            >
+              <h2 className="text-lg font-bold text-stone-700">{log.place_name}</h2>
+              <span className="material-symbols-outlined text-sm text-stone-400">chevron_right</span>
+            </button>
+            <span className="text-lg ml-auto">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
+          </div>
+          <p className="text-xs text-stone-400 mt-2.5">{generateShortAddress(log.address, log.place_country_code) || log.address}</p>
+          <p className="text-xs text-stone-400 mt-2.5">{formatDateTime(new Date(log.date))}</p>
+
+          {/* 또 갈래요 점수 — ScoreBadge + descriptor 통일 */}
+          <div className="flex items-center gap-2 mt-2.5">
+            <ScoreBadge score={log.revisit_score} />
+            <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
+              {getRevisitLabel(log.revisit_score)}
+            </span>
+          </div>
         </div>
 
-        {/* Quick Log 정보 */}
-        <div>
-          <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
-            <span className="w-full h-px bg-stone-200"></span>
-            <span className="whitespace-nowrap px-2 flex items-center gap-1">
-              {TRIBE_EMOJI_MAP[log.tribe_id]} {TRIBE_CATEGORY_MAP[log.tribe_id]}
-            </span>
-            <span className="w-full h-px bg-stone-200"></span>
-          </h2>
+        {/* ── 2. 숏 리뷰: glass card 위 editorial 메트릭 + 루틴 ── */}
+        <div className="glass-card p-5">
 
-          <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
-            {log.tribe_id === 'saunner' && (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">사우나 온도</span>
-                  <span className="font-medium text-stone-700">{log.sauna_temp}°C</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">냉탕 온도</span>
-                  <span className="font-medium text-stone-700">{log.cold_bath_temp}°C</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">세트 수</span>
-                  <span className="font-medium text-stone-700">{log.repeat}세트</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-stone-500">토토노이 강도</span>
-                  <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
-                    {getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono_score || 0)}
+          {/* 메트릭 — 고정 3행 그리드, 모든 타입 동일 높이 */}
+          <div className="grid grid-cols-[auto_1fr] grid-rows-3 gap-x-5 items-center">
+            {/* 좌 col row1: 라벨 */}
+            <p className="text-xs font-medium uppercase tracking-wider text-stone-400 self-center" style={{ fontFamily: 'var(--font-heading)' }}>
+              {mainMetricLabel}
+            </p>
+            {/* 우 col row1 */}
+            <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
+              {log.tribe_id === 'saunner' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.sauna_temp ?? '—'}°</span>
+                </>
+              )}
+              {log.tribe_id === 'bather' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.cold_bath_temp ?? '—'}°</span>
+                </>
+              )}
+              {log.tribe_id === 'jimi' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.JIMI.SWEAT_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getStepLabel(QUICK_LOG.JIMI.SWEAT_QUALITY.steps, log.sweat_quality || 3)}</span>
+                    {log.sweat_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
+                  </span>
+                </>
+              )}
+            </div>
+            {/* 좌 col row2-3: 대형숫자 */}
+            <div className="row-span-2 flex items-start">
+              <span className="font-bold text-stone-800 leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)', fontSize: '72px' }}>{mainMetricValue ?? '—'}</span>
+              {mainMetricValue !== null && (
+                <span className="text-stone-400 font-semibold mt-1" style={{ fontFamily: 'var(--font-heading)', fontSize: '20px' }}>°C</span>
+              )}
+            </div>
+            {/* 우 col row2 */}
+            <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
+              {log.tribe_id === 'saunner' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-base font-bold text-stone-700" style={{ fontFamily: 'var(--font-heading)' }}>{log.cold_bath_temp ?? '—'}°</span>
+                </>
+              )}
+              {log.tribe_id === 'bather' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.BATHER.WATER_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getWaterQualityLabel(log.water_quality || 3)}</span>
+                    {log.water_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
+                  </span>
+                </>
+              )}
+              {log.tribe_id === 'jimi' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.JIMI.REST_QUALITY.labelEn}</span>
+                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getRestQualityLabel(log.rest_quality || 3)}</span>
+                    {log.rest_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
+                  </span>
+                </>
+              )}
+            </div>
+            {/* 우 col row3 */}
+            <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
+              {log.tribe_id === 'saunner' && (
+                <>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400" style={{ fontFamily: 'var(--font-heading)' }}>{QUICK_LOG.SAUNER.TOTONO.labelEn}</span>
+                  <span className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-accent)' }}>
+                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getStepLabel(QUICK_LOG.SAUNER.TOTONO.steps, log.totono_score || 0)}</span>
+                    {log.totono_score || 0}<span className="font-medium text-xs text-stone-400">/5</span>
+                  </span>
+                </>
+              )}
+              {log.tribe_id !== 'saunner' && <span />}
+            </div>
+          </div>
+
+          {/* 루틴 — 숫자 위 + 라벨 아래 (스토리 동일), 단위 없음 */}
+          <div className="mt-6 flex justify-center">
+            <div className="grid grid-cols-4 gap-6 w-full max-w-xs">
+              {routineBadges.map((badge) => (
+                <div key={badge.label} className="flex flex-col items-center gap-2">
+                  <span
+                    className="font-bold leading-none"
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '28px',
+                      color: badge.value !== null ? '#292524' : '#d6d3d1',
+                    }}
+                  >
+                    {badge.value ?? '-'}
+                  </span>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider leading-none"
+                    style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
+                  >
+                    {badge.label}
                   </span>
                 </div>
-              </>
-            )}
-
-            {log.tribe_id === 'bather' && (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">수질</span>
-                  <span className="font-medium text-stone-700">{getWaterQualityLabel(log.water_quality || 3)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500">온탕 온도</span>
-                  <span className="font-medium text-stone-700">{log.hot_bath_temp}°C</span>
-                </div>
-              </>
-            )}
-
-            {log.tribe_id === 'jimi' && (
-              <>
-                {log.jjim_temp && (
-                  <div className="flex justify-between">
-                    <span className="text-stone-500">한증막 온도</span>
-                    <span className="font-medium text-stone-700">{log.jjim_temp}°C</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-stone-500">휴식 퀄리티</span>
-                  <span className="font-medium text-stone-700">{getRestQualityLabel(log.rest_quality || 3)}</span>
-                </div>
-              </>
-            )}
-
-            <div className="pt-3 border-t border-stone-100 flex justify-end items-center gap-2">
-              <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
-                {getRevisitLabel(log.revisit_score)}
-              </span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Deep Log 정보 */}
+        {/* ── 3. 딥 리뷰 카드 ── */}
+        {!log.deep_log && (
+          <div>
+            <button
+              onClick={() => {
+                const logAsCurrentLog = {
+                  _editId: log.id,
+                  _deepOnly: true,
+                  place_id: log.place_id,
+                  place_name: log.place_name,
+                  place_country_code: log.place_country_code,
+                  tribe_id: log.tribe_id,
+                  record_date: log.date,
+                  revisit_score: log.revisit_score,
+                  repeat: log.repeat,
+                  heat_time: log.heat_time,
+                  ice_time: log.ice_time,
+                  pause_time: log.pause_time,
+                  sauna_temp: log.sauna_temp,
+                  cold_bath_temp: log.cold_bath_temp,
+                  totono_score: log.totono_score,
+                  hot_bath_temp: log.hot_bath_temp,
+                  water_quality: log.water_quality,
+                  jjim_temp: log.jjim_temp,
+                  rest_quality: log.rest_quality,
+                }
+                localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
+                localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
+                router.push('/log/deep')
+              }}
+              className="w-full h-[104px] glass-card-light rounded-2xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
+            >
+              <p className="text-stone-400 text-sm mb-2">더 자세히 기록해보세요</p>
+              <span
+                className="text-xs font-medium underline underline-offset-2"
+                style={{ color: 'var(--color-primary)' }}
+              >
+                딥로그 추가하기
+              </span>
+            </button>
+          </div>
+        )}
         {log.deep_log && (
           <div>
-            <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
-              <span className="w-full h-px bg-stone-200"></span>
-              <span className="whitespace-nowrap px-2">Deep Log</span>
-              <span className="w-full h-px bg-stone-200"></span>
-            </h2>
-
-            <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
+            <div className="glass-card-light rounded-2xl p-4 space-y-3">
+              {log.deep_log.bath_gender && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">탕 선택</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {findOption(DEEP_LOG.BATH_GENDER.options, log.deep_log.bath_gender)?.label ?? log.deep_log.bath_gender}
+                  </span>
+                </div>
+              )}
               {log.deep_log.companion && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">동행자</span>
-                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.COMPANION.options} id={log.deep_log.companion} /></span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">동행자</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {findOption(DEEP_LOG.COMPANION.options, log.deep_log.companion)?.label ?? log.deep_log.companion}
+                  </span>
                 </div>
               )}
               {log.deep_log.purposes && log.deep_log.purposes.length > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">방문 목적</span>
-                  <span className="font-medium text-stone-700">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">방문 목적</span>
+                  <span className="text-sm font-medium text-stone-700">
                     {log.deep_log.purposes.map(id => {
                       const opt = DEEP_LOG.PURPOSE.options.find(o => o.id === id)
                       return opt?.label ?? id
@@ -238,82 +361,89 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </div>
               )}
               {log.deep_log.cost && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">비용</span>
-                  <span className="font-medium text-stone-700">{log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}</span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">비용</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}
+                  </span>
                 </div>
               )}
               {log.deep_log.crowd && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">혼잡도</span>
-                  <span className="font-medium text-stone-700"><OptionLabel options={DEEP_LOG.CROWD.options} id={log.deep_log.crowd} /></span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">혼잡도</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {findOption(DEEP_LOG.CROWD.options, log.deep_log.crowd)?.label ?? log.deep_log.crowd}
+                  </span>
                 </div>
               )}
               {log.deep_log.has_scrub && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">세신</span>
-                  <span className="font-medium text-stone-700">
-                    {DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">세신</span>
+                  <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>
+                    {log.deep_log.scrub_satisfaction || 0}{' '}
+                    <span className="font-medium text-xs">
+                      {DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}
+                    </span>
                   </span>
                 </div>
               )}
               {log.deep_log.has_store && (
-                <div className="flex justify-between">
-                  <span className="text-stone-500">매점</span>
-                  <span className="font-medium text-stone-700">
-                    {log.deep_log.store_memo || '이용'}
-                  </span>
-                </div>
+                <>
+                  {log.deep_log.store_score && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-stone-400">매점 만족도</span>
+                      <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>
+                        {log.deep_log.store_score}/5
+                      </span>
+                    </div>
+                  )}
+                  {log.deep_log.store_memo && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-stone-400">추천 메뉴</span>
+                      <span className="text-sm font-medium text-stone-700">{log.deep_log.store_memo}</span>
+                    </div>
+                  )}
+                </>
               )}
-              {log.deep_log.memo && (
-                <div className="pt-2 border-t border-stone-100">
-                  <p className="text-sm text-stone-500">{log.deep_log.memo}</p>
-                </div>
-              )}
+
+              {/* 메모 — 별도 glass tile */}
             </div>
+
+            {log.deep_log.memo && (
+              <div className="glass-card-light rounded-2xl p-4 mt-3">
+                <p className="text-sm text-stone-600 leading-relaxed">{log.deep_log.memo}</p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* 같은 장소 과거 기록 */}
+        {/* ── 4. 같은 장소 기록 ── */}
         {samePlaceLogs.length > 0 && (
           <div>
-            <h2 className="text-center text-sm font-bold text-stone-500 mb-3 flex items-center gap-2">
-              <span className="w-full h-px bg-stone-200"></span>
-              <span className="whitespace-nowrap px-2 flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs">{ICONS.PLACE}</span>
-                {log.place_name}에서의 기록
-              </span>
-              <span className="w-full h-px bg-stone-200"></span>
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-stone-500">이 장소의 다른 기록</h3>
+              <button
+                onClick={() => router.push(`/explore/${log.place_id}`)}
+                className="text-xs font-medium transition-colors hover:opacity-70"
+                style={{ color: 'var(--color-primary)' }}
+              >
+                전체보기
+              </button>
+            </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {visibleSamePlaceLogs.map((item) => (
-                <button
+                <RecordCard
                   key={item.id}
+                  log={item}
                   onClick={() => router.push(`/history/${item.id}`)}
-                  className="w-full bg-white p-4 rounded-xl shadow-sm text-left hover:shadow-md transition-all"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm">
-                      {TRIBE_EMOJI_MAP[item.tribe_id]} {TRIBE_CATEGORY_MAP[item.tribe_id]}
-                    </span>
-                    <span className="text-sm text-stone-400">{formatShortDate(new Date(item.date))}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs text-stone-400">{getDetailText(item)}</p>
-                    <span className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
-                      {getRevisitLabel(item.revisit_score)}
-                    </span>
-                  </div>
-                </button>
+                />
               ))}
 
-              {/* 더보기 버튼 */}
               {hasMoreSamePlaceLogs && !showAllSamePlace && (
                 <button
                   onClick={() => setShowAllSamePlace(true)}
-                  className="w-full py-3 text-sm font-medium rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-colors flex items-center justify-center gap-1"
+                  className="w-full py-2.5 text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1"
                   style={{ color: 'var(--color-primary)' }}
                 >
                   <span className="material-symbols-outlined text-sm">expand_more</span>
@@ -321,11 +451,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </button>
               )}
 
-              {/* 접기 버튼 */}
               {showAllSamePlace && hasMoreSamePlaceLogs && (
                 <button
                   onClick={() => setShowAllSamePlace(false)}
-                  className="w-full py-3 text-sm font-medium rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-colors flex items-center justify-center gap-1 text-stone-400"
+                  className="w-full py-2.5 text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1 text-stone-400"
                 >
                   <span className="material-symbols-outlined text-sm">expand_less</span>
                   접기
@@ -334,20 +463,25 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             </div>
           </div>
         )}
+      </main>
 
-        {/* 스토리 만들기 버튼 */}
+      {/* ── 5. 스토리 만들기 CTA (앱 공통 하단 버튼) ── */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
         <button
           onClick={() => {
             localStorage.setItem('savedLogId', log.id)
             router.push('/story')
           }}
-          className="w-full py-4 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-all"
-          style={{ backgroundColor: 'var(--color-accent)' }}
+          className="w-full py-4 rounded-2xl font-semibold text-white transition-all hover:opacity-90 text-base pointer-events-auto flex items-center justify-center gap-2"
+          style={{
+            backgroundColor: 'var(--color-primary)',
+            boxShadow: '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)',
+          }}
         >
           <span className="material-symbols-outlined">photo_camera</span>
           스토리 만들기
         </button>
-      </main>
+      </div>
 
       {/* 삭제 확인 모달 */}
       {showDeleteConfirm && (

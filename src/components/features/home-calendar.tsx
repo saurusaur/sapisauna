@@ -11,6 +11,8 @@ interface HomeCalendarProps {
   logs: LogWithPlace[]
   selectedDate: string
   onSelectDate: (date: string) => void
+  /** 월간 뷰로 시작 (기본: 주간 뷰) */
+  defaultExpanded?: boolean
 }
 
 // 월요일 시작 기준으로 해당 날짜가 속한 주의 7일 반환
@@ -64,8 +66,8 @@ function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export default function HomeCalendar({ logs, selectedDate, onSelectDate }: HomeCalendarProps) {
-  const [expanded, setExpanded] = useState(false)
+export default function HomeCalendar({ logs, selectedDate, onSelectDate, defaultExpanded = false }: HomeCalendarProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded)
   const [weekBase, setWeekBase] = useState(() => new Date())
   const [monthView, setMonthView] = useState(() => {
     const now = new Date()

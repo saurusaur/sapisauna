@@ -88,14 +88,23 @@ export default function PlaceDetailPage() {
 
   return (
     <div className="min-h-screen pb-24 bath-tile-bg">
-      {/* A. 헤더 — 투명, ← 만 */}
-      <header className="p-4 flex items-center justify-between">
-        <button
-          onClick={() => router.back()}
-          className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-        >
-          <span className="material-symbols-outlined">{ICONS.BACK}</span>
-        </button>
+      {/* A. 헤더 — 서브페이지 스타일 */}
+      <header className="p-5 pt-8">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+          >
+            <span className="material-symbols-outlined">{ICONS.BACK}</span>
+          </button>
+
+          <h1
+            className="text-2xl font-extrabold italic"
+            style={{ fontFamily: 'var(--font-heading)' }}
+          >
+            PLACE
+          </h1>
+        </div>
       </header>
 
       <main className="p-4 space-y-4">
@@ -159,6 +168,8 @@ export default function PlaceDetailPage() {
 
         {/* C. 시설 정보 — glass-card */}
         {facilityGroups.length > 0 && (
+          <div>
+          <h3 className="text-sm font-semibold text-stone-500 mb-3">시설 정보</h3>
           <div className="glass-card p-4">
             <div className="space-y-3">
               {facilityGroups.map((group) => (
@@ -172,6 +183,7 @@ export default function PlaceDetailPage() {
                 </div>
               ))}
             </div>
+          </div>
           </div>
         )}
 

@@ -75,7 +75,7 @@ export const TRIBES = {
     category: '목욕탕',
     // Persona (유저 레이블, 영어): Bather
     persona: 'Bather',
-    name: '목욕탕파',
+    name: '목욕파',
     emoji: '🛁',
     description: '목욕탕의 따뜻한 물과 시원한 세신이 나를 부른다',
     color: TRIBE_COLORS.bather,
@@ -169,6 +169,7 @@ export const QUICK_LOG = {
   COMMON: {
     REVISIT: {
       label: '또 갈래요',
+      labelEn: 'REVISIT',
       min: 1,
       max: 5,
       steps: [
@@ -180,18 +181,20 @@ export const QUICK_LOG = {
       ],
     },
     // 냉탕 온도 (saunner 필수 / bather 선택)
-    COLD_BATH_TEMP: COLD_BATH_TEMP_CONFIG,
+    COLD_BATH_TEMP: { ...COLD_BATH_TEMP_CONFIG, labelEn: 'COLD BATH' },
     // 루틴 기록 (전 타입 선택 — 탭 시 활성화, 초기화 버튼으로 리셋)
     ROUTINE: {
       HEAT: {
         label: 'HEAT',
-        placeholder: 12, // 흐릿하게 보여지는 예시값
+        labelEn: 'HEAT',
+        placeholder: 12,
         min: 1,
         max: 60,
-        unit: '분',  // 숏후기 폼은 현지어 단위 / 스토리 스티커는 'mins' 고정
+        unit: '분',
       },
       ICE: {
         label: 'ICE',
+        labelEn: 'ICE',
         placeholder: 1,
         min: 1,
         max: 5,
@@ -199,6 +202,7 @@ export const QUICK_LOG = {
       },
       PAUSE: {
         label: 'PAUSE',
+        labelEn: 'PAUSE',
         placeholder: 5,
         min: 1,
         max: 30,
@@ -206,6 +210,7 @@ export const QUICK_LOG = {
       },
       REPEAT: {
         label: 'REPEAT',
+        labelEn: 'REPEAT',
         min: 1,
         max: 7,
         unit: 'sets',
@@ -217,6 +222,7 @@ export const QUICK_LOG = {
   BATHER: {
     HOT_BATH_TEMP: {
       label: '목욕물 온도',
+      labelEn: 'HOT BATH',
       min: 30,
       max: 46,
       unit: '°C',
@@ -229,6 +235,7 @@ export const QUICK_LOG = {
     },
     WATER_QUALITY: {
       label: '수질',
+      labelEn: 'WATER QUALITY',
       min: 1,
       max: 5,
       steps: [
@@ -245,6 +252,7 @@ export const QUICK_LOG = {
   SAUNER: {
     SAUNA_TEMP: {
       label: '건식 사우나 온도',
+      labelEn: 'SAUNA',
       min: 50,
       max: 130,
       unit: '°C',
@@ -258,6 +266,7 @@ export const QUICK_LOG = {
     },
     TOTONO: {
       label: '사우나 하이',
+      labelEn: 'TOTONO',
       min: 1,
       max: 5,
       steps: [
@@ -274,6 +283,7 @@ export const QUICK_LOG = {
   JIMI: {
     JJIM_TEMP: {
       label: '한증막 온도',
+      labelEn: 'JJIMJIL',
       min: 60,
       max: 100,
       unit: '°C',
@@ -284,8 +294,22 @@ export const QUICK_LOG = {
         { value: 90, label: '지글지글' },
       ],
     },
+    SWEAT_QUALITY: {
+      label: '발한 퀄리티',
+      labelEn: 'SWEAT QUALITY',
+      min: 1,
+      max: 5,
+      steps: [
+        { value: 1, label: '안남' },
+        { value: 2, label: '미약' },
+        { value: 3, label: '보통' },
+        { value: 4, label: '시원' },
+        { value: 5, label: '폭포' },
+      ],
+    },
     REST_QUALITY: {
       label: '휴식 퀄리티',
+      labelEn: 'REST QUALITY',
       min: 1,
       max: 5,
       steps: [
@@ -298,6 +322,15 @@ export const QUICK_LOG = {
     },
   },
 }
+
+// ============================================
+// 계산 메트릭 라벨 (QUICK_LOG에 대응 항목이 없는 파생값)
+// ============================================
+export const COMPUTED_METRICS = {
+  saunner: { label: '온도 차이', labelEn: 'TEMP DELTA' },
+  bather: { label: '목욕 온도', labelEn: 'BATH TEMP' },
+  jimi: { label: '한증막 온도', labelEn: 'JJIMJIL TEMP' },
+} as const
 
 // ============================================
 // 장소 스펙 옵션 (크라우드소싱 데이터)
@@ -615,7 +648,7 @@ export const PLACE_DETAIL = {
   AVG_RATING: '평균 평가',
   RATING_SUMMARY: (avg: string, count: number) => `평균 ${avg} · ${count}건의 기록`,
   NO_LOGS: '아직 기록이 없어요',
-  LOGS_TITLE: '이 장소의 기록',
+  LOGS_TITLE: '사-피엔스의 흔적',
   MORE_LOGS: '더보기',
   RECORD_CTA: '이 장소에서 기록하기',
   NAVER_MAP: '네이버 지도',

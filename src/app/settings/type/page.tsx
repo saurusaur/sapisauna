@@ -39,34 +39,27 @@ export default function TypeEdit() {
 
   return (
     <div className="min-h-screen bath-tile-bg">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-lg font-bold text-stone-700">타입 수정</h1>
+      {/* 헤더 — 앱 통일 패턴 */}
+      <header className="p-5 pt-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1
+              className="text-2xl font-extrabold italic"
+              style={{ fontFamily: 'var(--font-heading)' }}
+            >
+              MY TRIBE
+            </h1>
+          </div>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={selectedTypes.length === 0}
-          className={`
-            px-4 py-2 rounded-xl font-semibold transition-all
-            ${selectedTypes.length > 0
-              ? 'text-white hover:opacity-90'
-              : 'bg-stone-200 text-stone-400'
-            }
-          `}
-          style={selectedTypes.length > 0 ? { backgroundColor: 'var(--color-primary)' } : {}}
-        >
-          <span className="material-symbols-outlined">check</span>
-        </button>
       </header>
 
-      <main className="p-6">
+      <main className="p-5 pb-24">
         <div className="mb-6">
           <p className="text-stone-700 font-medium mb-1">순서대로 우선순위가 정해져요</p>
           <p className="text-sm text-stone-400">(첫 번째 = 홈 메시지, 퀵로그 기본값)</p>
@@ -86,7 +79,7 @@ export default function TypeEdit() {
                     transition-all duration-200 cursor-pointer border-3
                     ${isSelected
                       ? 'scale-110 shadow-lg border-transparent'
-                      : 'bg-white border-stone-200 hover:border-stone-300'
+                      : 'glass-card-light border-stone-200 hover:border-stone-300'
                     }
                   `}
                   style={{
@@ -126,6 +119,18 @@ export default function TypeEdit() {
           <span>탭하여 순서 변경</span>
         </div>
       </main>
+
+      {/* 하단 고정 저장 버튼 — 앱 통일 패턴 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
+        <button
+          onClick={handleSave}
+          disabled={selectedTypes.length === 0}
+          className={`w-full py-4 rounded-2xl font-semibold text-white transition-all text-base pointer-events-auto ${selectedTypes.length === 0 ? 'opacity-40' : 'hover:opacity-90'}`}
+          style={{ backgroundColor: 'var(--color-primary)', boxShadow: selectedTypes.length > 0 ? '0 8px 30px -4px rgba(204, 26, 26, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.12)' : 'none' }}
+        >
+          저장
+        </button>
+      </div>
     </div>
   )
 }
