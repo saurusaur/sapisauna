@@ -25,8 +25,8 @@
 // 앱 정보
 // ============================================
 export const APP = {
-  NAME: '사-피',
-  TAGLINE: '사-피엔스의 사우나 기록',
+  NAME: '사-피 | 우리는 사우나 신인류!',
+  TAGLINE: '사우나 피플을 위한 기록, 공유, 발견',
   VERSION: '0.1.0',
 }
 
@@ -265,7 +265,7 @@ export const QUICK_LOG = {
       ],
     },
     TOTONO: {
-      label: '사우나 하이',
+      label: '토토노우',
       labelEn: 'TOTONO',
       min: 1,
       max: 5,
@@ -296,16 +296,16 @@ export const QUICK_LOG = {
       ],
     },
     SWEAT_QUALITY: {
-      label: '발한 퀄리티',
+      label: '땀 만족도',
       labelEn: 'SWEAT QUALITY',
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '안남' },
-        { value: 2, label: '미약' },
-        { value: 3, label: '보통' },
-        { value: 4, label: '시원' },
-        { value: 5, label: '폭포' },
+        { value: 1, label: '건조' },
+        { value: 2, label: '촉촉' },
+        { value: 3, label: '방울' },
+        { value: 4, label: '뚝뚝' },
+        { value: 5, label: '해독' },
       ],
     },
     REST_QUALITY: {
