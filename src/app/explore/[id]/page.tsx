@@ -357,49 +357,50 @@ export default function PlaceDetailPage() {
             </div>
             <div className="glass-card p-4 space-y-4">
 
-              {/* D-1. 온도 메트릭 — 트라이브 1개일 때 너비 맞춤 */}
+              {/* D-1~3 통합 그리드: 트라이브 수에 따라 컬럼 결정
+                  1 tribe → 2col: [온도+서브 | 혼잡도/더보기]
+                  2 tribes → 2col: [tribe1 | tribe2] + 아래 [혼잡도 | 더보기]
+                  3 tribes → 3col: [tribe1 | tribe2 | tribe3] + 아래 풀폭
+              */}
+              {/* 온도 메트릭 */}
               {tempMetrics.length > 0 && (
-              <div>
-                <div className={`flex justify-center py-2 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px] mx-auto' : ''}`}>
-                  {tempMetrics.map((m) => (
-                    <div key={m.label} className="flex flex-col items-center flex-1">
-                      <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
-                      <div className="flex items-baseline gap-0.5">
-                        <span className="text-xl font-bold text-stone-700">{Math.round(m.value)}</span>
-                        <span className="text-[10px] text-stone-400">°C</span>
-                      </div>
+              <div className={`grid gap-x-6 py-2 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                {tempMetrics.map((m) => (
+                  <div key={m.label} className="flex flex-col items-center">
+                    <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-xl font-bold text-stone-700">{Math.round(m.value)}</span>
+                      <span className="text-[10px] text-stone-400">°C</span>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
               )}
 
-              {/* D-2. 트라이브별 서브 메트릭 컬럼 + 구분선 */}
+              {/* 트라이브별 서브 메트릭 */}
               {tribeSubMetrics.length > 0 && (
-              <div className="pt-1 border-t border-stone-100">
-                <div className={`flex justify-center ${tribeSubMetrics.length === 1 ? '' : 'divide-x divide-stone-200'}`}>
-                  {tribeSubMetrics.map(({ tribeId, metrics }) => (
-                    <div key={tribeId} className="px-3 first:pl-0 last:pr-0 py-1 max-w-[160px] w-full">
-                      <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
-                        {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
-                      </p>
-                      <div className="space-y-1.5">
-                        {metrics.map(m => (
-                          <div key={m.label} className="flex items-center justify-between text-xs">
-                            <span className="text-stone-500">{m.label}</span>
-                            <span className="font-bold text-stone-700">{m.value}</span>
-                          </div>
-                        ))}
-                      </div>
+              <div className={`grid gap-x-6 pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                {tribeSubMetrics.map(({ tribeId, metrics }) => (
+                  <div key={tribeId} className="py-1">
+                    <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
+                      {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
+                    </p>
+                    <div className="space-y-1.5">
+                      {metrics.map(m => (
+                        <div key={m.label} className="flex items-center justify-between text-xs">
+                          <span className="text-stone-500">{m.label}</span>
+                          <span className="font-bold text-stone-700">{m.value}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
               )}
 
-              {/* D-3. 혼잡도 (좌) + 더보기 (우) — 둘 다 없으면 숨김 */}
+              {/* 혼잡도 + 더보기 */}
               {(crowdTotal > 0 || additionalMetrics.length > 0) && (
-              <div className="grid grid-cols-2 gap-6 pt-1 border-t border-stone-100">
+              <div className={`grid gap-6 pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 {/* 좌: 혼잡도 바차트 */}
                 <div>
                   {crowdTotal > 0 && (

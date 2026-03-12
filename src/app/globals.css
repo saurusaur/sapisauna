@@ -41,8 +41,8 @@
   --color-icon-inactive: #d6d3d1;
 
   /* 글래스모픽 */
-  --glass: 0 0% 100% / .45;
-  --glass-border: 0 0% 100% / .55;
+  --glass: 0 0% 100% / .55;
+  --glass-border: 0 0% 100% / .65;
   --glass-highlight: 0 0% 100% / .2;
   --glass-shadow: 0 12px 40px -8px hsl(0 10% 15% / .1),
                   0 4px 16px -4px hsl(0 10% 15% / .08),
