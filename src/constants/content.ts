@@ -74,7 +74,7 @@ export const TRIBES = {
     // Category (기록 타입, 한국어): 목욕
     category: '목욕탕',
     // Persona (유저 레이블, 영어): Bather
-    persona: 'Bather',
+    persona: 'BATHER',
     name: '목욕파',
     emoji: '🛁',
     description: '목욕탕의 따뜻한 물과 시원한 세신이 나를 부른다',
@@ -83,7 +83,7 @@ export const TRIBES = {
   SAUNER: {
     id: 'saunner',
     category: '사우나',
-    persona: 'Saunner',
+    persona: 'SAUNNER',
     name: '사우나파',
     emoji: '🔥',
     description: '사우나, 냉탕, 휴식의 반복으로 완성하는 나의 루틴',
@@ -92,7 +92,7 @@ export const TRIBES = {
   JIMI: {
     id: 'jimi',
     category: '찜질',
-    persona: 'Jimi',
+    persona: 'JIMI',
     name: '찜질파',
     emoji: '🥚',
     description: '한증막에서 뜨겁게 지진 후 먹고 자는 게 최고의 힐링',
@@ -152,6 +152,7 @@ export const ONBOARDING = {
 // 공통 냉탕 온도 config (saunner/bather 공유)
 const COLD_BATH_TEMP_CONFIG = {
   label: '냉탕 온도',
+  shortLabel: '냉탕',
   min: 0,
   max: 30,
   unit: '°C',
@@ -222,6 +223,7 @@ export const QUICK_LOG = {
   BATHER: {
     HOT_BATH_TEMP: {
       label: '목욕물 온도',
+      shortLabel: '온탕',
       labelEn: 'HOT BATH',
       min: 30,
       max: 46,
@@ -235,6 +237,7 @@ export const QUICK_LOG = {
     },
     WATER_QUALITY: {
       label: '수질',
+      shortLabel: '수질',
       labelEn: 'WATER QUALITY',
       min: 1,
       max: 5,
@@ -252,6 +255,7 @@ export const QUICK_LOG = {
   SAUNER: {
     SAUNA_TEMP: {
       label: '건식 사우나 온도',
+      shortLabel: '사우나',
       labelEn: 'SAUNA',
       min: 50,
       max: 130,
@@ -266,6 +270,7 @@ export const QUICK_LOG = {
     },
     TOTONO: {
       label: '토토노우',
+      shortLabel: '토토노우',
       labelEn: 'TOTONO',
       min: 1,
       max: 5,
@@ -283,6 +288,7 @@ export const QUICK_LOG = {
   JIMI: {
     JJIM_TEMP: {
       label: '한증막 온도',
+      shortLabel: '한증막',
       labelEn: 'JJIMJIL',
       min: 70,
       max: 130,
@@ -297,6 +303,7 @@ export const QUICK_LOG = {
     },
     SWEAT_QUALITY: {
       label: '땀 만족도',
+      shortLabel: '땀',
       labelEn: 'SWEAT QUALITY',
       min: 1,
       max: 5,
@@ -310,6 +317,7 @@ export const QUICK_LOG = {
     },
     REST_QUALITY: {
       label: '휴식 퀄리티',
+      shortLabel: '휴식',
       labelEn: 'REST QUALITY',
       min: 1,
       max: 5,

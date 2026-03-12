@@ -100,7 +100,7 @@ export default function TypeEdit() {
                     className={`text-sm font-extrabold italic block transition-all duration-200 font-heading ${isSelected ? '' : 'text-stone-400'}`}
                     style={{ color: isSelected ? type.color : undefined }}
                   >
-                    {type.persona.toUpperCase()}
+                    {type.persona}
                   </span>
                   <span
                     className={`text-[11px] transition-all duration-200 ${isSelected ? 'font-medium' : 'text-stone-400'}`}

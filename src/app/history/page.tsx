@@ -109,7 +109,7 @@ export default function History() {
           return (
             <TypeTab
               key={id}
-              label={emoji ? `${emoji} ${label.toUpperCase()}` : label}
+              label={emoji ? `${emoji} ${label}` : label}
               active={typeFilter === id}
               onClick={() => setTypeFilter(id)}
               color={id === 'all' ? 'var(--color-primary)' : TRIBE_COLORS[id]}

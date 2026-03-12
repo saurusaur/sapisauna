@@ -420,7 +420,7 @@ export default function QuickLog() {
             className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-800 transition-colors"
           >
             <span className="text-base">{TRIBE_EMOJI_MAP[logType]}</span>
-            <span>{TRIBE_PERSONA_MAP[logType]?.toUpperCase()}</span>
+            <span>{TRIBE_PERSONA_MAP[logType]}</span>
             <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>expand_more</span>
           </button>
 
@@ -437,7 +437,7 @@ export default function QuickLog() {
                 >
                   <span className="flex items-center gap-2 text-sm">
                     <span className="text-base">{TRIBE_EMOJI_MAP[type]}</span>
-                    {TRIBE_PERSONA_MAP[type]?.toUpperCase()}
+                    {TRIBE_PERSONA_MAP[type]}
                   </span>
                   {logType === type && (
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: '20px' }}>check</span>

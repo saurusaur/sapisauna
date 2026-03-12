@@ -187,24 +187,31 @@ export function getFacilityLabel(id: string): string {
 /**
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
+// 트라이브별 숏로그에 표시할 필드 순서 — shortLabel은 QUICK_LOG SSOT 참조
+const DETAIL_FIELDS: Record<string, { field: string; shortLabel: string; unit: string }[]> = {
+  saunner: [
+    { field: 'sauna_temp', shortLabel: QUICK_LOG.SAUNER.SAUNA_TEMP.shortLabel, unit: '°' },
+    { field: 'cold_bath_temp', shortLabel: QUICK_LOG.COMMON.COLD_BATH_TEMP.shortLabel, unit: '°' },
+    { field: 'totono_score', shortLabel: QUICK_LOG.SAUNER.TOTONO.shortLabel, unit: '/5' },
+  ],
+  bather: [
+    { field: 'hot_bath_temp', shortLabel: QUICK_LOG.BATHER.HOT_BATH_TEMP.shortLabel, unit: '°' },
+    { field: 'cold_bath_temp', shortLabel: QUICK_LOG.COMMON.COLD_BATH_TEMP.shortLabel, unit: '°' },
+    { field: 'water_quality', shortLabel: QUICK_LOG.BATHER.WATER_QUALITY.shortLabel, unit: '/5' },
+  ],
+  jimi: [
+    { field: 'jjim_temp', shortLabel: QUICK_LOG.JIMI.JJIM_TEMP.shortLabel, unit: '°' },
+    { field: 'sweat_quality', shortLabel: QUICK_LOG.JIMI.SWEAT_QUALITY.shortLabel, unit: '/5' },
+    { field: 'rest_quality', shortLabel: QUICK_LOG.JIMI.REST_QUALITY.shortLabel, unit: '/5' },
+  ],
+}
+
 export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
+  const fields = DETAIL_FIELDS[log.tribe_id] || []
   const parts: string[] = []
-  switch (log.tribe_id) {
-    case 'saunner':
-      if (log.sauna_temp != null) parts.push(`사우나 ${log.sauna_temp}°`)
-      if (log.cold_bath_temp != null) parts.push(`냉탕 ${log.cold_bath_temp}°`)
-      if (log.totono_score != null) parts.push(`토토노 ${log.totono_score}/5`)
-      break
-    case 'bather':
-      if (log.hot_bath_temp != null) parts.push(`온탕 ${log.hot_bath_temp}°`)
-      if (log.water_quality != null) parts.push(`수질 ${log.water_quality}/5`)
-      if (log.cold_bath_temp != null) parts.push(`냉탕 ${log.cold_bath_temp}°`)
-      break
-    case 'jimi':
-      if (log.jjim_temp != null) parts.push(`한증막 ${log.jjim_temp}°`)
-      if (log.sweat_quality != null) parts.push(`발한 ${log.sweat_quality}/5`)
-      if (log.rest_quality != null) parts.push(`휴식 ${log.rest_quality}/5`)
-      break
+  for (const { field, shortLabel, unit } of fields) {
+    const val = (log as Record<string, unknown>)[field]
+    if (val != null) parts.push(`${shortLabel} ${val}${unit}`)
   }
   return parts.join(' · ')
 }

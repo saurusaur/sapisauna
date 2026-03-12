@@ -62,7 +62,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-stone-400">
-                  {TRIBE_PERSONA_MAP[user?.primary_type || FALLBACK_TRIBE]?.toUpperCase()}
+                  {TRIBE_PERSONA_MAP[user?.primary_type || FALLBACK_TRIBE]}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>

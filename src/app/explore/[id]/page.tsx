@@ -4,16 +4,15 @@ import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
-  TRIBE_EMOJI_MAP, DEEP_LOG,
+  TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG,
 } from '@/constants/content'
-import { getStepLabel } from '@/lib/utils'
+import { getStepLabel, getDetailText } from '@/lib/utils'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
 import { useFavorites } from '@/hooks/use-favorites'
 import Badge24h from '@/components/ui/badge-24h'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
-import RecordCard from '@/components/features/record-card'
 import { useAuth } from '@/contexts/auth-context'
 import BottomCTA from '@/components/ui/bottom-cta'
 
@@ -30,7 +29,9 @@ export default function PlaceDetailPage() {
   const { stats } = usePlaceStats(placeId)
   const { toggleFavorite, isFavorited } = useFavorites()
   const { user: authUser } = useAuth()
-  const [showAllLogs, setShowAllLogs] = useState(false)
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
+  const [tribeSortId, setTribeSortId] = useState<string>('')
 
   // 로딩/에러/없음 상태
   if (placeLoading) {
@@ -64,70 +65,96 @@ export default function PlaceDetailPage() {
   }
 
   // 표시할 기록 (기본 3개, 더보기 시 전체)
-  const displayedLogs = showAllLogs ? placeLogs : placeLogs.slice(0, 3)
 
-  // ── 더미 통계 데이터 (추후 실제 데이터로 교체) ──
-  const dummyStats = {
-    totalCount: 42,
-    tribeDistribution: [
-      { tribeId: 'saunner', count: 24 },
-      { tribeId: 'bather', count: 12 },
-      { tribeId: 'jimi', count: 6 },
-    ] as { tribeId: string; count: number }[],
-    tribeMetrics: [
-      { tribeId: 'saunner', label: '사우나 온도', avg: 92, unit: '°C' },
-      { tribeId: 'saunner', label: '냉탕 온도', avg: 14, unit: '°C' },
-      { tribeId: 'saunner', label: '토토노우', avg: 3.8, unit: '/5' },
-      { tribeId: 'bather', label: '목욕물 온도', avg: 41, unit: '°C' },
-      { tribeId: 'bather', label: '수질', avg: 3.5, unit: '/5' },
-      { tribeId: 'jimi', label: '한증막 온도', avg: 88, unit: '°C' },
-      { tribeId: 'jimi', label: '땀 만족도', avg: 4.1, unit: '/5' },
-    ],
-    avgCost: { amount: 12000, currency: 'KRW', count: 28 },
-    crowdDistribution: [
-      { id: 'empty', count: 8 },
-      { id: 'moderate', count: 18 },
-      { id: 'busy', count: 10 },
-      { id: 'full', count: 2 },
-    ],
-    scrub: { avgSatisfaction: 3.6, usageRate: 45, totalUsed: 19 },
-    reviews: [
-      {
-        nickname: '사우나왕',
-        tribeId: 'saunner',
-        date: '2026-03-10',
-        memo: '불가마 온도가 정말 완벽했어요. 냉탕도 차갑고 시원해서 토토노우 3세트 돌았습니다.',
-        recommendMenu: null,
-      },
-      {
-        nickname: '목욕좋아',
-        tribeId: 'bather',
-        date: '2026-03-08',
-        memo: '세신 아주머니 솜씨가 좋아요. 수질도 깨끗하고 전체적으로 만족!',
-        recommendMenu: null,
-      },
-      {
-        nickname: '찜질매니아',
-        tribeId: 'jimi',
-        date: '2026-03-05',
-        memo: '한증막 온도 딱 좋고, 식혜가 맛있어요.',
-        recommendMenu: '식혜, 구운 계란',
-      },
-      {
-        nickname: '초보사우너',
-        tribeId: 'saunner',
-        date: '2026-02-28',
-        memo: '처음 와봤는데 시설이 깔끔하고 좋았어요. 다음엔 아우프구스 시간 맞춰서 올 예정.',
-        recommendMenu: null,
-      },
-    ],
+  // ── placeLogs 기반 통계 계산 ──
+  const totalCount = placeLogs.length
+
+  // 1. 트라이브 분포
+  const tribeCounts: Record<string, number> = {}
+  for (const log of placeLogs) {
+    tribeCounts[log.tribe_id] = (tribeCounts[log.tribe_id] || 0) + 1
   }
+  // 고정 순서: 사우너 → 목욕 → 찜질
+  const tribeOrder = ['saunner', 'bather', 'jimi'] as const
+  const tribeDistribution = tribeOrder
+    .filter(t => tribeCounts[t] > 0)
+    .map(tribeId => ({ tribeId, count: tribeCounts[tribeId] }))
 
-  const [showAllReviews, setShowAllReviews] = useState(false)
-  const displayedReviews = showAllReviews ? dummyStats.reviews : dummyStats.reviews.slice(0, 2)
-  const crowdTotal = dummyStats.crowdDistribution.reduce((s, c) => s + c.count, 0)
+  // 2. 온도 메트릭 (큰 숫자로 표시, 입력된 것만)
+  const calcAvg = (field: keyof typeof placeLogs[0], filterTribe?: string) => {
+    const logs = filterTribe ? placeLogs.filter(l => l.tribe_id === filterTribe) : placeLogs
+    const vals = logs.filter(l => l[field] != null).map(l => l[field] as number)
+    return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
+  }
+  const tempMetrics = [
+    { label: '온탕', value: calcAvg('hot_bath_temp', 'bather') },
+    { label: '냉탕', value: calcAvg('cold_bath_temp') },
+    { label: '사우나', value: calcAvg('sauna_temp', 'saunner') },
+    { label: '한증막', value: calcAvg('jjim_temp', 'jimi') },
+  ].filter(m => m.value !== null) as { label: string; value: number }[]
+
+  // 3. 트라이브별 서브 메트릭 (컬럼 표시)
+  const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
+    { tribeId: 'saunner', metrics: [
+      ...(calcAvg('totono_score', 'saunner') != null ? [{ label: '토토노우', value: `${calcAvg('totono_score', 'saunner')}/5` }] : []),
+      ...(calcAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'saunner')}/5` }] : []),
+    ]},
+    { tribeId: 'bather', metrics: [
+      ...(calcAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcAvg('water_quality', 'bather')}/5` }] : []),
+      ...(calcAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'bather')}/5` }] : []),
+    ]},
+    { tribeId: 'jimi', metrics: [
+      ...(calcAvg('sweat_quality', 'jimi') != null ? [{ label: '땀 만족도', value: `${calcAvg('sweat_quality', 'jimi')}/5` }] : []),
+      ...(calcAvg('rest_quality', 'jimi') != null ? [{ label: '휴식', value: `${calcAvg('rest_quality', 'jimi')}/5` }] : []),
+      ...(calcAvg('revisit_score', 'jimi') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'jimi')}/5` }] : []),
+    ]},
+  ].filter(t => t.metrics.length > 0)
+
+  // 3. 평균 비용 (deep_log.cost, KRW 기준만 집계)
+  const costEntries = placeLogs
+    .filter(l => l.deep_log?.cost != null && (l.deep_log?.currency === 'KRW' || !l.deep_log?.currency))
+    .map(l => l.deep_log!.cost as number)
+  const avgCost = costEntries.length > 0
+    ? { amount: Math.round(costEntries.reduce((s, v) => s + v, 0) / costEntries.length), currency: 'KRW', count: costEntries.length }
+    : null
+
+  // 4. 혼잡도 분포
+  const crowdCounts: Record<string, number> = {}
+  for (const log of placeLogs) {
+    if (log.deep_log?.crowd) crowdCounts[log.deep_log.crowd] = (crowdCounts[log.deep_log.crowd] || 0) + 1
+  }
   const crowdLabelMap = Object.fromEntries(DEEP_LOG.CROWD.options.map(o => [o.id, o.label]))
-  const scrubStepLabel = getStepLabel(DEEP_LOG.SCRUB.satisfaction.steps, Math.round(dummyStats.scrub.avgSatisfaction))
+  const crowdDistribution = DEEP_LOG.CROWD.options.map(o => ({ id: o.id, count: crowdCounts[o.id] || 0 }))
+  const crowdTotal = crowdDistribution.reduce((s, c) => s + c.count, 0)
+
+  // 5. 세신 만족도
+  const scrubLogs = placeLogs.filter(l => l.deep_log?.has_scrub)
+  const scrubSatVals = scrubLogs.filter(l => l.deep_log?.scrub_satisfaction != null).map(l => l.deep_log!.scrub_satisfaction as number)
+  const scrubAvg = scrubSatVals.length > 0 ? scrubSatVals.reduce((s, v) => s + v, 0) / scrubSatVals.length : 0
+  const scrubUsageRate = totalCount > 0 ? Math.round((scrubLogs.length / totalCount) * 100) : 0
+  const scrubStepLabel = scrubSatVals.length > 0 ? getStepLabel(DEEP_LOG.SCRUB.satisfaction.steps, Math.round(scrubAvg)) : ''
+
+  // 6. 통합 로그 카드 (소팅)
+  const sortedLogs = (() => {
+    let logs = [...placeLogs]
+    switch (logSort) {
+      case 'memo':
+        logs = logs.filter(l => l.deep_log?.memo)
+        logs.sort((a, b) => b.date.localeCompare(a.date))
+        break
+      case 'score':
+        logs.sort((a, b) => b.revisit_score - a.revisit_score || b.date.localeCompare(a.date))
+        break
+      case 'tribe':
+        if (tribeSortId) logs = logs.filter(l => l.tribe_id === tribeSortId)
+        logs.sort((a, b) => b.date.localeCompare(a.date))
+        break
+      default:
+        logs.sort((a, b) => b.date.localeCompare(a.date))
+    }
+    return logs
+  })()
+  const displayedLogs2 = showAllReviews ? sortedLogs : sortedLogs.slice(0, 3)
 
   // 지도 URL — external_id(place_id) 우선, fallback은 좌표/이름 기반
   const googleSource = place.sources.find(s => s.source === 'google')
@@ -255,176 +282,281 @@ export default function PlaceDetailPage() {
           </div>
         )}
 
-        {/* D. 통계 섹션 — 사-피엔스의 통계 */}
-        {dummyStats.totalCount > 0 && (
+        {/* D. 통계 섹션 — 사-피엔스의 흔적 */}
+        {totalCount > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-stone-500 mb-3">사-피엔스의 통계</h3>
-
-            {/* D-1. 기록 건수 + 트라이브 분포 */}
+            <h3 className="text-sm font-semibold text-stone-500 mb-3">사-피 리포트</h3>
             <div className="glass-card p-4 space-y-4">
-              <div>
-                <p className="text-xs text-stone-400 mb-2">기록 분포</p>
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl font-bold text-stone-700">{dummyStats.totalCount}<span className="text-sm font-normal text-stone-400 ml-1">건</span></span>
-                  <div className="flex items-center gap-3">
-                    {dummyStats.tribeDistribution.map(({ tribeId, count }) => (
-                      <span key={tribeId} className="flex items-center gap-1 text-sm">
-                        <span>{TRIBE_EMOJI_MAP[tribeId]}</span>
-                        <span className="font-medium text-stone-600">{count}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {/* 비율 바 */}
-                <div className="flex h-2 rounded-full overflow-hidden mt-2">
-                  {dummyStats.tribeDistribution.map(({ tribeId, count }) => (
-                    <div
-                      key={tribeId}
-                      className="h-full first:rounded-l-full last:rounded-r-full"
-                      style={{
-                        width: `${(count / dummyStats.totalCount) * 100}%`,
-                        backgroundColor: `var(--color-${tribeId})`,
-                        opacity: 0.7,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
 
-              {/* D-2. 트라이브별 핵심 메트릭 평균 */}
+              {/* D-1. 온도 메트릭 — 중앙정렬, 정수 round */}
+              {tempMetrics.length > 0 && (
               <div>
-                <p className="text-xs text-stone-400 mb-2">평균 메트릭</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {dummyStats.tribeMetrics.map((m, i) => (
-                    <div key={i} className="flex items-center gap-2 py-1">
-                      <span className="text-xs">{TRIBE_EMOJI_MAP[m.tribeId]}</span>
-                      <span className="text-xs text-stone-500">{m.label}</span>
-                      <span className="text-xs font-bold text-stone-700 ml-auto">{m.avg}{m.unit}</span>
+                <div className="flex justify-center py-2">
+                  {tempMetrics.map((m) => (
+                    <div key={m.label} className="flex flex-col items-center" style={{ width: `${100 / tempMetrics.length}%` }}>
+                      <span className="text-xs text-stone-400 mb-1">{m.label}</span>
+                      <div className="flex items-baseline gap-0.5">
+                        <span className="text-xl font-bold text-stone-700">{Math.round(m.value)}</span>
+                        <span className="text-[10px] text-stone-400">°C</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+              )}
 
-              {/* D-3. 평균 비용 */}
-              <div className="flex items-center justify-between py-2 border-t border-stone-100">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '16px' }}>payments</span>
-                  <span className="text-xs text-stone-500">평균 비용</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-stone-700">
-                    {dummyStats.avgCost.currency === 'KRW'
-                      ? `₩${dummyStats.avgCost.amount.toLocaleString()}`
-                      : `${dummyStats.avgCost.amount} ${dummyStats.avgCost.currency}`
-                    }
-                  </span>
-                  <span className="text-xs text-stone-400 ml-1">({dummyStats.avgCost.count}건 기준)</span>
-                </div>
-              </div>
-
-              {/* D-4. 혼잡도 분포 */}
-              <div className="py-2 border-t border-stone-100">
-                <p className="text-xs text-stone-400 mb-2">혼잡도</p>
-                <div className="flex gap-2">
-                  {dummyStats.crowdDistribution.map(({ id, count }) => {
-                    const pct = Math.round((count / crowdTotal) * 100)
-                    return (
-                      <div key={id} className="flex-1 text-center">
-                        <div className="relative h-16 flex items-end justify-center">
-                          <div
-                            className="w-full rounded-t"
-                            style={{
-                              height: `${Math.max(pct, 8)}%`,
-                              backgroundColor: 'var(--color-primary)',
-                              opacity: 0.15 + (pct / 100) * 0.6,
-                            }}
-                          />
-                        </div>
-                        <p className="text-xs font-medium text-stone-600 mt-1">{crowdLabelMap[id]}</p>
-                        <p className="text-[10px] text-stone-400">{pct}%</p>
+              {/* D-2. 트라이브별 서브 메트릭 컬럼 + 구분선 */}
+              {tribeSubMetrics.length > 0 && (
+              <div className="pt-1 border-t border-stone-100">
+                <div className={`flex ${tribeSubMetrics.length === 1 ? '' : 'divide-x divide-stone-200'}`}>
+                  {tribeSubMetrics.map(({ tribeId, metrics }) => (
+                    <div key={tribeId} className="flex-1 px-3 first:pl-0 last:pr-0 py-1">
+                      <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
+                        {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
+                      </p>
+                      <div className="space-y-1.5">
+                        {metrics.map(m => (
+                          <div key={m.label} className="flex items-center justify-between text-xs">
+                            <span className="text-stone-500">{m.label}</span>
+                            <span className="font-bold text-stone-700">{m.value}</span>
+                          </div>
+                        ))}
                       </div>
-                    )
-                  })}
+                    </div>
+                  ))}
                 </div>
+              </div>
+              )}
+
+              {/* D-3. 트라이브 분포 (좌) + 혼잡도 바차트 (우) */}
+              <div className="grid grid-cols-2 gap-6 pt-1 border-t border-stone-100">
+                {/* 좌: 트라이브 분포 */}
+                <div>
+                  <p className="text-xs text-stone-400 mb-2">TRIBE</p>
+                  <span className="text-lg font-bold text-stone-700">{totalCount}<span className="text-xs font-normal text-stone-400 ml-0.5">건</span></span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    {tribeDistribution.map(({ tribeId, count }) => (
+                      <span key={tribeId} className="flex items-center gap-1 text-xs">
+                        <span>{TRIBE_EMOJI_MAP[tribeId]}</span>
+                        <span className="font-bold" style={{ color: `var(--color-${tribeId})` }}>{count}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex h-1.5 rounded-full overflow-hidden mt-2">
+                    {tribeDistribution.map(({ tribeId, count }) => (
+                      <div
+                        key={tribeId}
+                        className="h-full first:rounded-l-full last:rounded-r-full"
+                        style={{
+                          width: `${(count / totalCount) * 100}%`,
+                          backgroundColor: `var(--color-${tribeId})`,
+                          opacity: 0.7,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {/* 우: 혼잡도 바차트 */}
+                {crowdTotal > 0 && (
+                <div>
+                  <p className="text-xs text-stone-400 mb-2">혼잡도</p>
+                  <div className="flex gap-1 items-end h-12">
+                    {crowdDistribution.map(({ id, count }) => {
+                      const pct = crowdTotal > 0 ? Math.round((count / crowdTotal) * 100) : 0
+                      return (
+                        <div key={id} className="flex-1 flex flex-col items-center">
+                          <div className="w-full flex items-end justify-center" style={{ height: '32px' }}>
+                            <div
+                              className="w-full rounded-t"
+                              style={{
+                                height: `${Math.max(pct * 0.32, 2)}px`,
+                                backgroundColor: 'var(--color-primary)',
+                                opacity: count > 0 ? 0.2 + (pct / 100) * 0.6 : 0.1,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex gap-1 mt-1">
+                    {crowdDistribution.map(({ id, count }) => {
+                      const pct = crowdTotal > 0 ? Math.round((count / crowdTotal) * 100) : 0
+                      return (
+                        <div key={id} className="flex-1 text-center">
+                          <p className="text-[10px] text-stone-500 leading-tight">{crowdLabelMap[id]}</p>
+                          <p className="text-[10px] text-stone-400">{pct}%</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                )}
               </div>
 
-              {/* D-5. 세신 만족도 */}
-              <div className="flex items-center justify-between py-2 border-t border-stone-100">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '16px' }}>spa</span>
-                  <span className="text-xs text-stone-500">세신 만족도</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-stone-700">{dummyStats.scrub.avgSatisfaction.toFixed(1)}/5</span>
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-500">{scrubStepLabel}</span>
-                  <span className="text-xs text-stone-400">· 이용률 {dummyStats.scrub.usageRate}%</span>
-                </div>
+              {/* D-4. 평균 비용 + 세신 — 컴팩트 행 */}
+              {(avgCost || scrubLogs.length > 0) && (
+              <div className="flex items-center gap-4 pt-2 border-t border-stone-100 text-xs">
+                {avgCost && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>payments</span>
+                    <span className="text-stone-500">평균</span>
+                    <span className="font-bold text-stone-700">
+                      {avgCost.currency === 'KRW' ? `₩${avgCost.amount.toLocaleString()}` : `${avgCost.amount} ${avgCost.currency}`}
+                    </span>
+                    <span className="text-stone-400">({avgCost.count}건)</span>
+                  </div>
+                )}
+                {scrubLogs.length > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>spa</span>
+                    <span className="text-stone-500">세신</span>
+                    {scrubSatVals.length > 0 && (
+                      <span className="font-bold text-stone-700">{scrubAvg.toFixed(1)}/5</span>
+                    )}
+                    <span className="text-stone-400">이용률 {scrubUsageRate}%</span>
+                  </div>
+                )}
               </div>
+              )}
+
             </div>
           </div>
         )}
 
-        {/* E. 유저 메모 (리뷰) */}
-        {dummyStats.reviews.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-stone-500 mb-3">사-피엔스의 한마디</h3>
-            <div className="space-y-2">
-              {displayedReviews.map((review, i) => (
-                <div key={i} className="glass-card p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm">{TRIBE_EMOJI_MAP[review.tribeId]}</span>
-                    <span className="text-sm font-medium text-stone-700">{review.nickname}</span>
-                    <span className="text-xs text-stone-300 ml-auto">{review.date}</span>
-                  </div>
-                  <p className="text-sm text-stone-600 leading-relaxed">{review.memo}</p>
-                  {review.recommendMenu && (
-                    <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-stone-100">
-                      <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>restaurant</span>
-                      <span className="text-xs text-stone-500">추천 메뉴:</span>
-                      <span className="text-xs font-medium text-stone-600">{review.recommendMenu}</span>
-                    </div>
-                  )}
-                </div>
+        {/* E. 사-피엔스의 흔적 — 통합 로그 카드 */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-stone-500">{PLACE_DETAIL.LOGS_TITLE}</h3>
+            <div className="flex items-center gap-1">
+              {([
+                { key: 'latest' as const, label: '최신' },
+                { key: 'memo' as const, label: '메모' },
+              ]).map(s => (
+                <button
+                  key={s.key}
+                  onClick={() => { setLogSort(s.key); setShowAllReviews(false) }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                    logSort === s.key
+                      ? 'text-white shadow-md'
+                      : 'glass-card-light text-stone-500 hover:text-stone-700'
+                  }`}
+                  style={logSort === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
+                >
+                  {s.label}
+                </button>
               ))}
+              {/* 트라이브 드롭다운 */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    if (logSort === 'tribe') { setLogSort('latest'); setTribeSortId('') }
+                    else { setLogSort('tribe') }
+                    setShowAllReviews(false)
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                    logSort === 'tribe'
+                      ? 'text-white shadow-md'
+                      : 'glass-card-light text-stone-500 hover:text-stone-700'
+                  }`}
+                  style={logSort === 'tribe' ? { backgroundColor: 'var(--color-primary)' } : {}}
+                >
+                  {logSort === 'tribe' && tribeSortId ? TRIBE_PERSONA_MAP[tribeSortId] : 'TRIBE'}
+                </button>
+                {logSort === 'tribe' && (
+                  <div className="absolute right-0 top-full mt-1 z-10 glass-card p-1 shadow-lg rounded-lg flex flex-col gap-0.5 min-w-[80px]">
+                    <button
+                      onClick={() => { setTribeSortId(''); setShowAllReviews(false) }}
+                      className={`px-2.5 py-1.5 rounded text-xs text-left transition-all ${
+                        !tribeSortId ? 'font-bold text-stone-700 bg-stone-100' : 'text-stone-500 hover:bg-stone-50'
+                      }`}
+                    >
+                      전체
+                    </button>
+                    {(['saunner', 'bather', 'jimi'] as const).map(t => (
+                      <button
+                        key={t}
+                        onClick={() => { setTribeSortId(t); setShowAllReviews(false) }}
+                        className={`px-2.5 py-1.5 rounded text-xs text-left font-medium transition-all ${
+                          tribeSortId === t ? 'bg-stone-100' : 'hover:bg-stone-50'
+                        }`}
+                        style={{ color: `var(--color-${t})` }}
+                      >
+                        {TRIBE_PERSONA_MAP[t]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-              {!showAllReviews && dummyStats.reviews.length > 2 && (
+          <DataState loading={logsLoading} error={null} isEmpty={placeLogs.length === 0} emptyMessage={PLACE_DETAIL.NO_LOGS}>
+           <div style={{ minHeight: '320px' }}>
+            {sortedLogs.length === 0 && placeLogs.length > 0 ? (
+              <p className="text-center text-xs text-stone-400 py-6">해당 조건의 기록이 없어요</p>
+            ) : (
+            <div className="space-y-2">
+              {displayedLogs2.map((log) => {
+                const detailText = getDetailText(log)
+                const shortDate = log.date.slice(5, 10).replace(/^0/, '').replace('-0', '/').replace('-', '/')
+                return (
+                  <div
+                    key={log.id}
+                    className="w-full glass-card p-4 text-left"
+                  >
+                    {/* Row1: 닉네임 (좌) / 날짜 + 트라이브 이모지 (우) */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-stone-700">{log.user_nickname || '익명'}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs text-stone-400">{shortDate}</span>
+                        <span className="text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
+                      </div>
+                    </div>
+
+                    {/* Row2: 또갈래요 + 숏로그 메트릭 */}
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-stone-500">
+                      <span className="flex items-center gap-0.5">
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-accent)' }}>move</span>
+                        <span className="font-bold" style={{ color: 'var(--color-primary)' }}>{log.revisit_score}/5</span>
+                      </span>
+                      {detailText && (
+                        <>
+                          <span className="text-stone-300">·</span>
+                          <span className="text-stone-400 truncate">{detailText}</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Row3: 메모 (있을 때만) */}
+                    {log.deep_log?.memo && (
+                      <p className="text-sm text-stone-600 leading-relaxed mt-2">{log.deep_log.memo}</p>
+                    )}
+
+                    {/* Row4: 추천 메뉴 (있을 때만) */}
+                    {log.deep_log?.store_memo && (
+                      <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-stone-100">
+                        <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>restaurant</span>
+                        <span className="text-xs text-stone-500">추천 메뉴:</span>
+                        <span className="text-xs font-medium text-stone-600">{log.deep_log.store_memo}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {!showAllReviews && sortedLogs.length > 3 && (
                 <button
                   onClick={() => setShowAllReviews(true)}
                   className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  한마디 더보기 ({dummyStats.reviews.length - 2}건 더)
+                  {PLACE_DETAIL.MORE_LOGS} ({sortedLogs.length - 3}건 더)
                 </button>
               )}
             </div>
-          </div>
-        )}
-
-        {/* F. 이 장소의 기록 리스트 */}
-        <div>
-          <h3 className="text-sm font-semibold text-stone-500 mb-3">{PLACE_DETAIL.LOGS_TITLE}</h3>
-
-          <DataState loading={logsLoading} error={null} isEmpty={placeLogs.length === 0} emptyMessage={PLACE_DETAIL.NO_LOGS}>
-            <div className="space-y-3">
-              {displayedLogs.map((log) => (
-                <RecordCard
-                  key={log.id}
-                  log={log}
-                  onClick={() => router.push(`/history/${log.id}`)}
-                />
-              ))}
-
-              {/* 더보기 — 레드 텍스트 링크 */}
-              {!showAllLogs && placeLogs.length > 3 && (
-                <button
-                  onClick={() => setShowAllLogs(true)}
-                  className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
-                  style={{ color: 'var(--color-primary)' }}
-                >
-                  {PLACE_DETAIL.MORE_LOGS} ({placeLogs.length - 3}건 더)
-                </button>
-              )}
-            </div>
+            )}
+           </div>
           </DataState>
         </div>
       </main>
