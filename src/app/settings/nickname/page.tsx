@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ONBOARDING } from '@/constants/content'
+import { ONBOARDING, RESERVED_NICKNAMES } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -12,13 +12,19 @@ export default function NicknameEdit() {
   const { user, updateUser } = useUser()
   const [nickname, setNickname] = useState(user?.nickname || '')
   const [originalNickname] = useState(user?.nickname || '')
-  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid'>('idle')
+  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid' | 'reserved'>('idle')
 
-  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10
+  // 소문자 영문+숫자+언더스코어만
+  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[a-z0-9_]+$/.test(nickname)
 
   const checkNickname = async () => {
     if (!isNicknameValid) {
       setNicknameStatus('invalid')
+      return
+    }
+
+    if (RESERVED_NICKNAMES.includes(nickname.toLowerCase())) {
+      setNicknameStatus('reserved')
       return
     }
 
@@ -81,7 +87,7 @@ export default function NicknameEdit() {
           type="text"
           value={nickname}
           onChange={(e) => {
-            setNickname(e.target.value)
+            setNickname(e.target.value.toLowerCase())
             setNicknameStatus('idle')
           }}
           placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
@@ -118,6 +124,7 @@ export default function NicknameEdit() {
               </>
             )}
             {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
+            {nicknameStatus === 'reserved' && ONBOARDING.NICKNAME.RESERVED}
             {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
           </p>
         )}

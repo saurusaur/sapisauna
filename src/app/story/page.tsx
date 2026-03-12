@@ -3,55 +3,26 @@
  * /story
  *
  * DB 저장 완료 후 진입 — 순수 카드 프리뷰 + 공유/다운로드 도구
- * savedLogId로 DB에서 로그를 fetch하여 카드를 렌더링
+ * 프리뷰: 기존 JSX 렌더링 (빠르고 정확)
+ * 내보내기: Canvas에서 직접 렌더링 → PNG (서버 왕복 없음)
  */
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP } from '@/constants/content'
-import type { LogWithPlace, TribeId } from '@/types'
+import { STORY_COLORS, type StoryTribeId } from '@/constants/story-colors'
+import type { LogWithPlace } from '@/types'
 import { getMyLogById } from '@/lib/logs-service'
-import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
+import { renderCard, shareImage, downloadImage } from '@/lib/image-export'
 import confetti from 'canvas-confetti'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
-import JimiGraph from '@/components/svg/jimi-graph'
-
-// 타입별 배경색 (CSS 변수 참조)
-const TYPE_BG_COLORS: Record<string, string> = {
-  saunner: 'var(--story-bg-saunner)',
-  bather: 'var(--story-bg-bather)',
-  jimi: 'var(--story-bg-jimi)',
-}
-
-// 타입별 표시 이름
-const TYPE_DISPLAY_NAMES: Record<string, string> = {
-  saunner: 'SAUNNER',
-  bather: 'BATHER',
-  jimi: 'JIMI',
-}
-
-// 타입별 점 색상
-const TYPE_DOT_COLORS: Record<string, string> = {
-  saunner: 'var(--color-primary)',
-  bather: 'var(--color-bather)',
-  jimi: 'var(--color-jimi)',
-}
-
-// 타입별 RGB (그라데이션 오버레이용)
-const TYPE_RGB: Record<string, string> = {
-  saunner: '194,92,74',
-  bather: '74,139,156',
-  jimi: '97,144,109',
-}
 
 // 요일 약어
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
 export default function Story() {
   const router = useRouter()
-  const cardRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [log, setLog] = useState<LogWithPlace | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -129,30 +100,37 @@ export default function Story() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [router])
 
-  const handleShare = async () => {
-    if (!cardRef.current || !log) return
+  // Canvas 기반 내보내기 (서버 호출 없음)
+  const handleExport = async (mode: 'download' | 'share') => {
+    if (!log) return
     setIsExporting(true)
     try {
-      const blob = await captureCard(cardRef.current)
-      await shareImage(blob, `sauna-log-${log.place_name}`)
-      showMessage('완료!', 'success', 'share')
-    } catch {
-      showMessage('실패', 'error', 'share')
-    } finally {
-      setIsExporting(false)
-    }
-  }
-
-  const handleDownload = async () => {
-    if (!cardRef.current || !log) return
-    setIsExporting(true)
-    try {
-      const blob = await captureCard(cardRef.current)
-      const date = log.date.slice(0, 10)
-      downloadImage(blob, `sauna-log-${date}.png`)
-      showMessage('완료!', 'success', 'download')
-    } catch {
-      showMessage('실패', 'error', 'download')
+      const blob = await renderCard({
+        tribeId: log.tribe_id as StoryTribeId,
+        placeName: log.place_name,
+        date: log.date,
+        bgPhoto,
+        saunaTemp: log.sauna_temp,
+        coldBathTemp: log.cold_bath_temp,
+        hotBathTemp: log.hot_bath_temp,
+        jjimTemp: log.jjim_temp,
+        totono_score: log.totono_score,
+        waterQuality: log.water_quality,
+        heatTime: log.heat_time,
+        iceTime: log.ice_time,
+        pauseTime: log.pause_time,
+        repeat: log.repeat,
+      })
+      if (mode === 'download') {
+        const date = log.date.slice(0, 10)
+        downloadImage(blob, `sauna-log-${date}.png`)
+      } else {
+        await shareImage(blob, `sauna-log-${log.place_name}`)
+      }
+      showMessage('완료!', 'success', mode)
+    } catch (err) {
+      console.error('Export failed:', err)
+      showMessage('실패', 'error', mode)
     } finally {
       setIsExporting(false)
     }
@@ -168,22 +146,18 @@ export default function Story() {
     e.target.value = ''
   }
 
-  // 사진 삭제 → 트라이브 기본 배경 복원
   const handleRemovePhoto = () => setBgPhoto(null)
 
   // 타입별 메인 수치
   const getMainMetric = () => {
     if (!log) return { value: '', unit: '', label: '' }
-
     switch (log.tribe_id) {
       case 'saunner': {
         const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
         return { value: String(deltaT), unit: '°C', label: 'TEMP DELTA' }
       }
-      case 'bather': {
-        const temp = log.hot_bath_temp || 40
-        return { value: String(temp), unit: '°C', label: 'BATH TEMP' }
-      }
+      case 'bather':
+        return { value: String(log.hot_bath_temp || 40), unit: '°C', label: 'BATH TEMP' }
       case 'jimi': {
         const temp = log.jjim_temp
         return temp
@@ -195,7 +169,6 @@ export default function Story() {
     }
   }
 
-  // 루틴 뱃지 (라벨은 항상 표시, 숫자는 입력값 있을 때만)
   const getRoutineBadges = () => {
     if (!log) return []
     return [
@@ -208,7 +181,6 @@ export default function Story() {
 
   const renderGraph = () => {
     if (!log) return null
-
     switch (log.tribe_id) {
       case 'saunner':
         return (
@@ -228,14 +200,12 @@ export default function Story() {
           />
         )
       case 'jimi':
-        // TODO: 찜질 그래프 다듬은 후 복원
         return null
       default:
         return null
     }
   }
 
-  // 날짜 포맷: 2026.03.08 · SAT
   const formatDate = () => {
     if (!log) return ''
     const d = new Date(log.date)
@@ -252,10 +222,7 @@ export default function Story() {
     )
   }
 
-  const bgColor = TYPE_BG_COLORS[log.tribe_id] || TYPE_BG_COLORS.saunner
-  const displayName = TYPE_DISPLAY_NAMES[log.tribe_id] || 'SAUNNER'
-  const dotColor = TYPE_DOT_COLORS[log.tribe_id] || TYPE_DOT_COLORS.saunner
-  const tintRgb = TYPE_RGB[log.tribe_id] || TYPE_RGB.saunner
+  const colors = STORY_COLORS[log.tribe_id as StoryTribeId] || STORY_COLORS.saunner
   const metric = getMainMetric()
   const routineBadges = getRoutineBadges()
 
@@ -268,7 +235,7 @@ export default function Story() {
           className="relative w-full mb-4 flex justify-center"
           style={{ height: cardScale ? 1920 * cardScale + 16 : 0 }}
         >
-          {/* 배경 변경 버튼 — 프리뷰 우측 상단 */}
+          {/* 배경 변경 버튼 */}
           <input
             ref={photoInputRef}
             type="file"
@@ -288,13 +255,14 @@ export default function Story() {
               {bgPhoto ? '초기화' : '배경 변경'}
             </span>
           </button>
+
+          {/* 카드 프리뷰 (JSX 렌더링 — 캡처 대상 아님, 표시 전용) */}
           <div
-            ref={cardRef}
             className="absolute top-0 overflow-hidden"
             style={{
               width: 1080,
               height: 1920,
-              backgroundColor: bgColor,
+              backgroundColor: colors.bg,
               transform: `scale(${cardScale})`,
               transformOrigin: 'top center',
               borderRadius: 48,
@@ -307,41 +275,27 @@ export default function Story() {
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${bgPhoto})`, filter: 'blur(3px)', transform: 'scale(1.02)' }}
               >
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(${tintRgb},0.88) 0%, rgba(${tintRgb},0.65) 25%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.6) 100%)` }} />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(${colors.rgb},0.88) 0%, rgba(${colors.rgb},0.65) 25%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.6) 100%)` }} />
               </div>
             )}
 
-            <div
-              className="relative h-full flex flex-col"
-              style={{ padding: '72px 80px' }}
-            >
-              {/* 상단: 장소명 + 날짜 */}
+            <div className="relative h-full flex flex-col" style={{ padding: '72px 80px' }}>
+              {/* 상단: 장소명 + 날짜 (leading-none으로 Canvas 정합) */}
               <div style={{ paddingTop: 16 }}>
-                <h2
-                  className="text-white font-bold font-heading"
-                  style={{ fontSize: 56, letterSpacing: '0.02em' }}
-                >
+                <h2 className="text-white font-bold leading-none font-heading" style={{ fontSize: 56, letterSpacing: '0.02em' }}>
                   {log.place_name}
                 </h2>
-                <p
-                  className="text-white/70 italic font-heading"
-                  style={{ fontSize: 48, marginTop: 12 }}
-                >
+                <p className="text-white/70 italic leading-none font-heading" style={{ fontSize: 48, marginTop: 24 }}>
                   {formatDate()}
                 </p>
               </div>
 
               {/* 중앙: 메인 수치 */}
               <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 80 }}>
-                {/* 라벨 */}
-                <p
-                  className="text-white/70 uppercase font-bold font-heading"
-                  style={{ fontSize: 48, marginBottom: 16, letterSpacing: '0.2em' }}
-                >
+                <p className="text-white/70 uppercase font-bold leading-none font-heading" style={{ fontSize: 48, marginBottom: 28, letterSpacing: '0.2em' }}>
                   {metric.label}
                 </p>
 
-                {/* 큰 숫자 + 단위 */}
                 <div className="flex items-start">
                   <span
                     className="text-white font-bold tracking-tight leading-none font-heading"
@@ -350,7 +304,7 @@ export default function Story() {
                     {metric.value}
                   </span>
                   <span
-                    className="text-white/80 font-semibold font-heading"
+                    className="text-white/80 font-semibold leading-none font-heading"
                     style={{ fontSize: 88, marginTop: 28, marginLeft: 8, ...(bgPhoto ? { textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 16px rgba(0,0,0,0.3)' } : {}) }}
                   >
                     {metric.unit}
@@ -360,7 +314,7 @@ export default function Story() {
                 {/* 루틴 뱃지 */}
                 <div className="relative flex items-end" style={{ gap: 72, marginTop: 64 }}>
                   {routineBadges.map((badge) => (
-                    <div key={badge.label} className="flex flex-col items-center" style={{ gap: 14 }}>
+                    <div key={badge.label} className="flex flex-col items-center" style={{ gap: 22 }}>
                       <span
                         className="text-white font-bold leading-none font-heading"
                         style={{ fontSize: 96, minHeight: 96, ...(bgPhoto ? { textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 16px rgba(0,0,0,0.3)' } : {}) }}
@@ -368,7 +322,7 @@ export default function Story() {
                         {badge.value ?? '-'}
                       </span>
                       <span
-                        className="text-white/70 tracking-wider uppercase font-heading"
+                        className="text-white/70 tracking-wider uppercase leading-none font-heading"
                         style={{ fontSize: 42, ...(bgPhoto ? { textShadow: '0 3px 30px rgba(0,0,0,0.5), 0 1px 12px rgba(0,0,0,0.3)' } : {}) }}
                       >
                         {badge.label}
@@ -386,21 +340,12 @@ export default function Story() {
               {/* 하단: 타입 + 워터마크 */}
               <div className="flex items-end justify-between">
                 <div className="flex items-center" style={{ gap: 20 }}>
-                  <div
-                    className="rounded-full"
-                    style={{ width: 30, height: 30, backgroundColor: dotColor }}
-                  />
-                  <span
-                    className="text-white/70 font-bold tracking-wider font-heading"
-                    style={{ fontSize: 42 }}
-                  >
-                    {displayName}
+                  <div className="rounded-full" style={{ width: 30, height: 30, backgroundColor: colors.dot }} />
+                  <span className="text-white/70 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
+                    {log.tribe_id.toUpperCase()}
                   </span>
                 </div>
-                <span
-                  className="text-white/40 font-bold tracking-wider font-heading"
-                  style={{ fontSize: 42 }}
-                >
+                <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
                   JOIN THE SA-PIENS
                 </span>
               </div>
@@ -408,7 +353,7 @@ export default function Story() {
           </div>
         </div>
 
-        {/* 액션 버튼 — 네비 바 중앙 버튼 스타일 통일 */}
+        {/* 액션 버튼 */}
         <div className="flex justify-center gap-6 mb-5">
           <div className="relative flex flex-col items-center">
             {exportMessage?.source === 'download' && (
@@ -417,7 +362,7 @@ export default function Story() {
               </span>
             )}
             <button
-              onClick={handleDownload}
+              onClick={() => handleExport('download')}
               disabled={isExporting}
               className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >
@@ -438,7 +383,7 @@ export default function Story() {
               </span>
             )}
             <button
-              onClick={handleShare}
+              onClick={() => handleExport('share')}
               disabled={isExporting}
               className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >

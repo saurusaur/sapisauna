@@ -38,6 +38,13 @@ import type { TribeId } from '@/types'
 export const TRIBE_IDS = ['bather', 'saunner', 'jimi'] as const
 export const FALLBACK_TRIBE: TribeId = 'saunner'
 
+// 닉네임 예약어 (소문자로 비교)
+export const RESERVED_NICKNAMES = [
+  'admin', 'administrator', 'root', 'system',
+  'support', 'help', 'official', 'staff',
+  'sapien', 'sapi', 'sa_pi',
+]
+
 // ============================================
 // 타입별 포인트 색상 (globals.css의 CSS 변수 참조)
 // ============================================
@@ -128,11 +135,12 @@ export const ONBOARDING = {
   // Step 1: 닉네임
   NICKNAME: {
     TITLE: '닉네임을 정해주세요',
-    PLACEHOLDER: '닉네임 (2-10자)',
+    PLACEHOLDER: 'nickname (영문, 2-10자)',
     CHECK_BUTTON: '중복 확인',
     AVAILABLE: '사용 가능한 닉네임이에요',
     DUPLICATE: '이미 사용 중인 닉네임이에요',
-    INVALID: '2-10자 사이로 입력해주세요',
+    INVALID: '영문·숫자·밑줄만, 2-10자',
+    RESERVED: '사용할 수 없는 닉네임이에요',
     CHECKING: '확인 중...',
   },
   // Step 2: 타입 선택
@@ -391,9 +399,10 @@ export const PLACE_SPECS = {
     label: 'COMFORT 편의',
     options: [
       { id: 'dryer-free', label: '드라이기 무료', icon: 'air', category: 'amenities' },
-      { id: 'towel', label: '수건 무제한', icon: 'dry_cleaning', category: 'amenities' },
+      { id: 'dryer-paid', label: '드라이기 유료', icon: 'air', category: 'amenities' },
+      { id: 'towel', label: '수건 제공', icon: 'dry_cleaning', category: 'amenities' },
       { id: 'shampoo-bodywash', label: '샴푸/바디워시', icon: 'clean_hands', category: 'amenities' },
-      { id: 'tattoo-friendly', label: '타투가능', icon: 'brush', category: 'amenities' },
+      { id: 'tattoo-friendly', label: '타투 가능', icon: 'brush', category: 'amenities' },
       { id: 'workspace', label: '작업 공간', icon: 'laptop', category: 'amenities' },
       { id: 'food', label: '매점', icon: 'dining', category: 'amenities' },
       { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat', category: 'amenities' },
@@ -502,7 +511,7 @@ export const TRIBE_DEFAULTS = {
 export const MESSAGES = {
   HOME: {
     GREETING: 'HELLO SA-PIEN',
-    CALENDAR_HEADING: (name?: string) => name ? `${name}의 기록` : '나의 기록',
+    CALENDAR_HEADING: (name?: string) => name ? `${name.toUpperCase()}의 기록` : '나의 기록',
     NO_RECORDS: '아직 기록이 없어요',
     RECENT_RECORDS: '최근 기록',
     TODAY: '오늘',

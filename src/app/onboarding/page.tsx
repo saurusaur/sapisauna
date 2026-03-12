@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { APP, ONBOARDING, TRIBES } from '@/constants/content'
+import { APP, ONBOARDING, TRIBES, RESERVED_NICKNAMES } from '@/constants/content'
 import type { TribeId } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
 
-// 온보딩 단계: 닉네임 → 타입 선택 (2단계)
-type OnboardingStep = 'nickname' | 'type'
+// 온보딩 단계: 닉네임 → 성별 → 타입 선택 (3단계)
+type OnboardingStep = 'nickname' | 'gender' | 'type'
 
 export default function Onboarding() {
   const router = useRouter()
@@ -21,9 +21,12 @@ export default function Onboarding() {
 
   // Step 1: 닉네임
   const [nickname, setNickname] = useState('')
-  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid' | 'error'>('idle')
+  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid' | 'reserved' | 'error'>('idle')
 
-  // Step 2: 타입 선택
+  // Step 2: 성별
+  const [gender, setGender] = useState<'male' | 'female' | null>(null)
+
+  // Step 3: 타입 선택
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [lastToggledType, setLastToggledType] = useState<string | null>(null)
   const [lastToggleAction, setLastToggleAction] = useState<'selected' | 'deselected' | null>(null)
@@ -32,13 +35,18 @@ export default function Onboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // 닉네임 유효성 검사
-  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10
+  // 닉네임 유효성 검사 (소문자 영문+숫자+언더스코어만)
+  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[a-z0-9_]+$/.test(nickname)
 
   // 닉네임 중복 체크
   const checkNickname = async () => {
     if (!isNicknameValid) {
       setNicknameStatus('invalid')
+      return
+    }
+
+    if (RESERVED_NICKNAMES.includes(nickname.toLowerCase())) {
+      setNicknameStatus('reserved')
       return
     }
 
@@ -86,14 +94,18 @@ export default function Onboarding() {
   // 다음 단계로 이동
   const goToNextStep = () => {
     if (step === 'nickname' && nicknameStatus === 'available') {
+      setStep('gender')
+    } else if (step === 'gender') {
       setStep('type')
     }
   }
 
   // 이전 단계로 이동
   const goToPrevStep = () => {
-    if (step === 'type') {
+    if (step === 'gender') {
       setStep('nickname')
+    } else if (step === 'type') {
+      setStep('gender')
     }
   }
 
@@ -104,6 +116,7 @@ export default function Onboarding() {
 
     const userData = {
       nickname,
+      gender,
       user_types: selectedTypes,
       primary_type: selectedTypes[0] as TribeId,
     }
@@ -113,6 +126,7 @@ export default function Onboarding() {
         const { error } = await supabase.from('users').upsert({
           id: authUser.id,
           nickname: userData.nickname,
+          gender: userData.gender,
           user_types: userData.user_types,
           primary_type: userData.primary_type,
         })
@@ -126,7 +140,7 @@ export default function Onboarding() {
         }
       }
 
-      setUser({ ...userData, xp: 0, level: 1, active_title: null })
+      setUser({ ...userData, gender: userData.gender ?? undefined, xp: 0, level: 1, active_title: null })
       router.push('/home')
     } catch {
       setSubmitError('저장에 실패했습니다. 다시 시도해주세요.')
@@ -161,7 +175,7 @@ export default function Onboarding() {
             type="text"
             value={nickname}
             onChange={(e) => {
-              setNickname(e.target.value)
+              setNickname(e.target.value.toLowerCase())
               setNicknameStatus('idle')
             }}
             placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
@@ -198,6 +212,7 @@ export default function Onboarding() {
                 </>
               )}
               {nicknameStatus === 'duplicate' && ONBOARDING.NICKNAME.DUPLICATE}
+              {nicknameStatus === 'reserved' && ONBOARDING.NICKNAME.RESERVED}
               {nicknameStatus === 'invalid' && ONBOARDING.NICKNAME.INVALID}
               {nicknameStatus === 'error' && '확인에 실패했습니다. 다시 시도해주세요.'}
             </p>
@@ -205,7 +220,63 @@ export default function Onboarding() {
         </div>
       )}
 
-      {/* Step 2: 타입 선택 */}
+      {/* Step 2: 성별 선택 */}
+      {step === 'gender' && (
+        <div className="flex flex-col items-center flex-1 px-6 pb-24">
+          <header className="w-full pt-8 pb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={goToPrevStep}
+                className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <h1 className="text-2xl font-extrabold italic font-heading">
+                YOUR BATH
+              </h1>
+            </div>
+          </header>
+
+          <p className="text-sm text-stone-400 mb-8">어느 탕을 이용하시나요?</p>
+
+          <div className="flex gap-4 mb-6">
+            {([
+              { id: 'male' as const, label: '남탕', icon: 'male' },
+              { id: 'female' as const, label: '여탕', icon: 'female' },
+            ]).map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => { setGender(opt.id); goToNextStep() }}
+                className={`w-28 h-28 rounded-xl flex flex-col items-center justify-center gap-2 transition-all duration-200 cursor-pointer ${
+                  gender === opt.id
+                    ? 'shadow-md scale-105'
+                    : 'glass-card-light text-stone-500 hover:shadow-sm'
+                }`}
+                style={gender === opt.id ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}
+              >
+                <span
+                  className="material-symbols-outlined text-3xl"
+                  style={gender === opt.id ? { color: 'white' } : {}}
+                >
+                  {opt.icon}
+                </span>
+                <span className={`text-sm font-medium ${gender === opt.id ? 'text-white' : ''}`}>
+                  {opt.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => { setGender(null); goToNextStep() }}
+            className="text-xs text-stone-400 hover:text-stone-600 transition-colors underline underline-offset-2 mt-2"
+          >
+            말하고 싶지 않아요
+          </button>
+        </div>
+      )}
+
+      {/* Step 3: 타입 선택 */}
       {step === 'type' && (
         <div className="flex flex-col items-center flex-1 px-6 pb-24">
           {/* 헤더 — 서브페이지 서식 */}
@@ -302,7 +373,7 @@ export default function Onboarding() {
 
       {/* 하단 고정 버튼 — 앱 통일 패턴 */}
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 pb-6 z-20 pointer-events-none">
-        {step === 'nickname' ? (
+        {step === 'nickname' && (
           <button
             onClick={goToNextStep}
             disabled={!canProceed}
@@ -310,7 +381,8 @@ export default function Onboarding() {
           >
             {ONBOARDING.NEXT_BUTTON}
           </button>
-        ) : (
+        )}
+        {step === 'type' && (
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
@@ -322,7 +394,7 @@ export default function Onboarding() {
 
         {/* 단계 표시 */}
         <div className="flex gap-2 justify-center mt-4 pointer-events-none">
-          {(['nickname', 'type'] as OnboardingStep[]).map((s) => (
+          {(['nickname', 'gender', 'type'] as OnboardingStep[]).map((s) => (
             <div
               key={s}
               className={`h-2 rounded-full transition-all ${
