@@ -333,7 +333,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <div className="glass-card-light rounded-xl p-4 space-y-3">
               {log.deep_log.companion && (
                 <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">동행자</span>
+                  <span className="text-xs text-stone-400">동행</span>
                   <span className="text-sm font-medium text-stone-700">
                     {findOption(DEEP_LOG.COMPANION.options, log.deep_log.companion)?.label ?? log.deep_log.companion}
                   </span>

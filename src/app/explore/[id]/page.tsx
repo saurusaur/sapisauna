@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
@@ -32,6 +32,20 @@ export default function PlaceDetailPage() {
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
   const [tribeSortId, setTribeSortId] = useState<string>('')
+  const tribeDropdownRef = useRef<HTMLDivElement>(null)
+
+  // 트라이브 드롭다운 바깥 클릭 시 닫기
+  useEffect(() => {
+    if (logSort !== 'tribe') return
+    const handleClick = (e: MouseEvent) => {
+      if (tribeDropdownRef.current && !tribeDropdownRef.current.contains(e.target as Node)) {
+        setLogSort('latest')
+        setTribeSortId('')
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [logSort])
 
   // 로딩/에러/없음 상태
   if (placeLoading) {
@@ -357,16 +371,12 @@ export default function PlaceDetailPage() {
             </div>
             <div className="glass-card p-4 space-y-4">
 
-              {/* D-1~3 통합 그리드: 트라이브 수에 따라 컬럼 결정
-                  1 tribe → 2col: [온도+서브 | 혼잡도/더보기]
-                  2 tribes → 2col: [tribe1 | tribe2] + 아래 [혼잡도 | 더보기]
-                  3 tribes → 3col: [tribe1 | tribe2 | tribe3] + 아래 풀폭
-              */}
-              {/* 온도 메트릭 */}
+              {/* 트라이브 수별 레이아웃: 1=max-w 왼쪽정렬, 2=2col, 3=3col / 혼잡도+더보기=항상 2col */}
+              {/* 온도 메트릭: 1tribe=max-w 왼쪽정렬, 2=2col, 3=3col */}
               {tempMetrics.length > 0 && (
-              <div className={`grid gap-x-6 py-2 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+              <div className={`py-2 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : 'flex gap-6 max-w-[160px]'}`}>
                 {tempMetrics.map((m) => (
-                  <div key={m.label} className="flex flex-col items-center">
+                  <div key={m.label} className="flex flex-col">
                     <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
                     <div className="flex items-baseline gap-0.5">
                       <span className="text-xl font-bold text-stone-700">{Math.round(m.value)}</span>
@@ -377,11 +387,11 @@ export default function PlaceDetailPage() {
               </div>
               )}
 
-              {/* 트라이브별 서브 메트릭 */}
+              {/* 트라이브별 서브 메트릭: 1=max-w 왼쪽정렬, 2=2col, 3=3col */}
               {tribeSubMetrics.length > 0 && (
-              <div className={`grid gap-x-6 pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+              <div className={`pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : ''}`}>
                 {tribeSubMetrics.map(({ tribeId, metrics }) => (
-                  <div key={tribeId} className="py-1">
+                  <div key={tribeId} className={`py-1 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px]' : ''}`}>
                     <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
                       {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
                     </p>
@@ -398,9 +408,9 @@ export default function PlaceDetailPage() {
               </div>
               )}
 
-              {/* 혼잡도 + 더보기 */}
+              {/* 혼잡도 + 더보기: 항상 2col */}
               {(crowdTotal > 0 || additionalMetrics.length > 0) && (
-              <div className={`grid gap-6 pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+              <div className="grid grid-cols-2 gap-6 pt-3 border-t border-stone-200">
                 {/* 좌: 혼잡도 바차트 */}
                 <div>
                   {crowdTotal > 0 && (
@@ -485,7 +495,7 @@ export default function PlaceDetailPage() {
                 </button>
               ))}
               {/* 트라이브 드롭다운 */}
-              <div className="relative">
+              <div className="relative" ref={tribeDropdownRef}>
                 <button
                   onClick={() => {
                     if (logSort === 'tribe') { setLogSort('latest'); setTribeSortId('') }

@@ -439,7 +439,7 @@ export const DEEP_LOG = {
     options: LOG_BATH_GENDER,
   },
   COMPANION: {
-    label: '동행자',
+    label: '동행',
     options: [
       { id: 'alone', label: '혼자', icon: 'person' },
       { id: 'friend', label: '친구', icon: 'group' },
