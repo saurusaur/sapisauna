@@ -8,20 +8,13 @@ import { domToBlob } from 'modern-screenshot'
 
 /**
  * DOM 요소를 이미지로 캡처
- * 카드는 1080×1920 고정 크기 — style 오버라이드로 scale 해제 후 캡처
+ * 카드는 DOM에서 1080×1920 고정 크기 (scale transform은 시각적 축소만)
  */
 export async function captureCard(element: HTMLElement): Promise<Blob> {
   const blob = await domToBlob(element, {
     width: 1080,
     height: 1920,
     scale: 1,
-    style: {
-      transform: 'none',
-      transformOrigin: 'top left',
-      position: 'relative',
-      top: 'auto',
-      left: 'auto',
-    },
   })
 
   if (!blob) {
