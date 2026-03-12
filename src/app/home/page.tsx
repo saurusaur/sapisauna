@@ -39,7 +39,7 @@ export default function Home() {
   // 비로그인
   if (!authUser) {
     return (
-      <div className="min-h-screen pb-24 bath-tile-bg">
+      <div className="min-h-dvh pb-24 bath-tile-bg">
         <header className="p-5 pt-8">
           <h1 className="text-3xl font-extrabold italic font-heading">
             HELLO{' '}
@@ -68,7 +68,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bath-tile-bg">
+    <div className="min-h-dvh pb-24 bath-tile-bg">
       {/* 헤더 */}
       <header className="p-5 pt-8">
         <h1
@@ -117,12 +117,12 @@ export default function Home() {
               }}
               className="w-full h-full rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
             >
-              <p className="text-stone-400 text-sm mb-2">{emptyMessage}</p>
+              <p className="text-stone-400 text-lg mb-3">{emptyMessage}</p>
               <span
-                className="text-xs font-medium underline underline-offset-2"
+                className="text-sm font-medium underline underline-offset-2"
                 style={{ color: 'var(--color-primary)' }}
               >
-                {NAV.ADD_RECORD}
+                이 날에 기록하기
               </span>
             </button>
           ) : selectedDateLogs.length === 1 ? (

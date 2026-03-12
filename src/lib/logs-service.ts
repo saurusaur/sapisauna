@@ -77,18 +77,41 @@ export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   return (data || []).map(toLogWithPlace)
 }
 
-// 현재 유저의 로그
+// 현재 유저의 로그 (본인만)
 export async function getUserLogs(): Promise<LogWithPlace[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
+    .eq('user_id', user.id)
     .order('record_date', { ascending: false })
 
   if (error) throw error
   return (data || []).map(toLogWithPlace)
 }
 
-// 단일 로그 조회
+// 단일 로그 조회 (본인만 — history, story)
+export async function getMyLogById(id: string): Promise<LogWithPlace | null> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('logs')
+    .select(LOG_SELECT)
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return toLogWithPlace(data)
+}
+
+// 단일 로그 조회 (공개 — explore)
 export async function getLogById(id: string): Promise<LogWithPlace | null> {
   const { data, error } = await supabase
     .from('logs')

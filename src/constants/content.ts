@@ -389,6 +389,7 @@ export const PLACE_SPECS = {
       { id: 'workspace', label: '작업 공간', icon: 'laptop', category: 'amenities' },
       { id: 'food', label: '매점', icon: 'dining', category: 'amenities' },
       { id: 'sleep-room', label: '수면실', icon: 'airline_seat_flat', category: 'amenities' },
+      { id: 'parking', label: '주차', icon: 'local_parking', category: 'amenities' },
     ],
   },
   // 매점 토글/평가 (Deep Log 전용 — 건드리지 않음)

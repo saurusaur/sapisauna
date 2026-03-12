@@ -87,6 +87,7 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
         >
           <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>add</span>
         </button>
+        <span className="text-[10px] mt-0.5 leading-tight font-medium" style={{ color: 'var(--color-primary)' }}>기록</span>
       </div>
 
       <div className="flex items-center justify-around py-2.5 pb-3 max-w-md mx-auto relative">

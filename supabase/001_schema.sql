@@ -148,6 +148,9 @@ ALTER TABLE logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own logs" ON logs
   FOR SELECT USING (auth.uid() = user_id);
 
+CREATE POLICY "Anyone can view place logs" ON logs
+  FOR SELECT USING (place_id IS NOT NULL);
+
 CREATE POLICY "Users can insert own logs" ON logs
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 

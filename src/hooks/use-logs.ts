@@ -56,7 +56,7 @@ export function useUserLogs(): UseDataState<LogWithPlace[]> {
   return { data, loading, error }
 }
 
-// 단일 로그
+// 단일 로그 (본인만 — history 상세)
 export function useLog(id: string): UseDataState<LogWithPlace | null> {
   const [data, setData] = useState<LogWithPlace | null>(null)
   const [loading, setLoading] = useState(true)
@@ -68,7 +68,7 @@ export function useLog(id: string): UseDataState<LogWithPlace | null> {
     let cancelled = false
     setLoading(true)
 
-    logsService.getLogById(id)
+    logsService.getMyLogById(id)
       .then((log) => { if (!cancelled) setData(log) })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
