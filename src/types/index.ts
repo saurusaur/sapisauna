@@ -15,8 +15,8 @@ export type TribeId = 'bather' | 'saunner' | 'jimi'
 // 장소 시설 유형 (places.facility_type)
 export type FacilityType = 'gender-bath' | 'male-only' | 'female-only' | 'private-bath' | 'mixed-bath'
 
-// 딥로그 탕 구분 (deep_logs.bath_gender)
-export type BathGender = 'male' | 'female' | 'mixed' | 'private'
+// 탕 구분 (logs.bath_gender — facility_type + user.gender로 자동 계산)
+export type BathGender = 'male' | 'female' | 'mixed' | 'private' | 'private_male' | 'private_female' | 'mixed_male' | 'mixed_female'
 
 // 사용자 프로필
 export interface UserProfile {
@@ -170,9 +170,9 @@ export interface LogWithPlace {
   rest_quality?: number
   sweat_quality?: number
   jjim_temp?: number
+  bath_gender?: BathGender
   user_nickname?: string
   deep_log?: {
-    bath_gender?: BathGender
     companion?: string | null
     cost?: number | null
     currency?: string | null

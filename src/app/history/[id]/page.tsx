@@ -136,7 +136,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 ...(log.deep_log && { deep_log: log.deep_log }),
               }
               localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
+              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
               router.push('/log')
             }}
             className="p-2 transition-colors hover:opacity-70"
@@ -313,7 +313,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   rest_quality: log.rest_quality,
                 }
                 localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-                localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code }))
+                localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
                 router.push('/log/deep')
               }}
               className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
@@ -331,14 +331,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         {log.deep_log && (
           <div>
             <div className="glass-card-light rounded-xl p-4 space-y-3">
-              {log.deep_log.bath_gender && (
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">탕 선택</span>
-                  <span className="text-sm font-medium text-stone-700">
-                    {findOption(DEEP_LOG.BATH_GENDER.options, log.deep_log.bath_gender)?.label ?? log.deep_log.bath_gender}
-                  </span>
-                </div>
-              )}
               {log.deep_log.companion && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">동행자</span>

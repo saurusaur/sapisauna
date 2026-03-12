@@ -136,6 +136,9 @@ CREATE TABLE IF NOT EXISTS logs (
   -- 공통: 땀 질 평가
   sweat_quality INT CHECK (sweat_quality BETWEEN 1 AND 5),
 
+  -- 탕 구분 (자동 계산: facility_type + user.gender)
+  bath_gender TEXT CHECK (bath_gender IN ('male', 'female', 'mixed', 'private', 'private_male', 'private_female', 'mixed_male', 'mixed_female')),
+
   -- 유저 지정 방문 날짜·시간 (로컬 타임존 기준, TZ 변환 없음)
   record_date TIMESTAMP,
 
@@ -173,7 +176,7 @@ CREATE TABLE IF NOT EXISTS deep_logs (
   currency TEXT DEFAULT 'KRW', -- 통화 코드 (ISO 4217)
   memo TEXT,
 
-  bath_gender TEXT CHECK (bath_gender IN ('male', 'female', 'mixed', 'private')),
+  -- bath_gender → logs 테이블로 이동 (002_move_bath_gender_to_logs.sql)
   crowd TEXT CHECK (crowd IN ('empty', 'moderate', 'busy', 'full')),
 
   has_scrub BOOLEAN DEFAULT false,

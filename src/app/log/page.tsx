@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { TRIBE_EMOJI_MAP, TRIBE_CATEGORY_MAP, TRIBE_PERSONA_MAP, TRIBE_IDS, QUICK_LOG } from '@/constants/content'
 import { Slider, Counter, RoutineCounter } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
+import type { BathGender, FacilityType } from '@/types'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog } from '@/lib/logs-service'
 import { safeParse } from '@/lib/utils'
@@ -13,10 +14,32 @@ import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function QuickLog() {
   const router = useRouter()
-  const { primaryTribe } = useUser()
+  const { primaryTribe, user } = useUser()
   const [placeName, setPlaceName] = useState('장소')
   const [placeId, setPlaceId] = useState<string | null>(null)
   const [placeCountryCode, setPlaceCountryCode] = useState<string | undefined>(undefined)
+  const [facilityType, setFacilityType] = useState<string | null>(null)
+
+  // bath_gender 자동 계산
+  const deriveBathGender = (ft: string | null, userGender?: 'male' | 'female'): BathGender | null => {
+    switch (ft as FacilityType) {
+      case 'male-only': return 'male'
+      case 'female-only': return 'female'
+      case 'private-bath':
+        if (userGender === 'male') return 'private_male'
+        if (userGender === 'female') return 'private_female'
+        return 'private'
+      case 'mixed-bath':
+        if (userGender === 'male') return 'mixed_male'
+        if (userGender === 'female') return 'mixed_female'
+        return 'mixed'
+      case 'gender-bath':
+        if (userGender === 'male') return 'male'
+        if (userGender === 'female') return 'female'
+        return null
+      default: return null
+    }
+  }
   const [logType, setTribeId] = useState<TribeId>(primaryTribe as TribeId)
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
@@ -77,11 +100,12 @@ export default function QuickLog() {
     // 장소 정보 복원 — 없으면 장소 선택 페이지로 redirect
     const placeData = localStorage.getItem('selectedPlace')
     if (placeData) {
-      const place = safeParse<{ name?: string; id?: string; countryCode?: string } | null>(placeData, null)
+      const place = safeParse<{ name?: string; id?: string; countryCode?: string; facilityType?: string } | null>(placeData, null)
       if (!place) return
       setPlaceName(place.name || '')
       if (place.id) setPlaceId(place.id)
       setPlaceCountryCode(place.countryCode)
+      if (place.facilityType) setFacilityType(place.facilityType)
     } else if (!localStorage.getItem('currentLog')) {
       // 편집 모드(currentLog 있음)가 아닌데 장소도 없으면 → 장소 선택으로
       router.replace('/place')
@@ -155,6 +179,7 @@ export default function QuickLog() {
     place_name: placeName,
     place_country_code: placeCountryCode,
     tribe_id: logType,
+    bath_gender: deriveBathGender(facilityType, user?.gender ?? undefined),
     record_date: buildRecordDate(),
     revisit_score: revisit,
     // 루틴 (입력된 경우만 포함)

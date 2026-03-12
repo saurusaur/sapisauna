@@ -47,8 +47,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     rest_quality: row.rest_quality as number | undefined,
     sweat_quality: row.sweat_quality as number | undefined,
     jjim_temp: row.jjim_temp as number | undefined,
+    bath_gender: row.bath_gender as BathGender | undefined,
     deep_log: dl ? {
-      bath_gender: dl.bath_gender as BathGender | undefined,
       companion: dl.companion as string | null,
       cost: dl.cost as number | null,
       currency: dl.currency as string | null,
@@ -179,6 +179,7 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
       jjim_temp: logData.jjim_temp ?? null,
       sweat_quality: logData.sweat_quality ?? null,
       rest_quality: logData.rest_quality ?? null,
+      bath_gender: logData.bath_gender ?? null,
       record_date: logData.record_date ?? null,
     })
     .select('id')
@@ -228,6 +229,7 @@ export async function updateLog(logId: string, logData: Record<string, unknown>)
       jjim_temp: logData.jjim_temp ?? null,
       sweat_quality: logData.sweat_quality ?? null,
       rest_quality: logData.rest_quality ?? null,
+      bath_gender: logData.bath_gender ?? null,
       record_date: logData.record_date ?? null,
       updated_at: new Date().toISOString(),
     })
@@ -252,7 +254,6 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     cost: deepData.cost ?? null,
     currency: deepData.currency ?? 'KRW',
     memo: deepData.memo ?? null,
-    bath_gender: deepData.bath_gender ?? null,
     crowd: deepData.crowd ?? null,
     has_scrub: deepData.has_scrub ?? false,
     scrub_satisfaction: deepData.scrub_satisfaction ?? null,

@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { DEEP_LOG, PLACE_SPECS, LOG_BATH_GENDER } from '@/constants/content'
+import { DEEP_LOG, PLACE_SPECS } from '@/constants/content'
 import countryToCurrency from 'country-to-currency'
 import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
-import type { BathGender } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function DeepLog() {
@@ -24,9 +23,6 @@ export default function DeepLog() {
 
   // 장소명 (currentLog에서 복원)
   const [placeName, setPlaceName] = useState('')
-
-  // 탕 선택 (남탕/여탕/혼탕) - 직전 선택값 기본 적용
-  const [bathGender, setBathGender] = useState<BathGender | null>(null)
 
   // 오늘의 경험
   const [companion, setCompanion] = useState<string | null>(null)
@@ -58,8 +54,6 @@ export default function DeepLog() {
 
   // 이전 입력 복원 (편집 모드 또는 뒤로가기 시)
   useEffect(() => {
-    let restoredGender: BathGender | null = null
-
     // currentLog에서 편집 모드 확인 + deep_log 복원 (편집 모드일 때만)
     const currentLog = localStorage.getItem('currentLog')
     if (currentLog) {
@@ -84,7 +78,6 @@ export default function DeepLog() {
       // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
       const dl = parsed.deep_log ?? null
       if (dl) {
-        if (dl.bath_gender) { setBathGender(dl.bath_gender as BathGender); restoredGender = dl.bath_gender }
         if (dl.companion) setCompanion(dl.companion)
         if (dl.cost) setCost(dl.cost.toLocaleString())
         if (dl.currency) setCurrency(dl.currency)
@@ -95,13 +88,6 @@ export default function DeepLog() {
       }
     }
 
-    // 직전 탕 선택값 폴백 (deep_log에 bath_gender가 없을 때만)
-    if (!restoredGender) {
-      const lastBathGender = localStorage.getItem('lastBathGender')
-      if (lastBathGender) {
-        setBathGender(lastBathGender as BathGender)
-      }
-    }
   }, [])
 
   // 통화 피커 바깥 클릭 닫기
@@ -122,13 +108,7 @@ export default function DeepLog() {
     setIsSaving(true)
     setSaveError(null)
 
-    // 탕 선택값 저장 (다음에 기본값으로 사용)
-    if (bathGender) {
-      localStorage.setItem('lastBathGender', bathGender)
-    }
-
     const deepLogData = {
-      bath_gender: bathGender,
       companion,
       cost: cost ? parseInt(cost.replace(/,/g, '')) : null,
       currency,
@@ -199,25 +179,6 @@ export default function DeepLog() {
             {saveError}
           </div>
         )}
-
-        {/* 탕 선택 */}
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            {DEEP_LOG.BATH_GENDER.label}
-          </label>
-          <ChipSelect
-            options={LOG_BATH_GENDER}
-            selected={bathGender}
-            onSelect={(id) => setBathGender(id as BathGender)}
-          />
-          {bathGender && (
-            <p className="text-xs text-stone-400 mt-1.5">
-              다음 기록 시 기본값으로 적용돼요
-            </p>
-          )}
-        </div>
-
-        <div className="border-t border-stone-200/60" />
 
         {/* 동행자 */}
         <div>
