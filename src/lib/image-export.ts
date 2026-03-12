@@ -17,7 +17,10 @@ export async function captureCard(element: HTMLElement): Promise<Blob> {
     scale: 1,
     style: {
       transform: 'none',
-      transformOrigin: 'top center',
+      transformOrigin: 'top left',
+      position: 'relative',
+      top: 'auto',
+      left: 'auto',
     },
   })
 
