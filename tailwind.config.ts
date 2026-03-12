@@ -49,6 +49,21 @@ const config: Config = {
       boxShadow: {
         glass: 'var(--glass-shadow)',
       },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'intro-up': {
+          '0%': { opacity: '0', transform: 'translateY(16px) scale(0.96)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.2s ease-out',
+        'intro-up': 'intro-up 0.7s cubic-bezier(0.25,0.46,0.45,0.94) both',
+        'intro-up-slow': 'intro-up 1.4s cubic-bezier(0.25,0.46,0.45,0.94) both',
+      },
     },
   },
   plugins: [],

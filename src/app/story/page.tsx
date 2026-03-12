@@ -11,7 +11,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { APP } from '@/constants/content'
 import type { LogWithPlace, TribeId } from '@/types'
-import { getLogById } from '@/lib/logs-service'
+import { getMyLogById } from '@/lib/logs-service'
 import { captureCard, shareImage, downloadImage } from '@/lib/image-export'
 import confetti from 'canvas-confetti'
 import SaunnerGraph from '@/components/svg/saunner-graph'
@@ -58,17 +58,17 @@ export default function Story() {
   const [isExporting, setIsExporting] = useState(false)
   const [cardScale, setCardScale] = useState(() => {
     if (typeof window !== 'undefined') {
-      return (window.innerWidth - 80) / 1080
+      return (Math.min(window.innerWidth, 448) - 80) / 1080
     }
     return 0.28
   })
-  const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error'; source: 'download' | 'share' } | null>(null)
   const [bgPhoto, setBgPhoto] = useState<string | null>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const messageTimer = useRef<NodeJS.Timeout>()
 
-  const showMessage = useCallback((text: string, type: 'success' | 'error') => {
-    setExportMessage({ text, type })
+  const showMessage = useCallback((text: string, type: 'success' | 'error', source: 'download' | 'share' = 'download') => {
+    setExportMessage({ text, type, source })
     clearTimeout(messageTimer.current)
     messageTimer.current = setTimeout(() => setExportMessage(null), 2500)
   }, [])
@@ -98,7 +98,7 @@ export default function Story() {
 
     ;(async () => {
       try {
-        const fetched = await getLogById(logId)
+        const fetched = await getMyLogById(logId)
         if (fetched) {
           setLog(fetched)
           // 새 기록일 때만 폭죽 발사
@@ -135,9 +135,9 @@ export default function Story() {
     try {
       const blob = await captureCard(cardRef.current)
       await shareImage(blob, `sauna-log-${log.place_name}`)
-      showMessage('공유되었어요!', 'success')
+      showMessage('완료!', 'success', 'share')
     } catch {
-      showMessage('공유를 지원하지 않는 환경이에요', 'error')
+      showMessage('실패', 'error', 'share')
     } finally {
       setIsExporting(false)
     }
@@ -150,9 +150,9 @@ export default function Story() {
       const blob = await captureCard(cardRef.current)
       const date = log.date.slice(0, 10)
       downloadImage(blob, `sauna-log-${date}.png`)
-      showMessage('저장되었어요!', 'success')
+      showMessage('완료!', 'success', 'download')
     } catch {
-      showMessage('저장에 실패했어요', 'error')
+      showMessage('실패', 'error', 'download')
     } finally {
       setIsExporting(false)
     }
@@ -246,7 +246,7 @@ export default function Story() {
 
   if (isLoading || !log) {
     return (
-      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
         <p className="text-stone-400">로딩 중...</p>
       </div>
     )
@@ -260,7 +260,7 @@ export default function Story() {
   const routineBadges = getRoutineBadges()
 
   return (
-    <div className="min-h-screen bath-tile-bg overflow-hidden">
+    <div className="min-h-dvh bath-tile-bg overflow-hidden">
       <main className="px-10 pt-12 pb-8">
         {/* 9:16 카드 프리뷰 — 1080×1920 고정, scale로 축소 표시 */}
         <div
@@ -410,33 +410,47 @@ export default function Story() {
 
         {/* 액션 버튼 — 네비 바 중앙 버튼 스타일 통일 */}
         <div className="flex justify-center gap-6 mb-5">
-          <button
-            onClick={handleDownload}
-            disabled={isExporting}
-            className="flex flex-col items-center gap-1.5 disabled:opacity-50"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
-              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
+          <div className="relative flex flex-col items-center">
+            {exportMessage?.source === 'download' && (
+              <span className={`absolute -top-5 text-xs font-semibold animate-fade-in ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
+                {exportMessage.text}
+              </span>
+            )}
+            <button
+              onClick={handleDownload}
+              disabled={isExporting}
+              className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>download</span>
-            </div>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>저장</span>
-          </button>
+              <div
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+                style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>download</span>
+              </div>
+              <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>저장</span>
+            </button>
+          </div>
 
-          <button
-            onClick={handleShare}
-            disabled={isExporting}
-            className="flex flex-col items-center gap-1.5 disabled:opacity-50"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
-              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
+          <div className="relative flex flex-col items-center">
+            {exportMessage?.source === 'share' && (
+              <span className={`absolute -top-5 text-xs font-semibold animate-fade-in ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
+                {exportMessage.text}
+              </span>
+            )}
+            <button
+              onClick={handleShare}
+              disabled={isExporting}
+              className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>share</span>
-            </div>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>공유</span>
-          </button>
+              <div
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+                style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>share</span>
+              </div>
+              <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>공유</span>
+            </button>
+          </div>
 
           <button
             onClick={() => {
@@ -454,15 +468,6 @@ export default function Story() {
             <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>기록 보기</span>
           </button>
         </div>
-
-        {/* 공유/저장 피드백 */}
-        {exportMessage && (
-          <div className="flex items-center justify-center mb-2">
-            <p className={`text-sm font-medium ${exportMessage.type === 'success' ? 'text-stone-600' : 'text-red-500'}`}>
-              {exportMessage.text}
-            </p>
-          </div>
-        )}
 
         {/* 하단 네비게이션 */}
         <div className="flex justify-center gap-6">
