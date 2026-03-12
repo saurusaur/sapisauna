@@ -42,6 +42,7 @@ export default function ExplorePage() {
   const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(3)
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
@@ -341,7 +342,7 @@ export default function ExplorePage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {filteredPlaces.slice(0, 3).map((place) => (
+                  {filteredPlaces.slice(0, visibleCount).map((place) => (
                     <PlaceCard
                       key={place.id}
                       place={place}
@@ -351,17 +352,29 @@ export default function ExplorePage() {
                     />
                   ))}
 
-                  {filteredPlaces.length > 3 && (
-                    <button
-                      onClick={() => {
-                        searchRef.current?.focus()
-                        window.scrollTo({ top: 0, behavior: 'smooth' })
-                      }}
-                      className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
-                      style={{ color: 'var(--color-primary)' }}
-                    >
-                      검색으로 더 찾아보기
-                    </button>
+                  {filteredPlaces.length > visibleCount && (
+                    <div className="flex items-center justify-center gap-4 pt-2">
+                      <button
+                        onClick={() => setVisibleCount(prev => prev + 10)}
+                        className="text-xs font-medium underline underline-offset-2 transition-colors"
+                        style={{ color: 'var(--color-primary)' }}
+                      >
+                        더 보기 ({filteredPlaces.length - visibleCount}곳 남음)
+                      </button>
+                      {visibleCount > 3 && (
+                        <button
+                          onClick={() => {
+                            setVisibleCount(3)
+                            searchRef.current?.focus()
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                          }}
+                          className="flex items-center gap-0.5 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
+                          위로가기
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}

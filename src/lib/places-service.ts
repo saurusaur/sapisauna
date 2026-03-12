@@ -317,6 +317,25 @@ export async function createNewPlace(params: {
   return result!
 }
 
+// 장소 정보 수정
+export async function updatePlace(placeId: string, updates: {
+  facilities: string[]
+  is_24h: boolean
+  facility_type: string
+}): Promise<void> {
+  const { error } = await supabase
+    .from('places')
+    .update({
+      facilities: updates.facilities,
+      is_24h: updates.is_24h,
+      facility_type: updates.facility_type,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', placeId)
+
+  if (error) throw error
+}
+
 // 장소별 통계 (RPC)
 export async function getPlaceStats(placeId: string): Promise<{ avg: number; count: number }> {
   const { data, error } = await supabase

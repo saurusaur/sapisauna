@@ -88,8 +88,8 @@ export default function PlaceDetailPage() {
   }
   const tempMetrics = [
     { label: '온탕', value: calcAvg('hot_bath_temp', 'bather') },
-    { label: '냉탕', value: calcAvg('cold_bath_temp') },
     { label: '사우나', value: calcAvg('sauna_temp', 'saunner') },
+    { label: '냉탕', value: calcAvg('cold_bath_temp') },
     { label: '한증막', value: calcAvg('jjim_temp', 'jimi') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
 
@@ -110,12 +110,19 @@ export default function PlaceDetailPage() {
     ]},
   ].filter(t => t.metrics.length > 0)
 
-  // 3. 평균 비용 (deep_log.cost, KRW 기준만 집계)
-  const costEntries = placeLogs
-    .filter(l => l.deep_log?.cost != null && (l.deep_log?.currency === 'KRW' || !l.deep_log?.currency))
+  // 3. 평균 비용 (로그 데이터 최빈 통화 기준, Intl로 포맷)
+  const costLogs = placeLogs.filter(l => l.deep_log?.cost != null)
+  const currencyFreq: Record<string, number> = {}
+  for (const l of costLogs) {
+    const cur = l.deep_log?.currency || 'KRW'
+    currencyFreq[cur] = (currencyFreq[cur] || 0) + 1
+  }
+  const mainCurrency = Object.entries(currencyFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'KRW'
+  const costEntries = costLogs
+    .filter(l => (l.deep_log?.currency || 'KRW') === mainCurrency)
     .map(l => l.deep_log!.cost as number)
   const avgCost = costEntries.length > 0
-    ? { amount: Math.round(costEntries.reduce((s, v) => s + v, 0) / costEntries.length), currency: 'KRW', count: costEntries.length }
+    ? { amount: Math.round(costEntries.reduce((s, v) => s + v, 0) / costEntries.length), currency: mainCurrency }
     : null
 
   // 4. 혼잡도 분포
@@ -131,8 +138,23 @@ export default function PlaceDetailPage() {
   const scrubLogs = placeLogs.filter(l => l.deep_log?.has_scrub)
   const scrubSatVals = scrubLogs.filter(l => l.deep_log?.scrub_satisfaction != null).map(l => l.deep_log!.scrub_satisfaction as number)
   const scrubAvg = scrubSatVals.length > 0 ? scrubSatVals.reduce((s, v) => s + v, 0) / scrubSatVals.length : 0
-  const scrubUsageRate = totalCount > 0 ? Math.round((scrubLogs.length / totalCount) * 100) : 0
-  const scrubStepLabel = scrubSatVals.length > 0 ? getStepLabel(DEEP_LOG.SCRUB.satisfaction.steps, Math.round(scrubAvg)) : ''
+
+  // 5-1. 매점 점수
+  const storeScoreVals = placeLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
+  const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
+
+  // 5-2. 추가 정보 메트릭 (세신, 매점, 이용료 — 있는 것만)
+  const additionalMetrics: { label: string; value: string }[] = []
+  if (scrubSatVals.length > 0) {
+    additionalMetrics.push({ label: '세신', value: `${Math.round(scrubAvg)}/5` })
+  }
+  if (storeAvg !== null) {
+    additionalMetrics.push({ label: '매점', value: `${Math.round(storeAvg)}/5` })
+  }
+  if (avgCost) {
+    const costStr = new Intl.NumberFormat('en', { style: 'currency', currency: avgCost.currency, maximumFractionDigits: 0 }).format(avgCost.amount)
+    additionalMetrics.push({ label: '비용', value: costStr })
+  }
 
   // 6. 통합 로그 카드 (소팅)
   const sortedLogs = (() => {
@@ -177,7 +199,7 @@ export default function PlaceDetailPage() {
       return
     }
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, facilityType: place.facility_type }))
     router.push('/log')
   }
 
@@ -198,24 +220,22 @@ export default function PlaceDetailPage() {
           >
             PLACE
           </h1>
+
+          {authUser && (
+            <button
+              onClick={() => router.push(`/place/${placeId}/edit`)}
+              className="ml-auto p-1 text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+            </button>
+          )}
         </div>
       </header>
 
       <main className="p-4 space-y-4">
         {/* B. 장소 정보 카드 — 평점 통합 + 하트 이름과 같은 줄 */}
         <div className="glass-card p-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
-            {place.is_24h && <Badge24h />}
-            <div onClick={() => toggleFavorite(placeId)} className="ml-auto flex-shrink-0 cursor-pointer">
-              <span
-                className="material-symbols-outlined text-lg"
-                style={{ color: isFavoritedPlace ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
-              >
-                {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
-              </span>
-            </div>
-          </div>
+          <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
           <p className="text-xs text-stone-400 mt-2">{place.address}</p>
 
           {/* 평점 통합 */}
@@ -233,6 +253,7 @@ export default function PlaceDetailPage() {
 
           {/* 지도 링크 — 국내: 네이버+구글, 해외: 구글만 */}
           <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-3 flex-1">
             {place.country_code === 'KR' && (
               <>
                 <a
@@ -258,6 +279,29 @@ export default function PlaceDetailPage() {
               {PLACE_DETAIL.GOOGLE_MAP}
               <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
             </a>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {(place.facility_type === 'male-only' || place.facility_type === 'female-only') && (
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                  style={{
+                    backgroundColor: place.facility_type === 'male-only' ? '#DBEAFE' : '#FCE7F3',
+                    color: place.facility_type === 'male-only' ? '#3B82F6' : '#EC4899',
+                  }}
+                >
+                  {place.facility_type === 'male-only' ? '♂' : '♀'}
+                </span>
+              )}
+              {place.is_24h && <Badge24h />}
+              <div onClick={() => toggleFavorite(placeId)} className="cursor-pointer ml-0.5">
+                <span
+                  className="material-symbols-outlined text-lg"
+                  style={{ color: isFavoritedPlace ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
+                >
+                  {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -285,16 +329,41 @@ export default function PlaceDetailPage() {
         {/* D. 통계 섹션 — 사-피엔스의 흔적 */}
         {totalCount > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-stone-500 mb-3">사-피 리포트</h3>
+            {/* 헤더 + 트라이브 바 한줄 */}
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-stone-500">사-피 리포트</h3>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-stone-400">{totalCount}건</span>
+                {tribeDistribution.map(({ tribeId, count }) => (
+                  <span key={tribeId} className="flex items-center gap-0.5 text-xs">
+                    <span>{TRIBE_EMOJI_MAP[tribeId]}</span>
+                    <span className="font-bold" style={{ color: `var(--color-${tribeId})` }}>{count}</span>
+                  </span>
+                ))}
+                <div className="flex h-1.5 rounded-full overflow-hidden w-16">
+                  {tribeDistribution.map(({ tribeId, count }) => (
+                    <div
+                      key={tribeId}
+                      className="h-full first:rounded-l-full last:rounded-r-full"
+                      style={{
+                        width: `${(count / totalCount) * 100}%`,
+                        backgroundColor: `var(--color-${tribeId})`,
+                        opacity: 0.7,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
             <div className="glass-card p-4 space-y-4">
 
-              {/* D-1. 온도 메트릭 — 중앙정렬, 정수 round */}
+              {/* D-1. 온도 메트릭 — 트라이브 1개일 때 너비 맞춤 */}
               {tempMetrics.length > 0 && (
               <div>
-                <div className="flex justify-center py-2">
+                <div className={`flex justify-center py-2 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px] mx-auto' : ''}`}>
                   {tempMetrics.map((m) => (
-                    <div key={m.label} className="flex flex-col items-center" style={{ width: `${100 / tempMetrics.length}%` }}>
-                      <span className="text-xs text-stone-400 mb-1">{m.label}</span>
+                    <div key={m.label} className="flex flex-col items-center flex-1">
+                      <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
                       <div className="flex items-baseline gap-0.5">
                         <span className="text-xl font-bold text-stone-700">{Math.round(m.value)}</span>
                         <span className="text-[10px] text-stone-400">°C</span>
@@ -308,9 +377,9 @@ export default function PlaceDetailPage() {
               {/* D-2. 트라이브별 서브 메트릭 컬럼 + 구분선 */}
               {tribeSubMetrics.length > 0 && (
               <div className="pt-1 border-t border-stone-100">
-                <div className={`flex ${tribeSubMetrics.length === 1 ? '' : 'divide-x divide-stone-200'}`}>
+                <div className={`flex justify-center ${tribeSubMetrics.length === 1 ? '' : 'divide-x divide-stone-200'}`}>
                   {tribeSubMetrics.map(({ tribeId, metrics }) => (
-                    <div key={tribeId} className="flex-1 px-3 first:pl-0 last:pr-0 py-1">
+                    <div key={tribeId} className="px-3 first:pl-0 last:pr-0 py-1 max-w-[160px] w-full">
                       <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
                         {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
                       </p>
@@ -328,41 +397,17 @@ export default function PlaceDetailPage() {
               </div>
               )}
 
-              {/* D-3. 트라이브 분포 (좌) + 혼잡도 바차트 (우) */}
+              {/* D-3. 혼잡도 (좌) + 더보기 (우) — 둘 다 없으면 숨김 */}
+              {(crowdTotal > 0 || additionalMetrics.length > 0) && (
               <div className="grid grid-cols-2 gap-6 pt-1 border-t border-stone-100">
-                {/* 좌: 트라이브 분포 */}
+                {/* 좌: 혼잡도 바차트 */}
                 <div>
-                  <p className="text-xs text-stone-400 mb-2">TRIBE</p>
-                  <span className="text-lg font-bold text-stone-700">{totalCount}<span className="text-xs font-normal text-stone-400 ml-0.5">건</span></span>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    {tribeDistribution.map(({ tribeId, count }) => (
-                      <span key={tribeId} className="flex items-center gap-1 text-xs">
-                        <span>{TRIBE_EMOJI_MAP[tribeId]}</span>
-                        <span className="font-bold" style={{ color: `var(--color-${tribeId})` }}>{count}</span>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex h-1.5 rounded-full overflow-hidden mt-2">
-                    {tribeDistribution.map(({ tribeId, count }) => (
-                      <div
-                        key={tribeId}
-                        className="h-full first:rounded-l-full last:rounded-r-full"
-                        style={{
-                          width: `${(count / totalCount) * 100}%`,
-                          backgroundColor: `var(--color-${tribeId})`,
-                          opacity: 0.7,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                {/* 우: 혼잡도 바차트 */}
-                {crowdTotal > 0 && (
-                <div>
+                  {crowdTotal > 0 && (
+                  <>
                   <p className="text-xs text-stone-400 mb-2">혼잡도</p>
                   <div className="flex gap-1 items-end h-12">
                     {crowdDistribution.map(({ id, count }) => {
-                      const pct = crowdTotal > 0 ? Math.round((count / crowdTotal) * 100) : 0
+                      const pct = Math.round((count / crowdTotal) * 100)
                       return (
                         <div key={id} className="flex-1 flex flex-col items-center">
                           <div className="w-full flex items-end justify-center" style={{ height: '32px' }}>
@@ -381,7 +426,7 @@ export default function PlaceDetailPage() {
                   </div>
                   <div className="flex gap-1 mt-1">
                     {crowdDistribution.map(({ id, count }) => {
-                      const pct = crowdTotal > 0 ? Math.round((count / crowdTotal) * 100) : 0
+                      const pct = Math.round((count / crowdTotal) * 100)
                       return (
                         <div key={id} className="flex-1 text-center">
                           <p className="text-[10px] text-stone-500 leading-tight">{crowdLabelMap[id]}</p>
@@ -390,33 +435,25 @@ export default function PlaceDetailPage() {
                       )
                     })}
                   </div>
+                  </>
+                  )}
                 </div>
-                )}
-              </div>
-
-              {/* D-4. 평균 비용 + 세신 — 컴팩트 행 */}
-              {(avgCost || scrubLogs.length > 0) && (
-              <div className="flex items-center gap-4 pt-2 border-t border-stone-100 text-xs">
-                {avgCost && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>payments</span>
-                    <span className="text-stone-500">평균</span>
-                    <span className="font-bold text-stone-700">
-                      {avgCost.currency === 'KRW' ? `₩${avgCost.amount.toLocaleString()}` : `${avgCost.amount} ${avgCost.currency}`}
-                    </span>
-                    <span className="text-stone-400">({avgCost.count}건)</span>
+                {/* 우: + 더보기 (세신, 매점, 비용) */}
+                <div>
+                  {additionalMetrics.length > 0 && (
+                  <>
+                  <p className="text-xs text-stone-400 mb-2">+ 더보기</p>
+                  <div className="space-y-1.5">
+                    {additionalMetrics.map(m => (
+                      <div key={m.label} className="flex items-center gap-3 text-xs">
+                        <span className="text-stone-500">{m.label}</span>
+                        <span className="font-bold text-stone-700">{m.value}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-                {scrubLogs.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>spa</span>
-                    <span className="text-stone-500">세신</span>
-                    {scrubSatVals.length > 0 && (
-                      <span className="font-bold text-stone-700">{scrubAvg.toFixed(1)}/5</span>
-                    )}
-                    <span className="text-stone-400">이용률 {scrubUsageRate}%</span>
-                  </div>
-                )}
+                  </>
+                  )}
+                </div>
               </div>
               )}
 

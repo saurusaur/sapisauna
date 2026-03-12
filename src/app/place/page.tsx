@@ -38,9 +38,9 @@ export default function PlaceSelection() {
     : places.slice(0, 3)
 
   // 장소 선택
-  const handlePlaceSelect = (placeId: string, placeName: string, countryCode?: string) => {
+  const handlePlaceSelect = (placeId: string, placeName: string, countryCode?: string, facilityType?: string) => {
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName, countryCode }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: placeId, name: placeName, countryCode, facilityType }))
     router.push('/log')
   }
 
@@ -89,7 +89,7 @@ export default function PlaceSelection() {
               {recentPlaces.map((place) => (
                 <button
                   key={place.id}
-                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
+                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code, place.facility_type)}
                   className="w-full glass-card-light p-3 rounded-xl text-left hover:shadow-md transition-all flex items-center gap-3"
                 >
                   <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>
@@ -120,7 +120,7 @@ export default function PlaceSelection() {
               <PlaceCard
                 key={place.id}
                 place={place}
-                onClick={() => handlePlaceSelect(place.id, place.name, place.country_code)}
+                onClick={() => handlePlaceSelect(place.id, place.name, place.country_code, place.facility_type)}
               />
             ))}
           </div>
