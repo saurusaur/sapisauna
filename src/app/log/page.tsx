@@ -9,6 +9,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog } from '@/lib/logs-service'
 import { safeParse } from '@/lib/utils'
 import type { TribeId } from '@/types'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function QuickLog() {
   const router = useRouter()
@@ -624,15 +625,7 @@ export default function QuickLog() {
         </div>
       </main>
 
-      {/* 하단 고정 "다음" 버튼 — 띠 없이 플로팅 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={handleComplete}
-          className="btn-primary"
-        >
-          다음
-        </button>
-      </div>
+      <BottomCTA onClick={handleComplete}>다음</BottomCTA>
 
       {/* 뒤로가기 확인 모달 */}
       {showBackConfirm && (
@@ -650,22 +643,19 @@ export default function QuickLog() {
       {/* 분기 모달: 상세 기록 vs 바로 스토리 */}
       {showBranchModal && (
         <ConfirmModal onCancel={() => setShowBranchModal(false)}>
-          <p className="text-sm font-semibold text-stone-700 text-center mb-1">
-            {editId ? '수정 완료!' : '기록 완성!'}
-          </p>
-          <p className="text-xs text-stone-400 text-center mb-5">
-            상세 기록을 추가하거나 바로 스토리를 만들 수 있어요
+          <p className="text-sm font-semibold text-stone-700 text-center mb-6">
+            {editId ? '수정 완료!' : '기록 성공!'}
           </p>
 
           {saveError && (
-            <p className="text-xs text-red-500 text-center mb-3">{saveError}</p>
+            <p className="text-xs text-center mb-4" style={{ color: 'var(--color-accent)' }}>{saveError}</p>
           )}
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <button
               onClick={handleGoDeepLog}
               disabled={isSaving}
-              className="w-full py-3 rounded-xl text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl text-sm font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit_note</span>
               {editId ? '상세 기록 편집하기' : '상세 기록 추가하기'}
@@ -673,7 +663,7 @@ export default function QuickLog() {
             <button
               onClick={handleDirectStory}
               disabled={isSaving}
-              className="w-full py-3 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all active:brightness-125 flex items-center justify-center gap-2 disabled:opacity-50"
               style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {isSaving ? (
@@ -681,7 +671,7 @@ export default function QuickLog() {
               ) : (
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>auto_awesome</span>
               )}
-              바로 스토리로
+              바로 기록 카드 생성
             </button>
           </div>
         </ConfirmModal>

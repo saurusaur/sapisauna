@@ -34,10 +34,10 @@ export default function DataState({
   if (error) {
     return (
       <div className="text-center py-16">
-        <span className="material-symbols-outlined text-4xl text-red-300 mb-2 block">
+        <span className="material-symbols-outlined text-4xl mb-3 block" style={{ color: 'var(--color-accent)' }}>
           error
         </span>
-        <p className="text-stone-400 text-sm">{error}</p>
+        <p className="text-stone-500 text-sm">{error}</p>
       </div>
     )
   }
@@ -46,7 +46,7 @@ export default function DataState({
   if (isEmpty) {
     return (
       <div className="text-center py-16">
-        <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
+        <span className="material-symbols-outlined text-4xl text-stone-300 mb-3 block">
           {emptyIcon}
         </span>
         <p className="text-stone-400 text-sm">{emptyMessage}</p>

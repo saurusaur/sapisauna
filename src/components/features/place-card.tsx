@@ -91,8 +91,9 @@ export default function PlaceCard({
     // 공통: 평점
     const scoreDisplay = stats.count > 0 && (
         <div className="flex items-center gap-1 text-xs">
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '14px' }}>move</span>
             <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
-                ★ {stats.avg}
+                {stats.avg}/5
             </span>
             <span className="text-stone-300">·</span>
             <span className="text-stone-500">{stats.count}건의 기록</span>

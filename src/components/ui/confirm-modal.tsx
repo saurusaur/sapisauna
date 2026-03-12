@@ -31,23 +31,23 @@ export default function ConfirmModal({
       <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
 
       {/* 모달 본체 */}
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-[280px] p-6">
+      <div className="relative bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] w-full max-w-[300px] p-6">
         {children ? (
           children
         ) : (
           <>
-            <p className="text-sm text-stone-700 text-center mb-6 leading-relaxed">{message}</p>
+            <p className="text-sm text-stone-700 text-center mb-8 leading-relaxed">{message}</p>
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium text-stone-500 bg-stone-100 hover:bg-stone-200 transition-colors"
+                className="flex-1 py-3 rounded-xl text-sm font-medium text-stone-500 bg-stone-100 hover:bg-stone-200 transition-colors"
               >
                 {cancelLabel}
               </button>
               <button
                 onClick={onConfirm}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: 'var(--color-accent)' }}
+                className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all active:brightness-125"
+                style={{ backgroundColor: 'var(--color-primary)' }}
               >
                 {confirmLabel}
               </button>

@@ -49,7 +49,7 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto">
       {/* Glass 배경 — 떠있는 느낌의 깊은 그림자 */}
       <div className="absolute inset-0 backdrop-blur-xl"
         style={{
@@ -79,15 +79,15 @@ export default function BottomNav({ showTooltip = false }: BottomNavProps) {
 
         <button
           onClick={() => router.push('/place')}
-          className="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+          className="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 active:brightness-125"
           style={{
             backgroundColor: 'var(--color-primary)',
             boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>add</span>
         </button>
-        <span className="text-[10px] mt-0.5 leading-tight font-medium" style={{ color: 'var(--color-primary)' }}>기록</span>
       </div>
 
       <div className="flex items-center justify-around py-2.5 pb-3 max-w-md mx-auto relative">

@@ -36,35 +36,11 @@ export default function Home() {
 
   const emptyMessage = MESSAGES.HOME.EMPTY_RECORD[primaryTribe] || MESSAGES.HOME.NO_RECORDS
 
-  // 비로그인
+  // 비로그인 → 로그인 페이지로 이동
+  // TODO: 비로그인 홈 UI 복원 필요 시 git history 참조
   if (!authUser) {
-    return (
-      <div className="min-h-dvh pb-24 bath-tile-bg">
-        <header className="p-5 pt-8">
-          <h1 className="text-3xl font-extrabold italic font-heading">
-            HELLO{' '}
-            <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
-          </h1>
-          <p className="text-stone-500 mt-2">{LOGIN.HOME_SUBTITLE}</p>
-        </header>
-        <main className="p-6 flex flex-col items-center justify-center min-h-[50vh]">
-          <button
-            onClick={() => router.push('/explore')}
-            className="w-full max-w-xs py-4 px-6 glass-card text-stone-700 font-semibold mb-4 hover:shadow-lg transition-all"
-          >
-            {LOGIN.EXPLORE_CTA}
-          </button>
-          <button
-            onClick={() => router.push('/login')}
-            className="w-full max-w-xs py-4 px-6 rounded-xl text-white font-semibold hover:opacity-90 transition-all"
-            style={{ backgroundColor: 'var(--color-primary)' }}
-          >
-            {LOGIN.LOGIN_CTA}
-          </button>
-        </main>
-        <BottomNav />
-      </div>
-    )
+    router.push('/login')
+    return null
   }
 
   return (
@@ -117,12 +93,12 @@ export default function Home() {
               }}
               className="w-full h-full rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
             >
-              <p className="text-stone-400 text-lg mb-3">{emptyMessage}</p>
+              <p className="text-stone-400 text-sm mb-3">{emptyMessage}</p>
               <span
                 className="text-sm font-medium underline underline-offset-2"
                 style={{ color: 'var(--color-primary)' }}
               >
-                이 날에 기록하기
+                기록하기
               </span>
             </button>
           ) : selectedDateLogs.length === 1 ? (

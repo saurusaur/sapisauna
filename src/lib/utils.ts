@@ -188,14 +188,23 @@ export function getFacilityLabel(id: string): string {
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
 export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
+  const parts: string[] = []
   switch (log.tribe_id) {
     case 'saunner':
-      return `사우나 ${log.sauna_temp}° · 냉탕 ${log.cold_bath_temp}° · 토토노 ${log.totono_score || 0}/5`
+      if (log.sauna_temp != null) parts.push(`사우나 ${log.sauna_temp}°`)
+      if (log.cold_bath_temp != null) parts.push(`냉탕 ${log.cold_bath_temp}°`)
+      if (log.totono_score != null) parts.push(`토토노 ${log.totono_score}/5`)
+      break
     case 'bather':
-      return `온탕 ${log.hot_bath_temp}° · 수질 ${log.water_quality || 3}/5 · 냉탕 ${log.cold_bath_temp}°`
+      if (log.hot_bath_temp != null) parts.push(`온탕 ${log.hot_bath_temp}°`)
+      if (log.water_quality != null) parts.push(`수질 ${log.water_quality}/5`)
+      if (log.cold_bath_temp != null) parts.push(`냉탕 ${log.cold_bath_temp}°`)
+      break
     case 'jimi':
-      return `한증막 ${log.jjim_temp}° · 발한 ${log.sweat_quality || 3}/5 · 휴식 ${log.rest_quality || 3}/5`
-    default:
-      return ''
+      if (log.jjim_temp != null) parts.push(`한증막 ${log.jjim_temp}°`)
+      if (log.sweat_quality != null) parts.push(`발한 ${log.sweat_quality}/5`)
+      if (log.rest_quality != null) parts.push(`휴식 ${log.rest_quality}/5`)
+      break
   }
+  return parts.join(' · ')
 }

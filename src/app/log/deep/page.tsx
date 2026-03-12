@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
 import type { BathGender } from '@/types'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function DeepLog() {
   const router = useRouter()
@@ -422,19 +423,12 @@ export default function DeepLog() {
         </div>
       </main>
 
-      {/* 하단 고정 저장 버튼 — 플로팅 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="btn-primary flex items-center justify-center gap-2"
-        >
-          {isSaving && (
-            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          )}
-          {isEditMode ? '수정 저장' : '기록 저장'}
-        </button>
-      </div>
+      <BottomCTA onClick={handleSave} disabled={isSaving} className="flex items-center justify-center gap-2">
+        {isSaving && (
+          <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        )}
+        {isEditMode ? '수정 저장' : '기록 저장'}
+      </BottomCTA>
 
       {/* 취소 확인 모달 */}
       {showCancelConfirm && (

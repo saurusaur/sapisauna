@@ -192,11 +192,16 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
     const dayLogs = logsByDate[key] || []
     const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.tribe_id)))
 
+    // 월간 뷰에서 해당 월이 아닌 날짜는 빈 셀로 처리
+    if (isOtherMonth && expanded) {
+      return <div key={key} />
+    }
+
     return (
       <button
         key={key}
         onClick={() => onSelectDate(key)}
-        className={`py-1.5 flex flex-col items-center gap-0.5 rounded-lg transition-all ${
+        className={`aspect-square flex flex-col items-center justify-center gap-0.5 rounded-lg transition-all ${
           isSelected ? 'bg-[var(--color-primary-light)]' : ''
         }`}
       >
@@ -275,7 +280,9 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
         {/* 요일 헤더 */}
         <div className="grid grid-cols-7 mb-2">
           {WEEKDAYS.map((day) => (
-            <div key={day} className="text-center text-xs font-medium text-stone-400 py-1">
+            <div key={day} className={`text-center text-xs py-1 ${
+              day === '토' || day === '일' ? 'font-bold text-stone-500' : 'font-medium text-stone-400'
+            }`}>
               {day}
             </div>
           ))}

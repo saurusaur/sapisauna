@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ONBOARDING } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function NicknameEdit() {
   const router = useRouter()
@@ -122,16 +123,7 @@ export default function NicknameEdit() {
         )}
       </main>
 
-      {/* 하단 고정 저장 버튼 — 앱 통일 패턴 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={handleSave}
-          disabled={nicknameStatus !== 'available'}
-          className="btn-primary"
-        >
-          저장
-        </button>
-      </div>
+      <BottomCTA onClick={handleSave} disabled={nicknameStatus !== 'available'}>저장</BottomCTA>
     </div>
   )
 }

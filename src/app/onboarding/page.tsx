@@ -301,7 +301,7 @@ export default function Onboarding() {
       )}
 
       {/* 하단 고정 버튼 — 앱 통일 패턴 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 pb-6 z-20 pointer-events-none">
         {step === 'nickname' ? (
           <button
             onClick={goToNextStep}

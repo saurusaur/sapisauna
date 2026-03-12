@@ -9,6 +9,7 @@ import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 // DEEP_LOG options에서 id로 옵션을 찾는 헬퍼
 function findOption(options: readonly { id: string; label: string; icon: string }[], id: string) {
@@ -59,8 +60,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
   if (error || !log) {
     return (
-      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
-        <p className="text-stone-400">기록을 찾을 수 없습니다</p>
+      <div className="min-h-dvh bath-tile-bg flex flex-col items-center justify-center gap-3">
+        <span className="material-symbols-outlined text-4xl" style={{ color: 'var(--color-accent)' }}>description_off</span>
+        <p className="text-stone-500 text-sm">기록을 찾을 수 없습니다</p>
+        <a href="/home" className="text-sm text-stone-400 hover:text-stone-600 transition-colors mt-2">홈으로 돌아가기</a>
       </div>
     )
   }
@@ -169,12 +172,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <p className="text-xs text-stone-400 mt-2.5">{generateShortAddress(log.address, log.place_country_code) || log.address}</p>
           <p className="text-xs text-stone-400 mt-2.5">{formatDateTime(new Date(log.date))}</p>
 
-          {/* 또 갈래요 점수 — ScoreBadge + descriptor 통일 */}
-          <div className="flex items-center gap-2 mt-2.5">
-            <ScoreBadge score={log.revisit_score} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
-              {getRevisitLabel(log.revisit_score)}
-            </span>
+          {/* 점수 — move 아이콘 + 점수 · descriptor */}
+          <div className="mt-2.5">
+            <ScoreBadge score={log.revisit_score} showMax={false} descriptor={getRevisitLabel(log.revisit_score)} />
           </div>
         </div>
 
@@ -451,19 +451,14 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         )}
       </main>
 
-      {/* ── 5. 스토리 만들기 CTA (앱 공통 하단 버튼) ── */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={() => {
-            localStorage.setItem('savedLogId', log.id)
-            router.push('/story')
-          }}
-          className="btn-primary flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined">photo_camera</span>
-          스토리 만들기
-        </button>
-      </div>
+      {/* ── 5. 스토리 만들기 CTA ── */}
+      <BottomCTA onClick={() => {
+        localStorage.setItem('savedLogId', log.id)
+        router.push('/story')
+      }} className="flex items-center justify-center gap-2">
+        <span className="material-symbols-outlined">photo_camera</span>
+        카드 만들기
+      </BottomCTA>
 
       {/* 삭제 확인 모달 */}
       {showDeleteConfirm && (

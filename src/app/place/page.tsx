@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { MESSAGES, ICONS } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
+import { useUserLogs } from '@/hooks/use-logs'
 import DataState from '@/components/ui/data-state'
 import PlaceCard from '@/components/features/place-card'
 
@@ -12,14 +13,29 @@ export default function PlaceSelection() {
   const [searchQuery, setSearchQuery] = useState('')
   // DB 데이터 로드
   const { data: places, loading, error } = usePlaces()
+  const { data: userLogs } = useUserLogs()
 
-  // 최근 등록 장소: DB에서 최신 3개
-  const recentPlaces = places.slice(0, 3)
+  // 최근 기록 장소: 유저 본인이 마지막으로 기록한 순서대로 2개
+  const recentPlaces = useMemo(() => {
+    const seen = new Set<string>()
+    const result: typeof places = []
+    for (const log of userLogs) {
+      if (!seen.has(log.place_id)) {
+        seen.add(log.place_id)
+        const place = places.find(p => p.id === log.place_id)
+        if (place) result.push(place)
+        if (result.length >= 2) break
+      }
+    }
+    return result
+  }, [userLogs, places])
 
-  // 검색 필터링
-  const filteredPlaces = places.filter(place =>
-    place.name.includes(searchQuery) || place.address.includes(searchQuery)
-  )
+  // 검색 필터링 (검색 중이 아닐 때는 내 주변 3개만)
+  const filteredPlaces = searchQuery
+    ? places.filter(place =>
+        place.name.includes(searchQuery) || place.address.includes(searchQuery)
+      )
+    : places.slice(0, 3)
 
   // 장소 선택
   const handlePlaceSelect = (placeId: string, placeName: string, countryCode?: string) => {
@@ -67,7 +83,7 @@ export default function PlaceSelection() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '18px' }}>history</span>
-              <span className="text-sm font-medium text-stone-500">최근 등록 장소</span>
+              <span className="text-sm font-medium text-stone-500">최근 기록 장소</span>
             </div>
             <div className="space-y-2">
               {recentPlaces.map((place) => (

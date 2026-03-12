@@ -11,6 +11,7 @@ import PlaceMergeModal from '@/components/ui/place-merge-modal'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
 import { supabase } from '@/lib/supabase'
 import type { Place, FacilityType } from '@/types'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 // API 검색 결과 타입
 interface SearchResult {
@@ -500,20 +501,13 @@ export default function AddPlace() {
         </div>
       </main>
 
-      {/* 하단 고정 저장 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={handleSave}
-          disabled={!canSave}
-          className="btn-primary"
-        >
-          {isSaving ? (
-            <span className="material-symbols-outlined animate-spin">progress_activity</span>
-          ) : (
-            '장소 저장'
-          )}
-        </button>
-      </div>
+      <BottomCTA onClick={handleSave} disabled={!canSave}>
+        {isSaving ? (
+          <span className="material-symbols-outlined animate-spin">progress_activity</span>
+        ) : (
+          '장소 저장'
+        )}
+      </BottomCTA>
 
       {showBackConfirm && (
         <ConfirmModal

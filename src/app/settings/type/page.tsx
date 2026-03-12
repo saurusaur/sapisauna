@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { TRIBES } from '@/constants/content'
 import type { TribeId } from '@/types'
 import { useUser } from '@/contexts/user-context'
+import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function TypeEdit() {
   const router = useRouter()
@@ -127,16 +128,7 @@ export default function TypeEdit() {
         </div>
       </main>
 
-      {/* 하단 고정 저장 버튼 — 앱 통일 패턴 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 z-20 pointer-events-none">
-        <button
-          onClick={handleSave}
-          disabled={selectedTypes.length === 0}
-          className="btn-primary"
-        >
-          저장
-        </button>
-      </div>
+      <BottomCTA onClick={handleSave} disabled={selectedTypes.length === 0}>저장</BottomCTA>
     </div>
   )
 }

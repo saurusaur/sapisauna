@@ -199,10 +199,10 @@ export default function History() {
                       : MESSAGES.HOME.NO_RECORDS}
                   </p>
                   <span
-                    className="text-xs font-medium underline underline-offset-2"
+                    className="text-sm font-medium underline underline-offset-2"
                     style={{ color: 'var(--color-primary)' }}
                   >
-                    {NAV.ADD_RECORD}
+                    기록하기
                   </span>
                 </button>
               ) : (

@@ -511,7 +511,7 @@ export const MESSAGES = {
   },
   LOG: {
     SELECT_PLACE: '장소 선택',
-    SEARCH_PLACEHOLDER: '사우나 검색...',
+    SEARCH_PLACEHOLDER: '사우나를 검색해보세요!',
     NEARBY: '내 주변',
     ADD_PLACE: '직접 장소 추가',
     DEEP_LOG_BUTTON: '자세히 기록하기',

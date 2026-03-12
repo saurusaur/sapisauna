@@ -136,7 +136,10 @@ body {
   pointer-events: auto;
 }
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.9;
+  filter: brightness(1.15);
+}
+.btn-primary:active:not(:disabled) {
+  filter: brightness(1.25);
 }
 .btn-primary:disabled {
   background-color: #d6d3d1;
