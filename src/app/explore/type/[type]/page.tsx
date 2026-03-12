@@ -149,10 +149,10 @@ export default function TypeListPage() {
     })
 
     return filtered
-  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, favorites, placeStatsMap])
+  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, getFavoriteCount, placeStatsMap])
 
   return (
-    <div className="min-h-screen pb-8 bath-tile-bg">
+    <div className="min-h-dvh pb-8 bath-tile-bg">
       {/* 헤더 — 뒤로가기 + 헤딩 같은 라인 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">

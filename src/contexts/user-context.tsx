@@ -112,7 +112,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // DB 로드 전 로딩 표시
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-dvh">
         <div className="text-stone-400 text-sm">로딩 중...</div>
       </div>
     )

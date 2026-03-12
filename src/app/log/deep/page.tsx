@@ -179,7 +179,7 @@ export default function DeepLog() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg pb-24">
+    <div className="min-h-dvh bath-tile-bg pb-24">
       {/* 헤더 — 장소명 + 딥로그 취소 */}
       <header className="px-5 pt-8 pb-2 flex items-baseline justify-between">
         <h1 className="text-xl font-bold text-stone-800">{placeName || 'Deep Log'}</h1>

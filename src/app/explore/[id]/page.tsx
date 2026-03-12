@@ -32,7 +32,7 @@ export default function PlaceDetailPage() {
   // 로딩/에러/없음 상태
   if (placeLoading) {
     return (
-      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
         <span className="material-symbols-outlined text-3xl text-stone-300 animate-spin">progress_activity</span>
       </div>
     )
@@ -40,7 +40,7 @@ export default function PlaceDetailPage() {
 
   if (placeError || !place) {
     return (
-      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
         <p className="text-stone-400">장소를 찾을 수 없습니다</p>
       </div>
     )
@@ -87,7 +87,7 @@ export default function PlaceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bath-tile-bg">
+    <div className="min-h-dvh pb-24 bath-tile-bg">
       {/* A. 헤더 — 서브페이지 스타일 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">

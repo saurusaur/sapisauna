@@ -139,7 +139,7 @@ export default function Onboarding() {
   const canSubmit = selectedTypes.length > 0 && !isSubmitting
 
   return (
-    <div className="flex flex-col min-h-screen bath-tile-bg">
+    <div className="flex flex-col min-h-dvh bath-tile-bg">
       {/* Step 1: 닉네임 입력 */}
       {step === 'nickname' && (
         <div className="flex flex-col items-center flex-1 px-6 pb-24">

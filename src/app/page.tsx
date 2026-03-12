@@ -27,7 +27,7 @@ export default function RootPage() {
   }, [authUser, authLoading, profile, router])
 
   return (
-    <div className="flex items-center justify-center min-h-screen bath-tile-bg">
+    <div className="flex items-center justify-center min-h-dvh bath-tile-bg">
       <div className="text-stone-400 text-sm">로딩 중...</div>
     </div>
   )

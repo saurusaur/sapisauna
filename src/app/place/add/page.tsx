@@ -230,7 +230,7 @@ export default function AddPlace() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg pb-24">
+    <div className="min-h-dvh bath-tile-bg pb-24">
       {/* 헤더 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">

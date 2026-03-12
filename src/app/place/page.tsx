@@ -29,7 +29,7 @@ export default function PlaceSelection() {
   }
 
   return (
-    <div className="min-h-screen bath-tile-bg">
+    <div className="min-h-dvh bath-tile-bg">
       {/* 헤더 — 앱 통일 패턴 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">

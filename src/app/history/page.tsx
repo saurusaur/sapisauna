@@ -64,7 +64,7 @@ export default function History() {
   }, [typeFilteredLogs, selectedDate])
 
   return (
-    <div className="min-h-screen pb-20 bath-tile-bg">
+    <div className="min-h-dvh pb-20 bath-tile-bg">
       {/* 헤더 — tribe picks 전체보기와 동일 스타일 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">

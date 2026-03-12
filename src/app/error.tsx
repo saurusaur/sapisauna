@@ -7,7 +7,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   return (
-    <div className="bath-tile-bg min-h-screen flex items-center justify-center p-6">
+    <div className="bath-tile-bg min-h-dvh flex items-center justify-center p-6">
       <div className="bg-white rounded-xl shadow-sm p-8 max-w-sm w-full text-center">
         <div className="text-4xl mb-4">♨️</div>
         <h2 className="text-lg font-semibold text-stone-700 mb-2">

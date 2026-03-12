@@ -98,7 +98,7 @@ export default function ExplorePage() {
     }
 
     return result
-  }, [places, logs, sortType, favorites])
+  }, [places, logs, sortType, getFavoriteCount])
 
   // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
   const recommendationOrder = useMemo(() => {
@@ -188,13 +188,13 @@ export default function ExplorePage() {
     })
 
     return filtered
-  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, favorites, placeStatsMap])
+  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, getFavoriteCount, placeStatsMap])
 
   // 검색/필터가 활성화되어 있는지
   const isSearchOrFilterActive = searchQuery || selectedFilters.length > 0 || is24hOnly
 
   return (
-    <div className="min-h-screen pb-20 bath-tile-bg">
+    <div className="min-h-dvh pb-20 bath-tile-bg">
       {/* 헤더 — 홈과 동일 스타일 */}
       <header className="p-5 pt-8">
         <h1

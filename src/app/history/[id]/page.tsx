@@ -51,7 +51,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   // 로딩/에러 상태
   if (loading) {
     return (
-      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
         <span className="material-symbols-outlined text-3xl text-stone-300 animate-spin">progress_activity</span>
       </div>
     )
@@ -59,7 +59,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
   if (error || !log) {
     return (
-      <div className="min-h-screen bath-tile-bg flex items-center justify-center">
+      <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
         <p className="text-stone-400">기록을 찾을 수 없습니다</p>
       </div>
     )
@@ -91,7 +91,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   ]
 
   return (
-    <div className="min-h-screen bath-tile-bg pb-24">
+    <div className="min-h-dvh bath-tile-bg pb-24">
       {/* 헤더 */}
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">
