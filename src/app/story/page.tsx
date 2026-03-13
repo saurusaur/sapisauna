@@ -14,6 +14,7 @@ import { STORY_COLORS, type StoryTribeId } from '@/constants/story-colors'
 import type { LogWithPlace } from '@/types'
 import { getMyLogById } from '@/lib/logs-service'
 import { renderCard, shareImage, downloadImage } from '@/lib/image-export'
+import { processPhoto } from '@/lib/process-photo'
 import confetti from 'canvas-confetti'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
@@ -136,14 +137,17 @@ export default function Story() {
     }
   }
 
-  // 사진 추가
-  const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 사진 추가 — HEIC 변환 + 리사이즈 + JPEG 압축
+  const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setBgPhoto(reader.result as string)
-    reader.readAsDataURL(file)
     e.target.value = ''
+    try {
+      const dataUrl = await processPhoto(file)
+      setBgPhoto(dataUrl)
+    } catch (err) {
+      console.error('Photo processing failed:', err)
+    }
   }
 
   const handleRemovePhoto = () => setBgPhoto(null)
