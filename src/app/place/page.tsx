@@ -114,7 +114,7 @@ export default function PlaceSelection() {
         </div>
 
         {/* 장소 목록 */}
-        <DataState loading={loading} error={error} isEmpty={filteredPlaces.length === 0} emptyIcon="location_off" emptyMessage="등록된 장소가 없습니다">
+        <DataState loading={loading} error={error} isEmpty={filteredPlaces.length === 0} emptyIcon="location_off" emptyMessage="">
           <div className="space-y-3 mb-6">
             {filteredPlaces.map((place) => (
               <PlaceCard
@@ -126,17 +126,19 @@ export default function PlaceSelection() {
           </div>
         </DataState>
 
-        {/* 직접 장소 추가 */}
+        {/* 직접 장소 추가 — 검색 결과 없을 때는 아이콘 바로 아래에 표시 */}
         <button
           onClick={() => router.push('/place/add')}
-          className="w-full py-4 flex flex-col items-center justify-center gap-1 transition-colors hover:opacity-70"
+          className={`w-full flex flex-col items-center justify-center gap-1 transition-colors hover:opacity-70 ${
+            filteredPlaces.length === 0 && !loading ? '-mt-10 pb-4' : 'py-4'
+          }`}
         >
           <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
           <span
             className="text-xs font-medium underline underline-offset-2"
             style={{ color: 'var(--color-primary)' }}
           >
-            {MESSAGES.LOG.ADD_PLACE}
+            직접 장소 추가
           </span>
         </button>
       </main>
