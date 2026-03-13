@@ -2,8 +2,8 @@
 
 /**
  * Steam Card Reveal — 레벨업 보상 애니메이션
- * 화면 딤 → 증기 올라옴 → 카드 슬라이드업 → 플립하며 칭호 공개 → 컨페티 → 증기 사라짐
- * ~2.5초, CSS @keyframes + canvas-confetti
+ * 화면 딤 → 증기 올라옴 → 카드 슬라이드업 → 플립하며 칭호 공개 → 컨페티
+ * 유저가 탭할 때까지 유지
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -16,10 +16,9 @@ interface SteamCardRevealProps {
 }
 
 export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealProps) {
-  const [phase, setPhase] = useState<'steam' | 'card' | 'reveal' | 'done'>('steam')
+  const [phase, setPhase] = useState<'steam' | 'card' | 'reveal'>('steam')
 
   const fireConfetti = useCallback(() => {
-    // ♨️ 스팀 테마 컨페티 — 따뜻한 색 위주
     confetti({
       particleCount: 40,
       spread: 60,
@@ -35,20 +34,16 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
   }, [])
 
   useEffect(() => {
-    // 타이밍 시퀀스
-    const t1 = setTimeout(() => setPhase('card'), 400)    // 증기 후 카드 등장
+    // 타이밍 시퀀스 (속도 2배 느리게)
+    const t1 = setTimeout(() => setPhase('card'), 800)
     const t2 = setTimeout(() => {
       setPhase('reveal')
       fireConfetti()
-    }, 1000)   // 카드 플립 + 칭호 공개
-    const t3 = setTimeout(() => setPhase('done'), 2800)    // 자동 종료
+    }, 2000)
+    // 자동 종료 없음 — 유저 탭으로만 닫힘
 
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [fireConfetti])
-
-  useEffect(() => {
-    if (phase === 'done') onComplete()
-  }, [phase, onComplete])
 
   const displayTitle = reward.newTitles[0] || '새로운 칭호'
 
@@ -59,15 +54,15 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
     >
       {/* 배경 딤 */}
       <div
-        className="absolute inset-0 transition-opacity duration-500"
+        className="absolute inset-0 transition-opacity duration-1000"
         style={{
-          backgroundColor: 'rgba(0,0,0,0.6)',
+          backgroundColor: 'rgba(0,0,0,0.5)',
           opacity: phase === 'steam' ? 0 : 1,
         }}
       />
 
       {/* 증기 파티클 */}
-      <div className={`absolute inset-0 pointer-events-none ${phase === 'reveal' || phase === 'done' ? 'opacity-0' : 'opacity-100'} transition-opacity duration-700`}>
+      <div className={`absolute inset-0 pointer-events-none ${phase === 'reveal' ? 'opacity-0' : 'opacity-100'} transition-opacity duration-1400`}>
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
@@ -78,32 +73,31 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
               left: `${15 + i * 13}%`,
               bottom: '20%',
               background: 'radial-gradient(circle, rgba(255,255,255,0.3), transparent)',
-              animationDelay: `${i * 0.15}s`,
-              animationDuration: `${1.5 + i * 0.2}s`,
+              animationDelay: `${i * 0.3}s`,
+              animationDuration: `${3 + i * 0.4}s`,
             }}
           />
         ))}
       </div>
 
       {/* 칭호 카드 */}
-      {(phase === 'card' || phase === 'reveal' || phase === 'done') && (
+      {(phase === 'card' || phase === 'reveal') && (
         <div
-          className={`relative z-10 transition-all duration-700 ${
+          className={`relative z-10 transition-all duration-1400 ${
             phase === 'card'
               ? 'translate-y-8 opacity-90'
               : 'translate-y-0 opacity-100'
           }`}
-          style={{
-            perspective: '600px',
-          }}
+          style={{ perspective: '600px' }}
         >
           <div
-            className={`w-64 rounded-2xl overflow-hidden shadow-2xl transition-transform duration-700 ${
-              phase === 'reveal' || phase === 'done' ? 'animate-card-flip' : ''
+            className={`w-64 rounded-2xl overflow-hidden transition-transform duration-1400 ${
+              phase === 'reveal' ? 'animate-card-flip' : ''
             }`}
             style={{
-              background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1f1f 50%, #1a1a1a 100%)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f5f2ef 50%, #ffffff 100%)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.1)',
             }}
           >
             <div className="p-6 text-center">
@@ -113,10 +107,10 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
                   Level Up
                 </span>
                 <div className="flex items-center justify-center gap-2 mt-1">
-                  <span className="text-2xl font-bold text-white/50 font-heading">
+                  <span className="text-2xl font-bold text-stone-300 font-heading">
                     {reward.oldLevel}
                   </span>
-                  <span className="material-symbols-outlined text-white/30" style={{ fontSize: '20px' }}>
+                  <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '20px' }}>
                     arrow_forward
                   </span>
                   <span
@@ -129,18 +123,18 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
               </div>
 
               {/* 칭호 */}
-              <div className="py-4 border-t border-white/10">
-                <p className="text-[10px] tracking-[0.2em] text-stone-500 uppercase mb-2">
+              <div className="py-4 border-t border-stone-200">
+                <p className="text-[10px] tracking-[0.2em] text-stone-400 uppercase mb-2">
                   New Title
                 </p>
-                <p className="text-lg font-bold text-white">
+                <p className="text-lg font-bold text-stone-800">
                   {displayTitle}
                 </p>
               </div>
 
               {/* XP 표시 */}
-              <div className="pt-2 border-t border-white/10">
-                <span className="text-xs text-stone-500">
+              <div className="pt-2 border-t border-stone-200">
+                <span className="text-xs text-stone-400">
                   +{reward.xpGained} XP
                 </span>
               </div>
@@ -148,7 +142,7 @@ export default function SteamCardReveal({ reward, onComplete }: SteamCardRevealP
           </div>
 
           {/* 탭하여 닫기 */}
-          <p className="text-center text-xs text-white/40 mt-4 animate-pulse">
+          <p className="text-center text-xs text-white/50 mt-4 animate-pulse">
             탭하여 닫기
           </p>
         </div>

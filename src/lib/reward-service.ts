@@ -107,7 +107,7 @@ async function checkMilestones(
       for (const m of milestones) {
         if (logCount === m.count) {
           const title = addAdjectivePrefix(m.title)
-          const inserted = await insertTitle(userId, title, 'milestone')
+          const inserted = await insertTitle(userId, title, 'milestone', m.title)
           if (inserted) titles.push(title)
         }
       }
@@ -122,8 +122,9 @@ async function checkMilestones(
     if (tribeTypes) {
       const uniqueTribes = new Set(tribeTypes.map(r => r.tribe_id))
       if (uniqueTribes.size >= 3) {
-        const title = addAdjectivePrefix(ACTIVITY_MILESTONES.all_tribes.title)
-        const inserted = await insertTitle(userId, title, 'milestone')
+        const base = ACTIVITY_MILESTONES.all_tribes.title
+        const title = addAdjectivePrefix(base)
+        const inserted = await insertTitle(userId, title, 'milestone', base)
         if (inserted) titles.push(title)
       }
     }
@@ -139,18 +140,21 @@ async function checkMilestones(
     const placeCount = count ?? 0
 
     if (placeCount === 1) {
-      const title = addAdjectivePrefix(ACTIVITY_MILESTONES.first_place.title)
-      const inserted = await insertTitle(userId, title, 'milestone')
+      const base = ACTIVITY_MILESTONES.first_place.title
+      const title = addAdjectivePrefix(base)
+      const inserted = await insertTitle(userId, title, 'milestone', base)
       if (inserted) titles.push(title)
     }
     if (placeCount === 10) {
-      const title = addAdjectivePrefix(ACTIVITY_MILESTONES.places_10.title)
-      const inserted = await insertTitle(userId, title, 'milestone')
+      const base = ACTIVITY_MILESTONES.places_10.title
+      const title = addAdjectivePrefix(base)
+      const inserted = await insertTitle(userId, title, 'milestone', base)
       if (inserted) titles.push(title)
     }
     if (placeCount === 30) {
-      const title = addAdjectivePrefix(ACTIVITY_MILESTONES.places_30.title)
-      const inserted = await insertTitle(userId, title, 'milestone')
+      const base = ACTIVITY_MILESTONES.places_30.title
+      const title = addAdjectivePrefix(base)
+      const inserted = await insertTitle(userId, title, 'milestone', base)
       if (inserted) titles.push(title)
     }
   }
@@ -160,17 +164,31 @@ async function checkMilestones(
 
 // ============================================
 // 칭호 DB 삽입 (중복 무시)
+// baseTitle: 마일스톤 칭호의 원본명 (형용사 제외). 이미 같은 base_title이 있으면 skip
 // ============================================
 async function insertTitle(
   userId: string,
   title: string,
-  source: string
+  source: string,
+  baseTitle?: string
 ): Promise<boolean> {
+  // 마일스톤: base_title로 중복 체크 (형용사 달라도 같은 칭호면 skip)
+  if (baseTitle) {
+    const { data: existing } = await supabase
+      .from('user_titles')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('base_title', baseTitle)
+      .limit(1)
+      .single()
+
+    if (existing) return false
+  }
+
   const { error } = await supabase
     .from('user_titles')
-    .insert({ user_id: userId, title, source })
+    .insert({ user_id: userId, title, source, base_title: baseTitle || null })
 
-  // 중복 (UNIQUE 위반) → false, 성공 → true
   if (error) {
     if (error.code === '23505') return false
     console.error('칭호 삽입 실패:', error)
