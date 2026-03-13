@@ -123,11 +123,13 @@ export default function Story() {
         pauseTime: log.pause_time,
         repeat: log.repeat,
       })
+      const now = new Date()
+      const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`
+      const base = `SA-PI_${log.place_name}_${log.tribe_id}_${ts}`
       if (mode === 'download') {
-        const date = log.date.slice(0, 10)
-        downloadImage(blob, `sauna-log-${date}.png`)
+        downloadImage(blob, `${base}.png`)
       } else {
-        await shareImage(blob, `sauna-log-${log.place_name}`)
+        await shareImage(blob, `${base}_s`)
       }
       showMessage('완료!', 'success', mode)
     } catch (err) {
