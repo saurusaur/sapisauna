@@ -124,7 +124,6 @@ CREATE TABLE IF NOT EXISTS logs (
   -- 목욕파 전용
   water_quality INT CHECK (water_quality BETWEEN 1 AND 5),
   hot_bath_temp INT CHECK (hot_bath_temp BETWEEN 30 AND 46),
-  refreshed_score INT CHECK (refreshed_score BETWEEN 1 AND 5),
 
   -- 사우너파 전용
   sauna_temp INT CHECK (sauna_temp BETWEEN 50 AND 130),

@@ -484,26 +484,6 @@ export const DEEP_LOG = {
   },
 }
 
-// ============================================
-// 타입별 기본 설정
-// ============================================
-export const TRIBE_DEFAULTS = {
-  bather: {
-    greeting: '오늘도 촉촉한 힐링하세요 🛁',
-    quickLogFields: ['HOT_BATH_TEMP', 'COLD_BATH_TEMP', 'WATER_QUALITY', 'ROUTINE', 'REVISIT'],
-    emoji: '🛁',
-  },
-  saunner: {
-    greeting: '오늘의 토토노이를 기록해보세요 🔥',
-    quickLogFields: ['SAUNA_TEMP', 'COLD_BATH_TEMP', 'TOTONO', 'ROUTINE', 'REVISIT'],
-    emoji: '🔥',
-  },
-  jimi: {
-    greeting: '오늘의 지짐은 어떠셨나요? 🥚',
-    quickLogFields: ['JJIM_TEMP', 'CLEANLINESS', 'ROUTINE', 'REVISIT'],
-    emoji: '🥚',
-  },
-} as const
 
 // ============================================
 // 메시지
@@ -596,12 +576,6 @@ export const ICONS = {
   MAP: 'map',
 }
 
-// 트라이브별 Material Symbol 아이콘 (스토리 카드용, 이모지 대체)
-export const TRIBE_ICON_MAP: Record<string, string> = {
-  bather: 'bath_outdoor',
-  saunner: 'local_fire_department',
-  jimi: 'egg',
-}
 
 // ============================================
 // 네비게이션

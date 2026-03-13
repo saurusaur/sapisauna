@@ -212,15 +212,6 @@ input[type="range"]::-moz-range-thumb {
 .icon-md { font-size: 24px; }
 .icon-lg { font-size: 32px; }
 
-/* 바텀시트 애니메이션 */
-@keyframes slide-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.animate-slide-up {
-  animation: slide-up 0.2s ease-out;
-}
-
 /* Steam Card Reveal 애니메이션 */
 @keyframes steam-float {
   0% { transform: translateY(0) scale(0.5); opacity: 0; }

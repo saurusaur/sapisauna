@@ -80,7 +80,6 @@ export interface QuickLogData {
   waterQuality?: number    // 1-5
   hotBathTemp?: number     // 30-46°C
   coldBathTemp?: number    // 0-30°C (saunner/bather 공통 — 선택)
-  refreshedScore?: number  // 1-5, 개운함
 
   // 사우너파
   saunaTemp?: number    // 50-130°C
@@ -116,23 +115,6 @@ export interface DeepLogData {
   amenities?: string[]
 }
 
-// 전체 기록
-export interface LogEntry {
-  id: string
-  displayId?: string    // 기록 고유 ID (15자리, 내부 참조용)
-  userId: string
-  placeId: string
-  placeName: string
-  tribeId: TribeId
-  quickLog: QuickLogData
-  deepLog?: DeepLogData
-  createdAt: Date
-
-  // 자동 수집
-  visitDayOfWeek: number // 0-6 (일-토)
-  visitHour: number // 0-23
-  weather?: string
-}
 
 // 슬라이더 설정 타입
 export interface SliderConfig {

@@ -10,7 +10,6 @@ interface BatherGraphProps {
   waterQuality: number
   hotBathTemp: number
   coldBathTemp?: number   // 선택 — 냉탕 없는 목욕탕 또는 미입력 시 undefined, ΔT 중심 파동 레이어에 반영
-  refreshedScore?: number // 선택 — Feature 4 스티커용 (현재 렌더링에 미사용)
 }
 
 function seededRandom(seed: number): number {
