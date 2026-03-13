@@ -371,10 +371,9 @@ export default function PlaceDetailPage() {
             </div>
             <div className="glass-card p-4 space-y-3">
 
-              {/* 트라이브 수별 레이아웃: 1=max-w 왼쪽정렬, 2=2col, 3=3col / 혼잡도+더보기=항상 2col */}
-              {/* 온도 메트릭: 1tribe=max-w 왼쪽정렬, 2=2col, 3=3col */}
+              {/* 온도 메트릭: 항상 한 줄, 트라이브 서브메트릭과 동일 그리드 사용 */}
               {tempMetrics.length > 0 && (
-              <div className={`py-3 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : 'flex gap-6 max-w-[160px]'}`}>
+              <div className={`py-3 grid gap-x-6 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : tribeSubMetrics.length >= 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-[160px]'}`}>
                 {tempMetrics.map((m) => (
                   <div key={m.label} className="flex flex-col">
                     <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
@@ -387,9 +386,9 @@ export default function PlaceDetailPage() {
               </div>
               )}
 
-              {/* 트라이브별 서브 메트릭: 1=max-w 왼쪽정렬, 2=2col, 3=3col */}
+              {/* 트라이브별 서브 메트릭: 온도 메트릭과 동일 그리드 */}
               {tribeSubMetrics.length > 0 && (
-              <div className={`pt-3 border-t border-stone-200 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : ''}`}>
+              <div className={`pt-3 border-t border-stone-200 grid gap-x-6 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : tribeSubMetrics.length >= 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-[160px]'}`}>
                 {tribeSubMetrics.map(({ tribeId, metrics }) => (
                   <div key={tribeId} className={`py-1 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px]' : ''}`}>
                     <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
@@ -553,42 +552,47 @@ export default function PlaceDetailPage() {
                     key={log.id}
                     className="w-full glass-card p-4 text-left"
                   >
-                    {/* Row1: 닉네임 (좌) / 날짜 + 트라이브 이모지 (우) */}
+                    {/* Row1: 점수 + 숏로그 메트릭 (좌) / 날짜 + 트라이브 이모지 (우) */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-stone-700">{log.user_nickname || '익명'}</span>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2 text-xs text-stone-500">
+                        <span className="flex items-center gap-0.5">
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-accent)' }}>move</span>
+                          <span className="font-bold" style={{ color: 'var(--color-primary)' }}>{log.revisit_score}/5</span>
+                        </span>
+                        {detailText && (
+                          <>
+                            <span className="text-stone-300">·</span>
+                            <span className="text-stone-400 truncate">{detailText}</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-xs text-stone-400">{shortDate}</span>
                         <span className="text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
                       </div>
                     </div>
 
-                    {/* Row2: 또갈래요 + 숏로그 메트릭 */}
-                    <div className="flex items-center gap-2 mt-1.5 text-xs text-stone-500">
-                      <span className="flex items-center gap-0.5">
-                        <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-accent)' }}>move</span>
-                        <span className="font-bold" style={{ color: 'var(--color-primary)' }}>{log.revisit_score}/5</span>
-                      </span>
-                      {detailText && (
-                        <>
-                          <span className="text-stone-300">·</span>
-                          <span className="text-stone-400 truncate">{detailText}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Row3: 메모 (있을 때만) */}
+                    {/* Row2: 메모 (있을 때만) */}
                     {log.deep_log?.memo && (
-                      <p className="text-sm text-stone-600 leading-relaxed mt-2">{log.deep_log.memo}</p>
+                      <p className="text-sm text-stone-600 leading-relaxed mt-1.5">{log.deep_log.memo}</p>
                     )}
 
-                    {/* Row4: 추천 메뉴 (있을 때만) */}
+                    {/* Row3: 추천 메뉴 (있을 때만) */}
                     {log.deep_log?.store_memo && (
-                      <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-stone-100">
+                      <div className="flex items-center gap-1.5 mt-1.5">
                         <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>restaurant</span>
                         <span className="text-xs text-stone-500">추천 메뉴:</span>
                         <span className="text-xs font-medium text-stone-600">{log.deep_log.store_memo}</span>
                       </div>
                     )}
+
+                    {/* Row4: 칭호 + 닉네임 (하단 우측) */}
+                    <div className="flex items-center justify-end gap-1.5 mt-2 pt-1.5 border-t border-stone-100">
+                      {log.user_title && (
+                        <span className="text-[10px] text-stone-400">{log.user_title}</span>
+                      )}
+                      <span className="text-xs font-medium text-stone-600">{log.user_nickname || '익명'}</span>
+                    </div>
                   </div>
                 )
               })}

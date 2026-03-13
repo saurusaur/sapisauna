@@ -154,6 +154,7 @@ export interface LogWithPlace {
   jjim_temp?: number
   bath_gender?: BathGender
   user_nickname?: string
+  user_title?: string
   deep_log?: {
     companion?: string | null
     cost?: number | null

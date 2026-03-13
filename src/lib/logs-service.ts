@@ -17,9 +17,10 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   const placeName = (preferred?.name_original as string) || '알 수 없는 장소'
   const address = (preferred?.address_original as string) || ''
 
-  // users 조인 (닉네임)
+  // users 조인 (닉네임 + 칭호)
   const userJoin = row.users as Record<string, unknown> | null
   const userNickname = (userJoin?.nickname as string) || undefined
+  const userTitle = (userJoin?.active_title as string) || undefined
 
   // deep_logs 조인 (1:1)
   const deepLogs = row.deep_logs as Array<Record<string, unknown>> | null
@@ -32,6 +33,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     place_country_code: (place?.country_code as string) || 'KR',
     address,
     user_nickname: userNickname,
+    user_title: userTitle,
     date: row.record_date as string,
     tribe_id: row.tribe_id as LogWithPlace['tribe_id'],
     revisit_score: (row.revisit_score as number) || 0,
@@ -63,7 +65,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   }
 }
 
-const LOG_SELECT = '*, users(nickname), places!inner(*, place_sources(*)), deep_logs(*)'
+const LOG_SELECT = '*, users(nickname, active_title), places!inner(*, place_sources(*)), deep_logs(*)'
 
 // 최근 로그 (전체 공개용 — explore 등)
 export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
