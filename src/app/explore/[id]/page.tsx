@@ -369,12 +369,12 @@ export default function PlaceDetailPage() {
                 </div>
               </div>
             </div>
-            <div className="glass-card p-4 space-y-4">
+            <div className="glass-card p-4 space-y-3">
 
               {/* 트라이브 수별 레이아웃: 1=max-w 왼쪽정렬, 2=2col, 3=3col / 혼잡도+더보기=항상 2col */}
               {/* 온도 메트릭: 1tribe=max-w 왼쪽정렬, 2=2col, 3=3col */}
               {tempMetrics.length > 0 && (
-              <div className={`py-2 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : 'flex gap-6 max-w-[160px]'}`}>
+              <div className={`py-3 ${tribeSubMetrics.length >= 3 ? 'grid grid-cols-3 gap-x-6' : tribeSubMetrics.length >= 2 ? 'grid grid-cols-2 gap-x-6' : 'flex gap-6 max-w-[160px]'}`}>
                 {tempMetrics.map((m) => (
                   <div key={m.label} className="flex flex-col">
                     <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
