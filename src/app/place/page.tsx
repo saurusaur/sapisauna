@@ -113,34 +113,48 @@ export default function PlaceSelection() {
           <span className="text-sm font-medium text-stone-500">{MESSAGES.LOG.NEARBY}</span>
         </div>
 
-        {/* 장소 목록 */}
-        <DataState loading={loading} error={error} isEmpty={filteredPlaces.length === 0} emptyIcon="location_off" emptyMessage="">
-          <div className="space-y-3 mb-6">
-            {filteredPlaces.map((place) => (
-              <PlaceCard
-                key={place.id}
-                place={place}
-                onClick={() => handlePlaceSelect(place.id, place.name, place.country_code, place.facility_type)}
-              />
-            ))}
-          </div>
-        </DataState>
-
-        {/* 직접 장소 추가 — 검색 결과 없을 때는 아이콘 바로 아래에 표시 */}
-        <button
-          onClick={() => router.push('/place/add')}
-          className={`w-full flex flex-col items-center justify-center gap-1 transition-colors hover:opacity-70 ${
-            filteredPlaces.length === 0 && !loading ? '-mt-10 pb-4' : 'py-4'
-          }`}
-        >
-          <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
-          <span
-            className="text-xs font-medium underline underline-offset-2"
-            style={{ color: 'var(--color-primary)' }}
+        {/* 장소 목록 또는 빈 상태 + 직접 추가 */}
+        {loading || error ? (
+          <DataState loading={loading} error={error} isEmpty={false} />
+        ) : filteredPlaces.length === 0 ? (
+          <button
+            onClick={() => router.push('/place/add')}
+            className="w-full flex flex-col items-center justify-center gap-1 pt-6 pb-4 transition-colors hover:opacity-70"
           >
-            직접 장소 추가
-          </span>
-        </button>
+            <span className="material-symbols-outlined text-4xl text-stone-300 mb-2">location_off</span>
+            <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
+            <span
+              className="text-xs font-medium underline underline-offset-2"
+              style={{ color: 'var(--color-primary)' }}
+            >
+              직접 장소 추가
+            </span>
+          </button>
+        ) : (
+          <>
+            <div className="space-y-3 mb-6">
+              {filteredPlaces.map((place) => (
+                <PlaceCard
+                  key={place.id}
+                  place={place}
+                  onClick={() => handlePlaceSelect(place.id, place.name, place.country_code, place.facility_type)}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => router.push('/place/add')}
+              className="w-full flex flex-col items-center justify-center gap-1 py-4 transition-colors hover:opacity-70"
+            >
+              <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
+              <span
+                className="text-xs font-medium underline underline-offset-2"
+                style={{ color: 'var(--color-primary)' }}
+              >
+                직접 장소 추가
+              </span>
+            </button>
+          </>
+        )}
       </main>
     </div>
   )

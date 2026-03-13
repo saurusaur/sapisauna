@@ -8,7 +8,7 @@ interface DataStateProps {
   isEmpty: boolean
   emptyIcon?: string
   emptyMessage?: string
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export default function DataState({
