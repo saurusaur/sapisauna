@@ -14,8 +14,8 @@ export default function NicknameEdit() {
   const [originalNickname] = useState(user?.nickname || '')
   const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'duplicate' | 'invalid' | 'reserved'>('idle')
 
-  // 소문자 영문+숫자+언더스코어만
-  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[a-z0-9_]+$/.test(nickname)
+  // 대문자 영문+숫자+언더스코어만
+  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[A-Z0-9_]+$/.test(nickname)
 
   const checkNickname = async () => {
     if (!isNicknameValid) {
@@ -87,7 +87,7 @@ export default function NicknameEdit() {
           type="text"
           value={nickname}
           onChange={(e) => {
-            setNickname(e.target.value.toLowerCase())
+            setNickname(e.target.value.toUpperCase())
             setNicknameStatus('idle')
           }}
           placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}

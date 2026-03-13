@@ -37,8 +37,8 @@ export default function Onboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // 닉네임 유효성 검사 (소문자 영문+숫자+언더스코어만)
-  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[a-z0-9_]+$/.test(nickname)
+  // 닉네임 유효성 검사 (대문자 영문+숫자+언더스코어만)
+  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10 && /^[A-Z0-9_]+$/.test(nickname)
 
   // 닉네임 중복 체크
   const checkNickname = async () => {
@@ -195,7 +195,7 @@ export default function Onboarding() {
             type="text"
             value={nickname}
             onChange={(e) => {
-              setNickname(e.target.value.toLowerCase())
+              setNickname(e.target.value.toUpperCase())
               setNicknameStatus('idle')
             }}
             placeholder={ONBOARDING.NICKNAME.PLACEHOLDER}
