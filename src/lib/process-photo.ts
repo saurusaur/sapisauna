@@ -1,7 +1,8 @@
 /**
  * 배경 사진 전처리 유틸
  *
- * 모든 포맷: 서버(sharp) 우선 → 실패 시 클라이언트 폴백
+ * HEIC: 서버(sharp) 우선 → 실패 시 클라이언트 WASM 폴백
+ * 비-HEIC: 클라이언트 Canvas 리사이즈 (서버 불필요, ~100-300ms)
  * 결과: Object URL 반환 (즉시 렌더)
  */
 
@@ -56,20 +57,22 @@ function isHeic(file: File): boolean {
 
 /**
  * 사진 파일 → 최적화된 Object URL
- * 서버(sharp, ~1-2초) → 실패 시 클라이언트 폴백
+ * HEIC: 서버(~1-2초) → 실패 시 클라이언트 WASM(~5-15초)
+ * 비-HEIC: 클라이언트 Canvas 리사이즈(~100-300ms)
  */
 export async function processPhoto(file: File): Promise<string> {
-  try {
-    // 서버에서 리사이즈+JPEG 변환 (모든 포맷)
-    const blob = await convertOnServer(file)
-    return URL.createObjectURL(blob)
-  } catch {
-    // 서버 실패 → 클라이언트 폴백
-    if (isHeic(file)) {
-      const blob = await convertHeicOnClient(file)
-      return URL.createObjectURL(blob)
+  if (isHeic(file)) {
+    // HEIC → 서버 변환 우선, 실패 시 클라이언트 폴백
+    let blob: Blob
+    try {
+      blob = await convertOnServer(file)
+    } catch {
+      blob = await convertHeicOnClient(file)
     }
-    const blob = await resizeOnClient(file)
     return URL.createObjectURL(blob)
   }
+
+  // 비-HEIC → 클라이언트 Canvas 리사이즈 (서버 왕복 불필요)
+  const blob = await resizeOnClient(file)
+  return URL.createObjectURL(blob)
 }
