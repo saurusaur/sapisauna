@@ -36,6 +36,7 @@ export default function Story() {
   })
   const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error'; source: 'download' | 'share' } | null>(null)
   const [bgPhoto, setBgPhoto] = useState<string | null>(null)
+  const [isProcessingPhoto, setIsProcessingPhoto] = useState(false)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const messageTimer = useRef<NodeJS.Timeout>()
 
@@ -142,15 +143,23 @@ export default function Story() {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
+    setIsProcessingPhoto(true)
     try {
-      const dataUrl = await processPhoto(file)
-      setBgPhoto(dataUrl)
+      const url = await processPhoto(file)
+      // 이전 Object URL 해제
+      if (bgPhoto) URL.revokeObjectURL(bgPhoto)
+      setBgPhoto(url)
     } catch (err) {
       console.error('Photo processing failed:', err)
+    } finally {
+      setIsProcessingPhoto(false)
     }
   }
 
-  const handleRemovePhoto = () => setBgPhoto(null)
+  const handleRemovePhoto = () => {
+    if (bgPhoto) URL.revokeObjectURL(bgPhoto)
+    setBgPhoto(null)
+  }
 
   // 타입별 메인 수치
   const getMainMetric = () => {
@@ -248,15 +257,16 @@ export default function Story() {
             className="hidden"
           />
           <button
-            onClick={() => bgPhoto ? handleRemovePhoto() : photoInputRef.current?.click()}
+            onClick={() => isProcessingPhoto ? undefined : bgPhoto ? handleRemovePhoto() : photoInputRef.current?.click()}
+            disabled={isProcessingPhoto}
             className="absolute top-2 right-2 z-10 flex items-center justify-center gap-1 w-[88px] h-[30px] rounded-full transition-all hover:bg-white/25 shadow-lg"
             style={{ backgroundColor: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           >
-            <span className="material-symbols-outlined text-white/90" style={{ fontSize: '14px' }}>
-              {bgPhoto ? 'restart_alt' : 'add_photo_alternate'}
+            <span className={`material-symbols-outlined text-white/90 ${isProcessingPhoto ? 'animate-spin' : ''}`} style={{ fontSize: '14px' }}>
+              {isProcessingPhoto ? 'progress_activity' : bgPhoto ? 'restart_alt' : 'add_photo_alternate'}
             </span>
             <span className="text-[11px] font-medium text-white/90">
-              {bgPhoto ? '초기화' : '배경 변경'}
+              {isProcessingPhoto ? '처리 중...' : bgPhoto ? '초기화' : '배경 변경'}
             </span>
           </button>
 

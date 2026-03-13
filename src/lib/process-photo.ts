@@ -1,10 +1,10 @@
 /**
  * 배경 사진 전처리 유틸
  *
- * 1. HEIC/HEIF → createImageBitmap 시도 → 실패 시 heic2any 폴백
- * 2. Canvas 리사이즈 (max 1920px) + JPEG 0.85 변환
+ * HEIC → createImageBitmap 시도 → 실패 시 heic2any 폴백
+ * 리사이즈 (max 1920px) → Object URL 반환 (data URL 대비 즉시 렌더)
  *
- * iOS Safari: HEIC를 자동 JPEG 변환하므로 1단계 스킵
+ * iOS Safari: HEIC를 자동 JPEG 변환하므로 HEIC 경로 스킵
  * Android Chrome (HEIC 지원): createImageBitmap으로 통과
  * Android Chrome (HEIC 미지원): heic2any WASM 폴백
  */
@@ -15,45 +15,39 @@ const JPEG_QUALITY = 0.85
 function isHeic(file: File): boolean {
   const type = file.type.toLowerCase()
   if (type === 'image/heic' || type === 'image/heif') return true
-  // 일부 Android는 MIME을 빈 문자열로 전달 — 확장자로 판별
   const ext = file.name.split('.').pop()?.toLowerCase() || ''
   return ext === 'heic' || ext === 'heif'
 }
 
-/** HEIC → Blob 변환 (createImageBitmap 우선, 실패 시 heic2any 폴백) */
-async function decodeHeic(file: File): Promise<Blob> {
-  // A: 브라우저 네이티브 디코딩 시도
-  try {
-    const bitmap = await createImageBitmap(file)
-    const canvas = document.createElement('canvas')
-    canvas.width = bitmap.width
-    canvas.height = bitmap.height
-    const ctx = canvas.getContext('2d')!
-    ctx.drawImage(bitmap, 0, 0)
-    bitmap.close()
-    return new Promise((resolve, reject) =>
-      canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/jpeg', JPEG_QUALITY)
-    )
-  } catch {
-    // B: heic2any 폴백 (dynamic import — 필요시만 로드)
-    const heic2any = (await import('heic2any')).default
-    const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: JPEG_QUALITY })
-    return Array.isArray(result) ? result[0] : result
+/**
+ * 사진 파일 → 최적화된 Object URL
+ * HEIC 디코딩 + 리사이즈를 단일 Canvas 패스로 처리
+ */
+export async function processPhoto(file: File): Promise<string> {
+  let bitmap: ImageBitmap
+
+  if (isHeic(file)) {
+    try {
+      bitmap = await createImageBitmap(file)
+    } catch {
+      const heic2any = (await import('heic2any')).default
+      const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: JPEG_QUALITY })
+      const jpegBlob = Array.isArray(blob) ? blob[0] : blob
+      bitmap = await createImageBitmap(jpegBlob)
+    }
+  } else {
+    bitmap = await createImageBitmap(file)
   }
-}
 
-/** 이미지 Blob → Canvas 리사이즈 + JPEG data URL */
-async function resizeToDataUrl(blob: Blob): Promise<string> {
-  const bitmap = await createImageBitmap(blob)
+  // 리사이즈 계산
   let { width, height } = bitmap
-
-  // max 1920px로 축소
   if (width > MAX_SIZE || height > MAX_SIZE) {
     const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height)
     width = Math.round(width * ratio)
     height = Math.round(height * ratio)
   }
 
+  // 단일 Canvas 패스 → Blob → Object URL
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
@@ -61,19 +55,9 @@ async function resizeToDataUrl(blob: Blob): Promise<string> {
   ctx.drawImage(bitmap, 0, 0, width, height)
   bitmap.close()
 
-  return canvas.toDataURL('image/jpeg', JPEG_QUALITY)
-}
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/jpeg', JPEG_QUALITY)
+  )
 
-/**
- * 사진 파일 → 최적화된 JPEG data URL
- * HEIC 변환 + 리사이즈 + 압축을 한 번에 처리
- */
-export async function processPhoto(file: File): Promise<string> {
-  let blob: Blob = file
-
-  if (isHeic(file)) {
-    blob = await decodeHeic(file)
-  }
-
-  return resizeToDataUrl(blob)
+  return URL.createObjectURL(blob)
 }
