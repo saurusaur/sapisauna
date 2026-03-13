@@ -34,17 +34,26 @@ function isHeic(file: File): boolean {
  * 비-HEIC: 즉시 반환 (~0ms)
  */
 export async function processPhoto(file: File): Promise<string> {
+  console.log(`[processPhoto] 시작 — ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB, type: ${file.type})`)
+  const t0 = performance.now()
+
   if (isHeic(file)) {
     let blob: Blob
     try {
+      console.log('[processPhoto] HEIC → 서버 전송 중...')
+      const t1 = performance.now()
       blob = await convertOnServer(file)
+      console.log(`[processPhoto] 서버 변환 완료 — ${((performance.now() - t1) / 1000).toFixed(1)}초`)
     } catch (err) {
-      console.error('[processPhoto] 서버 변환 실패, 클라이언트 폴백:', err)
+      console.error('[processPhoto] 서버 실패, 클라이언트 폴백:', err)
+      const t2 = performance.now()
       blob = await convertHeicOnClient(file)
+      console.log(`[processPhoto] 클라이언트 변환 완료 — ${((performance.now() - t2) / 1000).toFixed(1)}초`)
     }
+    console.log(`[processPhoto] 총 ${((performance.now() - t0) / 1000).toFixed(1)}초`)
     return URL.createObjectURL(blob)
   }
 
-  // 비-HEIC → 리사이즈 불필요. CSS cover(프리뷰) + Canvas drawImage(export)가 처리
+  console.log(`[processPhoto] 비-HEIC → 즉시 반환`)
   return URL.createObjectURL(file)
 }
