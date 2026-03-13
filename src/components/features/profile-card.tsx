@@ -30,7 +30,7 @@ export default function ProfileCard() {
           {user.nickname}
         </span>
         {user.active_title && (
-          <span className="text-sm text-stone-400 px-2 py-0.5 rounded-full bg-stone-100 truncate">
+          <span className="text-sm text-amber-600/70 px-2 py-0.5 rounded-full bg-amber-50 truncate">
             {user.active_title}
           </span>
         )}
