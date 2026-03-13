@@ -23,8 +23,8 @@ export default function ProfileCard() {
   const progress = levelProgress(user.xp ?? 0)
   const percent = Math.round(progress * 100)
 
-  // 유저의 첫 번째 트라이브 이모지
-  const tribeEmoji = user.tribes?.[0] ? TRIBE_EMOJI_MAP[user.tribes[0]] : null
+  // 유저의 대표 트라이브 이모지
+  const tribeEmoji = user.primary_type ? TRIBE_EMOJI_MAP[user.primary_type] : null
 
   return (
     <div className="w-full glass-card p-4 transition-all">
