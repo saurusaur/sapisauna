@@ -1,8 +1,9 @@
 /**
- * HEIC → JPEG 서버 변환 API
+ * 이미지 서버 변환 API
  * POST /api/convert-heic  (multipart/form-data, field: "file")
  *
- * sharp 네이티브 바이너리로 변환 — 클라이언트 WASM 대비 10-30배 빠름
+ * HEIC/JPG/PNG 등 모든 포맷 → 리사이즈 + JPEG 변환
+ * sharp 네이티브 바이너리 — 클라이언트 Canvas 대비 5-30배 빠름
  */
 import { NextRequest, NextResponse } from 'next/server'
 import sharp from 'sharp'
