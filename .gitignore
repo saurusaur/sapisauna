@@ -35,3 +35,9 @@ docs/keys.md
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Tool configs (local only)
+.agent/
+.agents/
+.kiro/
+skills-lock.json
