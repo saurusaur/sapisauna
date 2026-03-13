@@ -373,7 +373,7 @@ export default function PlaceDetailPage() {
 
               {/* 온도 메트릭: 항상 한 줄, 트라이브 서브메트릭과 동일 그리드 사용 */}
               {tempMetrics.length > 0 && (
-              <div className="py-3 grid gap-x-6" style={{ gridTemplateColumns: `repeat(${tempMetrics.length}, 1fr)` }}>
+              <div className={`py-3 grid gap-x-6 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px]' : ''}`} style={{ gridTemplateColumns: `repeat(${tempMetrics.length}, 1fr)` }}>
                 {tempMetrics.map((m) => (
                   <div key={m.label} className="flex flex-col">
                     <span className="text-xs font-semibold text-stone-500 mb-1">{m.label}</span>
@@ -390,7 +390,7 @@ export default function PlaceDetailPage() {
               {tribeSubMetrics.length > 0 && (
               <div className={`pt-3 border-t border-stone-200 grid gap-x-6 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : tribeSubMetrics.length >= 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-[160px]'}`}>
                 {tribeSubMetrics.map(({ tribeId, metrics }) => (
-                  <div key={tribeId} className={`py-1 ${tribeSubMetrics.length <= 1 ? 'max-w-[160px]' : ''}`}>
+                  <div key={tribeId} className="py-1">
                     <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
                       {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
                     </p>
