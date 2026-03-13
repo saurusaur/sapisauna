@@ -2,14 +2,13 @@
 
 /**
  * 프로필 카드 — 홈 헤더 아래 미니멀 글래스 카드
- * 닉네임 · 칭호 + 트라이브 이모지 | Lv · 기록 · 방문 (각각 독립 탭 영역)
+ * 닉네임 · 칭호 | 기록 · 방문 · Lv (각각 독립 탭 영역)
  */
 
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { useUserLogs } from '@/hooks/use-logs'
 import { levelProgress } from '@/lib/reward-engine'
-import { TRIBE_EMOJI_MAP } from '@/constants/content'
 
 export default function ProfileCard() {
   const router = useRouter()
@@ -23,12 +22,9 @@ export default function ProfileCard() {
   const progress = levelProgress(user.xp ?? 0)
   const percent = Math.round(progress * 100)
 
-  // 유저의 대표 트라이브 이모지
-  const tribeEmoji = user.primary_type ? TRIBE_EMOJI_MAP[user.primary_type] : null
-
   return (
     <div className="w-full glass-card p-4 transition-all">
-      {/* 1줄: 닉네임 · 칭호 + 트라이브 이모지 */}
+      {/* 1줄: 닉네임 · 칭호 */}
       <div className="flex items-center gap-1.5 mb-3">
         <span className="text-sm font-bold text-stone-700">
           {user.nickname}
@@ -41,32 +37,10 @@ export default function ProfileCard() {
             </span>
           </>
         )}
-        {/* 오른쪽 끝: 트라이브 이모지 */}
-        {tribeEmoji && (
-          <span className="ml-auto text-base">{tribeEmoji}</span>
-        )}
       </div>
 
-      {/* 2줄: 3컬럼 — 레벨 / 기록 / 방문 (각각 독립 탭 영역) */}
+      {/* 2줄: 3컬럼 — 기록 / 방문 / 레벨 (각각 독립 탭 영역) */}
       <div className="grid grid-cols-3">
-        {/* 레벨 → 칭호 선택 */}
-        <button
-          onClick={() => router.push('/settings/titles')}
-          className="flex flex-col items-center active:scale-95 transition-transform"
-        >
-          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
-            Lv.{user.level ?? 0}
-          </span>
-          <div className="w-12 h-1.5 rounded-full bg-stone-200 overflow-hidden mt-1">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${percent}%`,
-                backgroundColor: 'var(--color-primary)',
-              }}
-            />
-          </div>
-        </button>
         {/* 기록 → 내 기록 보기 */}
         <button
           onClick={() => router.push('/history')}
@@ -86,6 +60,24 @@ export default function ProfileCard() {
             {placeCount}
           </span>
           <span className="text-[10px] text-stone-400 mt-1">방문</span>
+        </button>
+        {/* 레벨 → 칭호 선택 */}
+        <button
+          onClick={() => router.push('/settings/titles')}
+          className="flex flex-col items-center active:scale-95 transition-transform"
+        >
+          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
+            Lv.{user.level ?? 0}
+          </span>
+          <div className="w-12 h-1.5 rounded-full bg-stone-200 overflow-hidden mt-1">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${percent}%`,
+                backgroundColor: 'var(--color-primary)',
+              }}
+            />
+          </div>
         </button>
       </div>
     </div>
