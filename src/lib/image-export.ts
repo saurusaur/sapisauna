@@ -135,9 +135,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   canvas.height = H
   const ctx = canvas.getContext('2d')!
 
-  ctx.beginPath()
-  ctx.roundRect(0, 0, W, H, R)
-  ctx.clip()
+  // export 이미지는 모서리 꽉 채움 (프리뷰만 borderRadius 유지)
 
   ctx.textBaseline = 'top'
 
