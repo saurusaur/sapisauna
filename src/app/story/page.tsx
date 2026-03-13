@@ -16,6 +16,8 @@ import { getMyLogById } from '@/lib/logs-service'
 import { renderCard, shareImage, downloadImage } from '@/lib/image-export'
 import { processPhoto } from '@/lib/process-photo'
 import confetti from 'canvas-confetti'
+import SteamCardReveal from '@/components/features/steam-card-reveal'
+import type { RewardResult } from '@/types'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
 
@@ -37,6 +39,7 @@ export default function Story() {
   const [exportMessage, setExportMessage] = useState<{ text: string; type: 'success' | 'error'; source: 'download' | 'share' } | null>(null)
   const [bgPhoto, setBgPhoto] = useState<string | null>(null)
   const [isProcessingPhoto, setIsProcessingPhoto] = useState(false)
+  const [pendingReward, setPendingReward] = useState<RewardResult | null>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const messageTimer = useRef<NodeJS.Timeout>()
 
@@ -78,10 +81,33 @@ export default function Story() {
           const isNew = localStorage.getItem('isNewLog')
           if (isNew) {
             localStorage.removeItem('isNewLog')
-            setTimeout(() => {
-              confetti({ particleCount: 60, spread: 55, origin: { x: 0.3, y: 0.6 } })
-              confetti({ particleCount: 60, spread: 55, origin: { x: 0.7, y: 0.6 } })
-            }, 300)
+            // 레벨업 보상이 있으면 Steam Card Reveal, 없으면 기본 컨페티
+            const rewardStr = localStorage.getItem('pendingReward')
+            if (rewardStr) {
+              localStorage.removeItem('pendingReward')
+              try {
+                const reward = JSON.parse(rewardStr) as RewardResult
+                if (reward.leveledUp && reward.newTitles.length > 0) {
+                  setTimeout(() => setPendingReward(reward), 500)
+                } else {
+                  setTimeout(() => {
+                    confetti({ particleCount: 60, spread: 55, origin: { x: 0.3, y: 0.6 } })
+                    confetti({ particleCount: 60, spread: 55, origin: { x: 0.7, y: 0.6 } })
+                  }, 300)
+                }
+              } catch {
+                // 파싱 실패 → 기본 컨페티
+                setTimeout(() => {
+                  confetti({ particleCount: 60, spread: 55, origin: { x: 0.3, y: 0.6 } })
+                  confetti({ particleCount: 60, spread: 55, origin: { x: 0.7, y: 0.6 } })
+                }, 300)
+              }
+            } else {
+              setTimeout(() => {
+                confetti({ particleCount: 60, spread: 55, origin: { x: 0.3, y: 0.6 } })
+                confetti({ particleCount: 60, spread: 55, origin: { x: 0.7, y: 0.6 } })
+              }, 300)
+            }
           }
         } else {
           router.replace('/home')
@@ -454,6 +480,14 @@ export default function Story() {
           </button>
         </div>
       </main>
+
+      {/* 레벨업 보상 애니메이션 */}
+      {pendingReward && (
+        <SteamCardReveal
+          reward={pendingReward}
+          onComplete={() => setPendingReward(null)}
+        />
+      )}
     </div>
   )
 }

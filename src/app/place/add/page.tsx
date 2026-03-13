@@ -9,6 +9,7 @@ import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import PlaceMergeModal from '@/components/ui/place-merge-modal'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
+import { grantReward } from '@/lib/reward-service'
 import { supabase } from '@/lib/supabase'
 import type { Place, FacilityType } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -186,6 +187,7 @@ export default function AddPlace() {
 
       // Stage 3: 신규 생성
       const place = await createNewPlace(buildParams())
+      grantReward('place_created').catch(() => {})
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
@@ -208,6 +210,7 @@ export default function AddPlace() {
         params.is_24h,
         params.facility_type,
       )
+      grantReward('place_merged').catch(() => {})
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '병합에 실패했어요')
@@ -223,6 +226,7 @@ export default function AddPlace() {
 
     try {
       const place = await createNewPlace(buildParams())
+      grantReward('place_created').catch(() => {})
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')

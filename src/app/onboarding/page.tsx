@@ -7,6 +7,8 @@ import type { TribeId } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
+import { grantReward } from '@/lib/reward-service'
+import { addAdjectivePrefix } from '@/lib/reward-engine'
 
 // 온보딩 단계: 닉네임 → 성별 → 타입 선택 (3단계)
 type OnboardingStep = 'nickname' | 'gender' | 'type'
@@ -140,7 +142,25 @@ export default function Onboarding() {
         }
       }
 
-      setUser({ ...userData, gender: userData.gender ?? undefined, xp: 0, level: 1, active_title: null })
+      // 웰컴 XP 지급 + "사-피엔스" 칭호
+      const welcomeTitle = addAdjectivePrefix('사-피엔스')
+      const reward = await grantReward('welcome')
+      setUser({
+        ...userData,
+        gender: userData.gender ?? undefined,
+        xp: reward?.newTotalXp ?? 20,
+        level: reward?.newLevel ?? 1,
+        active_title: welcomeTitle,
+      })
+      // 웰컴 칭호를 active_title로 설정
+      if (authUser) {
+        await supabase.from('users').update({ active_title: welcomeTitle }).eq('id', authUser.id)
+        // 칭호 직접 삽입 (grantReward 내부에서 못 넣었을 경우 대비)
+        await supabase.from('user_titles').upsert(
+          { user_id: authUser.id, title: welcomeTitle, source: 'welcome' },
+          { onConflict: 'user_id,title' }
+        )
+      }
       router.push('/home')
     } catch {
       setSubmitError('저장에 실패했습니다. 다시 시도해주세요.')

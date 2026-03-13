@@ -8,6 +8,7 @@ import { useUser } from '@/contexts/user-context'
 import type { BathGender, FacilityType } from '@/types'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog } from '@/lib/logs-service'
+import { grantReward } from '@/lib/reward-service'
 import { safeParse } from '@/lib/utils'
 import type { TribeId } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -231,6 +232,11 @@ export default function QuickLog() {
         logId = editId
       } else {
         logId = await insertLog(logData)
+        // 새 기록 XP 지급
+        const reward = await grantReward('short_log', { tribeId: logType })
+        if (reward) {
+          localStorage.setItem('pendingReward', JSON.stringify(reward))
+        }
       }
 
       // 저장 성공 → 정리 후 스토리로

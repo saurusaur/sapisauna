@@ -8,6 +8,7 @@ import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
+import { grantReward } from '@/lib/reward-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
 import BottomCTA from '@/components/ui/bottom-cta'
 
@@ -137,6 +138,15 @@ export default function DeepLog() {
         // 새 기록: INSERT
         logId = await insertLog(logData)
         await saveOrUpdateDeepLog(logId, deepLogData)
+        // 숏로그 + 딥로그 XP 각각 지급
+        const tribeId = (logData.tribe_id as string) || undefined
+        const shortReward = await grantReward('short_log', { tribeId: tribeId as import('@/types').TribeId })
+        const deepReward = await grantReward('deep_log', { tribeId: tribeId as import('@/types').TribeId })
+        // 최종 결과만 pendingReward에 저장 (더 높은 레벨업 반영)
+        const finalReward = deepReward || shortReward
+        if (finalReward) {
+          localStorage.setItem('pendingReward', JSON.stringify(finalReward))
+        }
       }
 
       // 저장 성공 → 정리 후 스토리로

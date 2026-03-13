@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/auth-context'
 import HomeCalendar from '@/components/features/home-calendar'
 import RecordCard from '@/components/features/record-card'
 import DataState from '@/components/ui/data-state'
+import ProfileCard from '@/components/features/profile-card'
 
 function getTodayKey(): string {
   const now = new Date()
@@ -56,6 +57,9 @@ export default function Home() {
       </header>
 
       <main className="p-4 space-y-4">
+        {/* 프로필 카드 */}
+        <ProfileCard />
+
         {/* 달력 섹션 */}
         <div>
           {/* "○○의 기록" + "전체 보기" — 카드 바깥 */}

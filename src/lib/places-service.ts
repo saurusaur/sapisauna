@@ -117,107 +117,6 @@ export async function findNearbyPlaces(
   })
 }
 
-// 장소 추가 (dedup 로직 포함)
-export async function addPlace(params: {
-  name: string
-  address: string
-  latitude?: number | null
-  longitude?: number | null
-  facilities: string[]
-  is_24h: boolean
-  facility_type?: FacilityType
-  country_code?: string
-  source?: 'naver' | 'google' | 'manual'
-  external_id?: string
-  plus_code?: string
-}): Promise<Place> {
-  const {
-    name, address, latitude, longitude,
-    facilities, is_24h, facility_type,
-    country_code = 'KR',
-    source = 'manual', external_id, plus_code,
-  } = params
-
-  // 1단계: source + external_id 매칭
-  if (external_id) {
-    const { data: existing } = await supabase
-      .from('place_sources')
-      .select('place_id')
-      .eq('source', source)
-      .eq('external_id', external_id)
-      .single()
-
-    if (existing) {
-      const place = await getPlaceById(existing.place_id)
-      if (place) return place
-    }
-  }
-
-  // 2단계: 좌표 50m 이내 매칭 (RPC)
-  if (latitude && longitude) {
-    const nearbyList = await findNearbyPlaces(latitude, longitude)
-    if (nearbyList.length > 0) {
-      const nearby = nearbyList[0]
-      // 기존 장소에 새 소스 추가
-      await supabase.from('place_sources').insert({
-        place_id: nearby.id,
-        source,
-        external_id: external_id || null,
-        name_original: name,
-        address_original: address,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        plus_code: plus_code || null,
-      })
-      // 시설 정보 병합 + merged 플래그
-      const mergedFacilities = Array.from(new Set([...nearby.facilities, ...facilities]))
-      await supabase
-        .from('places')
-        .update({
-          facilities: mergedFacilities,
-          is_24h: is_24h || nearby.is_24h,
-          merged: true,
-          facility_type: facility_type || 'gender-bath',
-        })
-        .eq('id', nearby.id)
-
-      const updated = await getPlaceById(nearby.id)
-      return updated!
-    }
-  }
-
-  // 3단계: 신규 장소 + 소스 생성
-  const { data: newPlace, error: placeError } = await supabase
-    .from('places')
-    .insert({
-      country_code,
-      latitude: latitude || null,
-      longitude: longitude || null,
-      facilities,
-      is_24h,
-      coordinate_source: source,
-      facility_type: facility_type || 'gender-bath',
-    })
-    .select()
-    .single()
-
-  if (placeError) throw placeError
-
-  await supabase.from('place_sources').insert({
-    place_id: newPlace.id,
-    source,
-    external_id: external_id || null,
-    name_original: name,
-    address_original: address,
-    latitude: latitude || null,
-    longitude: longitude || null,
-    plus_code: plus_code || null,
-  })
-
-  const result = await getPlaceById(newPlace.id)
-  return result!
-}
-
 // 기존 장소에 새 소스를 병합 (Stage 2 추출)
 export async function mergeWithPlace(
   placeId: string,
@@ -286,6 +185,9 @@ export async function createNewPlace(params: {
     source = 'manual', external_id, plus_code,
   } = params
 
+  // 현재 유저 ID (장소 마일스톤 체크용)
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+
   const { data: newPlace, error: placeError } = await supabase
     .from('places')
     .insert({
@@ -296,6 +198,7 @@ export async function createNewPlace(params: {
       is_24h,
       coordinate_source: source,
       facility_type: facility_type || 'gender-bath',
+      created_by: authUser?.id || null,
     })
     .select()
     .single()

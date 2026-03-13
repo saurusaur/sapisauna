@@ -51,6 +51,22 @@ export default function SettingsPage() {
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>
             </button>
+            {/* 나의 칭호 */}
+            <button
+              onClick={() => router.push('/settings/titles')}
+              className="w-full p-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-stone-500">military_tech</span>
+                <span className="font-medium text-stone-700">나의 칭호</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-stone-400 truncate max-w-[120px]">
+                  {user?.active_title || '미설정'}
+                </span>
+                <span className="material-symbols-outlined text-stone-300">chevron_right</span>
+              </div>
+            </button>
             {/* 나의 스타일 */}
             <button
               onClick={() => router.push('/settings/type')}

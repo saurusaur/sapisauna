@@ -186,6 +186,25 @@ export interface LogWithPlace {
   }
 }
 
+// 칭호 (user_titles 테이블)
+export interface UserTitle {
+  id: string
+  user_id: string
+  title: string
+  source: 'milestone' | 'random' | 'welcome' | 'beta'
+  granted_at: string
+}
+
+// 리워드 처리 결과
+export interface RewardResult {
+  xpGained: number
+  newTotalXp: number
+  oldLevel: number
+  newLevel: number
+  leveledUp: boolean
+  newTitles: string[]   // 이번에 획득한 칭호 목록
+}
+
 // 즐겨찾기 컬렉션
 export interface FavoriteCollection {
   id: string
