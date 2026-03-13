@@ -2,14 +2,14 @@
 
 /**
  * 프로필 카드 — 홈 헤더 아래 미니멀 글래스 카드
- * 닉네임 · 칭호 | 기록 N건 · 방문 N곳 · Lv.N + 프로그레스바
- * 탭 → 칭호 인벤토리
+ * 닉네임 · 칭호 + 트라이브 이모지 | Lv · 기록 · 방문 (각각 독립 탭 영역)
  */
 
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { useUserLogs } from '@/hooks/use-logs'
 import { levelProgress } from '@/lib/reward-engine'
+import { TRIBE_EMOJI_MAP } from '@/constants/content'
 
 export default function ProfileCard() {
   const router = useRouter()
@@ -23,12 +23,12 @@ export default function ProfileCard() {
   const progress = levelProgress(user.xp ?? 0)
   const percent = Math.round(progress * 100)
 
+  // 유저의 첫 번째 트라이브 이모지
+  const tribeEmoji = user.tribes?.[0] ? TRIBE_EMOJI_MAP[user.tribes[0]] : null
+
   return (
-    <button
-      onClick={() => router.push('/settings/titles')}
-      className="w-full glass-card p-4 text-left transition-all hover:shadow-md active:scale-[0.98]"
-    >
-      {/* 1줄: 닉네임 · 칭호 */}
+    <div className="w-full glass-card p-4 transition-all">
+      {/* 1줄: 닉네임 · 칭호 + 트라이브 이모지 */}
       <div className="flex items-center gap-1.5 mb-3">
         <span className="text-sm font-bold text-stone-700">
           {user.nickname}
@@ -41,26 +41,19 @@ export default function ProfileCard() {
             </span>
           </>
         )}
+        {/* 오른쪽 끝: 트라이브 이모지 */}
+        {tribeEmoji && (
+          <span className="ml-auto text-base">{tribeEmoji}</span>
+        )}
       </div>
 
-      {/* 2줄: 3컬럼 균등 배분 */}
+      {/* 2줄: 3컬럼 — 레벨 / 기록 / 방문 (각각 독립 탭 영역) */}
       <div className="grid grid-cols-3">
-        {/* 기록 */}
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
-            {logCount}
-          </span>
-          <span className="text-[10px] text-stone-400 mt-1">기록</span>
-        </div>
-        {/* 방문 */}
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
-            {placeCount}
-          </span>
-          <span className="text-[10px] text-stone-400 mt-1">방문</span>
-        </div>
-        {/* 레벨 + 프로그레스바 */}
-        <div className="flex flex-col items-center">
+        {/* 레벨 → 칭호 선택 */}
+        <button
+          onClick={() => router.push('/settings/titles')}
+          className="flex flex-col items-center active:scale-95 transition-transform"
+        >
           <span className="text-lg font-bold text-stone-700 font-heading leading-none">
             Lv.{user.level ?? 0}
           </span>
@@ -73,8 +66,28 @@ export default function ProfileCard() {
               }}
             />
           </div>
-        </div>
+        </button>
+        {/* 기록 → 내 기록 보기 */}
+        <button
+          onClick={() => router.push('/history')}
+          className="flex flex-col items-center active:scale-95 transition-transform"
+        >
+          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
+            {logCount}
+          </span>
+          <span className="text-[10px] text-stone-400 mt-1">기록</span>
+        </button>
+        {/* 방문 → 탐색 */}
+        <button
+          onClick={() => router.push('/explore')}
+          className="flex flex-col items-center active:scale-95 transition-transform"
+        >
+          <span className="text-lg font-bold text-stone-700 font-heading leading-none">
+            {placeCount}
+          </span>
+          <span className="text-[10px] text-stone-400 mt-1">방문</span>
+        </button>
       </div>
-    </button>
+    </div>
   )
 }
