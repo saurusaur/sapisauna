@@ -8,20 +8,16 @@
 ## Backlog
 
 <!-- P1 -->
-- [ ] [인프라] DB 마이그레이션 — `logs.sweat_quality` integer nullable 추가 + `deep_logs.purposes` 컬럼 DROP | priority: P1 | added: 2026-03-11
+- [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P1 | added: 2026-03-10
+- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md`, `docs/plans/reference_reward_system.md` | priority: P1 | added: 2026-03-01
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
-- [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P1 | added: 2026-02-28
-- [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P1 | added: 2026-02-28
-- [x] [버그] 달력 날짜 1일 밀림 — record_date를 TIMESTAMP(TZ 없음)로 변경 + 저장/표시에서 UTC 변환 전부 제거. 7파일 수정 | priority: P1 | added: 2026-03-09 | done: 2026-03-10
-- [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P1 | added: 2026-03-08
+- [ ] [UX] 홈 화면 재설계 — 현재 달력 중심 → 추천/후기 중심으로 전환. 핵심: ①취향+위치 기반 사우나 추천 ②다른 유저 후기 피드. 달력은 자주 안 가는 유저에게 비어 보임. '기록하기' '기록 보기' 큰 CTA 버튼 배치. 달력은 히스토리 탭으로 이동 또는 축소 | priority: P1 | added: 2026-03-13
 <!-- P2 -->
-- [ ] [UX] 장소 기록 소셜 설계 — ① history/[id]: 같은 장소 내 본인 기록 유지 (현행), 향후 장소별 통계 페이지로 연결하는 확장 고려. ② explore/[id]: 다른 유저의 최근 기록 vs 해당 장소가 포함된 사-리스트(큐레이션) 중 택1 필요. 소셜 범위·프라이버시 설계 포함 | priority: P2 | added: 2026-03-11
-- [ ] [기능] 장소 정보 수정 — 등록된 장소의 시설 정보(facilities), 유형, 24시 여부를 편집할 수 있는 기능. 병합 시 합집합으로만 시설이 누적되므로, 폐업/변경된 시설 정정용 | priority: P2 | added: 2026-03-08
+- [ ] [UX] 비로그인 홈 — 로그인 후와 동일 구조에 빈 상태 + "로그인하고 기록해보세요!" CTA. (CTA 화면 구현 완료, 로그인 후와 동일 구조 빈 상태로 전환 필요) | priority: P2 | added: 2026-02-28
+- [ ] [UX] 전체 UI 흐름 점검 및 개선 — 화면 간 전환, 네비게이션, 사용자 여정 검토 | priority: P2 | added: 2026-02-28
+- [ ] [UX] Auth 가드 + 로그인 팝업 모듈 — 비로그인 유저가 보호 기능(기록, 즐겨찾기 등) 접근 시 리다이렉트 대신 "로그인이 필요합니다" 팝업 표시. explore/[id] 공개 전환 포함. 상세: `docs/plans/ANALYSIS_storage_strategy.md` | priority: P2 | added: 2026-03-08
 - [ ] [버그] 로그인 OAuth try/catch 누락 — login/page.tsx signInWithOAuth 네트워크 실패 시 에러 UI 없음. 상세: `docs/plans/archive/PLAN_app_stabilization_20260228.md` P1-6 | priority: P2 | added: 2026-03-06
 - [ ] [기능] 장소 선택 '내 주변' — navigator.geolocation으로 현재 위치 → places.latitude/longitude 기반 거리 계산 → 거리순 정렬. 클라이언트 Haversine으로 시작, 장소 수 증가 시 Supabase earthdistance 확장 전환 (cube+earthdistance 활성화 필요, 스키마 변경 없음) | priority: P2 | added: 2026-03-04
-- [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P2 | added: 2026-03-10
-- [ ] [UX] 스토리 사진 버튼 대안 탐색 — 현재 "사진" 토글 버튼이 직관적이지 않음. 카메라 아이콘, 배경 변경 스와이프, 롱프레스 등 대안 UX 리서치 필요 | priority: P2 | added: 2026-03-10
-- [x] [UX] 성공 토스트 고도화 — canvas-confetti 폭죽 애니메이션 구현 완료 (새 기록 시만 발동, 편집 시 미발동) | priority: P2 | added: 2026-03-09 | done: 2026-03-11
 - [ ] [UX] 히스토리 뷰 모드별 부가 기능 — 리스트 뷰: 정렬/필터 옵션(날짜순, 평점순, 타입별), 캘린더 뷰: 월별 stats(방문 횟수, 타입 분포 등) 표시 | priority: P2 | added: 2026-03-10
 - [ ] [디자인] UI 디자인 체계 업데이트 — Phase 0-10 완료. 남은: Phase 11(최종검증). 상세: `docs/plans/PLAN_design_overhaul_implementation.md` | priority: P2 | added: 2026-02-28
 - [ ] [기능] Explore 탭 신규 장소 추가 — 사용자가 탐색 화면에서 직접 새 장소를 등록 | priority: P2 | added: 2026-02-28
@@ -29,7 +25,6 @@
 - [ ] [기능] 사우나 목록(컬렉션) 생성/관리 — 공개·비공개 설정 | priority: P2 | added: 2026-02-27
 - [ ] [인프라] 도메인 URL 구매 | priority: P2 | added: 2026-02-28
 - [ ] [인프라] 에러 로깅 & 리포팅 시스템 구축 | priority: P2 | added: 2026-02-28
-- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md`, `docs/plans/reference_reward_system.md` | priority: P2 | added: 2026-03-01
 - [ ] [UX] 폐업 배지 + 필터링 — place-card에 status='closed' 배지 표시, 탐색 목록에서 폐업 장소 숨김/흐리게 | priority: P2 | added: 2026-03-02
 - [ ] [기능] "폐업했어요" 버튼 + Google 검증 — 유저 신고 → Google business_status API 확인 → 상태 업데이트 or 어드민 큐 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 어드민 병합 리뷰 화면 — merged=true 장소 목록 + 소스별 원본 비교. 유저 관리 시 users.status 컬럼(active/suspended/banned) 도입 검토 — 프로필 행 삭제 대신 소프트 밴 방식으로 차단. user-context에서 status 체크 후 차단 안내 화면 표시 | priority: P2 | added: 2026-03-02
@@ -45,6 +40,18 @@
 
 ## Done
 
+- [x] [기능] 스토리 카드 Canvas 렌더러 — modern-screenshot → Canvas 직접 렌더링. SVG 그래프 보존, half-leading 보정 | priority: P1 | added: 2026-03-13 | done: 2026-03-13
+- [x] [UX] 장소 상세 사-피 리포트 개편 — 트라이브 바·온도·서브 메트릭·혼잡도·세신/매점/비용 통합, 트라이브 수별 그리드 정렬 | priority: P1 | added: 2026-03-13 | done: 2026-03-13
+- [x] [UX] 탐색 페이지 더보기 페이지네이션 — 3개 → 10개씩 로드 + 위로가기 | priority: P2 | added: 2026-03-13 | done: 2026-03-13
+- [x] [UX] 글래스 카드 가시성 개선 — 투명도 .45→.55, border .55→.65 | priority: P2 | added: 2026-03-13 | done: 2026-03-13
+- [x] [UX] 트라이브 필터 드롭다운 바깥 클릭 닫기 — 장소 상세 로그 필터 | priority: P2 | added: 2026-03-13 | done: 2026-03-13
+- [x] [리팩토링] 온보딩·로그·딥로그·닉네임 UI 정리 + DB bath_gender 로그 테이블 이동 | priority: P1 | added: 2026-03-13 | done: 2026-03-13
+- [x] [인프라] DB 마이그레이션 — `logs.sweat_quality` integer nullable 추가 + `deep_logs.purposes` 컬럼 DROP | priority: P1 | added: 2026-03-11 | done: 2026-03-13
+- [x] [UX] 장소 기록 소셜 설계 — explore/[id]에 다른 유저 기록 표시 + 사-피 리포트 통합 완료 | priority: P2 | added: 2026-03-11 | done: 2026-03-13
+- [x] [기능] 장소 정보 수정 — place/[id]/edit 페이지 + updatePlace API | priority: P2 | added: 2026-03-08 | done: 2026-03-13
+- [x] [UX] 스토리 사진 버튼 대안 탐색 — 배경 변경/초기화 버튼으로 개선 | priority: P2 | added: 2026-03-10 | done: 2026-03-13
+- [x] [버그] 달력 날짜 1일 밀림 — record_date를 TIMESTAMP(TZ 없음)로 변경 + 저장/표시에서 UTC 변환 전부 제거. 7파일 수정 | priority: P1 | added: 2026-03-09 | done: 2026-03-10
+- [x] [UX] 성공 토스트 고도화 — canvas-confetti 폭죽 애니메이션 구현 완료 (새 기록 시만 발동, 편집 시 미발동) | priority: P2 | added: 2026-03-09 | done: 2026-03-11
 - [x] [UX] 병합 확인 모달 — 장소 등록 시 50m 내 기존 장소 발견되면 "이 장소인가요?" 유저 확인 UI | priority: P0 | added: 2026-03-02 | done: 2026-03-08
 - [x] [UX] 기록 상세 → 장소 상세 링크 — history/[id] → explore/[id] 이동 | priority: P1 | added: 2026-03-04 | done: 2026-03-08
 - [x] [리팩토링] TribeId 타입 통합 — 리터럴 반복 제거 + 상수화. 13파일 통합 | priority: P2 | added: 2026-03-08 | done: 2026-03-08
