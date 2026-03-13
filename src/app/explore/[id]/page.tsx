@@ -587,11 +587,11 @@ export default function PlaceDetailPage() {
                     )}
 
                     {/* Row4: 칭호 + 닉네임 (하단 우측) */}
-                    <div className="flex items-center justify-end gap-1.5 mt-2 pt-1.5 border-t border-stone-100">
+                    <div className="flex items-center justify-end gap-1.5 mt-2">
                       {log.user_title && (
-                        <span className="text-[10px] text-stone-400">{log.user_title}</span>
+                        <span className="text-xs text-stone-400">{log.user_title}</span>
                       )}
-                      <span className="text-xs font-medium text-stone-600">{log.user_nickname || '익명'}</span>
+                      <span className="text-xs font-semibold text-stone-600">{log.user_nickname || '익명'}</span>
                     </div>
                   </div>
                 )
