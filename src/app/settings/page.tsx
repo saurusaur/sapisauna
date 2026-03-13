@@ -61,7 +61,7 @@ export default function SettingsPage() {
                 <span className="font-medium text-stone-700">나의 칭호</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-stone-400 truncate max-w-[120px]">
+                <span className="text-[11px] text-stone-400 px-2 py-0.5 rounded-full bg-stone-100 truncate max-w-[120px]">
                   {user?.active_title || '미설정'}
                 </span>
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
