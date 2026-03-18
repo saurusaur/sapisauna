@@ -135,7 +135,7 @@ export const ONBOARDING = {
   // Step 1: 닉네임
   NICKNAME: {
     TITLE: '닉네임을 정해주세요',
-    PLACEHOLDER: 'nickname (영문, 2-10자)',
+    PLACEHOLDER: 'NICKNAME (영문, 2-10자)',
     CHECK_BUTTON: '중복 확인',
     AVAILABLE: '사용 가능한 닉네임이에요',
     DUPLICATE: '이미 사용 중인 닉네임이에요',
