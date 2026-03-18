@@ -26,10 +26,19 @@ function isHeic(file: File): boolean {
  * 비-HEIC: 즉시 반환 (~0ms)
  */
 export async function processPhoto(file: File): Promise<string> {
+  console.time('📸 processPhoto 전체')
+  console.log(`📸 원본: ${file.name}, ${(file.size / 1024 / 1024).toFixed(1)}MB, ${file.type}`)
+
   if (isHeic(file)) {
+    console.time('📸 HEIC→JPEG 변환 (heic2any WASM)')
     const blob = await convertHeic(file)
+    console.timeEnd('📸 HEIC→JPEG 변환 (heic2any WASM)')
+    console.log(`📸 변환 결과: ${(blob.size / 1024 / 1024).toFixed(1)}MB`)
+    console.timeEnd('📸 processPhoto 전체')
     return URL.createObjectURL(blob)
   }
 
+  console.log('📸 비-HEIC: 변환 불필요')
+  console.timeEnd('📸 processPhoto 전체')
   return URL.createObjectURL(file)
 }
