@@ -44,6 +44,17 @@ export default function DeepLog() {
     return { pinned, rest }
   }, [])
 
+  // 청결도
+  const [cleanliness, setCleanliness] = useState(3)
+
+  // 습식 사우나 (사우너파만)
+  const [hasWetSauna, setHasWetSauna] = useState(false)
+  const [wetSaunaTemp, setWetSaunaTemp] = useState(53)
+
+  // 열탕 (사우너파 + 목욕파)
+  const [hasHotBath, setHasHotBath] = useState(false)
+  const [hotBathTemp, setHotBathTemp] = useState(42)
+
   // 세신
   const [hasScrub, setHasScrub] = useState(false)
   const [scrubSatisfaction, setScrubSatisfaction] = useState(3)
@@ -52,6 +63,9 @@ export default function DeepLog() {
   const [hasStore, setHasStore] = useState(false)
   const [storeScore, setStoreScore] = useState(3)
   const [storeMemo, setStoreMemo] = useState('')
+
+  // tribe 조건부 표시용
+  const [tribeId, setTribeId] = useState<string | null>(null)
 
   // 이전 입력 복원 (편집 모드 또는 뒤로가기 시)
   useEffect(() => {
@@ -66,8 +80,9 @@ export default function DeepLog() {
         setEditId(parsed._editId as string)
       }
 
-      // 장소명 복원
+      // 장소명 + tribe 복원
       if (parsed.place_name) setPlaceName(parsed.place_name as string)
+      if (parsed.tribe_id) setTribeId(parsed.tribe_id as string)
 
       // 장소 countryCode 기반 기본 통화 설정
       const countryCode = parsed.place_country_code as string | undefined
@@ -84,6 +99,9 @@ export default function DeepLog() {
         if (dl.currency) setCurrency(dl.currency)
         if (dl.crowd) setCrowd(dl.crowd)
         if (dl.memo) setMemo(dl.memo)
+        if (dl.cleanliness != null) setCleanliness(dl.cleanliness)
+        if (dl.has_wet_sauna) { setHasWetSauna(true); setWetSaunaTemp(dl.wet_sauna_temp || 53) }
+        if (dl.has_hot_bath) { setHasHotBath(true); setHotBathTemp(dl.hot_bath_temp || 42) }
         if (dl.has_scrub) { setHasScrub(true); setScrubSatisfaction(dl.scrub_satisfaction || 3) }
         if (dl.has_store) { setHasStore(true); setStoreScore(dl.store_score || 3); setStoreMemo(dl.store_memo || '') }
       }
@@ -115,6 +133,11 @@ export default function DeepLog() {
       currency,
       crowd,
       memo,
+      cleanliness,
+      has_wet_sauna: hasWetSauna,
+      wet_sauna_temp: hasWetSauna ? wetSaunaTemp : null,
+      has_hot_bath: hasHotBath,
+      hot_bath_temp: hasHotBath ? hotBathTemp : null,
       has_scrub: hasScrub,
       scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
       has_store: hasStore,
@@ -199,6 +222,31 @@ export default function DeepLog() {
             options={DEEP_LOG.COMPANION.options}
             selected={companion}
             onSelect={setCompanion}
+          />
+        </div>
+
+        {/* 청결도 */}
+        <div>
+          <Slider
+            label={DEEP_LOG.CLEANLINESS.label}
+            value={cleanliness}
+            min={DEEP_LOG.CLEANLINESS.min}
+            max={DEEP_LOG.CLEANLINESS.max}
+            steps={DEEP_LOG.CLEANLINESS.steps}
+            onChange={setCleanliness}
+            variant="chip"
+          />
+        </div>
+
+        {/* 혼잡도 */}
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-2">
+            {DEEP_LOG.CROWD.label}
+          </label>
+          <ChipSelect
+            options={DEEP_LOG.CROWD.options}
+            selected={crowd}
+            onSelect={setCrowd}
           />
         </div>
 
@@ -294,19 +342,75 @@ export default function DeepLog() {
           </div>
         </div>
 
-        {/* 혼잡도 */}
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            {DEEP_LOG.CROWD.label}
-          </label>
-          <ChipSelect
-            options={DEEP_LOG.CROWD.options}
-            selected={crowd}
-            onSelect={setCrowd}
-          />
-        </div>
-
         <div className="border-t border-stone-200/60" />
+
+        {/* 습식 사우나 — 사우너파만 */}
+        {tribeId === 'saunner' && (
+          <div className="glass-card-light px-4 py-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-stone-700">
+                {hasWetSauna ? '습식 사우나 온도' : DEEP_LOG.WET_SAUNA.label}
+              </label>
+              <button
+                onClick={() => setHasWetSauna(!hasWetSauna)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  hasWetSauna ? 'text-white' : 'glass-chip text-stone-500'
+                }`}
+                style={hasWetSauna ? { backgroundColor: 'var(--color-primary)' } : undefined}
+              >
+                {hasWetSauna ? '이용 함' : DEEP_LOG.WET_SAUNA.toggleLabel}
+              </button>
+            </div>
+
+            {hasWetSauna && (
+              <div>
+                <Slider
+                  label=""
+                  value={wetSaunaTemp}
+                  min={DEEP_LOG.WET_SAUNA.min}
+                  max={DEEP_LOG.WET_SAUNA.max}
+                  unit={DEEP_LOG.WET_SAUNA.unit}
+                  steps={DEEP_LOG.WET_SAUNA.steps}
+                  onChange={setWetSaunaTemp}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 열탕 — 사우너파 + 목욕파 */}
+        {(tribeId === 'saunner' || tribeId === 'bather') && (
+          <div className="glass-card-light px-4 py-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-stone-700">
+                {hasHotBath ? '열탕 온도' : DEEP_LOG.HOT_BATH.label}
+              </label>
+              <button
+                onClick={() => setHasHotBath(!hasHotBath)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  hasHotBath ? 'text-white' : 'glass-chip text-stone-500'
+                }`}
+                style={hasHotBath ? { backgroundColor: 'var(--color-primary)' } : undefined}
+              >
+                {hasHotBath ? '기록 중' : DEEP_LOG.HOT_BATH.toggleLabel}
+              </button>
+            </div>
+
+            {hasHotBath && (
+              <div>
+                <Slider
+                  label=""
+                  value={hotBathTemp}
+                  min={DEEP_LOG.HOT_BATH.min}
+                  max={DEEP_LOG.HOT_BATH.max}
+                  unit={DEEP_LOG.HOT_BATH.unit}
+                  steps={DEEP_LOG.HOT_BATH.steps}
+                  onChange={setHotBathTemp}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 세신 — 토글 시 라벨 변경 + 만족도 칩 인라인 */}
         <div className="glass-card-light px-4 py-4">

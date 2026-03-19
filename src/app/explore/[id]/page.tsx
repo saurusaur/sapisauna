@@ -107,13 +107,26 @@ export default function PlaceDetailPage() {
     { label: '한증막', value: calcAvg('jjim_temp', 'jimi') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
 
+  // 2-1. 딥로그 온도 집계 (tribe 필터 없이 전체)
+  const calcDeepAvg = (field: 'wet_sauna_temp' | 'hot_bath_temp' | 'cleanliness') => {
+    const vals = placeLogs
+      .filter(l => l.deep_log?.[field] != null)
+      .map(l => l.deep_log![field] as number)
+    return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
+  }
+
   // 3. 트라이브별 서브 메트릭 (컬럼 표시)
+  const wetSaunaAvg = calcDeepAvg('wet_sauna_temp')
+  const deepHotBathAvg = calcDeepAvg('hot_bath_temp')
+
   const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
     { tribeId: 'saunner', metrics: [
+      ...(wetSaunaAvg != null ? [{ label: '습식', value: `${wetSaunaAvg}°C` }] : []),
       ...(calcAvg('totono_score', 'saunner') != null ? [{ label: '토토노우', value: `${calcAvg('totono_score', 'saunner')}/5` }] : []),
       ...(calcAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'saunner')}/5` }] : []),
     ]},
     { tribeId: 'bather', metrics: [
+      ...(deepHotBathAvg != null ? [{ label: '열탕', value: `${deepHotBathAvg}°C` }] : []),
       ...(calcAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcAvg('water_quality', 'bather')}/5` }] : []),
       ...(calcAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'bather')}/5` }] : []),
     ]},
@@ -157,8 +170,12 @@ export default function PlaceDetailPage() {
   const storeScoreVals = placeLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
   const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
 
-  // 5-2. 추가 정보 메트릭 (세신, 매점, 이용료 — 있는 것만)
+  // 5-2. 추가 정보 메트릭 (청결도, 세신, 매점, 이용료 — 있는 것만)
+  const cleanlinessAvg = calcDeepAvg('cleanliness')
   const additionalMetrics: { label: string; value: string }[] = []
+  if (cleanlinessAvg != null) {
+    additionalMetrics.push({ label: '청결도', value: `${cleanlinessAvg}/5` })
+  }
   if (scrubSatVals.length > 0) {
     additionalMetrics.push({ label: '세신', value: `${Math.round(scrubAvg)}/5` })
   }

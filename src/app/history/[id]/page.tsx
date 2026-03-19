@@ -339,11 +339,12 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   </span>
                 </div>
               )}
-              {log.deep_log.cost && (
+              {log.deep_log.cleanliness != null && (
                 <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">비용</span>
+                  <span className="text-xs text-stone-400">청결도</span>
                   <span className="text-sm font-medium text-stone-700">
-                    {log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}
+                    <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.CLEANLINESS.steps.find(s => s.value === log.deep_log!.cleanliness)?.label ?? ''}</span>
+                    {log.deep_log.cleanliness}<span className="text-xs text-stone-400">/5</span>
                   </span>
                 </div>
               )}
@@ -353,6 +354,26 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium text-stone-700">
                     {findOption(DEEP_LOG.CROWD.options, log.deep_log.crowd)?.label ?? log.deep_log.crowd}
                   </span>
+                </div>
+              )}
+              {log.deep_log.cost && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">비용</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {log.deep_log.has_wet_sauna && log.deep_log.wet_sauna_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">습식 사우나</span>
+                  <span className="text-sm font-medium text-stone-700">{log.deep_log.wet_sauna_temp}°C</span>
+                </div>
+              )}
+              {log.deep_log.has_hot_bath && log.deep_log.hot_bath_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">열탕</span>
+                  <span className="text-sm font-medium text-stone-700">{log.deep_log.hot_bath_temp}°C</span>
                 </div>
               )}
               {log.deep_log.has_scrub && (

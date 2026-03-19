@@ -61,6 +61,11 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       has_store: dl.has_store as boolean | undefined,
       store_score: dl.store_score as number | null,
       store_memo: dl.store_memo as string | null,
+      cleanliness: dl.cleanliness as number | null,
+      has_wet_sauna: dl.has_wet_sauna as boolean | undefined,
+      wet_sauna_temp: dl.wet_sauna_temp as number | null,
+      has_hot_bath: dl.has_hot_bath as boolean | undefined,
+      hot_bath_temp: dl.hot_bath_temp as number | null,
     } : undefined,
   }
 }
@@ -261,6 +266,11 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     store_score: deepData.store_score ?? null,
     store_memo: deepData.store_memo ?? null,
     food_eaten: deepData.food_eaten ?? [],
+    cleanliness: deepData.cleanliness ?? null,
+    has_wet_sauna: deepData.has_wet_sauna ?? false,
+    wet_sauna_temp: deepData.wet_sauna_temp ?? null,
+    has_hot_bath: deepData.has_hot_bath ?? false,
+    hot_bath_temp: deepData.hot_bath_temp ?? null,
     updated_at: new Date().toISOString(),
   }
 
@@ -275,5 +285,38 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
       .from('deep_logs')
       .insert(payload)
     if (error) throw error
+  }
+
+  // 시설 자동태그: 습식/열탕 토글 ON 시 place.facilities에 태그 추가
+  const autoTags: string[] = []
+  if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
+  if (deepData.has_hot_bath) autoTags.push('hot-bath')
+
+  if (autoTags.length > 0) {
+    // logId로 place_id 조회
+    const { data: log } = await supabase
+      .from('logs')
+      .select('place_id')
+      .eq('id', logId)
+      .single()
+
+    if (log) {
+      const { data: place } = await supabase
+        .from('places')
+        .select('facilities')
+        .eq('id', log.place_id)
+        .single()
+
+      if (place) {
+        const current = (place.facilities as string[]) || []
+        const newTags = autoTags.filter(t => !current.includes(t))
+        if (newTags.length > 0) {
+          await supabase
+            .from('places')
+            .update({ facilities: [...current, ...newTags] })
+            .eq('id', log.place_id)
+        }
+      }
+    }
   }
 }

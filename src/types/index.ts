@@ -166,6 +166,11 @@ export interface LogWithPlace {
     has_store?: boolean
     store_score?: number | null
     store_memo?: string | null
+    cleanliness?: number | null
+    has_wet_sauna?: boolean
+    wet_sauna_temp?: number | null
+    has_hot_bath?: boolean
+    hot_bath_temp?: number | null
   }
 }
 
