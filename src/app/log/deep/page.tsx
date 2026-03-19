@@ -358,7 +358,7 @@ export default function DeepLog() {
                 }`}
                 style={hasWetSauna ? { backgroundColor: 'var(--color-primary)' } : undefined}
               >
-                {hasWetSauna ? '이용 함' : DEEP_LOG.WET_SAUNA.toggleLabel}
+                {hasWetSauna ? '기록 중' : '기록'}
               </button>
             </div>
 
@@ -392,7 +392,7 @@ export default function DeepLog() {
                 }`}
                 style={hasHotBath ? { backgroundColor: 'var(--color-primary)' } : undefined}
               >
-                {hasHotBath ? '기록 중' : DEEP_LOG.HOT_BATH.toggleLabel}
+                {hasHotBath ? '기록 중' : '기록'}
               </button>
             </div>
 
