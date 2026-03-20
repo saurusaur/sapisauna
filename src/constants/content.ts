@@ -484,14 +484,14 @@ export const DEEP_LOG = {
     labelEn: 'WET SAUNA',
     toggleLabel: '이용',
     min: 40,
-    max: 65,
+    max: 70,
     unit: '°C',
     steps: [
       { value: 40, label: '미지근' },
       { value: 48, label: '따뜻' },
-      { value: 53, label: '뜨끈' },
-      { value: 58, label: '후끈' },
-      { value: 65, label: '찜기' },
+      { value: 55, label: '뜨끈' },
+      { value: 62, label: '후끈' },
+      { value: 70, label: '극한' },
     ],
   },
   HOT_BATH: {
