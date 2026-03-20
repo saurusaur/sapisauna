@@ -84,6 +84,25 @@ export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   return (data || []).map(toLogWithPlace)
 }
 
+// 커뮤니티 피드 (현재 유저 제외, 최신순)
+export async function getCommunityFeed(limit = 10): Promise<LogWithPlace[]> {
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let query = supabase
+    .from('logs')
+    .select(LOG_SELECT)
+    .order('record_date', { ascending: false })
+    .limit(limit)
+
+  if (user) {
+    query = query.neq('user_id', user.id)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return (data || []).map(toLogWithPlace)
+}
+
 // 현재 유저의 로그 (본인만)
 export async function getUserLogs(): Promise<LogWithPlace[]> {
   const { data: { user } } = await supabase.auth.getUser()

@@ -45,6 +45,24 @@ export function formatShortDate(date: Date): string {
 }
 
 /**
+ * 상대 시간 포맷 (방금/N분 전/N시간 전/N일 전/M/D)
+ */
+export function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffHour = Math.floor(diffMs / 3600000)
+  const diffDay = Math.floor(diffMs / 86400000)
+
+  if (diffMin < 1) return '방금'
+  if (diffMin < 60) return `${diffMin}분 전`
+  if (diffHour < 24) return `${diffHour}시간 전`
+  if (diffDay < 7) return `${diffDay}일 전`
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+/**
  * ISO 문자열을 Date로 파싱
  */
 export function parseDate(dateString: string): Date {

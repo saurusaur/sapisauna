@@ -56,6 +56,29 @@ export function useUserLogs(): UseDataState<LogWithPlace[]> {
   return { data, loading, error }
 }
 
+// 커뮤니티 피드 (현재 유저 제외) — 탭 전환 시 자동 refetch
+export function useCommunityFeed(limit = 10): UseDataState<LogWithPlace[]> {
+  const [data, setData] = useState<LogWithPlace[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
+  const hasLoaded = useRef(false)
+
+  useEffect(() => {
+    let cancelled = false
+    if (!hasLoaded.current) setLoading(true)
+
+    logsService.getCommunityFeed(limit)
+      .then((logs) => { if (!cancelled) { setData(logs); hasLoaded.current = true } })
+      .catch((e) => { if (!cancelled) setError(e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [limit, pathname])
+
+  return { data, loading, error }
+}
+
 // 단일 로그 (본인만 — history 상세)
 export function useLog(id: string): UseDataState<LogWithPlace | null> {
   const [data, setData] = useState<LogWithPlace | null>(null)

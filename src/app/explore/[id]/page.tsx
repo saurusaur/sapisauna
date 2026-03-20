@@ -6,7 +6,8 @@ import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
   TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG,
 } from '@/constants/content'
-import { getStepLabel, getDetailText } from '@/lib/utils'
+import { getStepLabel } from '@/lib/utils'
+import UserLogCard from '@/components/features/user-log-card'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
 import { useFavorites } from '@/hooks/use-favorites'
@@ -561,58 +562,9 @@ export default function PlaceDetailPage() {
               <p className="text-center text-xs text-stone-400 py-6">해당 조건의 기록이 없어요</p>
             ) : (
             <div className="space-y-2">
-              {displayedLogs2.map((log) => {
-                const detailText = getDetailText(log)
-                const shortDate = log.date.slice(5, 10).replace(/^0/, '').replace('-0', '/').replace('-', '/')
-                return (
-                  <div
-                    key={log.id}
-                    className="w-full glass-card p-4 text-left"
-                  >
-                    {/* Row1: 점수 + 숏로그 메트릭 (좌) / 날짜 + 트라이브 이모지 (우) */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-stone-500">
-                        <span className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-accent)' }}>move</span>
-                          <span className="font-bold" style={{ color: 'var(--color-primary)' }}>{log.revisit_score}/5</span>
-                        </span>
-                        {detailText && (
-                          <>
-                            <span className="text-stone-300">·</span>
-                            <span className="text-stone-400 truncate">{detailText}</span>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-xs text-stone-400">{shortDate}</span>
-                        <span className="text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
-                      </div>
-                    </div>
-
-                    {/* Row2: 메모 (있을 때만) */}
-                    {log.deep_log?.memo && (
-                      <p className="text-sm text-stone-600 leading-relaxed mt-1.5">{log.deep_log.memo}</p>
-                    )}
-
-                    {/* Row3: 추천 메뉴 (있을 때만) */}
-                    {log.deep_log?.store_memo && (
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>restaurant</span>
-                        <span className="text-xs text-stone-500">추천 메뉴:</span>
-                        <span className="text-xs font-medium text-stone-600">{log.deep_log.store_memo}</span>
-                      </div>
-                    )}
-
-                    {/* Row4: 칭호 + 닉네임 (하단 우측) */}
-                    <div className="flex items-center justify-end gap-1.5 mt-2">
-                      {log.user_title && (
-                        <span className="text-xs text-amber-600/70 px-2 py-0.5 rounded-full bg-amber-50">{log.user_title}</span>
-                      )}
-                      <span className="text-xs font-semibold text-stone-600">{log.user_nickname || '익명'}</span>
-                    </div>
-                  </div>
-                )
-              })}
+              {displayedLogs2.map((log) => (
+                <UserLogCard key={log.id} log={log} />
+              ))}
 
               {!showAllReviews && sortedLogs.length > 3 && (
                 <button

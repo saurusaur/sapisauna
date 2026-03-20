@@ -547,6 +547,12 @@ export const MESSAGES = {
     },
     RECOMMEND_HEADING: '다음은 여기 어때요?',
     RECOMMEND_PLACEHOLDER: 'coming soon',
+    RECOMMEND_EMPTY: '추천 장소가 곧 나타나요',
+    RECOMMEND_MORE: '다음에 어디갈지 찾아보기',
+    TODAY_HEADING: '오늘의 기록',
+    CTA_BUTTON: '기록하기',
+    COMMUNITY_HEADING: '사-피엔스의 흔적',
+    COMMUNITY_EMPTY: '아직 조용하네요..',
     LOADING: '로딩 중...',
   },
   LOG: {
