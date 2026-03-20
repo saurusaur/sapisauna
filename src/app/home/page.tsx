@@ -107,8 +107,7 @@ export default function Home() {
             localStorage.setItem('selectedRecordDate', todayKey)
             router.push('/place')
           }}
-          className="w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-opacity hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-primary)' }}
+          className="btn-primary"
         >
           {MESSAGES.HOME.CTA_BUTTON}
         </button>
