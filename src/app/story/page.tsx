@@ -398,15 +398,23 @@ export default function Story() {
                     {log.tribe_id.toUpperCase()}
                   </span>
                 </div>
-                <div className="flex items-center" style={{ gap: 16 }}>
-                  {log.user_title && (
-                    <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 36 }}>
-                      {log.user_title}
-                    </span>
-                  )}
+                <div className="flex flex-col items-end" style={{ gap: 12 }}>
                   <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
-                    {log.user_nickname || 'SA-PIEN'}
+                    SA-PI SAUNA
                   </span>
+                  <div className="flex items-center" style={{ gap: 16 }}>
+                    {log.user_title && (
+                      <span
+                        className="font-bold tracking-wider leading-none font-heading"
+                        style={{ fontSize: 30, color: 'rgba(255,255,255,0.4)', backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 20px', borderRadius: 999 }}
+                      >
+                        {log.user_title}
+                      </span>
+                    )}
+                    <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
+                      {log.user_nickname || 'SA-PIEN'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
