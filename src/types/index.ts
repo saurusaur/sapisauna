@@ -137,6 +137,7 @@ export interface SliderStep {
 // DB 로그 + 장소 조인 타입
 export interface LogWithPlace {
   id: string
+  user_id: string
   place_id: string
   place_name: string
   place_country_code: string

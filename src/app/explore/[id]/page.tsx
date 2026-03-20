@@ -81,12 +81,16 @@ export default function PlaceDetailPage() {
 
   // 표시할 기록 (기본 3개, 더보기 시 전체)
 
-  // ── placeLogs 기반 통계 계산 ──
-  const totalCount = placeLogs.length
+  // ── 어드민 로그 분리: 온도/비용 집계에는 포함, 카드/트라이브 통계에서는 제외 ──
+  const ADMIN_ID = '23c431c3-9b23-4779-bb27-13472e58090a'
+  const userLogs = placeLogs.filter(l => l.user_id !== ADMIN_ID)
 
-  // 1. 트라이브 분포
+  // ── placeLogs 기반 통계 계산 (온도/비용: 전체, 트라이브/카드: userLogs) ──
+  const totalCount = userLogs.length
+
+  // 1. 트라이브 분포 (어드민 제외)
   const tribeCounts: Record<string, number> = {}
-  for (const log of placeLogs) {
+  for (const log of userLogs) {
     tribeCounts[log.tribe_id] = (tribeCounts[log.tribe_id] || 0) + 1
   }
   // 고정 순서: 사우너 → 목욕 → 찜질
@@ -188,9 +192,9 @@ export default function PlaceDetailPage() {
     additionalMetrics.push({ label: '비용', value: costStr })
   }
 
-  // 6. 통합 로그 카드 (소팅)
+  // 6. 통합 로그 카드 (소팅) — 어드민 로그 제외
   const sortedLogs = (() => {
-    let logs = [...placeLogs]
+    let logs = [...userLogs]
     switch (logSort) {
       case 'memo':
         logs = logs.filter(l => l.deep_log?.memo)

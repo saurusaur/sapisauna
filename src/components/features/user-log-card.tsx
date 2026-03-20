@@ -26,7 +26,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
   return (
     <Wrapper
       onClick={onClick}
-      className={`w-full glass-card p-4 text-left relative${onClick ? ' hover:shadow-md transition-all' : ''}`}
+      className={`w-full glass-card p-4 text-left relative min-h-[120px]${onClick ? ' hover:shadow-md transition-all' : ''}`}
     >
       {/* 장소명 + 트라이브 이모지 */}
       {showPlace && (

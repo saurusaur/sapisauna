@@ -483,7 +483,7 @@ export const DEEP_LOG = {
       { value: 2, label: '아쉬움' },
       { value: 3, label: '깔끔' },
       { value: 4, label: '청결' },
-      { value: 5, label: '광이 남' },
+      { value: 5, label: '광이남' },
     ],
   },
   WET_SAUNA: {
@@ -497,7 +497,7 @@ export const DEEP_LOG = {
       { value: 40, label: '미지근' },
       { value: 48, label: '따뜻' },
       { value: 55, label: '뜨끈' },
-      { value: 62, label: '후끈' },
+      { value: 62, label: '뜨겁' },
       { value: 70, label: '찜기' },
     ],
   },
@@ -513,7 +513,7 @@ export const DEEP_LOG = {
       { value: 37, label: '따뜻' },
       { value: 39, label: '적당' },
       { value: 41, label: '뜨끈' },
-      { value: 42, label: '후끈' },
+      { value: 42, label: '뜨겁' },
     ],
   },
   VERY_HOT_BATH: {
@@ -526,9 +526,9 @@ export const DEEP_LOG = {
     steps: [
       { value: 38, label: '따뜻' },
       { value: 40, label: '뜨끈' },
-      { value: 42, label: '열탕' },
+      { value: 42, label: '뜨겁' },
       { value: 44, label: '극열' },
-      { value: 46, label: '한계' },
+      { value: 46, label: '삶음' },
     ],
   },
   SCRUB: {
@@ -557,10 +557,10 @@ export const MESSAGES = {
   HOME: {
     GREETING: 'HELLO SA-PIEN',
     CALENDAR_HEADING: (name?: string) => name ? `${name.toUpperCase()}의 기록` : '나의 기록',
-    NO_RECORDS: '아직 기록이 없어요',
+    NO_RECORDS: '이 날은 기록이 없어요',
     RECENT_RECORDS: '최근 기록',
     TODAY: '오늘',
-    VIEW_ALL: '기록 전체보기',
+    VIEW_ALL: '내 기록 전체보기',
     TOOLTIP_CTA: '오늘 사우나 어땠어요?',
     EMPTY_RECORD: {
       saunner: '사우나 땡긴다..',
@@ -669,7 +669,7 @@ export const NAV = {
 // ============================================
 export const EXPLORE = {
   TITLE: '탐색',
-  SEARCH_PLACEHOLDER: '장소명 또는 주소로 검색',
+  SEARCH_PLACEHOLDER: '장소명 또는 주소로 검색 (해외 사우나는 영어로!)',
   FILTER_BUTTON: '필터',
   SORT: {
     LABEL: '정렬',

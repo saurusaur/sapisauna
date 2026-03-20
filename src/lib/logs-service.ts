@@ -28,6 +28,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
 
   return {
     id: row.id as string,
+    user_id: row.user_id as string,
     place_id: row.place_id as string,
     place_name: placeName,
     place_country_code: (place?.country_code as string) || 'KR',
