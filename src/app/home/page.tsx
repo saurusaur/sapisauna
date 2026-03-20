@@ -154,7 +154,7 @@ export default function Home() {
                   className="min-w-[70px] snap-start flex-shrink-0 px-3 flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-opacity"
                 >
                   <span className="text-[11px] text-stone-400 leading-tight text-center whitespace-nowrap">더 보기</span>
-                  <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '16px' }}>chevron_right</span>
+                  <span className="material-symbols-outlined text-red-400" style={{ fontSize: '16px' }}>chevron_right</span>
                 </button>
               </div>
             )}
