@@ -151,7 +151,13 @@ export default function ExplorePage() {
 
       if (facilityFilters.length > 0) {
         filtered = filtered.filter((p) =>
-          facilityFilters.every((f) => p.facilities.includes(f))
+          facilityFilters.every((f) => {
+            // 타투 가능 필터: tattoo-friendly OR tattoo-cover 매칭
+            if (f === 'tattoo-friendly') {
+              return p.facilities.includes('tattoo-friendly') || p.facilities.includes('tattoo-cover')
+            }
+            return p.facilities.includes(f)
+          })
         )
       }
       if (genderFilters.length > 0) {

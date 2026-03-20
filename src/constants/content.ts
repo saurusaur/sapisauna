@@ -56,12 +56,11 @@ export const TRIBE_COLORS: Record<TribeId, string> = {
 
 // 시설 유형 (places.facility_type)
 export const PLACE_VENUE_TYPE = [
-  { id: 'small-bath', label: '동네 목욕탕', icon: 'hot_tub' },
   { id: 'public-bath', label: '대중목욕탕', icon: 'public' },
-  { id: 'hotel-spa', label: '호텔/스파', icon: 'hotel' },
+  { id: 'small-bath', label: '동네목욕탕', icon: 'hot_tub' },
+  { id: 'hotel-spa', label: '호텔/프리미엄', icon: 'hotel' },
   { id: 'private-sauna', label: '개인 사우나', icon: 'person' },
-  { id: 'bulgama-house', label: '불한증막', icon: 'warehouse' },
-  { id: 'gym-sauna', label: '헬스장 사우나', icon: 'fitness_center' },
+  { id: 'special', label: '특수(불가마, 효소 등)', icon: 'local_fire_department' },
 ] as const
 
 // 탕 정책 (places.bath_policy)
@@ -754,6 +753,7 @@ export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
   for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.label
   }
+  map['tattoo-cover'] = '타투 가능(커버)'
   return map
 })()
 
@@ -769,6 +769,7 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.icon
   }
+  map['tattoo-cover'] = 'brush'
   return map
 })()
 

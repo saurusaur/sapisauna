@@ -13,7 +13,7 @@ export interface UseDataState<T> {
 export type TribeId = 'bather' | 'saunner' | 'jimi'
 
 // 장소 시설 유형 (places.facility_type)
-export type FacilityType = 'small-bath' | 'public-bath' | 'hotel-spa' | 'private-sauna' | 'bulgama-house' | 'gym-sauna'
+export type FacilityType = 'small-bath' | 'public-bath' | 'hotel-spa' | 'private-sauna' | 'special' | 'gym-sauna'
 
 // 탕 정책 (places.bath_policy)
 export type BathPolicy = 'gender-bath' | 'male-only' | 'female-only' | 'mixed'

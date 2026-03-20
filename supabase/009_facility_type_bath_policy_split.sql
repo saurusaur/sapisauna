@@ -1,5 +1,5 @@
 -- facility_type + bath_policy 분리
--- facility_type: 시설 유형 (small-bath, public-bath, hotel-spa, private-sauna, bulgama-house, gym-sauna)
+-- facility_type: 시설 유형 (small-bath, public-bath, hotel-spa, private-sauna, special, gym-sauna)
 -- bath_policy: 탕 구분 (gender-bath=남녀분리, male-only, female-only, mixed)
 -- 2026-03-20
 
@@ -19,9 +19,9 @@ ALTER TABLE places DROP CONSTRAINT places_facility_type_check;
 UPDATE places SET facility_type = 'private-sauna' WHERE facility_type = 'private-bath';
 UPDATE places SET facility_type = 'public-bath' WHERE facility_type IN ('gender-bath', 'male-only', 'female-only', 'mixed-bath');
 
--- Step 5: Add new constraint
+-- Step 5: Add new constraint (special 포함, bulgama-house 제거)
 ALTER TABLE places ADD CONSTRAINT places_facility_type_check
-  CHECK (facility_type IN ('small-bath', 'public-bath', 'hotel-spa', 'private-sauna', 'bulgama-house', 'gym-sauna'));
+  CHECK (facility_type IN ('small-bath', 'public-bath', 'hotel-spa', 'private-sauna', 'special', 'gym-sauna'));
 
 -- Step 6: Update default
 ALTER TABLE places ALTER COLUMN facility_type SET DEFAULT 'public-bath';

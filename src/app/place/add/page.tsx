@@ -51,6 +51,9 @@ export default function AddPlace() {
   const [venueType, setVenueType] = useState<FacilityType>('public-bath')
   const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
 
+  // 타투 모달
+  const [showTattooModal, setShowTattooModal] = useState(false)
+
   // 저장 상태
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -501,8 +504,22 @@ export default function AddPlace() {
                 </label>
                 <ChipSelect
                   options={PLACE_SPECS[key].options}
-                  selected={selectedFacilities}
+                  selected={
+                    // tattoo-cover 선택 시 tattoo-friendly 칩도 활성화 표시
+                    selectedFacilities.includes('tattoo-cover')
+                      ? [...selectedFacilities, 'tattoo-friendly']
+                      : selectedFacilities
+                  }
                   onSelect={(id) => {
+                    if (id === 'tattoo-friendly') {
+                      // 이미 tattoo 태그가 있으면 해제
+                      if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
+                        setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
+                      } else {
+                        setShowTattooModal(true)
+                      }
+                      return
+                    }
                     setSelectedFacilities(prev =>
                       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
                     )
@@ -531,6 +548,22 @@ export default function AddPlace() {
           '장소 저장'
         )}
       </BottomCTA>
+
+      {showTattooModal && (
+        <ConfirmModal
+          message="타투 커버(시트/래시가드)가 필요한가요?"
+          confirmLabel="예, 커버 필요"
+          cancelLabel="아니오, 자유"
+          onConfirm={() => {
+            setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
+            setShowTattooModal(false)
+          }}
+          onCancel={() => {
+            setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
+            setShowTattooModal(false)
+          }}
+        />
+      )}
 
       {showBackConfirm && (
         <ConfirmModal

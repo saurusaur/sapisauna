@@ -28,6 +28,7 @@ export default function EditPlace() {
   const [is24h, setIs24h] = useState(false)
   const [venueType, setVenueType] = useState<FacilityType>('public-bath')
   const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
+  const [showTattooModal, setShowTattooModal] = useState(false)
 
   // 원본 값 (변경 감지용)
   const [original, setOriginal] = useState<{ facilities: string[]; is24h: boolean; venueType: FacilityType; bathPolicy: BathPolicy } | null>(null)
@@ -166,8 +167,20 @@ export default function EditPlace() {
               </label>
               <ChipSelect
                 options={PLACE_SPECS[key].options}
-                selected={selectedFacilities}
+                selected={
+                  selectedFacilities.includes('tattoo-cover')
+                    ? [...selectedFacilities, 'tattoo-friendly']
+                    : selectedFacilities
+                }
                 onSelect={(id) => {
+                  if (id === 'tattoo-friendly') {
+                    if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
+                      setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
+                    } else {
+                      setShowTattooModal(true)
+                    }
+                    return
+                  }
                   setSelectedFacilities(prev =>
                     prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
                   )
@@ -195,6 +208,22 @@ export default function EditPlace() {
           '저장'
         )}
       </BottomCTA>
+
+      {showTattooModal && (
+        <ConfirmModal
+          message="타투 커버(시트/래시가드)가 필요한가요?"
+          confirmLabel="예, 커버 필요"
+          cancelLabel="아니오, 자유"
+          onConfirm={() => {
+            setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
+            setShowTattooModal(false)
+          }}
+          onCancel={() => {
+            setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
+            setShowTattooModal(false)
+          }}
+        />
+      )}
 
       {showBackConfirm && (
         <ConfirmModal
