@@ -96,12 +96,12 @@ export default function SettingsPage() {
               <span className="text-sm text-stone-400">v{APP.VERSION}</span>
             </div>
             {/* 이용약관 */}
-            <button className="w-full p-4 flex items-center justify-between">
+            <button onClick={() => router.push('/legal/terms')} className="w-full p-4 flex items-center justify-between">
               <span className="font-medium text-stone-700">이용약관</span>
               <span className="material-symbols-outlined text-stone-300">chevron_right</span>
             </button>
             {/* 개인정보처리방침 */}
-            <button className="w-full p-4 flex items-center justify-between">
+            <button onClick={() => router.push('/legal/privacy')} className="w-full p-4 flex items-center justify-between">
               <span className="font-medium text-stone-700">개인정보처리방침</span>
               <span className="material-symbols-outlined text-stone-300">chevron_right</span>
             </button>

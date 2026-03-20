@@ -65,6 +65,13 @@ export default function LoginPage() {
           </svg>
           {LOGIN.GOOGLE_BUTTON}
         </button>
+
+        <p className="mt-4 text-[11px] text-stone-400 text-center leading-relaxed max-w-xs">
+          로그인하면{' '}
+          <a href="/legal/terms" className="underline underline-offset-2">이용약관</a>과{' '}
+          <a href="/legal/privacy" className="underline underline-offset-2">개인정보 처리방침</a>에
+          동의하게 돼요.
+        </p>
       </div>
 
       {/* 버전 — 하단 고정 */}
