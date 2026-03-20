@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-dvh pb-24 bath-tile-bg">
+    <div className="min-h-dvh pb-20 bath-tile-bg">
       {/* 헤더 */}
       <header className="p-5 pt-8">
         <h1 className="text-3xl font-extrabold italic font-heading">
@@ -142,9 +142,9 @@ export default function Home() {
                 {/* 더 찾아보기 카드 */}
                 <button
                   onClick={() => router.push('/explore')}
-                  className="min-w-[200px] snap-start flex-shrink-0 glass-card p-4 flex items-center justify-center gap-2 hover:shadow-md transition-all"
+                  className="min-w-[100px] snap-start flex-shrink-0 glass-card p-4 flex items-center justify-center gap-1 hover:shadow-md transition-all"
                 >
-                  <span className="text-xs text-stone-500">{MESSAGES.HOME.RECOMMEND_MORE}</span>
+                  <span className="text-xs text-stone-500">다음 사우나 찾아보기</span>
                   <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>chevron_right</span>
                 </button>
               </div>
