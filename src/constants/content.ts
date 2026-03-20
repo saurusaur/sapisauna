@@ -491,7 +491,7 @@ export const DEEP_LOG = {
       { value: 48, label: '따뜻' },
       { value: 55, label: '뜨끈' },
       { value: 62, label: '후끈' },
-      { value: 70, label: '극한' },
+      { value: 70, label: '찜기' },
     ],
   },
   HOT_BATH: {
