@@ -416,7 +416,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
     // pill 텍스트
     ctx.fillStyle = 'rgba(255,255,255,0.4)'
-    ctx.fillText(pillText, pillX + pillPadX, pillY + (pillH - 30) / 2 + hl(30))
+    ctx.fillText(pillText, pillX + pillPadX, pillY + (pillH - 30) / 2 + hl(30) - 0.5)
   }
 
   ctx.textAlign = 'left'
