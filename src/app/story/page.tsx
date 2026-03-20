@@ -398,9 +398,16 @@ export default function Story() {
                     {log.tribe_id.toUpperCase()}
                   </span>
                 </div>
-                <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
-                  JOIN THE SA-PIENS
-                </span>
+                <div className="flex items-center" style={{ gap: 16 }}>
+                  {log.user_title && (
+                    <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 36 }}>
+                      {log.user_title}
+                    </span>
+                  )}
+                  <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
+                    {log.user_nickname || 'SA-PIEN'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
