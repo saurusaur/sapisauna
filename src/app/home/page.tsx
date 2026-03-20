@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { MESSAGES } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
@@ -36,6 +36,15 @@ export default function Home() {
 
   const hasTodayRecord = todayLogs.length > 0
   const emptyMessage = MESSAGES.HOME.EMPTY_RECORD[primaryTribe] || MESSAGES.HOME.NO_RECORDS
+
+  // 툴팁: 진입 시 표시 → 화면 탭 시 사라짐
+  const [tooltipVisible, setTooltipVisible] = useState(true)
+  const dismissTooltip = useCallback(() => setTooltipVisible(false), [])
+  useEffect(() => {
+    if (!tooltipVisible) return
+    window.addEventListener('pointerdown', dismissTooltip, { once: true })
+    return () => window.removeEventListener('pointerdown', dismissTooltip)
+  }, [tooltipVisible, dismissTooltip])
 
   // 비로그인 → 로그인 페이지로 이동
   if (!authUser) {
@@ -142,10 +151,10 @@ export default function Home() {
                 {/* 더 찾아보기 카드 */}
                 <button
                   onClick={() => router.push('/explore')}
-                  className="min-w-[100px] snap-start flex-shrink-0 glass-card p-4 flex items-center justify-center gap-1 hover:shadow-md transition-all"
+                  className="min-w-[50px] snap-start flex-shrink-0 px-3 flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-opacity"
                 >
-                  <span className="text-xs text-stone-500">다음 사우나 찾아보기</span>
-                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>chevron_right</span>
+                  <span className="text-[11px] text-stone-400 leading-tight text-center">더<br/>보기</span>
+                  <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '16px' }}>chevron_right</span>
                 </button>
               </div>
             )}
@@ -187,7 +196,7 @@ export default function Home() {
         )}
       </main>
 
-      <BottomNav showTooltip={!hasTodayRecord} />
+      <BottomNav showTooltip={!hasTodayRecord && tooltipVisible} />
     </div>
   )
 }
