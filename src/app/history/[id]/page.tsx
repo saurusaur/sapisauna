@@ -91,7 +91,6 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
         { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
         { value: log.repeat || null, label: 'RPT', unit: 'SET' },
-        { value: log.sweat_quality || null, label: 'SWEAT', unit: '/5' },
       ]
     : [
         { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
@@ -269,7 +268,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
           {/* 루틴 — 숫자 위 + 라벨 아래 (스토리 동일), 단위 없음 */}
           <div className="mt-6 flex justify-center">
-            <div className="grid grid-cols-4 gap-6 w-full max-w-xs">
+            <div className={`grid ${log.tribe_id === 'jimi' ? 'grid-cols-3' : 'grid-cols-4'} gap-6 w-full max-w-xs`}>
               {routineBadges.map((badge) => (
                 <div key={badge.label} className="flex flex-col items-center gap-2">
                   <span

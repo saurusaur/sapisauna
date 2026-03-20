@@ -217,7 +217,6 @@ export default function Story() {
         { value: log.heat_time || null, label: 'HEAT', suffix: '' },
         { value: log.pause_time || null, label: 'PAUSE', suffix: '' },
         { value: log.repeat || null, label: 'RPT', suffix: '' },
-        { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
     }
     return [
