@@ -346,20 +346,20 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   </span>
                 </div>
               )}
+              {log.deep_log.crowd && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">혼잡도</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    {findOption(DEEP_LOG.CROWD.options, log.deep_log.crowd)?.label ?? log.deep_log.crowd}
+                  </span>
+                </div>
+              )}
               {log.deep_log.cleanliness != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">청결도</span>
                   <span className="text-sm font-medium text-stone-700">
                     <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.CLEANLINESS.steps.find(s => s.value === log.deep_log!.cleanliness)?.label ?? ''}</span>
                     {log.deep_log.cleanliness}<span className="text-xs text-stone-400">/5</span>
-                  </span>
-                </div>
-              )}
-              {log.deep_log.crowd && (
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">혼잡도</span>
-                  <span className="text-sm font-medium text-stone-700">
-                    {findOption(DEEP_LOG.CROWD.options, log.deep_log.crowd)?.label ?? log.deep_log.crowd}
                   </span>
                 </div>
               )}

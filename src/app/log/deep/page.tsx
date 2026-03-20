@@ -225,6 +225,18 @@ export default function DeepLog() {
           />
         </div>
 
+        {/* 혼잡도 */}
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-2">
+            {DEEP_LOG.CROWD.label}
+          </label>
+          <ChipSelect
+            options={DEEP_LOG.CROWD.options}
+            selected={crowd}
+            onSelect={setCrowd}
+          />
+        </div>
+
         {/* 청결도 */}
         <div>
           <Slider
@@ -235,18 +247,6 @@ export default function DeepLog() {
             steps={DEEP_LOG.CLEANLINESS.steps}
             onChange={setCleanliness}
             variant="chip"
-          />
-        </div>
-
-        {/* 혼잡도 */}
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            {DEEP_LOG.CROWD.label}
-          </label>
-          <ChipSelect
-            options={DEEP_LOG.CROWD.options}
-            selected={crowd}
-            onSelect={setCrowd}
           />
         </div>
 

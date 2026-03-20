@@ -214,17 +214,17 @@ export default function Story() {
     if (!log) return []
     if (log.tribe_id === 'jimi') {
       return [
-        { value: log.heat_time || null, label: 'HEAT' },
-        { value: log.pause_time || null, label: 'PAUSE' },
-        { value: log.repeat || null, label: 'RPT' },
-        { value: log.sweat_quality || null, label: 'SWEAT' },
+        { value: log.heat_time || null, label: 'HEAT', suffix: '' },
+        { value: log.pause_time || null, label: 'PAUSE', suffix: '' },
+        { value: log.repeat || null, label: 'RPT', suffix: '' },
+        { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
     }
     return [
-      { value: log.heat_time || null, label: 'HEAT' },
-      { value: log.ice_time || null, label: 'ICE' },
-      { value: log.pause_time || null, label: 'PAUSE' },
-      { value: log.repeat || null, label: 'RPT' },
+      { value: log.heat_time || null, label: 'HEAT', suffix: '' },
+      { value: log.ice_time || null, label: 'ICE', suffix: '' },
+      { value: log.pause_time || null, label: 'PAUSE', suffix: '' },
+      { value: log.repeat || null, label: 'RPT', suffix: '' },
     ]
   }
 
@@ -370,6 +370,9 @@ export default function Story() {
                         style={{ fontSize: 96, minHeight: 96, ...(bgPhoto ? { textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 16px rgba(0,0,0,0.3)' } : {}) }}
                       >
                         {badge.value ?? '-'}
+                        {badge.suffix && badge.value != null && (
+                          <span className="text-white/50" style={{ fontSize: 48 }}>{badge.suffix}</span>
+                        )}
                       </span>
                       <span
                         className="text-white/70 tracking-wider uppercase leading-none font-heading"
