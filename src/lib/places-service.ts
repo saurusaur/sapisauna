@@ -4,7 +4,7 @@
 
 import { supabase } from './supabase'
 import { generateShortAddress } from './utils'
-import type { Place, PlaceSource, FacilityType } from '@/types'
+import type { Place, PlaceSource, FacilityType, BathPolicy } from '@/types'
 
 // DB 행 → Place 변환 (place_sources 조인 포함)
 function toPlace(row: Record<string, unknown>): Place {
@@ -24,7 +24,8 @@ function toPlace(row: Record<string, unknown>): Place {
     longitude: row.longitude as number | null,
     facilities: (row.facilities as string[]) || [],
     is_24h: (row.is_24h as boolean) || false,
-    facility_type: (row.facility_type as FacilityType) || 'gender-bath',
+    facility_type: (row.facility_type as FacilityType) || 'public-bath',
+    bath_policy: (row.bath_policy as BathPolicy) || 'gender-bath',
     coordinate_source: (row.coordinate_source as 'naver' | 'google' | 'manual' | null) || null,
     status: (row.status as string) || 'active',
     merged: (row.merged as boolean) || false,
@@ -132,6 +133,7 @@ export async function mergeWithPlace(
   facilities: string[],
   is_24h: boolean,
   facility_type?: FacilityType,
+  bath_policy?: BathPolicy,
 ): Promise<Place> {
   const existing = await getPlaceById(placeId)
   if (!existing) throw new Error('병합 대상 장소를 찾을 수 없습니다')
@@ -156,7 +158,8 @@ export async function mergeWithPlace(
       facilities: mergedFacilities,
       is_24h: is_24h || existing.is_24h,
       merged: true,
-      facility_type: facility_type || 'gender-bath',
+      facility_type: facility_type || 'public-bath',
+      bath_policy: bath_policy || 'gender-bath',
     })
     .eq('id', placeId)
 
@@ -173,6 +176,7 @@ export async function createNewPlace(params: {
   facilities: string[]
   is_24h: boolean
   facility_type?: FacilityType
+  bath_policy?: BathPolicy
   country_code?: string
   source?: 'naver' | 'google' | 'manual'
   external_id?: string
@@ -180,7 +184,7 @@ export async function createNewPlace(params: {
 }): Promise<Place> {
   const {
     name, address, latitude, longitude,
-    facilities, is_24h, facility_type,
+    facilities, is_24h, facility_type, bath_policy,
     country_code = 'KR',
     source = 'manual', external_id, plus_code,
   } = params
@@ -197,7 +201,8 @@ export async function createNewPlace(params: {
       facilities,
       is_24h,
       coordinate_source: source,
-      facility_type: facility_type || 'gender-bath',
+      facility_type: facility_type || 'public-bath',
+      bath_policy: bath_policy || 'gender-bath',
       created_by: authUser?.id || null,
     })
     .select()
@@ -225,6 +230,7 @@ export async function updatePlace(placeId: string, updates: {
   facilities: string[]
   is_24h: boolean
   facility_type: string
+  bath_policy: string
 }): Promise<void> {
   const { error } = await supabase
     .from('places')
@@ -232,6 +238,7 @@ export async function updatePlace(placeId: string, updates: {
       facilities: updates.facilities,
       is_24h: updates.is_24h,
       facility_type: updates.facility_type,
+      bath_policy: updates.bath_policy,
       updated_at: new Date().toISOString(),
     })
     .eq('id', placeId)

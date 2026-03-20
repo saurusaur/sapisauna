@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { PLACE_SPECS, PLACE_BATH_TYPE } from '@/constants/content'
+import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY } from '@/constants/content'
 import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { getPlaceById, updatePlace } from '@/lib/places-service'
-import type { FacilityType } from '@/types'
+import type { FacilityType, BathPolicy } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function EditPlace() {
@@ -26,10 +26,11 @@ export default function EditPlace() {
   // 편집 대상 필드
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
-  const [facilityType, setFacilityType] = useState<FacilityType>('gender-bath')
+  const [venueType, setVenueType] = useState<FacilityType>('public-bath')
+  const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
 
   // 원본 값 (변경 감지용)
-  const [original, setOriginal] = useState<{ facilities: string[]; is24h: boolean; facilityType: FacilityType } | null>(null)
+  const [original, setOriginal] = useState<{ facilities: string[]; is24h: boolean; venueType: FacilityType; bathPolicy: BathPolicy } | null>(null)
 
   // 장소 데이터 로드
   useEffect(() => {
@@ -43,8 +44,9 @@ export default function EditPlace() {
         setPlaceName(place.name)
         setSelectedFacilities(place.facilities)
         setIs24h(place.is_24h)
-        setFacilityType(place.facility_type)
-        setOriginal({ facilities: place.facilities, is24h: place.is_24h, facilityType: place.facility_type })
+        setVenueType(place.facility_type)
+        setBathPolicy(place.bath_policy)
+        setOriginal({ facilities: place.facilities, is24h: place.is_24h, venueType: place.facility_type, bathPolicy: place.bath_policy })
       } catch {
         router.replace('/explore')
       } finally {
@@ -59,9 +61,10 @@ export default function EditPlace() {
     if (!original) return
     const changed = JSON.stringify(selectedFacilities) !== JSON.stringify(original.facilities)
       || is24h !== original.is24h
-      || facilityType !== original.facilityType
+      || venueType !== original.venueType
+      || bathPolicy !== original.bathPolicy
     setIsDirty(changed)
-  }, [selectedFacilities, is24h, facilityType, original])
+  }, [selectedFacilities, is24h, venueType, bathPolicy, original])
 
   // 저장
   const handleSave = async () => {
@@ -73,7 +76,8 @@ export default function EditPlace() {
       await updatePlace(placeId, {
         facilities: selectedFacilities,
         is_24h: is24h,
-        facility_type: facilityType,
+        facility_type: venueType,
+        bath_policy: bathPolicy,
       })
       router.back()
     } catch (error) {
@@ -118,21 +122,37 @@ export default function EditPlace() {
         )}
 
         <div className="glass-card-light rounded-xl p-4 space-y-5">
-          {/* 유형 선택 */}
+          {/* 시설 유형 */}
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-2">
-              유형 선택
+              시설 유형
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {PLACE_BATH_TYPE.map((option) => (
+              {PLACE_VENUE_TYPE.map((option) => (
                 <SelectButton
                   key={option.id}
                   label={option.label}
                   icon={option.icon}
-                  selected={facilityType === option.id}
-                  onClick={() => setFacilityType(
-                    facilityType === option.id ? 'gender-bath' : option.id as FacilityType
-                  )}
+                  selected={venueType === option.id}
+                  onClick={() => setVenueType(option.id as FacilityType)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* 탕 구분 */}
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">
+              탕 구분
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {PLACE_BATH_POLICY.map((option) => (
+                <SelectButton
+                  key={option.id}
+                  label={option.label}
+                  icon={option.icon}
+                  selected={bathPolicy === option.id}
+                  onClick={() => setBathPolicy(option.id as BathPolicy)}
                 />
               ))}
             </div>

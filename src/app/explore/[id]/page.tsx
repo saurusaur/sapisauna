@@ -231,7 +231,7 @@ export default function PlaceDetailPage() {
       return
     }
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, facilityType: place.facility_type }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, bathPolicy: place.bath_policy }))
     router.push('/log')
   }
 
@@ -313,15 +313,15 @@ export default function PlaceDetailPage() {
             </a>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0">
-              {(place.facility_type === 'male-only' || place.facility_type === 'female-only') && (
+              {(place.bath_policy === 'male-only' || place.bath_policy === 'female-only') && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                   style={{
-                    backgroundColor: place.facility_type === 'male-only' ? '#DBEAFE' : '#FCE7F3',
-                    color: place.facility_type === 'male-only' ? '#3B82F6' : '#EC4899',
+                    backgroundColor: place.bath_policy === 'male-only' ? '#DBEAFE' : '#FCE7F3',
+                    color: place.bath_policy === 'male-only' ? '#3B82F6' : '#EC4899',
                   }}
                 >
-                  {place.facility_type === 'male-only' ? '♂' : '♀'}
+                  {place.bath_policy === 'male-only' ? '♂' : '♀'}
                 </span>
               )}
               {place.is_24h && <Badge24h />}

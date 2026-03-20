@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PLACE_SPECS, PLACE_BATH_TYPE } from '@/constants/content'
+import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY } from '@/constants/content'
 import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
@@ -11,7 +11,7 @@ import PlaceMergeModal from '@/components/ui/place-merge-modal'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
 import { grantReward } from '@/lib/reward-service'
 import { supabase } from '@/lib/supabase'
-import type { Place, FacilityType } from '@/types'
+import type { Place, FacilityType, BathPolicy } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
 // API 검색 결과 타입
@@ -48,7 +48,8 @@ export default function AddPlace() {
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
-  const [bathGender, setBathGender] = useState<FacilityType>('gender-bath')
+  const [venueType, setVenueType] = useState<FacilityType>('public-bath')
+  const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
 
   // 저장 상태
   const [isSaving, setIsSaving] = useState(false)
@@ -119,7 +120,7 @@ export default function AddPlace() {
   // 저장 완료 후 공통 처리
   const navigateToLog = (place: Place) => {
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, facilityType: place.facility_type }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, bathPolicy: place.bath_policy }))
     router.push('/log')
   }
 
@@ -131,7 +132,8 @@ export default function AddPlace() {
     longitude: selectedPlace?.longitude || null,
     facilities: selectedFacilities,
     is_24h: is24h,
-    facility_type: bathGender,
+    facility_type: venueType,
+    bath_policy: bathPolicy,
     country_code: selectedPlace?.countryCode || (source === 'naver' ? 'KR' : undefined),
     source: (selectedPlace ? selectedPlace.source : 'manual') as 'naver' | 'google' | 'manual',
     external_id: selectedPlace?.external_id,
@@ -209,6 +211,7 @@ export default function AddPlace() {
         params.facilities,
         params.is_24h,
         params.facility_type,
+        params.bath_policy as BathPolicy,
       )
       grantReward('place_merged').catch(() => {})
       navigateToLog(place)
@@ -454,21 +457,37 @@ export default function AddPlace() {
           </h2>
 
           <div className="glass-card-light rounded-xl p-4 space-y-5">
-            {/* 유형 선택 — 맨 위 배치 */}
+            {/* 시설 유형 */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
-                유형 선택
+                시설 유형
               </label>
               <div className="flex flex-wrap gap-1.5">
-                {PLACE_BATH_TYPE.map((option) => (
+                {PLACE_VENUE_TYPE.map((option) => (
                   <SelectButton
                     key={option.id}
                     label={option.label}
                     icon={option.icon}
-                    selected={bathGender === option.id}
-                    onClick={() => setBathGender(
-                      bathGender === option.id ? 'gender-bath' : option.id as FacilityType
-                    )}
+                    selected={venueType === option.id}
+                    onClick={() => setVenueType(option.id as FacilityType)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* 탕 구분 */}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                탕 구분
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {PLACE_BATH_POLICY.map((option) => (
+                  <SelectButton
+                    key={option.id}
+                    label={option.label}
+                    icon={option.icon}
+                    selected={bathPolicy === option.id}
+                    onClick={() => setBathPolicy(option.id as BathPolicy)}
                   />
                 ))}
               </div>

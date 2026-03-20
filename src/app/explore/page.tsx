@@ -156,7 +156,7 @@ export default function ExplorePage() {
       }
       if (genderFilters.length > 0) {
         filtered = filtered.filter((p) =>
-          p.facility_type ? genderFilters.includes(p.facility_type) : false
+          p.bath_policy ? genderFilters.includes(p.bath_policy) : false
         )
       }
     }

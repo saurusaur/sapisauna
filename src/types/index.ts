@@ -13,7 +13,10 @@ export interface UseDataState<T> {
 export type TribeId = 'bather' | 'saunner' | 'jimi'
 
 // 장소 시설 유형 (places.facility_type)
-export type FacilityType = 'gender-bath' | 'male-only' | 'female-only' | 'private-bath' | 'mixed-bath'
+export type FacilityType = 'small-bath' | 'public-bath' | 'hotel-spa' | 'private-sauna' | 'bulgama-house' | 'gym-sauna'
+
+// 탕 정책 (places.bath_policy)
+export type BathPolicy = 'gender-bath' | 'male-only' | 'female-only' | 'mixed'
 
 // 탕 구분 (logs.bath_gender — facility_type + user.gender로 자동 계산)
 export type BathGender = 'male' | 'female' | 'mixed' | 'private' | 'private_male' | 'private_female' | 'mixed_male' | 'mixed_female'
@@ -38,6 +41,7 @@ export interface Place {
   facilities: string[]
   is_24h: boolean
   facility_type: FacilityType
+  bath_policy: BathPolicy
   coordinate_source?: 'naver' | 'google' | 'manual' | null
   status: string
   merged: boolean

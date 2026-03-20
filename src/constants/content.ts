@@ -54,14 +54,22 @@ export const TRIBE_COLORS: Record<TribeId, string> = {
   jimi: 'var(--color-jimi)',
 }
 
-// 장소 특성: "이 시설은 어떤 종류?" (places.facility_type)
-// 미선택(NULL) = 일반 남녀분리 시설
-export const PLACE_BATH_TYPE = [
-  { id: 'gender-bath', label: '일반 대중탕', icon: 'public' },
+// 시설 유형 (places.facility_type)
+export const PLACE_VENUE_TYPE = [
+  { id: 'small-bath', label: '동네 목욕탕', icon: 'hot_tub' },
+  { id: 'public-bath', label: '대중목욕탕', icon: 'public' },
+  { id: 'hotel-spa', label: '호텔/스파', icon: 'hotel' },
+  { id: 'private-sauna', label: '개인 사우나', icon: 'person' },
+  { id: 'bulgama-house', label: '불한증막', icon: 'warehouse' },
+  { id: 'gym-sauna', label: '헬스장 사우나', icon: 'fitness_center' },
+] as const
+
+// 탕 정책 (places.bath_policy)
+export const PLACE_BATH_POLICY = [
+  { id: 'gender-bath', label: '남녀분리', icon: 'wc' },
   { id: 'male-only', label: '남성전용', icon: 'male' },
   { id: 'female-only', label: '여성전용', icon: 'female' },
-  { id: 'private-bath', label: '개인', icon: 'person' },
-  { id: 'mixed-bath', label: '혼탕', icon: 'wc' },
+  { id: 'mixed', label: '혼탕', icon: 'group' },
 ] as const
 
 // 딥로그 기록: "오늘 나는 어디 이용?" (deep_logs.bath_gender)
@@ -730,11 +738,11 @@ export const EXPLORE_FILTERS = {
   },
   GENDER: {
     label: '탕 구분',
-    options: ['male-only', 'female-only', 'private-bath', 'mixed-bath'],
+    options: ['male-only', 'female-only', 'mixed'],
   },
 } as const
 
-// 전체 시설 ID → 라벨 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_BATH_TYPE)
+// 전체 시설 ID → 라벨 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_VENUE_TYPE)
 export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
   const map: Record<string, string> = {}
   const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
@@ -743,13 +751,13 @@ export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
       map[opt.id] = opt.label
     }
   }
-  for (const opt of PLACE_BATH_TYPE) {
+  for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.label
   }
   return map
 })()
 
-// 전체 시설 ID → 아이콘 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_BATH_TYPE)
+// 전체 시설 ID → 아이콘 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_VENUE_TYPE)
 export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   const map: Record<string, string> = {}
   const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
@@ -758,7 +766,7 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
       map[opt.id] = opt.icon
     }
   }
-  for (const opt of PLACE_BATH_TYPE) {
+  for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.icon
   }
   return map

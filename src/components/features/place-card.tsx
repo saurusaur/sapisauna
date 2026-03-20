@@ -54,15 +54,15 @@ export default function PlaceCard({
         <>
             <div className="flex items-center gap-2">
                 <span className="font-medium text-sm text-stone-700 truncate">{place.name}</span>
-                {(place.facility_type === 'male-only' || place.facility_type === 'female-only') && (
+                {(place.bath_policy === 'male-only' || place.bath_policy === 'female-only') && (
                     <span
                         className="text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
                         style={{
-                            backgroundColor: place.facility_type === 'male-only' ? '#DBEAFE' : '#FCE7F3',
-                            color: place.facility_type === 'male-only' ? '#3B82F6' : '#EC4899',
+                            backgroundColor: place.bath_policy === 'male-only' ? '#DBEAFE' : '#FCE7F3',
+                            color: place.bath_policy === 'male-only' ? '#3B82F6' : '#EC4899',
                         }}
                     >
-                        {place.facility_type === 'male-only' ? '♂' : '♀'}
+                        {place.bath_policy === 'male-only' ? '♂' : '♀'}
                     </span>
                 )}
                 {place.is_24h && <Badge24h />}
