@@ -300,9 +300,13 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
     if (b.suffix && b.value != null) {
       ctx.fillStyle = 'rgba(255,255,255,0.5)'
       ctx.font = 'bold 48px Oswald'
+      // 96px 숫자 폭 측정은 같은 폰트로 해야 정확
+      ctx.font = 'bold 96px Oswald'
       const valW = ctx.measureText(valTexts[i]).width
+      ctx.font = 'bold 48px Oswald'
       ctx.textAlign = 'left'
-      ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96))
+      // 48px 텍스트를 96px 텍스트 하단에 맞춤 (top 기준이므로 96-48=48 오프셋)
+      ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96) + (96 - 48))
       ctx.textAlign = 'center'
       ctx.fillStyle = 'white'
     }
@@ -393,7 +397,9 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
     const pillH = 38
     const pillW = pillTextW + pillPadX * 2
     const pillX = W - PX - nickW - 16 - pillW
-    const pillY = footerTextY + hl(42) - 30 + (42 - pillH) / 2
+    // pill을 닉네임 42px 텍스트와 수직 중앙 정렬
+    const nickTextTop = footerTextY + hl(42)
+    const pillY = nickTextTop + (42 - pillH) / 2
 
     // pill 배경
     ctx.textAlign = 'left'
