@@ -91,6 +91,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
         { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
         { value: log.repeat || null, label: 'RPT', unit: 'SET' },
+        { value: log.sweat_quality || null, label: 'SWEAT', unit: '/5' },
       ]
     : [
         { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
@@ -209,10 +210,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               )}
               {log.tribe_id === 'jimi' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.JIMI.SWEAT_QUALITY.labelEn}</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.JIMI.REST_QUALITY.labelEn}</span>
                   <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
-                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getStepLabel(QUICK_LOG.JIMI.SWEAT_QUALITY.steps, log.sweat_quality || 3)}</span>
-                    {log.sweat_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
+                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getRestQualityLabel(log.rest_quality || 3)}</span>
+                    {log.rest_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
                   </span>
                 </>
               )}
@@ -241,15 +242,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   </span>
                 </>
               )}
-              {log.tribe_id === 'jimi' && (
-                <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.JIMI.REST_QUALITY.labelEn}</span>
-                  <span className="text-base font-bold font-heading" style={{ color: 'var(--color-accent)' }}>
-                    <span className="font-medium text-xs text-stone-400 mr-1.5">{getRestQualityLabel(log.rest_quality || 3)}</span>
-                    {log.rest_quality || 3}<span className="font-medium text-xs text-stone-400">/5</span>
-                  </span>
-                </>
-              )}
+              {log.tribe_id === 'jimi' && <span />}
             </div>
             {/* 우 col row3 */}
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
@@ -268,7 +261,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
           {/* 루틴 — 숫자 위 + 라벨 아래 (스토리 동일), 단위 없음 */}
           <div className="mt-6 flex justify-center">
-            <div className={`grid ${log.tribe_id === 'jimi' ? 'grid-cols-3' : 'grid-cols-4'} gap-6 w-full max-w-xs`}>
+            <div className="grid grid-cols-4 gap-6 w-full max-w-xs">
               {routineBadges.map((badge) => (
                 <div key={badge.label} className="flex flex-col items-center gap-2">
                   <span
@@ -279,6 +272,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                     }}
                   >
                     {badge.value ?? '-'}
+                    {badge.unit === '/5' && badge.value != null && (
+                      <span className="text-stone-400 font-semibold" style={{ fontSize: '14px' }}>/5</span>
+                    )}
                   </span>
                   <span
                     className="text-[10px] font-bold uppercase tracking-wider leading-none font-heading"
