@@ -59,8 +59,8 @@ export const PLACE_VENUE_TYPE = [
   { id: 'public-bath', label: '대중목욕탕', icon: 'public' },
   { id: 'small-bath', label: '동네목욕탕', icon: 'hot_tub' },
   { id: 'hotel-spa', label: '호텔/프리미엄', icon: 'hotel' },
-  { id: 'private-sauna', label: '개인 사우나', icon: 'person' },
-  { id: 'special', label: '특수(불가마, 효소 등)', icon: 'local_fire_department' },
+  { id: 'private-sauna', label: '개인사우나', icon: 'person' },
+  { id: 'special', label: '특수(불가마, 효소 등)', icon: 'bath_bedrock' },
 ] as const
 
 // 탕 정책 (places.bath_policy)
@@ -754,10 +754,13 @@ export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
     map[opt.id] = opt.label
   }
   map['tattoo-cover'] = '타투 가능(커버)'
+  for (const opt of PLACE_BATH_POLICY) {
+    map[opt.id] = opt.label
+  }
   return map
 })()
 
-// 전체 시설 ID → 아이콘 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_VENUE_TYPE)
+// 전체 시설 ID → 아이콘 통합 매핑 (PLACE_SPECS 모든 섹션 + PLACE_VENUE_TYPE + PLACE_BATH_POLICY)
 export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   const map: Record<string, string> = {}
   const sections = [PLACE_SPECS.HEAT, PLACE_SPECS.ICE, PLACE_SPECS.PAUSE, PLACE_SPECS.BEYOND, PLACE_SPECS.AMENITIES]
@@ -770,6 +773,9 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
     map[opt.id] = opt.icon
   }
   map['tattoo-cover'] = 'brush'
+  for (const opt of PLACE_BATH_POLICY) {
+    map[opt.id] = opt.icon
+  }
   return map
 })()
 
