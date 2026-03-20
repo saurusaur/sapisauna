@@ -120,7 +120,7 @@ export default function AddPlace() {
   // 저장 완료 후 공통 처리
   const navigateToLog = (place: Place) => {
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, bathPolicy: place.bath_policy }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, facilityType: place.facility_type, bathPolicy: place.bath_policy }))
     router.push('/log')
   }
 

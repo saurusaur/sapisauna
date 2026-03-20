@@ -19,10 +19,17 @@ export default function QuickLog() {
   const [placeName, setPlaceName] = useState('장소')
   const [placeId, setPlaceId] = useState<string | null>(null)
   const [placeCountryCode, setPlaceCountryCode] = useState<string | undefined>(undefined)
+  const [facilityType, setFacilityType] = useState<string | null>(null)
   const [bathPolicy, setBathPolicy] = useState<string | null>(null)
 
-  // bath_gender 자동 계산 (bath_policy 기반)
-  const deriveBathGender = (bp: string | null, userGender?: 'male' | 'female'): BathGender | null => {
+  // bath_gender 자동 계산 (facility_type + bath_policy 기반)
+  const deriveBathGender = (ft: string | null, bp: string | null, userGender?: 'male' | 'female'): BathGender | null => {
+    // 개인 사우나는 bath_policy와 관계없이 private
+    if (ft === 'private-sauna') {
+      if (userGender === 'male') return 'private_male'
+      if (userGender === 'female') return 'private_female'
+      return 'private'
+    }
     switch (bp as BathPolicy) {
       case 'male-only': return 'male'
       case 'female-only': return 'female'
@@ -102,6 +109,7 @@ export default function QuickLog() {
       setPlaceName(place.name || '')
       if (place.id) setPlaceId(place.id)
       setPlaceCountryCode(place.countryCode)
+      if (place.facilityType) setFacilityType(place.facilityType)
       if (place.bathPolicy) setBathPolicy(place.bathPolicy)
     } else if (!localStorage.getItem('currentLog')) {
       // 편집 모드(currentLog 있음)가 아닌데 장소도 없으면 → 장소 선택으로
@@ -176,7 +184,7 @@ export default function QuickLog() {
     place_name: placeName,
     place_country_code: placeCountryCode,
     tribe_id: logType,
-    bath_gender: deriveBathGender(bathPolicy, user?.gender ?? undefined),
+    bath_gender: deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined),
     record_date: buildRecordDate(),
     revisit_score: revisit,
     // 루틴 (입력된 경우만 포함)

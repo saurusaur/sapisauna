@@ -231,7 +231,7 @@ export default function PlaceDetailPage() {
       return
     }
     localStorage.removeItem('currentLog')
-    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, bathPolicy: place.bath_policy }))
+    localStorage.setItem('selectedPlace', JSON.stringify({ id: place.id, name: place.name, countryCode: place.country_code, facilityType: place.facility_type, bathPolicy: place.bath_policy }))
     router.push('/log')
   }
 
