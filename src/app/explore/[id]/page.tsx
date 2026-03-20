@@ -109,7 +109,7 @@ export default function PlaceDetailPage() {
   ].filter(m => m.value !== null) as { label: string; value: number }[]
 
   // 2-1. 딥로그 온도 집계 (tribe 필터 없이 전체)
-  const calcDeepAvg = (field: 'wet_sauna_temp' | 'hot_bath_temp' | 'cleanliness') => {
+  const calcDeepAvg = (field: 'wet_sauna_temp' | 'very_hot_bath_temp' | 'cleanliness') => {
     const vals = placeLogs
       .filter(l => l.deep_log?.[field] != null)
       .map(l => l.deep_log![field] as number)
@@ -118,7 +118,7 @@ export default function PlaceDetailPage() {
 
   // 3. 트라이브별 서브 메트릭 (컬럼 표시)
   const wetSaunaAvg = calcDeepAvg('wet_sauna_temp')
-  const deepHotBathAvg = calcDeepAvg('hot_bath_temp')
+  const deepVeryHotBathAvg = calcDeepAvg('very_hot_bath_temp')
 
   const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
     { tribeId: 'saunner', metrics: [
@@ -127,7 +127,7 @@ export default function PlaceDetailPage() {
       ...(calcAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'saunner')}/5` }] : []),
     ]},
     { tribeId: 'bather', metrics: [
-      ...(deepHotBathAvg != null ? [{ label: '열탕', value: `${deepHotBathAvg}°C` }] : []),
+      ...(deepVeryHotBathAvg != null ? [{ label: '열탕', value: `${deepVeryHotBathAvg}°C` }] : []),
       ...(calcAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcAvg('water_quality', 'bather')}/5` }] : []),
       ...(calcAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'bather')}/5` }] : []),
     ]},

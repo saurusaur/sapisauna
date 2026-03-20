@@ -51,9 +51,13 @@ export default function DeepLog() {
   const [hasWetSauna, setHasWetSauna] = useState(false)
   const [wetSaunaTemp, setWetSaunaTemp] = useState(53)
 
-  // 열탕 (사우너파 + 목욕파)
+  // 온탕 (사우너파만 — logs.hot_bath_temp에 저장)
   const [hasHotBath, setHasHotBath] = useState(false)
-  const [hotBathTemp, setHotBathTemp] = useState(42)
+  const [hotBathTemp, setHotBathTemp] = useState(39)
+
+  // 열탕 (사우너파 + 목욕파 — deep_logs.very_hot_bath_temp에 저장)
+  const [hasVeryHotBath, setHasVeryHotBath] = useState(false)
+  const [veryHotBathTemp, setVeryHotBathTemp] = useState(42)
 
   // 세신
   const [hasScrub, setHasScrub] = useState(false)
@@ -101,7 +105,9 @@ export default function DeepLog() {
         if (dl.memo) setMemo(dl.memo)
         if (dl.cleanliness != null) setCleanliness(dl.cleanliness)
         if (dl.has_wet_sauna) { setHasWetSauna(true); setWetSaunaTemp(dl.wet_sauna_temp || 53) }
-        if (dl.has_hot_bath) { setHasHotBath(true); setHotBathTemp(dl.hot_bath_temp || 42) }
+        if (dl.has_very_hot_bath) { setHasVeryHotBath(true); setVeryHotBathTemp(dl.very_hot_bath_temp || 42) }
+        // 온탕 복원: logs.hot_bath_temp에서 가져옴 (parsed는 currentLog 전체)
+        if (parsed.hot_bath_temp && parsed.tribe_id === 'saunner') { setHasHotBath(true); setHotBathTemp(parsed.hot_bath_temp as number) }
         if (dl.has_scrub) { setHasScrub(true); setScrubSatisfaction(dl.scrub_satisfaction || 3) }
         if (dl.has_store) { setHasStore(true); setStoreScore(dl.store_score || 3); setStoreMemo(dl.store_memo || '') }
       }
@@ -138,6 +144,8 @@ export default function DeepLog() {
       wet_sauna_temp: hasWetSauna ? wetSaunaTemp : null,
       has_hot_bath: hasHotBath,
       hot_bath_temp: hasHotBath ? hotBathTemp : null,
+      has_very_hot_bath: hasVeryHotBath,
+      very_hot_bath_temp: hasVeryHotBath ? veryHotBathTemp : null,
       has_scrub: hasScrub,
       scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
       has_store: hasStore,
@@ -378,12 +386,12 @@ export default function DeepLog() {
           </div>
         )}
 
-        {/* 열탕 — 사우너파 + 목욕파 */}
-        {(tribeId === 'saunner' || tribeId === 'bather') && (
+        {/* 온탕 — 사우너파만 (logs.hot_bath_temp에 저장) */}
+        {tribeId === 'saunner' && (
           <div className="glass-card-light px-4 py-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-stone-700">
-                {hasHotBath ? '열탕 온도' : DEEP_LOG.HOT_BATH.label}
+                {hasHotBath ? '온탕 온도' : DEEP_LOG.HOT_BATH.label}
               </label>
               <button
                 onClick={() => setHasHotBath(!hasHotBath)}
@@ -406,6 +414,40 @@ export default function DeepLog() {
                   unit={DEEP_LOG.HOT_BATH.unit}
                   steps={DEEP_LOG.HOT_BATH.steps}
                   onChange={setHotBathTemp}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 열탕 — 사우너파 + 목욕파 */}
+        {(tribeId === 'saunner' || tribeId === 'bather') && (
+          <div className="glass-card-light px-4 py-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-stone-700">
+                {hasVeryHotBath ? '열탕 온도' : DEEP_LOG.VERY_HOT_BATH.label}
+              </label>
+              <button
+                onClick={() => setHasVeryHotBath(!hasVeryHotBath)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  hasVeryHotBath ? 'text-white' : 'glass-chip text-stone-500'
+                }`}
+                style={hasVeryHotBath ? { backgroundColor: 'var(--color-primary)' } : undefined}
+              >
+                {hasVeryHotBath ? '기록 중' : '기록'}
+              </button>
+            </div>
+
+            {hasVeryHotBath && (
+              <div>
+                <Slider
+                  label=""
+                  value={veryHotBathTemp}
+                  min={DEEP_LOG.VERY_HOT_BATH.min}
+                  max={DEEP_LOG.VERY_HOT_BATH.max}
+                  unit={DEEP_LOG.VERY_HOT_BATH.unit}
+                  steps={DEEP_LOG.VERY_HOT_BATH.steps}
+                  onChange={setVeryHotBathTemp}
                 />
               </div>
             )}

@@ -376,10 +376,16 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium text-stone-700">{log.deep_log.wet_sauna_temp}°C</span>
                 </div>
               )}
-              {log.deep_log.has_hot_bath && log.deep_log.hot_bath_temp != null && (
+              {log.hot_bath_temp != null && log.tribe_id === 'saunner' && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">온탕</span>
+                  <span className="text-sm font-medium text-stone-700">{log.hot_bath_temp}°C</span>
+                </div>
+              )}
+              {log.deep_log.has_very_hot_bath && log.deep_log.very_hot_bath_temp != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">열탕</span>
-                  <span className="text-sm font-medium text-stone-700">{log.deep_log.hot_bath_temp}°C</span>
+                  <span className="text-sm font-medium text-stone-700">{log.deep_log.very_hot_bath_temp}°C</span>
                 </div>
               )}
               {log.deep_log.has_scrub && (

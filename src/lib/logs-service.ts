@@ -64,8 +64,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       cleanliness: dl.cleanliness as number | null,
       has_wet_sauna: dl.has_wet_sauna as boolean | undefined,
       wet_sauna_temp: dl.wet_sauna_temp as number | null,
-      has_hot_bath: dl.has_hot_bath as boolean | undefined,
-      hot_bath_temp: dl.hot_bath_temp as number | null,
+      has_very_hot_bath: dl.has_very_hot_bath as boolean | undefined,
+      very_hot_bath_temp: dl.very_hot_bath_temp as number | null,
     } : undefined,
   }
 }
@@ -288,8 +288,8 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     cleanliness: deepData.cleanliness ?? null,
     has_wet_sauna: deepData.has_wet_sauna ?? false,
     wet_sauna_temp: deepData.wet_sauna_temp ?? null,
-    has_hot_bath: deepData.has_hot_bath ?? false,
-    hot_bath_temp: deepData.hot_bath_temp ?? null,
+    has_very_hot_bath: deepData.has_very_hot_bath ?? false,
+    very_hot_bath_temp: deepData.very_hot_bath_temp ?? null,
     updated_at: new Date().toISOString(),
   }
 
@@ -306,9 +306,18 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     if (error) throw error
   }
 
-  // 시설 자동태그: 습식/열탕 토글 ON 시 place.facilities에 태그 추가
+  // 온탕: 딥로그에서 입력받아 logs 테이블에 저장 (사우너파용)
+  if (deepData.has_hot_bath && deepData.hot_bath_temp != null) {
+    await supabase
+      .from('logs')
+      .update({ hot_bath_temp: deepData.hot_bath_temp })
+      .eq('id', logId)
+  }
+
+  // 시설 자동태그: 습식/열탕/온탕 토글 ON 시 place.facilities에 태그 추가
   const autoTags: string[] = []
   if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
+  if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
   if (deepData.has_hot_bath) autoTags.push('hot-bath')
 
   if (autoTags.length > 0) {
