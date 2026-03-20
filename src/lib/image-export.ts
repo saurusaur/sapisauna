@@ -306,7 +306,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
       ctx.font = 'bold 48px Oswald'
       ctx.textAlign = 'left'
       // 48px 텍스트를 96px 텍스트 하단에 맞춤 (top 기준이므로 96-48=48 오프셋)
-      ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96) + (96 - 48))
+      ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96) + (96 - 48) - 1)
       ctx.textAlign = 'center'
       ctx.fillStyle = 'white'
     }
