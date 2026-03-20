@@ -29,10 +29,13 @@ export interface CardRenderParams {
   jjimTemp?: number
   totono_score?: number
   waterQuality?: number
+  sweatQuality?: number
   heatTime?: number | null
   iceTime?: number | null
   pauseTime?: number | null
   repeat?: number | null
+  userNickname?: string
+  userTitle?: string
 }
 
 // ─── 유틸리티 ───
@@ -259,12 +262,19 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   setShadow(ctx, false)
 
   // ── 루틴 뱃지 ──
-  const badges = [
-    { value: p.heatTime, label: 'HEAT' },
-    { value: p.iceTime, label: 'ICE' },
-    { value: p.pauseTime, label: 'PAUSE' },
-    { value: p.repeat, label: 'RPT' },
-  ]
+  const badges = p.tribeId === 'jimi'
+    ? [
+        { value: p.heatTime, label: 'HEAT', suffix: '' },
+        { value: p.pauseTime, label: 'PAUSE', suffix: '' },
+        { value: p.repeat, label: 'RPT', suffix: '' },
+        { value: p.sweatQuality, label: 'SWEAT', suffix: '/5' },
+      ]
+    : [
+        { value: p.heatTime, label: 'HEAT', suffix: '' },
+        { value: p.iceTime, label: 'ICE', suffix: '' },
+        { value: p.pauseTime, label: 'PAUSE', suffix: '' },
+        { value: p.repeat, label: 'RPT', suffix: '' },
+      ]
   const valTexts = badges.map(b => b.value != null ? String(b.value) : '-')
 
   // 각 뱃지 컬럼 너비 측정 → gap: 72px 배치
@@ -283,10 +293,19 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
     ctx.textAlign = 'center'
 
-    // 숫자
+    // 숫자 + suffix (/5)
     ctx.fillStyle = 'white'
     ctx.font = 'bold 96px Oswald'
     ctx.fillText(valTexts[i], cx, badgeY + hl(96))
+    if (b.suffix && b.value != null) {
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'
+      ctx.font = 'bold 48px Oswald'
+      const valW = ctx.measureText(valTexts[i]).width
+      ctx.textAlign = 'left'
+      ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96))
+      ctx.textAlign = 'center'
+      ctx.fillStyle = 'white'
+    }
 
     // 라벨
     ctx.fillStyle = 'rgba(255,255,255,0.7)'
@@ -339,30 +358,61 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
     ctx.drawImage(svgImg, drawX, drawY, drawW, drawH)
   }
 
-  // ── 푸터: 트라이브 dot + 이름 + 워터마크 ──
-  // CSS: flex items-end justify-between, 텍스트 42px
-  // items-end이므로 텍스트 하단이 footerBottom에 정렬
-  // textBaseline='top'이므로 y = footerBottom - 42
-
+  // ── 푸터: 윗줄(tribe dot+이름) / 아랫줄(SA-PI SAUNA 좌 + 칭호pill+닉네임 우) ──
   const footerTextY = footerBottom - footerTextH
+  const upperY = footerTextY - 56
 
-  // dot (30×30, 텍스트와 수직 중앙 정렬)
-  const dotCy = footerTextY + footerTextH / 2
+  // 윗줄: tribe dot + 이름
+  const dotCy = upperY + footerTextH / 2
   ctx.beginPath()
   ctx.arc(PX + 15, dotCy, 15, 0, Math.PI * 2)
   ctx.fillStyle = colors.dot
   ctx.fill()
 
-  // 트라이브 이름
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
   ctx.font = 'bold 42px Oswald'
   setLetterSpacing(ctx, 4.2)
-  ctx.fillText(p.tribeId.toUpperCase(), PX + 15 + 15 + 20, footerTextY + hl(42))
+  ctx.fillText(p.tribeId.toUpperCase(), PX + 15 + 15 + 20, upperY + hl(42))
 
-  // 워터마크 (우측 정렬)
+  // 아랫줄: SA-PI SAUNA (좌)
   ctx.fillStyle = 'rgba(255,255,255,0.4)'
+  ctx.font = 'bold 42px Oswald'
+  ctx.fillText('SA-PI SAUNA', PX, footerTextY + hl(42))
+
+  // 아랫줄: 칭호pill + 닉네임 (우측 정렬)
   ctx.textAlign = 'right'
-  ctx.fillText('JOIN THE SA-PIENS', W - PX, footerTextY + hl(42))
+  const nickname = p.userNickname || 'SA-PIEN'
+  ctx.fillText(nickname, W - PX, footerTextY + hl(42))
+
+  if (p.userTitle) {
+    const nickW = ctx.measureText(nickname).width
+    const pillText = p.userTitle
+    ctx.font = 'bold 30px Oswald'
+    const pillTextW = ctx.measureText(pillText).width
+    const pillPadX = 20
+    const pillH = 38
+    const pillW = pillTextW + pillPadX * 2
+    const pillX = W - PX - nickW - 16 - pillW
+    const pillY = footerTextY + hl(42) - 30 + (42 - pillH) / 2
+
+    // pill 배경
+    ctx.textAlign = 'left'
+    ctx.fillStyle = 'rgba(255,255,255,0.1)'
+    const pillR = pillH / 2
+    ctx.beginPath()
+    ctx.moveTo(pillX + pillR, pillY)
+    ctx.lineTo(pillX + pillW - pillR, pillY)
+    ctx.arc(pillX + pillW - pillR, pillY + pillR, pillR, -Math.PI / 2, Math.PI / 2)
+    ctx.lineTo(pillX + pillR, pillY + pillH)
+    ctx.arc(pillX + pillR, pillY + pillR, pillR, Math.PI / 2, -Math.PI / 2)
+    ctx.closePath()
+    ctx.fill()
+
+    // pill 텍스트
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.fillText(pillText, pillX + pillPadX, pillY + (pillH - 30) / 2 + hl(30))
+  }
+
   ctx.textAlign = 'left'
   setLetterSpacing(ctx, 0)
 

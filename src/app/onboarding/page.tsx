@@ -9,6 +9,7 @@ import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
 import { grantReward } from '@/lib/reward-service'
 import { addAdjectivePrefix } from '@/lib/reward-engine'
+import { IS_BETA, BASE_MILESTONES } from '@/constants/rewards'
 
 // 온보딩 단계: 닉네임 → 성별 → 타입 선택 (3단계)
 type OnboardingStep = 'nickname' | 'gender' | 'type'
@@ -142,8 +143,10 @@ export default function Onboarding() {
         }
       }
 
-      // 웰컴 XP 지급 + "사-피엔스" 칭호
-      const welcomeTitle = addAdjectivePrefix('사-피엔스')
+      // 웰컴 XP 지급 + 칭호 (베타: 고정 / 정식: 랜덤 형용사)
+      const welcomeTitle = IS_BETA
+        ? BASE_MILESTONES.beta_signup.title
+        : addAdjectivePrefix(BASE_MILESTONES.signup.title)
       const reward = await grantReward('welcome')
       setUser({
         ...userData,
@@ -157,7 +160,7 @@ export default function Onboarding() {
         await supabase.from('users').update({ active_title: welcomeTitle }).eq('id', authUser.id)
         // 칭호 직접 삽입 (grantReward 내부에서 못 넣었을 경우 대비)
         await supabase.from('user_titles').upsert(
-          { user_id: authUser.id, title: welcomeTitle, source: 'welcome' },
+          { user_id: authUser.id, title: welcomeTitle, source: IS_BETA ? 'beta' : 'welcome' },
           { onConflict: 'user_id,title' }
         )
       }

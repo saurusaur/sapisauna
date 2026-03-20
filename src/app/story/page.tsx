@@ -144,10 +144,13 @@ export default function Story() {
         jjimTemp: log.jjim_temp,
         totono_score: log.totono_score,
         waterQuality: log.water_quality,
+        sweatQuality: log.sweat_quality,
         heatTime: log.heat_time,
         iceTime: log.ice_time,
         pauseTime: log.pause_time,
         repeat: log.repeat,
+        userNickname: log.user_nickname,
+        userTitle: log.user_title,
       })
       const now = new Date()
       const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`
@@ -390,15 +393,17 @@ export default function Story() {
                 </div>
               </div>
 
-              {/* 하단: 타입 + 워터마크 */}
-              <div className="flex items-end justify-between">
+              {/* 하단: 윗줄(tribe dot+이름) / 아랫줄(SA-PI SAUNA 좌 + 칭호닉네임 우) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {/* 윗줄: tribe dot + 이름 */}
                 <div className="flex items-center" style={{ gap: 20 }}>
                   <div className="rounded-full" style={{ width: 30, height: 30, backgroundColor: colors.dot }} />
                   <span className="text-white/70 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
                     {log.tribe_id.toUpperCase()}
                   </span>
                 </div>
-                <div className="flex flex-col items-end" style={{ gap: 12 }}>
+                {/* 아랫줄: SA-PI SAUNA (좌) + 칭호pill + 닉네임 (우) */}
+                <div className="flex items-center justify-between">
                   <span className="text-white/40 font-bold tracking-wider leading-none font-heading" style={{ fontSize: 42 }}>
                     SA-PI SAUNA
                   </span>
