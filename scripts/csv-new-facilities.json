@@ -1,0 +1,278 @@
+[
+  {
+    "name": "레몬사우나",
+    "mentions": 51,
+    "region": "서울 성수",
+    "notes": "레몬 둥둥 떠다니는 신상 사우나, 냉탕18-20도"
+  },
+  {
+    "name": "힐링엔사우나",
+    "mentions": 43,
+    "region": "서울",
+    "notes": "호텔사우나 스타일, 수질 우수 (채팅 닉네임이기도 함 - 확인 필요)"
+  },
+  {
+    "name": "뜨끈란온천",
+    "mentions": 36,
+    "region": "미확인",
+    "notes": "채팅 닉네임 가능성 높음 - 확인 필요"
+  },
+  {
+    "name": "강변스파랜드",
+    "mentions": 33,
+    "region": "서울 구의",
+    "notes": "사우나 3-4개, 급냉탕 5도, 외기욕 의자 3개"
+  },
+  {
+    "name": "신북온천",
+    "mentions": 22,
+    "region": "강원",
+    "notes": "온천 커뮤니티 관심 높음"
+  },
+  {
+    "name": "계룡스파",
+    "mentions": 20,
+    "region": "대전",
+    "notes": "스파/리조트 시설"
+  },
+  {
+    "name": "홍삼스파",
+    "mentions": 19,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "블루스파",
+    "mentions": 16,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "파라스파",
+    "mentions": 15,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "백제인삼사우나",
+    "mentions": 13,
+    "region": "서울 송파",
+    "notes": "장작 불가마, 역대급 습식사우나"
+  },
+  {
+    "name": "영빈호텔사우나",
+    "mentions": 12,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "선수촌사우나",
+    "mentions": 11,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "행복사우나",
+    "mentions": 10,
+    "region": "미확인",
+    "notes": "채팅 닉네임 가능성"
+  },
+  {
+    "name": "더앤온천",
+    "mentions": 10,
+    "region": "미확인",
+    "notes": "리조트 온천"
+  },
+  {
+    "name": "월문온천",
+    "mentions": 9,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "보리사우나",
+    "mentions": 8,
+    "region": "미확인",
+    "notes": "여성 불한증막 있음"
+  },
+  {
+    "name": "롯데사우나",
+    "mentions": 8,
+    "region": "서울 선릉",
+    "notes": "어린시절 추억의 장소"
+  },
+  {
+    "name": "풍림사우나",
+    "mentions": 8,
+    "region": "서울 마포",
+    "notes": "마포구 최고 테마파크, 히노끼 약탕, 급냉탕"
+  },
+  {
+    "name": "대영온천",
+    "mentions": 8,
+    "region": "부산",
+    "notes": "해수+민물 조합"
+  },
+  {
+    "name": "더앤리조트온천",
+    "mentions": 8,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "덕산온천",
+    "mentions": 8,
+    "region": "충남",
+    "notes": ""
+  },
+  {
+    "name": "솔기온천",
+    "mentions": 8,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "고려사우나",
+    "mentions": 7,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "우이령불가마",
+    "mentions": 7,
+    "region": "서울",
+    "notes": "불가마+쉼 사우나"
+  },
+  {
+    "name": "라성스파",
+    "mentions": 6,
+    "region": "미확인",
+    "notes": "보석사우나 변형"
+  },
+  {
+    "name": "유진사우나",
+    "mentions": 6,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "휘경인삼사우나",
+    "mentions": 6,
+    "region": "서울 휘경",
+    "notes": "인삼 냄새, 세신사 관리 좋음"
+  },
+  {
+    "name": "유천스파",
+    "mentions": 6,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "제일유황온천",
+    "mentions": 6,
+    "region": "미확인",
+    "notes": ""
+  },
+  {
+    "name": "대영해수온천",
+    "mentions": 6,
+    "region": "부산",
+    "notes": "해수온천, 미끌미끌"
+  },
+  {
+    "name": "막걸리사우나",
+    "mentions": 3,
+    "region": "서울",
+    "notes": "동묘 근처 추천"
+  },
+  {
+    "name": "영빈사우나",
+    "mentions": 3,
+    "region": "서울",
+    "notes": "동묘 근처 추천"
+  },
+  {
+    "name": "주신사우나",
+    "mentions": 3,
+    "region": "서울",
+    "notes": "동묘 근처 추천"
+  },
+  {
+    "name": "국제광천수온천",
+    "mentions": 3,
+    "region": "부산 양정",
+    "notes": "부산 유일 약알카리성, 최신시설"
+  },
+  {
+    "name": "광안해수월드",
+    "mentions": 3,
+    "region": "부산 광안리",
+    "notes": "시설 깔끔 물 좋음"
+  },
+  {
+    "name": "메가스파",
+    "mentions": 4,
+    "region": "수원",
+    "notes": "한적, 로울루 가능"
+  },
+  {
+    "name": "위례파크사우나",
+    "mentions": 4,
+    "region": "경기",
+    "notes": ""
+  },
+  {
+    "name": "오색온천",
+    "mentions": 2,
+    "region": "강원 설악",
+    "notes": ""
+  },
+  {
+    "name": "도고온천",
+    "mentions": 4,
+    "region": "충남",
+    "notes": ""
+  },
+  {
+    "name": "가조온천",
+    "mentions": 2,
+    "region": "경남",
+    "notes": ""
+  },
+  {
+    "name": "워커힐사우나",
+    "mentions": 2,
+    "region": "서울 광진",
+    "notes": "호텔 사우나"
+  },
+  {
+    "name": "김녕용암해수사우나",
+    "mentions": 1,
+    "region": "제주",
+    "notes": "제주 해수"
+  },
+  {
+    "name": "미도리노카제",
+    "mentions": 4,
+    "region": "일본 홋카이도",
+    "notes": "일본 명문 온천"
+  },
+  {
+    "name": "오라카이청계산사우나",
+    "mentions": 3,
+    "region": "서울 서초",
+    "notes": "아침 8시 전 입장 권장"
+  },
+  {
+    "name": "대성관",
+    "mentions": 2,
+    "region": "부산 금정구",
+    "notes": "로컬 추천"
+  },
+  {
+    "name": "힐스파",
+    "mentions": 4,
+    "region": "부산",
+    "notes": "오래됐지만 깨끗, 프라이드 유지"
+  }
+]

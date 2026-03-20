@@ -269,6 +269,27 @@ async function createAdminLog(seed: SeedItem, placeId: string): Promise<void> {
   if (deepErr) console.warn(`  ⚠️ deep_logs INSERT 경고 [${seed.name}]: ${deepErr.message}`)
 }
 
+// ─── 수동 확인 완료된 검색 쿼리 오버라이드 ───
+// 자동 매칭이 실패하거나 오매칭되는 시설에 대해 정확한 검색 쿼리를 지정
+const SEARCH_OVERRIDES: Record<string, { query: string; source: 'naver' | 'google'; expectName?: string }> = {
+  // 한국 — Naver 오매칭 방지
+  '관악사우나': { query: '관악24시불가마사우나', source: 'naver', expectName: '관악' },
+  '온양관광호텔 대온천탕': { query: '온양관광호텔', source: 'naver', expectName: '온양관광' },
+  '하남사우나': { query: '하남사우나 용산구', source: 'naver', expectName: '하남사우나' },
+  '더메디스파 신사': { query: '더메디스파 신사', source: 'naver', expectName: '메디스파' },
+  '석정 휴스파': { query: '석정온천 휴스파', source: 'naver', expectName: '석정' },
+  '허심청': { query: '허심청 동래', source: 'naver', expectName: '허심청' },
+  '풍림사우나': { query: '풍림24시불가마사우나 마포', source: 'naver', expectName: '풍림' },
+  '백제인삼사우나': { query: '백제불한증막 인삼사우나 송파', source: 'naver', expectName: '백제' },
+  '골드로즈사우나': { query: '골드로즈사우나 선릉', source: 'naver', expectName: '골드로즈' },
+  '석천24시사우나': { query: '석천24시사우나 의정부', source: 'naver', expectName: '석천' },
+  // 해외 — Google 오매칭 방지
+  'The Sauna': { query: 'The Sauna 長野 野尻湖', source: 'google', expectName: 'The Sauna' },
+  'Shiriuchi Onsen Kokyu no Ma': { query: '知内温泉 呼吸の間', source: 'google', expectName: '知内温泉' },
+  'Anettai Sauna': { query: '亜熱帯 サウナ 沖縄', source: 'google', expectName: '亜熱帯' },
+  'Lauhaniemi sauna': { query: 'Rauhaniemi Folk Spa Tampere', source: 'google', expectName: 'Rauhaniemi' },
+}
+
 // ─── 메인 ───
 async function main() {
   const seedPath = path.resolve(__dirname, 'seed-data-unified.json')
@@ -295,22 +316,38 @@ async function main() {
       // 1. API 검색
       let searchResults: SearchResult[] = []
       const isKorean = seed.source !== 'google'
+      const override = SEARCH_OVERRIDES[seed.name]
 
-      if (isKorean) {
-        // 한국: 이름으로 Naver 검색
-        const query = seed.address
-          ? `${seed.name} ${seed.address.split(' ').slice(0, 2).join(' ')}`
-          : seed.name
-        searchResults = await searchNaver(query)
+      if (override) {
+        // 수동 확인된 쿼리 사용
+        searchResults = override.source === 'naver'
+          ? await searchNaver(override.query)
+          : await searchGoogle(override.query)
+      } else if (isKorean) {
+        // 1차: 이름만으로 Naver 검색
+        searchResults = await searchNaver(seed.name)
 
-        // Naver 실패 시 Google 폴백
-        if (searchResults.length === 0) {
-          searchResults = await searchGoogle(`${seed.name} Korea`)
+        // 2차: 이름+주소 앞 2단어 (지역 힌트)
+        if (!pickBestMatch(seed, searchResults) && seed.address) {
+          const query = `${seed.name} ${seed.address.split(' ').slice(0, 2).join(' ')}`
+          const retry = await searchNaver(query)
+          if (retry.length > 0) searchResults = retry
+        }
+
+        // 3차: Naver 실패 시 Google 폴백
+        if (!pickBestMatch(seed, searchResults)) {
+          const google = await searchGoogle(`${seed.name} ${seed.address || 'Korea'}`)
+          if (google.length > 0) searchResults = google
         }
       } else {
-        // 해외: Google 검색
+        // 해외: name_local(원어명)로 우선 검색, 없으면 영문명
         const localName = seed.name_local ?? seed.name
         searchResults = await searchGoogle(localName)
+
+        // 매칭 안 되면 주소로 재검색
+        if (searchResults.length === 0 && seed.address) {
+          searchResults = await searchGoogle(`${seed.name} ${seed.address}`)
+        }
       }
 
       // 2. 매칭

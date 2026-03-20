@@ -8,8 +8,16 @@
 ## Backlog
 
 <!-- P1 -->
-- [ ] [콘텐츠] 큐레이션 사우나 리스트 시드 데이터 — 사우나슐렝, 탑 사우나, 고독한 사우나 리스트 등 유명 큐레이션 리스트의 장소를 DB에 미리 등록. 초기 유저 탐색 경험 향상용 | priority: P1 | added: 2026-03-10
-- [ ] [기능] 기여 보상 뱃지 시스템 (Phase 1) — 기록·장소등록 기반 개인 달성 뱃지 + 프로필 표시 + 획득 토스트. 랭킹 없이 개인 달성 중심. 상세: `docs/plans/PLAN_reward_system.md`, `docs/plans/reference_reward_system.md` | priority: P1 | added: 2026-03-01
+- [ ] [콘텐츠] 시드 데이터 벌크 등록 — 현재 90곳(seed-data.json). 추가 소스 3개 분석 완료, 별도 검토 후 병합 예정. 상세: `docs/plans/PLAN_seed_data_and_facility_reward.md` | priority: P1 | added: 2026-03-10
+  - **Step 1**: 벌크 시드 스크립트 구현 (`scripts/seed-places.ts`) — 기존 90곳 DB 등록
+  - **Step 2**: 추가 시드 후보 검토 + 병합 (아래 3개 소스, 총 ~180곳 신규)
+    - `scripts/notion-seed-candidates.json` — Notion 상세 리뷰 DB 107곳 (태그·가격·온도 자동매핑 완료)
+    - `scripts/csv-new-facilities.json` — 카톡 채팅 추출 46곳
+    - `docs/research/notion-simple-review-analysis.md` — Notion 간소화 리뷰 31곳
+  - **Step 3**: facilities 태그 반영 — `docs/research/katalk-facility-analysis.md` 체크박스 확인 후 적용
+  - **Step 4**: 시설 기여 보상 시스템 (XP + 칭호)
+  - 분석 문서: `docs/research/notion-review-db-analysis.md` (통합 분석)
+- [x] [기능] 칭호 시스템 — XP/레벨 + 마일스톤/랜덤 칭호(340종) + 프로필 표시 + 설정 관리 UI. 뱃지 플랜을 칭호로 대체 구현 완료 | priority: P1 | added: 2026-03-01 | done: 2026-03-13
 - [ ] [리팩토링] safeParse 패턴 재검토 — 현재 overload(null→any) 방식이 최선인지, CurrentLogData 타입 정의 또는 다른 접근이 더 나은지 평가. 상세: `docs/plans/REVIEW_safeParse_errors.md` | priority: P1 | added: 2026-03-04
 - [ ] [UX] 홈 화면 재설계 — 현재 달력 중심 → 추천/후기 중심으로 전환. 핵심: ①취향+위치 기반 사우나 추천 ②다른 유저 후기 피드. 달력은 자주 안 가는 유저에게 비어 보임. '기록하기' '기록 보기' 큰 CTA 버튼 배치. 달력은 히스토리 탭으로 이동 또는 축소 | priority: P1 | added: 2026-03-13
 <!-- P2 -->
