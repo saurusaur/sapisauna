@@ -28,14 +28,17 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
       onClick={onClick}
       className={`w-full glass-card p-4 text-left relative${onClick ? ' hover:shadow-md transition-all' : ''}`}
     >
-      {/* 트라이브 이모지 — compact 모드에서 우상단 배치 */}
-      {compact && (
-        <span className="absolute top-2.5 right-3 text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
+      {/* 장소명 + 트라이브 이모지 */}
+      {showPlace && (
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-sm font-medium text-stone-700 truncate">{log.place_name}</p>
+          {compact && <span className="text-sm shrink-0 ml-2">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>}
+        </div>
       )}
 
-      {/* 장소명 (showPlace일 때만) */}
-      {showPlace && (
-        <p className="text-sm font-medium text-stone-700 mb-1.5 truncate pr-6">{log.place_name}</p>
+      {/* 트라이브 이모지 — compact + 장소명 없을 때만 우상단 */}
+      {compact && !showPlace && (
+        <span className="absolute top-2.5 right-3 text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
       )}
 
       {/* Row1: 점수 + 숏로그 메트릭 (좌) / 날짜 + 트라이브 이모지 (우, compact 아닐 때) */}
