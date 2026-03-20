@@ -158,9 +158,9 @@ export default function Home() {
           <div>
             <h2 className="text-sm font-semibold text-stone-500 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
             {communityLoading ? (
-              <div className="space-y-2">
+              <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-[80px] glass-card animate-pulse" />
+                  <div key={i} className="min-w-[280px] h-[120px] glass-card animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : communityLogs.length === 0 ? (
@@ -168,14 +168,19 @@ export default function Home() {
                 <p className="text-stone-300 text-xs">{MESSAGES.HOME.COMMUNITY_EMPTY}</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div
+                className="flex gap-3 snap-x snap-mandatory"
+                style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
+              >
                 {communityLogs.map((log) => (
-                  <UserLogCard
-                    key={log.id}
-                    log={log}
-                    showPlace
-                    onClick={() => router.push(`/explore/${log.place_id}`)}
-                  />
+                  <div key={log.id} className="min-w-[280px] snap-start flex-shrink-0">
+                    <UserLogCard
+                      log={log}
+                      showPlace
+                      compact
+                      onClick={() => router.push(`/explore/${log.place_id}`)}
+                    />
+                  </div>
                 ))}
               </div>
             )}
