@@ -151,9 +151,9 @@ export default function Home() {
                 {/* 더 찾아보기 카드 */}
                 <button
                   onClick={() => router.push('/explore')}
-                  className="min-w-[50px] snap-start flex-shrink-0 px-3 flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-opacity"
+                  className="min-w-[70px] snap-start flex-shrink-0 px-3 flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-opacity"
                 >
-                  <span className="text-[11px] text-stone-400 leading-tight text-center">더<br/>보기</span>
+                  <span className="text-[11px] text-stone-400 leading-tight text-center whitespace-nowrap">더 보기</span>
                   <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '16px' }}>chevron_right</span>
                 </button>
               </div>
