@@ -212,6 +212,14 @@ export default function Story() {
 
   const getRoutineBadges = () => {
     if (!log) return []
+    if (log.tribe_id === 'jimi') {
+      return [
+        { value: log.heat_time || null, label: 'HEAT' },
+        { value: log.pause_time || null, label: 'PAUSE' },
+        { value: log.repeat || null, label: 'RPT' },
+        { value: log.sweat_quality || null, label: 'SWEAT' },
+      ]
+    }
     return [
       { value: log.heat_time || null, label: 'HEAT' },
       { value: log.ice_time || null, label: 'ICE' },

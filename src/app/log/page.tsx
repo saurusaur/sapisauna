@@ -600,15 +600,17 @@ export default function QuickLog() {
               unit={QUICK_LOG.COMMON.ROUTINE.HEAT.unit}
               onChange={setHeatTime}
             />
-            <RoutineCounter
-              label={QUICK_LOG.COMMON.ROUTINE.ICE.label}
-              value={iceTime}
-              placeholder={QUICK_LOG.COMMON.ROUTINE.ICE.placeholder}
-              min={QUICK_LOG.COMMON.ROUTINE.ICE.min}
-              max={QUICK_LOG.COMMON.ROUTINE.ICE.max}
-              unit={QUICK_LOG.COMMON.ROUTINE.ICE.unit}
-              onChange={setIceTime}
-            />
+            {logType !== 'jimi' && (
+              <RoutineCounter
+                label={QUICK_LOG.COMMON.ROUTINE.ICE.label}
+                value={iceTime}
+                placeholder={QUICK_LOG.COMMON.ROUTINE.ICE.placeholder}
+                min={QUICK_LOG.COMMON.ROUTINE.ICE.min}
+                max={QUICK_LOG.COMMON.ROUTINE.ICE.max}
+                unit={QUICK_LOG.COMMON.ROUTINE.ICE.unit}
+                onChange={setIceTime}
+              />
+            )}
             <RoutineCounter
               label={QUICK_LOG.COMMON.ROUTINE.PAUSE.label}
               value={pauseTime}

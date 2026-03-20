@@ -86,12 +86,19 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const mainMetricLabel = COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || ''
 
   // 루틴 뱃지 (항상 4개 표시, 미입력은 '-')
-  const routineBadges = [
-    { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
-    { value: log.ice_time || null, label: 'ICE', unit: 'MIN' },
-    { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
-    { value: log.repeat || null, label: 'RPT', unit: 'SET' },
-  ]
+  const routineBadges = log.tribe_id === 'jimi'
+    ? [
+        { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
+        { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
+        { value: log.repeat || null, label: 'RPT', unit: 'SET' },
+        { value: log.sweat_quality || null, label: 'SWEAT', unit: '/5' },
+      ]
+    : [
+        { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
+        { value: log.ice_time || null, label: 'ICE', unit: 'MIN' },
+        { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
+        { value: log.repeat || null, label: 'RPT', unit: 'SET' },
+      ]
 
   return (
     <div className="min-h-dvh bath-tile-bg pb-24">
