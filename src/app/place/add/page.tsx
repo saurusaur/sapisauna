@@ -192,7 +192,7 @@ export default function AddPlace() {
 
       // Stage 3: 신규 생성
       const place = await createNewPlace(buildParams())
-      grantReward('place_created').catch(() => {})
+      grantReward('place_created').catch(() => { })
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
@@ -216,7 +216,7 @@ export default function AddPlace() {
         params.facility_type,
         params.bath_policy as BathPolicy,
       )
-      grantReward('place_merged').catch(() => {})
+      grantReward('place_merged').catch(() => { })
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '병합에 실패했어요')
@@ -232,7 +232,7 @@ export default function AddPlace() {
 
     try {
       const place = await createNewPlace(buildParams())
-      grantReward('place_created').catch(() => {})
+      grantReward('place_created').catch(() => { })
       navigateToLog(place)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '저장에 실패했어요')
@@ -516,7 +516,13 @@ export default function AddPlace() {
                       if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
                         setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
                       } else {
-                        setShowTattooModal(true)
+                        // 일본(JP)만 커버 모달, 그 외는 바로 tattoo-friendly
+                        const cc = selectedPlace?.countryCode || (source === 'naver' ? 'KR' : '')
+                        if (cc === 'JP') {
+                          setShowTattooModal(true)
+                        } else {
+                          setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
+                        }
                       }
                       return
                     }
@@ -551,9 +557,9 @@ export default function AddPlace() {
 
       {showTattooModal && (
         <ConfirmModal
-          message="타투 커버(시트/래시가드)가 필요한가요?"
+          message="타투 커버가 필요한가요?"
           confirmLabel="예, 커버 필요"
-          cancelLabel="아니오, 자유"
+          cancelLabel="아니오"
           onConfirm={() => {
             setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
             setShowTattooModal(false)
@@ -567,7 +573,7 @@ export default function AddPlace() {
 
       {showBackConfirm && (
         <ConfirmModal
-          message="입력한 내용이 저장되지 않습니다. 나가시겠습니까?"
+          message="입력한 내용이 저장되지 않았습니다. 나가시겠습니까?"
           confirmLabel="나가기"
           cancelLabel="계속 입력"
           onConfirm={() => router.back()}

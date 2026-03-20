@@ -17,6 +17,7 @@ export default function EditPlace() {
   const placeId = params.id as string
 
   const [placeName, setPlaceName] = useState('')
+  const [countryCode, setCountryCode] = useState('KR')
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -43,6 +44,7 @@ export default function EditPlace() {
           return
         }
         setPlaceName(place.name)
+        setCountryCode(place.country_code)
         setSelectedFacilities(place.facilities)
         setIs24h(place.is_24h)
         setVenueType(place.facility_type)
@@ -177,7 +179,11 @@ export default function EditPlace() {
                     if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
                       setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
                     } else {
-                      setShowTattooModal(true)
+                      if (countryCode === 'JP') {
+                        setShowTattooModal(true)
+                      } else {
+                        setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
+                      }
                     }
                     return
                   }
@@ -211,9 +217,9 @@ export default function EditPlace() {
 
       {showTattooModal && (
         <ConfirmModal
-          message="타투 커버(시트/래시가드)가 필요한가요?"
+          message="타투 커버가 필요한가요?"
           confirmLabel="예, 커버 필요"
-          cancelLabel="아니오, 자유"
+          cancelLabel="아니오"
           onConfirm={() => {
             setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
             setShowTattooModal(false)
