@@ -168,7 +168,7 @@ export default function Home() {
             {communityLoading ? (
               <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] max-w-[300px] h-[108px] glass-card animate-pulse flex-shrink-0" />
+                  <div key={i} className="min-w-[260px] max-w-[300px] h-[124px] glass-card animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : communityLogs.length === 0 ? (

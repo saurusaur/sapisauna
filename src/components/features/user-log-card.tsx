@@ -27,7 +27,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
     return (
       <Wrapper
         onClick={onClick}
-        className={`w-full glass-card p-3 text-left h-[108px] flex flex-col justify-between overflow-hidden${onClick ? ' hover:shadow-md transition-all' : ''}`}
+        className={`w-full glass-card px-3 py-3.5 text-left h-[124px] flex flex-col justify-between overflow-hidden${onClick ? ' hover:shadow-md transition-all' : ''}`}
       >
         {/* Line 1: 장소명 + 트라이브 이모지 */}
         <div className="flex items-center justify-between">
@@ -55,7 +55,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
         {/* Line 3: 메모 (1줄 고정 — 없으면 빈 칸) */}
         <div className="h-[20px] overflow-hidden">
           {log.deep_log?.memo && (
-            <p className="text-sm text-stone-600 leading-tight truncate max-w-full">{log.deep_log.memo}</p>
+            <p className="text-sm text-stone-600 leading-tight truncate pr-3">{log.deep_log.memo}</p>
           )}
         </div>
 
