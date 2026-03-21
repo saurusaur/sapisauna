@@ -122,7 +122,7 @@ export default function PlaceDetailPage() {
   const calcScoreAvg = (field: keyof typeof userLogs[0], filterTribe?: string) => {
     const logs = filterTribe ? userLogs.filter(l => l.tribe_id === filterTribe) : userLogs
     const vals = logs.filter(l => l[field] != null).map(l => l[field] as number)
-    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
+    return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
   }
 
   // 3. 트라이브별 서브 메트릭 (컬럼 표시)
@@ -184,7 +184,7 @@ export default function PlaceDetailPage() {
   // 청결도: 주관적 → userLogs에서만 집계 (어드민 제외)
   const userCleanlinessVals = userLogs.filter(l => l.deep_log?.cleanliness != null).map(l => l.deep_log!.cleanliness as number)
   const cleanlinessAvg = userCleanlinessVals.length > 0
-    ? Math.round(userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length)
+    ? Math.round((userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length) * 10) / 10
     : null
   // 5-3. 세신 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
   const scrubCostByType = (typeFilter: (types: string[]) => boolean) => {
