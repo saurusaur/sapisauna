@@ -681,7 +681,7 @@ export default function QuickLog() {
       {showBranchModal && (
         <ConfirmModal onCancel={() => setShowBranchModal(false)}>
           <p className="text-sm font-semibold text-stone-700 text-center mb-6 whitespace-pre-line">
-            {editId ? '수정 완료!' : '멋져요! 바로 카드로 만들어볼까요?\n오늘에 대해 더 알려주셔도 좋아요!'}
+            {editId ? '수정 확인! 이대로 저장할까요?\n상세 정보도 수정 가능해요!' : '멋져요! 바로 카드로 만들어볼까요?\n오늘에 대해 더 알려주셔도 좋아요!'}
           </p>
 
           {saveError && (
@@ -708,7 +708,7 @@ export default function QuickLog() {
               ) : (
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>auto_awesome</span>
               )}
-              바로 기록 카드 생성
+              {editId ? '바로 새 기록 카드 생성' : '바로 기록 카드 생성'}
             </button>
           </div>
         </ConfirmModal>
