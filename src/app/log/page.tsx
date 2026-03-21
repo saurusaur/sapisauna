@@ -296,7 +296,7 @@ export default function QuickLog() {
           className="text-xs font-medium transition-colors"
           style={{ color: 'var(--color-primary)' }}
         >
-          기록 취소
+          {editId ? '편집 취소' : '기록 취소'}
         </button>
       </header>
 
@@ -668,8 +668,8 @@ export default function QuickLog() {
       {showBackConfirm && (
         <ConfirmModal
           message={editId
-            ? '편집 내용이 저장되지 않습니다. 나가시겠습니까?'
-            : '입력한 내용이 저장되지 않습니다. 나가시겠습니까?'}
+            ? '편집 내용이 저장되지 않습니다.\n나가시겠습니까?'
+            : '입력한 내용이 저장되지 않습니다.\n나가시겠습니까?'}
           confirmLabel="나가기"
           cancelLabel="계속 입력"
           onConfirm={() => router.back()}
@@ -680,8 +680,8 @@ export default function QuickLog() {
       {/* 분기 모달: 상세 기록 vs 바로 스토리 */}
       {showBranchModal && (
         <ConfirmModal onCancel={() => setShowBranchModal(false)}>
-          <p className="text-sm font-semibold text-stone-700 text-center mb-6">
-            {editId ? '수정 완료!' : '기록 성공!'}
+          <p className="text-sm font-semibold text-stone-700 text-center mb-6 whitespace-pre-line">
+            {editId ? '수정 완료!' : '멋져요! 바로 카드로 만들어볼까요?\n오늘에 대해 더 알려주셔도 좋아요!'}
           </p>
 
           {saveError && (

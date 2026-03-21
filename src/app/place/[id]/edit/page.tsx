@@ -233,7 +233,7 @@ export default function EditPlace() {
 
       {showBackConfirm && (
         <ConfirmModal
-          message="수정한 내용이 저장되지 않습니다. 나가시겠습니까?"
+          message={"수정한 내용이 저장되지 않습니다.\n나가시겠습니까?"}
           confirmLabel="나가기"
           cancelLabel="계속 편집"
           onConfirm={() => router.back()}

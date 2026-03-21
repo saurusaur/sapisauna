@@ -241,7 +241,7 @@ export default function DeepLog() {
           className="text-xs font-medium transition-colors"
           style={{ color: 'var(--color-primary)' }}
         >
-          딥로그 취소
+          {isEditMode ? '편집 취소' : '딥로그 취소'}
         </button>
       </header>
 
@@ -665,8 +665,8 @@ export default function DeepLog() {
       {showCancelConfirm && (
         <ConfirmModal
           message={isEditMode
-            ? '편집 내용을 취소하시겠습니까?'
-            : '입력 내용을 취소하시겠습니까?\n입력한 내용이 저장되지 않습니다.'}
+            ? '편집 내용이 저장되지 않습니다.\n나가시겠습니까?'
+            : '입력한 내용이 저장되지 않습니다.\n나가시겠습니까?'}
           confirmLabel={isEditMode ? '편집 취소' : '입력 취소'}
           cancelLabel="돌아가기"
           onConfirm={handleCancelConfirm}

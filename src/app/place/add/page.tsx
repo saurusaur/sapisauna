@@ -573,7 +573,7 @@ export default function AddPlace() {
 
       {showBackConfirm && (
         <ConfirmModal
-          message="입력한 내용이 저장되지 않았습니다. 나가시겠습니까?"
+          message={"입력한 내용이 저장되지 않습니다.\n나가시겠습니까?"}
           confirmLabel="나가기"
           cancelLabel="계속 입력"
           onConfirm={() => router.back()}

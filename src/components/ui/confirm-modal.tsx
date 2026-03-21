@@ -36,7 +36,7 @@ export default function ConfirmModal({
           children
         ) : (
           <>
-            <p className="text-sm text-stone-700 text-center mb-8 leading-relaxed">{message}</p>
+            <p className="text-sm text-stone-700 text-center mb-8 leading-relaxed whitespace-pre-line">{message}</p>
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
