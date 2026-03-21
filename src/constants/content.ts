@@ -24,6 +24,9 @@
 // ============================================
 // 앱 정보
 // ============================================
+// 어드민 유저 ID (시드 데이터 로그 — 통계에만 사용, UI에서 비가시화)
+export const ADMIN_USER_ID = '23c431c3-9b23-4779-bb27-13472e58090a'
+
 export const APP = {
   NAME: '사-피 | 우리는 사우나 신인류!',
   TAGLINE: '사우나 피플을 위한 기록, 공유, 발견',
@@ -573,7 +576,7 @@ export const MESSAGES = {
     RECOMMEND_MORE: '다음 사우나 찾아보기',
     TODAY_HEADING: '오늘의 기록',
     CTA_BUTTON: '기록하기',
-    COMMUNITY_HEADING: '사-피엔스의 흔적',
+    COMMUNITY_HEADING: '사-피엔스 라이브',
     COMMUNITY_EMPTY: '아직 조용하네요..',
     LOADING: '로딩 중...',
   },

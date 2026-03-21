@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
-  TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG,
+  TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG, ADMIN_USER_ID,
 } from '@/constants/content'
 import { getStepLabel } from '@/lib/utils'
 import UserLogCard from '@/components/features/user-log-card'
@@ -82,8 +82,7 @@ export default function PlaceDetailPage() {
   // 표시할 기록 (기본 3개, 더보기 시 전체)
 
   // ── 어드민 로그 분리: 온도/비용 집계에는 포함, 카드/트라이브 통계에서는 제외 ──
-  const ADMIN_ID = '23c431c3-9b23-4779-bb27-13472e58090a'
-  const userLogs = placeLogs.filter(l => l.user_id !== ADMIN_ID)
+  const userLogs = placeLogs.filter(l => l.user_id !== ADMIN_USER_ID)
 
   // ── placeLogs 기반 통계 계산 (온도/비용: 전체, 트라이브/카드: userLogs) ──
   const totalCount = userLogs.length
@@ -99,24 +98,30 @@ export default function PlaceDetailPage() {
     .filter(t => tribeCounts[t] > 0)
     .map(tribeId => ({ tribeId, count: tribeCounts[tribeId] }))
 
-  // 2. 온도 메트릭 (큰 숫자로 표시, 입력된 것만)
-  const calcAvg = (field: keyof typeof placeLogs[0], filterTribe?: string) => {
-    const logs = filterTribe ? placeLogs.filter(l => l.tribe_id === filterTribe) : placeLogs
-    const vals = logs.filter(l => l[field] != null).map(l => l[field] as number)
+  // 2. 객관적 온도 (placeLogs 전체 — 어드민 포함, tribe 필터 없이)
+  const calcTempAvg = (field: keyof typeof placeLogs[0]) => {
+    const vals = placeLogs.filter(l => l[field] != null).map(l => l[field] as number)
     return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
   }
   const tempMetrics = [
-    { label: '온탕', value: calcAvg('hot_bath_temp', 'bather') },
-    { label: '사우나', value: calcAvg('sauna_temp', 'saunner') },
-    { label: '냉탕', value: calcAvg('cold_bath_temp') },
-    { label: '한증막', value: calcAvg('jjim_temp', 'jimi') },
+    { label: '온탕', value: calcTempAvg('hot_bath_temp') },
+    { label: '사우나', value: calcTempAvg('sauna_temp') },
+    { label: '냉탕', value: calcTempAvg('cold_bath_temp') },
+    { label: '한증막', value: calcTempAvg('jjim_temp') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
 
-  // 2-1. 딥로그 온도 집계 (tribe 필터 없이 전체)
+  // 2-1. 딥로그 온도/청결도 (placeLogs 전체)
   const calcDeepAvg = (field: 'wet_sauna_temp' | 'very_hot_bath_temp' | 'cleanliness') => {
     const vals = placeLogs
       .filter(l => l.deep_log?.[field] != null)
       .map(l => l.deep_log![field] as number)
+    return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
+  }
+
+  // 2-2. 주관적 점수 (userLogs — 어드민 제외)
+  const calcScoreAvg = (field: keyof typeof userLogs[0], filterTribe?: string) => {
+    const logs = filterTribe ? userLogs.filter(l => l.tribe_id === filterTribe) : userLogs
+    const vals = logs.filter(l => l[field] != null).map(l => l[field] as number)
     return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
   }
 
@@ -127,18 +132,18 @@ export default function PlaceDetailPage() {
   const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
     { tribeId: 'saunner', metrics: [
       ...(wetSaunaAvg != null ? [{ label: '습식', value: `${wetSaunaAvg}°C` }] : []),
-      ...(calcAvg('totono_score', 'saunner') != null ? [{ label: '토토노우', value: `${calcAvg('totono_score', 'saunner')}/5` }] : []),
-      ...(calcAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'saunner')}/5` }] : []),
+      ...(calcScoreAvg('totono_score', 'saunner') != null ? [{ label: '토토노우', value: `${calcScoreAvg('totono_score', 'saunner')}/5` }] : []),
+      ...(calcScoreAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'saunner')}/5` }] : []),
     ]},
     { tribeId: 'bather', metrics: [
       ...(deepVeryHotBathAvg != null ? [{ label: '열탕', value: `${deepVeryHotBathAvg}°C` }] : []),
-      ...(calcAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcAvg('water_quality', 'bather')}/5` }] : []),
-      ...(calcAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'bather')}/5` }] : []),
+      ...(calcScoreAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcScoreAvg('water_quality', 'bather')}/5` }] : []),
+      ...(calcScoreAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'bather')}/5` }] : []),
     ]},
     { tribeId: 'jimi', metrics: [
-      ...(calcAvg('sweat_quality', 'jimi') != null ? [{ label: '땀 만족도', value: `${calcAvg('sweat_quality', 'jimi')}/5` }] : []),
-      ...(calcAvg('rest_quality', 'jimi') != null ? [{ label: '휴식', value: `${calcAvg('rest_quality', 'jimi')}/5` }] : []),
-      ...(calcAvg('revisit_score', 'jimi') != null ? [{ label: '재방문', value: `${calcAvg('revisit_score', 'jimi')}/5` }] : []),
+      ...(calcScoreAvg('sweat_quality', 'jimi') != null ? [{ label: '땀 만족도', value: `${calcScoreAvg('sweat_quality', 'jimi')}/5` }] : []),
+      ...(calcScoreAvg('rest_quality', 'jimi') != null ? [{ label: '휴식', value: `${calcScoreAvg('rest_quality', 'jimi')}/5` }] : []),
+      ...(calcScoreAvg('revisit_score', 'jimi') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'jimi')}/5` }] : []),
     ]},
   ].filter(t => t.metrics.length > 0)
 

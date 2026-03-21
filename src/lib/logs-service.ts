@@ -3,6 +3,7 @@
  */
 
 import { supabase } from './supabase'
+import { ADMIN_USER_ID } from '@/constants/content'
 import type { LogWithPlace, BathGender } from '@/types'
 
 // DB 행 → LogWithPlace 변환
@@ -73,11 +74,12 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
 
 const LOG_SELECT = '*, users(nickname, active_title), places!inner(*, place_sources(*)), deep_logs(*)'
 
-// 최근 로그 (전체 공개용 — explore 등)
+// 최근 로그 (전체 공개용 — explore 등, 어드민 제외)
 export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   const { data, error } = await supabase
     .from('logs')
     .select(LOG_SELECT)
+    .neq('user_id', ADMIN_USER_ID)
     .order('record_date', { ascending: false })
     .limit(limit)
 
@@ -85,13 +87,14 @@ export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
   return (data || []).map(toLogWithPlace)
 }
 
-// 커뮤니티 피드 (현재 유저 제외, 최신순)
+// 커뮤니티 피드 (현재 유저 + 어드민 제외, 최신순)
 export async function getCommunityFeed(limit = 10): Promise<LogWithPlace[]> {
   const { data: { user } } = await supabase.auth.getUser()
 
   let query = supabase
     .from('logs')
     .select(LOG_SELECT)
+    .neq('user_id', ADMIN_USER_ID)
     .order('record_date', { ascending: false })
     .limit(limit)
 
