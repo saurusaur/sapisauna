@@ -186,19 +186,44 @@ export default function PlaceDetailPage() {
   const cleanlinessAvg = userCleanlinessVals.length > 0
     ? Math.round((userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length) * 10) / 10
     : null
+  // 5-3. 세신 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
+  const scrubCostByType = (typeFilter: (types: string[]) => boolean) => {
+    const vals = placeLogs
+      .filter(l => l.deep_log?.has_scrub && l.deep_log.scrub_cost != null && typeFilter(l.deep_log.scrub_types || []))
+      .map(l => l.deep_log!.scrub_cost as number)
+    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
+  }
+  const scrubOnlyAvg = scrubCostByType(t => t.includes('scrub') && !t.includes('massage'))
+  const massageOnlyAvg = scrubCostByType(t => t.includes('massage') && !t.includes('scrub'))
+  const scrubMassageAvg = scrubCostByType(t => t.includes('scrub') && t.includes('massage'))
+
   const additionalMetrics: { label: string; value: string }[] = []
+  // 입장료
+  if (avgCost) {
+    const costStr = new Intl.NumberFormat('en', { style: 'currency', currency: avgCost.currency, maximumFractionDigits: 0 }).format(avgCost.amount)
+    additionalMetrics.push({ label: '대인 입장료', value: costStr })
+  }
+  // 청결도
   if (cleanlinessAvg != null) {
     additionalMetrics.push({ label: '청결도', value: `${cleanlinessAvg}/5` })
   }
-  if (scrubSatVals.length > 0) {
-    additionalMetrics.push({ label: '세신', value: `${Math.round(scrubAvg)}/5` })
-  }
+  // 매점
   if (storeAvg !== null) {
     additionalMetrics.push({ label: '매점', value: `${Math.round(storeAvg)}/5` })
   }
-  if (avgCost) {
-    const costStr = new Intl.NumberFormat('en', { style: 'currency', currency: avgCost.currency, maximumFractionDigits: 0 }).format(avgCost.amount)
-    additionalMetrics.push({ label: '비용', value: costStr })
+  // 세신 만족도
+  if (scrubSatVals.length > 0) {
+    additionalMetrics.push({ label: '세신', value: `${Math.round(scrubAvg)}/5` })
+  }
+  // 세신 타입별 가격
+  if (scrubOnlyAvg != null) {
+    additionalMetrics.push({ label: '세신', value: new Intl.NumberFormat('en', { style: 'currency', currency: avgCost?.currency || 'KRW', maximumFractionDigits: 0 }).format(scrubOnlyAvg) })
+  }
+  if (massageOnlyAvg != null) {
+    additionalMetrics.push({ label: '마사지', value: new Intl.NumberFormat('en', { style: 'currency', currency: avgCost?.currency || 'KRW', maximumFractionDigits: 0 }).format(massageOnlyAvg) })
+  }
+  if (scrubMassageAvg != null) {
+    additionalMetrics.push({ label: '마사지세신', value: new Intl.NumberFormat('en', { style: 'currency', currency: avgCost?.currency || 'KRW', maximumFractionDigits: 0 }).format(scrubMassageAvg) })
   }
 
   // 6. 통합 로그 카드 (소팅) — 어드민 로그 제외
