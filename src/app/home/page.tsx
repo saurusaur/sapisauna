@@ -128,7 +128,7 @@ export default function Home() {
             {recsLoading ? (
               <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] h-[100px] glass-card animate-pulse" />
+                  <div key={i} className="min-w-[260px] max-w-[300px] h-[100px] glass-card animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : recommendations.length === 0 ? (
@@ -141,7 +141,7 @@ export default function Home() {
                 style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
               >
                 {recommendations.map((place) => (
-                  <div key={place.id} className="min-w-[260px] snap-start flex-shrink-0">
+                  <div key={place.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
                     <PlaceCard
                       place={place}
                       onClick={() => router.push(`/explore/${place.id}`)}
@@ -168,7 +168,7 @@ export default function Home() {
             {communityLoading ? (
               <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[280px] h-[120px] glass-card animate-pulse flex-shrink-0" />
+                  <div key={i} className="min-w-[260px] max-w-[300px] h-[108px] glass-card animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : communityLogs.length === 0 ? (
@@ -181,7 +181,7 @@ export default function Home() {
                 style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
               >
                 {communityLogs.map((log) => (
-                  <div key={log.id} className="min-w-[280px] snap-start flex-shrink-0">
+                  <div key={log.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
                     <UserLogCard
                       log={log}
                       showPlace
