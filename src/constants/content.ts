@@ -192,10 +192,10 @@ export const QUICK_LOG = {
       min: 1,
       max: 5,
       steps: [
-        { value: 1, label: '절대로 안가요' },
-        { value: 2, label: '대안 없다면 가요' },
-        { value: 3, label: '근처면 갈만 해요' },
-        { value: 4, label: '찾아갈만 해요' },
+        { value: 1, label: '안가요' },
+        { value: 2, label: '대안 없다면' },
+        { value: 3, label: '근처면 가요' },
+        { value: 4, label: '찾아가요' },
         { value: 5, label: '꼭 가야해요!' },
       ],
     },
@@ -465,7 +465,7 @@ export const DEEP_LOG = {
   },
   MEMO: {
     label: '자유 메모',
-    placeholder: '오늘의 경험을 기록해보세요... (예: 노천탕 온도가 평소보다 낮아서 아쉬웠음)',
+    placeholder: '오늘의 경험을 메모해보세요...(특별히 좋았던 점, 아쉬웠던 점이 있었나요?)',
   },
   CROWD: {
     label: '혼잡도',
@@ -725,7 +725,7 @@ export const NAV = {
 // ============================================
 export const EXPLORE = {
   TITLE: '탐색',
-  SEARCH_PLACEHOLDER: '장소명 또는 주소로 검색 (해외 사우나는 영어로!)',
+  SEARCH_PLACEHOLDER: '장소명 또는 주소 검색 (해외 사우나는 영어로!)',
   FILTER_BUTTON: '필터',
   SORT: {
     LABEL: '정렬',
