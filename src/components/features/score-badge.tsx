@@ -13,14 +13,14 @@ export default function ScoreBadge({ score, count, descriptor, showMax = true, c
     return (
         <div className={`flex items-center gap-1 text-xs ${className}`}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '14px' }}>move</span>
-            <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
+            <span className="font-bold" style={{ color: 'var(--color-accent)' }}>
                 {score}{showMax && '/5'}
             </span>
 
             {descriptor && (
                 <>
                     <span className="text-stone-300">·</span>
-                    <span className="font-medium" style={{ color: 'var(--color-accent)' }}>{descriptor}</span>
+                    <span className="font-bold" style={{ color: 'var(--color-accent)' }}>{descriptor}</span>
                 </>
             )}
 
