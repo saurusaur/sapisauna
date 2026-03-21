@@ -164,7 +164,7 @@ export default function PlaceDetailPage() {
 
   // 4. 혼잡도 분포
   const crowdCounts: Record<string, number> = {}
-  for (const log of placeLogs) {
+  for (const log of userLogs) {
     if (log.deep_log?.crowd) crowdCounts[log.deep_log.crowd] = (crowdCounts[log.deep_log.crowd] || 0) + 1
   }
   const crowdLabelMap = Object.fromEntries(DEEP_LOG.CROWD.options.map(o => [o.id, o.label]))
@@ -172,16 +172,20 @@ export default function PlaceDetailPage() {
   const crowdTotal = crowdDistribution.reduce((s, c) => s + c.count, 0)
 
   // 5. 세신 만족도
-  const scrubLogs = placeLogs.filter(l => l.deep_log?.has_scrub)
+  const scrubLogs = userLogs.filter(l => l.deep_log?.has_scrub)
   const scrubSatVals = scrubLogs.filter(l => l.deep_log?.scrub_satisfaction != null).map(l => l.deep_log!.scrub_satisfaction as number)
   const scrubAvg = scrubSatVals.length > 0 ? scrubSatVals.reduce((s, v) => s + v, 0) / scrubSatVals.length : 0
 
   // 5-1. 매점 점수
-  const storeScoreVals = placeLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
+  const storeScoreVals = userLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
   const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
 
   // 5-2. 추가 정보 메트릭 (청결도, 세신, 매점, 이용료 — 있는 것만)
-  const cleanlinessAvg = calcDeepAvg('cleanliness')
+  // 청결도: 주관적 → userLogs에서만 집계 (어드민 제외)
+  const userCleanlinessVals = userLogs.filter(l => l.deep_log?.cleanliness != null).map(l => l.deep_log!.cleanliness as number)
+  const cleanlinessAvg = userCleanlinessVals.length > 0
+    ? Math.round((userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length) * 10) / 10
+    : null
   const additionalMetrics: { label: string; value: string }[] = []
   if (cleanlinessAvg != null) {
     additionalMetrics.push({ label: '청결도', value: `${cleanlinessAvg}/5` })
