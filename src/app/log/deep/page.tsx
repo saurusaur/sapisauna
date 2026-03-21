@@ -534,7 +534,13 @@ export default function DeepLog() {
                   inputMode="numeric"
                   value={scrubCost}
                   onChange={(e) => setScrubCost(formatCostInput(e.target.value))}
-                  placeholder={DEEP_LOG.SCRUB.costPlaceholder}
+                  placeholder={
+                    scrubTypes.includes('scrub') && scrubTypes.includes('massage')
+                      ? '마사지 세신 가격을 입력해주세요'
+                      : scrubTypes.includes('massage')
+                        ? '마사지 가격을 입력해주세요'
+                        : '기본 세신 가격을 입력해주세요'
+                  }
                   className="flex-1 glass-input px-4 py-3 focus:outline-none text-stone-700 text-right text-sm"
                 />
               </div>
