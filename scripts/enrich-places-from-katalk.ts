@@ -50,9 +50,7 @@ async function buildNameMap(): Promise<Record<string, { place_id: string; db_nam
   // 수동 매핑 (미매칭 3건 + 줄임말)
   const MANUAL: Record<string, string> = {
     '더파크스파랜드': '더파크 스파랜드',
-    '상암불꽃': '상암불꽃사우나',
     '웨스틴조선': '웨스틴 조선 서울',
-    '상암불꽃': '상암불꽃사우나',
   }
   for (const [csv, db] of Object.entries(MANUAL)) {
     const seed = seeds.find((s: any) => s.name === db || s.name_alias === db)
