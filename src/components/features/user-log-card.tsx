@@ -55,7 +55,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
         {/* Line 3: 메모 (1줄 고정 — 없으면 빈 칸) */}
         <div className="h-[20px] overflow-hidden">
           {log.deep_log?.memo && (
-            <p className="text-sm text-stone-600 leading-tight truncate pr-3">{log.deep_log.memo}</p>
+            <p className="text-xs text-stone-600 leading-normal truncate pr-3">{log.deep_log.memo}</p>
           )}
         </div>
 
