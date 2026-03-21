@@ -2844,8 +2844,8 @@
     "match_status": "auto"
   },
   {
-    "name": "설해원",
-    "address": "강원 양양군 손양면 동호리 (설해원 리조트)",
+    "name": "설해원 온천사우나",
+    "address": "강원특별자치도 양양군 손양면 공항로 230 설해온천 스파레벨(B1)",
     "facility_type": "hotel-spa",
     "source": "naver",
     "facilities": [
@@ -2863,7 +2863,8 @@
     "memo": "올해의 사우나 2024 선정",
     "bath_policy": "gender-bath",
     "place_id": "1d12baf4-c15f-4220-a8e8-eefdf90b6105",
-    "match_status": "auto"
+    "match_status": "auto",
+    "name_alias": "설해원"
   },
   {
     "name": "호수사우나",
@@ -3824,7 +3825,12 @@
     "memo": "서울 성북 프라이빗 사우나 | 리조트형 프라이빗 사우나",
     "bath_policy": "gender-bath",
     "place_id": "681bc0a1-39ac-41fa-865a-c631c7574a23",
-    "match_status": "manual"
+    "match_status": "manual",
+    "hot_bath_temp": 38,
+    "very_hot_bath_temp": 42,
+    "cold_bath_temp": 19,
+    "sauna_temp": 75,
+    "wet_sauna_temp": 51
   },
   {
     "name": "통도참숯가마",
@@ -4460,7 +4466,12 @@
     "bath_policy": "gender-bath",
     "place_id": "12b5bf28-8624-4962-8646-990451fc23c6",
     "match_status": "auto",
-    "name_alias": "유천스파"
+    "name_alias": "유천스파",
+    "hot_bath_temp": 36,
+    "very_hot_bath_temp": 42,
+    "cold_bath_temp": 22,
+    "sauna_temp": 92,
+    "wet_sauna_temp": 68
   },
   {
     "name": "율암온천",
@@ -4994,8 +5005,8 @@
     "match_status": "auto"
   },
   {
-    "name": "파크로쉬 리조트앤웰니스",
-    "address": "강원도 정선군 북평면 중봉길 9-12",
+    "name": "스파바이록시땅앳파크로쉬",
+    "address": "강원특별자치도 정선군 중봉길 9-12 파크로쉬",
     "region": "강원",
     "facility_type": "hotel-spa",
     "wet_sauna_temp": 46,
@@ -5516,25 +5527,6 @@
     "match_status": "auto"
   },
   {
-    "name": "호텔더디자이너스 서울역점",
-    "facility_type": "public-bath",
-    "cost": "15000",
-    "source": "naver",
-    "facilities": [
-      "hot-bath",
-      "parking",
-      "very-hot-bath",
-      "cold-bath",
-      "dry-sauna",
-      "tattoo-friendly"
-    ],
-    "memo": "먼데이사우나 리뷰",
-    "bath_policy": "male-only",
-    "address": "서울특별시 용산구 한강대로71길 16",
-    "place_id": "cf4506c0-8cc4-474e-ac4f-1db19f9285e9",
-    "match_status": "auto"
-  },
-  {
     "name": "호텔탑스텐 금진온천",
     "address": "강원 강릉시 옥계면 헌화로 455-34",
     "facility_type": "hotel-spa",
@@ -5696,20 +5688,27 @@
     "region": "서울",
     "facility_type": "small-bath",
     "community_mentions": 51,
-    "cold_bath_temp": 18,
+    "cold_bath_temp": 15,
     "cost": "11000",
     "source": "naver",
     "facilities": [
+      "hot-bath",
+      "very-hot-bath",
       "cold-bath",
       "dry-sauna",
-      "indoor-rest",
       "wet-sauna",
+      "indoor-rest",
+      "scrub",
       "tattoo-friendly"
     ],
-    "memo": "먼데이사우나 리뷰 | 레몬 둥둥 떠다니는 신상 사우나, 냉탕 18-20도",
+    "memo": "리뉴얼한 동네 목욕탕의 정석. 온탕에 진짜 레몬이 둥둥. 수질 중상, 관리 깨끗. 건식93도 습식64도. 냉탕 얕음(정강이). 건식 바닥 뜨거움 주의.",
     "bath_policy": "gender-bath",
     "place_id": "ee2b63df-4c0d-478a-85d3-1fca698cc43f",
-    "match_status": "auto"
+    "match_status": "auto",
+    "hot_bath_temp": 40,
+    "very_hot_bath_temp": 43,
+    "sauna_temp": 93,
+    "wet_sauna_temp": 64
   },
   {
     "name": "나무향기 한증막",
