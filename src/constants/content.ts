@@ -489,6 +489,38 @@ export const DEEP_LOG = {
       { value: 5, label: '광이남' },
     ],
   },
+  SAUNA_TEMPS: {
+    label: '사우나 온도',
+    labelEn: 'SAUNA TEMPS',
+    toggleLabel: '기록',
+    toggleLabelActive: '기록 중',
+    DRY: {
+      label: '건식',
+      min: 50,
+      max: 130,
+      unit: '°C',
+      steps: [
+        { value: 50, label: '미온' },
+        { value: 70, label: '따뜻' },
+        { value: 85, label: '적당' },
+        { value: 100, label: '뜨거움' },
+        { value: 130, label: '극한' },
+      ],
+    },
+    WET: {
+      label: '습식',
+      min: 40,
+      max: 70,
+      unit: '°C',
+      steps: [
+        { value: 40, label: '미지근' },
+        { value: 48, label: '따뜻' },
+        { value: 55, label: '뜨끈' },
+        { value: 62, label: '뜨겁' },
+        { value: 70, label: '찜기' },
+      ],
+    },
+  },
   WET_SAUNA: {
     label: '습식 사우나',
     labelEn: 'WET SAUNA',
@@ -507,8 +539,8 @@ export const DEEP_LOG = {
   BATH_TEMPS: {
     label: '탕 온도',
     labelEn: 'BATH TEMPS',
-    toggleLabel: '입력하기',
-    toggleLabelActive: '입력 중',
+    toggleLabel: '기록',
+    toggleLabelActive: '기록 중',
     HOT_BATH: {
       label: '온탕',
       min: 35,

@@ -322,12 +322,16 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   if (deepData.cold_bath_temp != null) {
     logsUpdate.cold_bath_temp = deepData.cold_bath_temp
   }
+  if (deepData.sauna_temp != null) {
+    logsUpdate.sauna_temp = deepData.sauna_temp
+  }
   if (Object.keys(logsUpdate).length > 0) {
     await supabase.from('logs').update(logsUpdate).eq('id', logId)
   }
 
   // 시설 자동태그
   const autoTags: string[] = []
+  if (deepData.sauna_temp != null) autoTags.push('dry-sauna')
   if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
   if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')

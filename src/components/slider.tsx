@@ -50,10 +50,14 @@ export function Slider({
 
   // ── chip variant ──
   if (variant === 'chip') {
+    const isInactive = inactive
     return (
-      <div className={`py-3 ${label ? 'border-b border-stone-100' : ''}`}>
-        {label && <span className="text-sm font-medium text-stone-700">{label}</span>}
-        <div className={`flex items-start gap-3 justify-center ${label ? 'mt-3' : 'mt-1'}`}>
+      <div
+        className={`py-3 ${label ? 'border-b border-stone-100' : ''} ${isInactive ? 'cursor-pointer' : ''}`}
+        onClick={isInactive ? onActivate : undefined}
+      >
+        {label && <span className={`text-sm font-medium text-stone-700 transition-opacity ${isInactive ? 'opacity-40' : ''}`}>{label}</span>}
+        <div className={`flex items-start gap-3 justify-center ${label ? 'mt-3' : 'mt-1'} transition-opacity ${isInactive ? 'opacity-30 pointer-events-none' : ''}`}>
           {steps.map((step) => (
             <button
               key={step.value}
@@ -62,16 +66,16 @@ export function Slider({
             >
               <div
                 className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  value === step.value
+                  !isInactive && value === step.value
                     ? 'text-white shadow-md scale-110'
                     : 'bg-stone-100 text-stone-500'
                 }`}
-                style={value === step.value ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                style={!isInactive && value === step.value ? { backgroundColor: 'var(--color-primary)' } : undefined}
               >
                 {step.value}
               </div>
               <span className={`text-[10px] ${
-                value === step.value ? 'font-semibold text-stone-700' : 'text-stone-400'
+                !isInactive && value === step.value ? 'font-semibold text-stone-700' : 'text-stone-400'
               }`}>
                 {step.label}
               </span>

@@ -48,9 +48,10 @@ export default function DeepLog() {
   const [cleanliness, setCleanliness] = useState<number | null>(null)
   const [cleanlinessActive, setCleanlinessActive] = useState(false)
 
-  // 습식 사우나 (사우너파만)
-  const [hasWetSauna, setHasWetSauna] = useState(false)
-  const [wetSaunaTemp, setWetSaunaTemp] = useState(53)
+  // 사우나 온도 통합 토글 (사우너: 습식만, 목욕파/찜질파: 건식+습식)
+  const [hasSaunaTemps, setHasSaunaTemps] = useState(false)
+  const [drySaunaTemp, setDrySaunaTemp] = useState<number | null>(null)
+  const [wetSaunaTemp, setWetSaunaTemp] = useState<number | null>(null)
 
   // 탕 온도 통합 토글
   const [hasBathTemps, setHasBathTemps] = useState(false)
@@ -107,7 +108,13 @@ export default function DeepLog() {
         if (dl.crowd) setCrowd(dl.crowd)
         if (dl.memo) setMemo(dl.memo)
         if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
-        if (dl.has_wet_sauna) { setHasWetSauna(true); setWetSaunaTemp(dl.wet_sauna_temp || 53) }
+        // 사우나 온도 복원
+        const hasSaunaData = dl.has_wet_sauna || (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner')
+        if (hasSaunaData) {
+          setHasSaunaTemps(true)
+          if (dl.has_wet_sauna) setWetSaunaTemp(dl.wet_sauna_temp as number)
+          if (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner') setDrySaunaTemp(parsed.sauna_temp as number)
+        }
         // 탕 온도 복원
         const hasAnyBathTemp = dl.has_very_hot_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
         if (hasAnyBathTemp) {
@@ -157,8 +164,10 @@ export default function DeepLog() {
       crowd,
       memo,
       cleanliness: cleanlinessActive ? cleanliness : null,
-      has_wet_sauna: hasWetSauna,
-      wet_sauna_temp: hasWetSauna ? wetSaunaTemp : null,
+      has_wet_sauna: hasSaunaTemps && wetSaunaTemp != null,
+      wet_sauna_temp: hasSaunaTemps ? wetSaunaTemp : null,
+      // 건식 사우나 (목욕파/찜질파 딥로그 → logs.sauna_temp에 저장)
+      sauna_temp: hasSaunaTemps ? drySaunaTemp : null,
       // 탕 온도: 토글 ON + 값 있는 것만 저장
       has_hot_bath: hasBathTemps && hotBathTemp != null,
       hot_bath_temp: hasBathTemps ? hotBathTemp : null,
@@ -275,7 +284,10 @@ export default function DeepLog() {
             min={DEEP_LOG.CLEANLINESS.min}
             max={DEEP_LOG.CLEANLINESS.max}
             steps={DEEP_LOG.CLEANLINESS.steps}
-            onChange={(v) => { setCleanliness(v); setCleanlinessActive(true) }}
+            onChange={(v) => {
+              if (cleanlinessActive && cleanliness === v) { setCleanliness(null); setCleanlinessActive(false) }
+              else { setCleanliness(v); setCleanlinessActive(true) }
+            }}
             inactive={!cleanlinessActive}
             onActivate={() => { setCleanlinessActive(true); setCleanliness(3) }}
             variant="chip"
@@ -376,39 +388,58 @@ export default function DeepLog() {
 
         <div className="border-t border-stone-200/60" />
 
-        {/* 습식 사우나 — 사우너파만 */}
-        {tribeId === 'saunner' && (
-          <div className="glass-card-light px-4 py-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-stone-700">
-                {hasWetSauna ? '습식 사우나 온도' : DEEP_LOG.WET_SAUNA.label}
-              </label>
-              <button
-                onClick={() => setHasWetSauna(!hasWetSauna)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  hasWetSauna ? 'text-white' : 'glass-chip text-stone-500'
-                }`}
-                style={hasWetSauna ? { backgroundColor: 'var(--color-primary)' } : undefined}
-              >
-                {hasWetSauna ? '기록 중' : '기록'}
-              </button>
-            </div>
-
-            {hasWetSauna && (
-              <div>
-                <Slider
-                  label=""
-                  value={wetSaunaTemp}
-                  min={DEEP_LOG.WET_SAUNA.min}
-                  max={DEEP_LOG.WET_SAUNA.max}
-                  unit={DEEP_LOG.WET_SAUNA.unit}
-                  steps={DEEP_LOG.WET_SAUNA.steps}
-                  onChange={setWetSaunaTemp}
-                />
-              </div>
-            )}
+        {/* 사우나 온도 — 사우너: 습식만 / 목욕파·찜질파: 건식+습식 */}
+        <div className="glass-card-light px-4 py-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-stone-700">
+              {DEEP_LOG.SAUNA_TEMPS.label}
+            </label>
+            <button
+              onClick={() => setHasSaunaTemps(!hasSaunaTemps)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                hasSaunaTemps ? 'text-white' : 'glass-chip text-stone-500'
+              }`}
+              style={hasSaunaTemps ? { backgroundColor: 'var(--color-primary)' } : undefined}
+            >
+              {hasSaunaTemps ? DEEP_LOG.SAUNA_TEMPS.toggleLabelActive : DEEP_LOG.SAUNA_TEMPS.toggleLabel}
+            </button>
           </div>
-        )}
+
+          {hasSaunaTemps && (
+            <div className="space-y-1 mt-2">
+              {/* 건식 — 사우너파는 퀵로그에서 이미 입력하므로 숨김 */}
+              {tribeId !== 'saunner' && (
+                <Slider
+                  label={DEEP_LOG.SAUNA_TEMPS.DRY.label}
+                  value={drySaunaTemp ?? 85}
+                  min={DEEP_LOG.SAUNA_TEMPS.DRY.min}
+                  max={DEEP_LOG.SAUNA_TEMPS.DRY.max}
+                  unit={DEEP_LOG.SAUNA_TEMPS.DRY.unit}
+                  steps={DEEP_LOG.SAUNA_TEMPS.DRY.steps}
+                  onChange={(v) => setDrySaunaTemp(v)}
+                  inactive={drySaunaTemp == null}
+                  onActivate={() => setDrySaunaTemp(85)}
+                  showReset={drySaunaTemp != null}
+                  onReset={() => setDrySaunaTemp(null)}
+                />
+              )}
+              {/* 습식 — 전원 */}
+              <Slider
+                label={DEEP_LOG.SAUNA_TEMPS.WET.label}
+                value={wetSaunaTemp ?? 53}
+                min={DEEP_LOG.SAUNA_TEMPS.WET.min}
+                max={DEEP_LOG.SAUNA_TEMPS.WET.max}
+                unit={DEEP_LOG.SAUNA_TEMPS.WET.unit}
+                steps={DEEP_LOG.SAUNA_TEMPS.WET.steps}
+                onChange={(v) => setWetSaunaTemp(v)}
+                inactive={wetSaunaTemp == null}
+                onActivate={() => setWetSaunaTemp(53)}
+                showReset={wetSaunaTemp != null}
+                onReset={() => setWetSaunaTemp(null)}
+              />
+            </div>
+          )}
+        </div>
 
         {/* 탕 온도 통합 섹션 */}
         {(() => {
@@ -552,7 +583,10 @@ export default function DeepLog() {
                 min={DEEP_LOG.SCRUB.satisfaction.min}
                 max={DEEP_LOG.SCRUB.satisfaction.max}
                 steps={DEEP_LOG.SCRUB.satisfaction.steps}
-                onChange={(v) => { setScrubSatisfaction(v); setScrubSatisfactionActive(true) }}
+                onChange={(v) => {
+                  if (scrubSatisfactionActive && scrubSatisfaction === v) { setScrubSatisfaction(null); setScrubSatisfactionActive(false) }
+                  else { setScrubSatisfaction(v); setScrubSatisfactionActive(true) }
+                }}
                 variant="chip"
                 inactive={!scrubSatisfactionActive}
                 onActivate={() => { setScrubSatisfactionActive(true); setScrubSatisfaction(3) }}
@@ -586,7 +620,10 @@ export default function DeepLog() {
                 min={PLACE_SPECS.STORE.rating.min}
                 max={PLACE_SPECS.STORE.rating.max}
                 steps={PLACE_SPECS.STORE.rating.steps}
-                onChange={(v) => { setStoreScore(v); setStoreScoreActive(true) }}
+                onChange={(v) => {
+                  if (storeScoreActive && storeScore === v) { setStoreScore(null); setStoreScoreActive(false) }
+                  else { setStoreScore(v); setStoreScoreActive(true) }
+                }}
                 variant="chip"
                 inactive={!storeScoreActive}
                 onActivate={() => { setStoreScoreActive(true); setStoreScore(3) }}
