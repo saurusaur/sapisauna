@@ -332,6 +332,11 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
   if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')
   if (deepData.has_hot_bath) autoTags.push('hot-bath')
+  if (deepData.has_scrub) {
+    const types = (deepData.scrub_types as string[]) || []
+    if (types.includes('scrub')) autoTags.push('scrub')
+    if (types.includes('massage')) autoTags.push('massage')
+  }
 
   if (autoTags.length > 0) {
     // logId로 place_id 조회
