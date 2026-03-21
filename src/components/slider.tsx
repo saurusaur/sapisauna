@@ -56,8 +56,8 @@ export function Slider({
         className={`py-3 ${label ? 'border-b border-stone-100' : ''} ${isInactive ? 'cursor-pointer' : ''}`}
         onClick={isInactive ? onActivate : undefined}
       >
-        {label && <span className={`text-sm font-medium text-stone-700 transition-opacity ${isInactive ? 'opacity-40' : ''}`}>{label}</span>}
-        <div className={`flex items-start gap-3 justify-center ${label ? 'mt-3' : 'mt-1'} transition-opacity ${isInactive ? 'opacity-30 pointer-events-none' : ''}`}>
+        {label && <span className="text-sm font-medium text-stone-700">{label}</span>}
+        <div className={`flex items-start gap-3 justify-center ${label ? 'mt-3' : 'mt-1'} transition-opacity ${isInactive ? 'opacity-50 pointer-events-none' : ''}`}>
           {steps.map((step) => (
             <button
               key={step.value}
@@ -110,7 +110,7 @@ export function Slider({
           {showReset && onReset && (
             <button
               onClick={(e) => { e.stopPropagation(); onReset() }}
-              className="text-stone-300 hover:text-stone-500 transition-colors ml-0.5"
+              className="text-stone-400 hover:text-stone-600 transition-colors ml-0.5"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>close</span>
             </button>
