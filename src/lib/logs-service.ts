@@ -68,6 +68,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       wet_sauna_temp: dl.wet_sauna_temp as number | null,
       has_very_hot_bath: dl.has_very_hot_bath as boolean | undefined,
       very_hot_bath_temp: dl.very_hot_bath_temp as number | null,
+      scrub_types: (dl.scrub_types as string[]) || [],
+      scrub_cost: dl.scrub_cost as number | null,
     } : undefined,
   }
 }
@@ -294,6 +296,8 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     wet_sauna_temp: deepData.wet_sauna_temp ?? null,
     has_very_hot_bath: deepData.has_very_hot_bath ?? false,
     very_hot_bath_temp: deepData.very_hot_bath_temp ?? null,
+    scrub_types: deepData.scrub_types ?? [],
+    scrub_cost: deepData.scrub_cost ?? null,
     updated_at: new Date().toISOString(),
   }
 
@@ -310,18 +314,23 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     if (error) throw error
   }
 
-  // 온탕: 딥로그에서 입력받아 logs 테이블에 저장 (사우너파용)
+  // 탕 온도: 딥로그에서 입력받아 logs 테이블에 저장 (퀵로그 미입력 필드)
+  const logsUpdate: Record<string, unknown> = {}
   if (deepData.has_hot_bath && deepData.hot_bath_temp != null) {
-    await supabase
-      .from('logs')
-      .update({ hot_bath_temp: deepData.hot_bath_temp })
-      .eq('id', logId)
+    logsUpdate.hot_bath_temp = deepData.hot_bath_temp
+  }
+  if (deepData.cold_bath_temp != null) {
+    logsUpdate.cold_bath_temp = deepData.cold_bath_temp
+  }
+  if (Object.keys(logsUpdate).length > 0) {
+    await supabase.from('logs').update(logsUpdate).eq('id', logId)
   }
 
-  // 시설 자동태그: 습식/열탕/온탕 토글 ON 시 place.facilities에 태그 추가
+  // 시설 자동태그
   const autoTags: string[] = []
   if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
+  if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')
   if (deepData.has_hot_bath) autoTags.push('hot-bath')
 
   if (autoTags.length > 0) {

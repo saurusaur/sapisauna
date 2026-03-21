@@ -385,13 +385,29 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 </div>
               )}
               {log.deep_log.has_scrub && (
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-stone-400">세신</span>
-                  <span className="text-sm font-medium text-stone-700">
-                    <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? '이용'}</span>
-                    {log.deep_log.scrub_satisfaction || 0}<span className="text-xs text-stone-400">/5</span>
-                  </span>
-                </div>
+                <>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-stone-400">
+                      {log.deep_log.scrub_types?.length
+                        ? log.deep_log.scrub_types.map(t => t === 'scrub' ? '세신' : '마사지').join(' + ')
+                        : '세신'}
+                    </span>
+                    {log.deep_log.scrub_cost != null && (
+                      <span className="text-sm font-medium text-stone-700">
+                        {log.deep_log.currency || 'KRW'} {log.deep_log.scrub_cost.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  {log.deep_log.scrub_satisfaction != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-stone-400">만족도</span>
+                      <span className="text-sm font-medium text-stone-700">
+                        <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? ''}</span>
+                        {log.deep_log.scrub_satisfaction}<span className="text-xs text-stone-400">/5</span>
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
               {log.deep_log.has_store && (
                 <>

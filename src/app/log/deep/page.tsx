@@ -44,28 +44,31 @@ export default function DeepLog() {
     return { pinned, rest }
   }, [])
 
-  // 청결도
-  const [cleanliness, setCleanliness] = useState(3)
+  // 청결도 (기본 미선택)
+  const [cleanliness, setCleanliness] = useState<number | null>(null)
+  const [cleanlinessActive, setCleanlinessActive] = useState(false)
 
   // 습식 사우나 (사우너파만)
   const [hasWetSauna, setHasWetSauna] = useState(false)
   const [wetSaunaTemp, setWetSaunaTemp] = useState(53)
 
-  // 온탕 (사우너파만 — logs.hot_bath_temp에 저장)
-  const [hasHotBath, setHasHotBath] = useState(false)
-  const [hotBathTemp, setHotBathTemp] = useState(39)
+  // 탕 온도 통합 토글
+  const [hasBathTemps, setHasBathTemps] = useState(false)
+  const [hotBathTemp, setHotBathTemp] = useState<number | null>(null)
+  const [veryHotBathTemp, setVeryHotBathTemp] = useState<number | null>(null)
+  const [coldBathTemp, setColdBathTemp] = useState<number | null>(null)
 
-  // 열탕 (사우너파 + 목욕파 — deep_logs.very_hot_bath_temp에 저장)
-  const [hasVeryHotBath, setHasVeryHotBath] = useState(false)
-  const [veryHotBathTemp, setVeryHotBathTemp] = useState(42)
-
-  // 세신
+  // 세신/마사지
   const [hasScrub, setHasScrub] = useState(false)
-  const [scrubSatisfaction, setScrubSatisfaction] = useState(3)
+  const [scrubTypes, setScrubTypes] = useState<string[]>([])
+  const [scrubCost, setScrubCost] = useState('')
+  const [scrubSatisfaction, setScrubSatisfaction] = useState<number | null>(null)
+  const [scrubSatisfactionActive, setScrubSatisfactionActive] = useState(false)
 
   // 매점
   const [hasStore, setHasStore] = useState(false)
-  const [storeScore, setStoreScore] = useState(3)
+  const [storeScore, setStoreScore] = useState<number | null>(null)
+  const [storeScoreActive, setStoreScoreActive] = useState(false)
   const [storeMemo, setStoreMemo] = useState('')
 
   // tribe 조건부 표시용
@@ -103,13 +106,27 @@ export default function DeepLog() {
         if (dl.currency) setCurrency(dl.currency)
         if (dl.crowd) setCrowd(dl.crowd)
         if (dl.memo) setMemo(dl.memo)
-        if (dl.cleanliness != null) setCleanliness(dl.cleanliness)
+        if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
         if (dl.has_wet_sauna) { setHasWetSauna(true); setWetSaunaTemp(dl.wet_sauna_temp || 53) }
-        if (dl.has_very_hot_bath) { setHasVeryHotBath(true); setVeryHotBathTemp(dl.very_hot_bath_temp || 42) }
-        // 온탕 복원: logs.hot_bath_temp에서 가져옴 (parsed는 currentLog 전체)
-        if (parsed.hot_bath_temp && parsed.tribe_id === 'saunner') { setHasHotBath(true); setHotBathTemp(parsed.hot_bath_temp as number) }
-        if (dl.has_scrub) { setHasScrub(true); setScrubSatisfaction(dl.scrub_satisfaction || 3) }
-        if (dl.has_store) { setHasStore(true); setStoreScore(dl.store_score || 3); setStoreMemo(dl.store_memo || '') }
+        // 탕 온도 복원
+        const hasAnyBathTemp = dl.has_very_hot_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
+        if (hasAnyBathTemp) {
+          setHasBathTemps(true)
+          if (dl.has_very_hot_bath) setVeryHotBathTemp(dl.very_hot_bath_temp as number)
+          if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp as number)
+          if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp as number)
+        }
+        if (dl.has_scrub) {
+          setHasScrub(true)
+          if (dl.scrub_types?.length) setScrubTypes(dl.scrub_types)
+          if (dl.scrub_cost) setScrubCost(dl.scrub_cost.toLocaleString())
+          if (dl.scrub_satisfaction != null) { setScrubSatisfaction(dl.scrub_satisfaction); setScrubSatisfactionActive(true) }
+        }
+        if (dl.has_store) {
+          setHasStore(true)
+          if (dl.store_score != null) { setStoreScore(dl.store_score); setStoreScoreActive(true) }
+          setStoreMemo(dl.store_memo || '')
+        }
       }
     }
 
@@ -139,17 +156,22 @@ export default function DeepLog() {
       currency,
       crowd,
       memo,
-      cleanliness,
+      cleanliness: cleanlinessActive ? cleanliness : null,
       has_wet_sauna: hasWetSauna,
       wet_sauna_temp: hasWetSauna ? wetSaunaTemp : null,
-      has_hot_bath: hasHotBath,
-      hot_bath_temp: hasHotBath ? hotBathTemp : null,
-      has_very_hot_bath: hasVeryHotBath,
-      very_hot_bath_temp: hasVeryHotBath ? veryHotBathTemp : null,
+      // 탕 온도: 토글 ON + 값 있는 것만 저장
+      has_hot_bath: hasBathTemps && hotBathTemp != null,
+      hot_bath_temp: hasBathTemps ? hotBathTemp : null,
+      has_very_hot_bath: hasBathTemps && veryHotBathTemp != null,
+      very_hot_bath_temp: hasBathTemps ? veryHotBathTemp : null,
+      // 냉탕: logs 테이블에 저장 (saveOrUpdateDeepLog에서 처리)
+      cold_bath_temp: hasBathTemps ? coldBathTemp : null,
       has_scrub: hasScrub,
-      scrub_satisfaction: hasScrub ? scrubSatisfaction : null,
+      scrub_types: hasScrub ? scrubTypes : [],
+      scrub_cost: hasScrub && scrubCost ? parseInt(scrubCost.replace(/,/g, '')) : null,
+      scrub_satisfaction: hasScrub && scrubSatisfactionActive ? scrubSatisfaction : null,
       has_store: hasStore,
-      store_score: hasStore ? storeScore : null,
+      store_score: hasStore && storeScoreActive ? storeScore : null,
       store_memo: hasStore ? storeMemo : null,
     }
 
@@ -245,15 +267,17 @@ export default function DeepLog() {
           />
         </div>
 
-        {/* 청결도 */}
+        {/* 청결도 — 기본 미선택 */}
         <div>
           <Slider
             label={DEEP_LOG.CLEANLINESS.label}
-            value={cleanliness}
+            value={cleanliness ?? 3}
             min={DEEP_LOG.CLEANLINESS.min}
             max={DEEP_LOG.CLEANLINESS.max}
             steps={DEEP_LOG.CLEANLINESS.steps}
-            onChange={setCleanliness}
+            onChange={(v) => { setCleanliness(v); setCleanlinessActive(true) }}
+            inactive={!cleanlinessActive}
+            onActivate={() => { setCleanlinessActive(true); setCleanliness(3) }}
             variant="chip"
           />
         </div>
@@ -386,79 +410,90 @@ export default function DeepLog() {
           </div>
         )}
 
-        {/* 온탕 — 사우너파만 (logs.hot_bath_temp에 저장) */}
-        {tribeId === 'saunner' && (
-          <div className="glass-card-light px-4 py-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-stone-700">
-                {hasHotBath ? '온탕 온도' : DEEP_LOG.HOT_BATH.label}
-              </label>
-              <button
-                onClick={() => setHasHotBath(!hasHotBath)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  hasHotBath ? 'text-white' : 'glass-chip text-stone-500'
-                }`}
-                style={hasHotBath ? { backgroundColor: 'var(--color-primary)' } : undefined}
-              >
-                {hasHotBath ? '기록 중' : '기록'}
-              </button>
-            </div>
-
-            {hasHotBath && (
-              <div>
-                <Slider
-                  label=""
-                  value={hotBathTemp}
-                  min={DEEP_LOG.HOT_BATH.min}
-                  max={DEEP_LOG.HOT_BATH.max}
-                  unit={DEEP_LOG.HOT_BATH.unit}
-                  steps={DEEP_LOG.HOT_BATH.steps}
-                  onChange={setHotBathTemp}
-                />
+        {/* 탕 온도 통합 섹션 */}
+        {(() => {
+          const quickHasCold = tribeId === 'saunner' || tribeId === 'bather'
+          const quickHasHot = tribeId === 'bather'
+          const showHot = !quickHasHot
+          const showVeryHot = true
+          const showCold = !quickHasCold
+          // 표시할 슬라이더가 있을 때만 섹션 표시
+          if (!showHot && !showVeryHot && !showCold) return null
+          return (
+            <div className="glass-card-light px-4 py-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-stone-700">
+                  {DEEP_LOG.BATH_TEMPS.label}
+                </label>
+                <button
+                  onClick={() => setHasBathTemps(!hasBathTemps)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    hasBathTemps ? 'text-white' : 'glass-chip text-stone-500'
+                  }`}
+                  style={hasBathTemps ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                >
+                  {hasBathTemps ? DEEP_LOG.BATH_TEMPS.toggleLabelActive : DEEP_LOG.BATH_TEMPS.toggleLabel}
+                </button>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* 열탕 — 사우너파 + 목욕파 */}
-        {(tribeId === 'saunner' || tribeId === 'bather') && (
-          <div className="glass-card-light px-4 py-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-stone-700">
-                {hasVeryHotBath ? '열탕 온도' : DEEP_LOG.VERY_HOT_BATH.label}
-              </label>
-              <button
-                onClick={() => setHasVeryHotBath(!hasVeryHotBath)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  hasVeryHotBath ? 'text-white' : 'glass-chip text-stone-500'
-                }`}
-                style={hasVeryHotBath ? { backgroundColor: 'var(--color-primary)' } : undefined}
-              >
-                {hasVeryHotBath ? '기록 중' : '기록'}
-              </button>
+              {hasBathTemps && (
+                <div className="space-y-1 mt-2">
+                  {showHot && (
+                    <Slider
+                      label={DEEP_LOG.BATH_TEMPS.HOT_BATH.label}
+                      value={hotBathTemp ?? 39}
+                      min={DEEP_LOG.BATH_TEMPS.HOT_BATH.min}
+                      max={DEEP_LOG.BATH_TEMPS.HOT_BATH.max}
+                      unit={DEEP_LOG.BATH_TEMPS.HOT_BATH.unit}
+                      steps={DEEP_LOG.BATH_TEMPS.HOT_BATH.steps}
+                      onChange={(v) => setHotBathTemp(v)}
+                      inactive={hotBathTemp == null}
+                      onActivate={() => setHotBathTemp(39)}
+                      showReset={hotBathTemp != null}
+                      onReset={() => setHotBathTemp(null)}
+                    />
+                  )}
+                  {showVeryHot && (
+                    <Slider
+                      label={DEEP_LOG.BATH_TEMPS.VERY_HOT_BATH.label}
+                      value={veryHotBathTemp ?? 42}
+                      min={DEEP_LOG.BATH_TEMPS.VERY_HOT_BATH.min}
+                      max={DEEP_LOG.BATH_TEMPS.VERY_HOT_BATH.max}
+                      unit={DEEP_LOG.BATH_TEMPS.VERY_HOT_BATH.unit}
+                      steps={DEEP_LOG.BATH_TEMPS.VERY_HOT_BATH.steps}
+                      onChange={(v) => setVeryHotBathTemp(v)}
+                      inactive={veryHotBathTemp == null}
+                      onActivate={() => setVeryHotBathTemp(42)}
+                      showReset={veryHotBathTemp != null}
+                      onReset={() => setVeryHotBathTemp(null)}
+                    />
+                  )}
+                  {showCold && (
+                    <Slider
+                      label={DEEP_LOG.BATH_TEMPS.COLD_BATH.label}
+                      value={coldBathTemp ?? 15}
+                      min={DEEP_LOG.BATH_TEMPS.COLD_BATH.min}
+                      max={DEEP_LOG.BATH_TEMPS.COLD_BATH.max}
+                      unit={DEEP_LOG.BATH_TEMPS.COLD_BATH.unit}
+                      steps={DEEP_LOG.BATH_TEMPS.COLD_BATH.steps}
+                      onChange={(v) => setColdBathTemp(v)}
+                      inactive={coldBathTemp == null}
+                      onActivate={() => setColdBathTemp(15)}
+                      showReset={coldBathTemp != null}
+                      onReset={() => setColdBathTemp(null)}
+                    />
+                  )}
+                </div>
+              )}
             </div>
+          )
+        })()}
 
-            {hasVeryHotBath && (
-              <div>
-                <Slider
-                  label=""
-                  value={veryHotBathTemp}
-                  min={DEEP_LOG.VERY_HOT_BATH.min}
-                  max={DEEP_LOG.VERY_HOT_BATH.max}
-                  unit={DEEP_LOG.VERY_HOT_BATH.unit}
-                  steps={DEEP_LOG.VERY_HOT_BATH.steps}
-                  onChange={setVeryHotBathTemp}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 세신 — 토글 시 라벨 변경 + 만족도 칩 인라인 */}
+        {/* 세신/마사지 */}
         <div className="glass-card-light px-4 py-4">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-stone-700">
-              {hasScrub ? '세신 만족도' : DEEP_LOG.SCRUB.label}
+              {DEEP_LOG.SCRUB.label}
             </label>
             <button
               onClick={() => setHasScrub(!hasScrub)}
@@ -467,20 +502,54 @@ export default function DeepLog() {
               }`}
               style={hasScrub ? { backgroundColor: 'var(--color-primary)' } : undefined}
             >
-              {hasScrub ? '이용 함' : '이용'}
+              {hasScrub ? DEEP_LOG.SCRUB.toggleLabelActive : DEEP_LOG.SCRUB.toggleLabel}
             </button>
           </div>
 
           {hasScrub && (
-            <div>
+            <div className="space-y-3 mt-2">
+              {/* 종류 칩 */}
+              <div className="flex gap-1.5">
+                {DEEP_LOG.SCRUB.types.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setScrubTypes(prev =>
+                      prev.includes(t.id) ? prev.filter(x => x !== t.id) : [...prev, t.id]
+                    )}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      scrubTypes.includes(t.id) ? 'text-white' : 'glass-chip text-stone-500'
+                    }`}
+                    style={scrubTypes.includes(t.id) ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 가격 — 입장료 통화 자동 적용 */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-stone-400 shrink-0">{currency}</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={scrubCost}
+                  onChange={(e) => setScrubCost(formatCostInput(e.target.value))}
+                  placeholder={DEEP_LOG.SCRUB.costPlaceholder}
+                  className="flex-1 glass-input px-4 py-3 focus:outline-none text-stone-700 text-right text-sm"
+                />
+              </div>
+
+              {/* 만족도 — 기본 미선택 */}
               <Slider
-                label=""
-                value={scrubSatisfaction}
+                label={DEEP_LOG.SCRUB.satisfaction.label}
+                value={scrubSatisfaction ?? 3}
                 min={DEEP_LOG.SCRUB.satisfaction.min}
                 max={DEEP_LOG.SCRUB.satisfaction.max}
                 steps={DEEP_LOG.SCRUB.satisfaction.steps}
-                onChange={setScrubSatisfaction}
+                onChange={(v) => { setScrubSatisfaction(v); setScrubSatisfactionActive(true) }}
                 variant="chip"
+                inactive={!scrubSatisfactionActive}
+                onActivate={() => { setScrubSatisfactionActive(true); setScrubSatisfaction(3) }}
               />
             </div>
           )}
@@ -507,12 +576,14 @@ export default function DeepLog() {
             <div className="space-y-3">
               <Slider
                 label=""
-                value={storeScore}
+                value={storeScore ?? 3}
                 min={PLACE_SPECS.STORE.rating.min}
                 max={PLACE_SPECS.STORE.rating.max}
                 steps={PLACE_SPECS.STORE.rating.steps}
-                onChange={setStoreScore}
+                onChange={(v) => { setStoreScore(v); setStoreScoreActive(true) }}
                 variant="chip"
+                inactive={!storeScoreActive}
+                onActivate={() => { setStoreScoreActive(true); setStoreScore(3) }}
               />
               <input
                 type="text"
