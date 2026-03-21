@@ -368,13 +368,13 @@ export default function PlaceDetailPage() {
         )}
 
         {/* D. 통계 섹션 — 사-피엔스의 흔적 */}
-        {totalCount > 0 && (
+        {placeLogs.length > 0 && (
           <div>
             {/* 헤더 + 트라이브 바 한줄 */}
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-stone-500">사-피 리포트</h3>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-stone-400">{totalCount}건</span>
+                {totalCount > 0 && <span className="text-xs text-stone-400">{totalCount}건</span>}
                 {tribeDistribution.map(({ tribeId, count }) => (
                   <span key={tribeId} className="flex items-center gap-0.5 text-xs">
                     <span>{TRIBE_EMOJI_MAP[tribeId]}</span>
