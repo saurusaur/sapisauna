@@ -355,8 +355,8 @@ export default function PlaceDetailPage() {
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                   style={{
-                    backgroundColor: place.bath_policy === 'male-only' ? '#DBEAFE' : '#FCE7F3',
-                    color: place.bath_policy === 'male-only' ? '#3B82F6' : '#EC4899',
+                    backgroundColor: place.bath_policy === 'male-only' ? 'var(--color-male-light)' : 'var(--color-female-light)',
+                    color: place.bath_policy === 'male-only' ? 'var(--color-male)' : 'var(--color-female)',
                   }}
                 >
                   {place.bath_policy === 'male-only' ? '♂' : '♀'}

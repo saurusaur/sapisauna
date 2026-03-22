@@ -440,7 +440,7 @@ export default function Story() {
               className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >
               <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
                 style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>download</span>
@@ -461,7 +461,7 @@ export default function Story() {
               className="flex flex-col items-center gap-1.5 disabled:opacity-50"
             >
               <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
                 style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>share</span>
@@ -478,7 +478,7 @@ export default function Story() {
             className="flex flex-col items-center gap-1.5"
           >
             <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+              className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
               style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>description</span>

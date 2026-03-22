@@ -3,6 +3,7 @@ import { getFacilityLabel } from '@/lib/utils'
 import type { Place } from '@/types'
 import { usePlaceStats } from '@/hooks/use-places'
 import Chip from '@/components/ui/chip'
+import ScoreBadge from '@/components/features/score-badge'
 
 /**
  * Badge24h — 24시 영업 배지 (PlaceCard 내부 + 외부 export)
@@ -58,8 +59,8 @@ export default function PlaceCard({
                     <span
                         className="text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
                         style={{
-                            backgroundColor: place.bath_policy === 'male-only' ? '#DBEAFE' : '#FCE7F3',
-                            color: place.bath_policy === 'male-only' ? '#3B82F6' : '#EC4899',
+                            backgroundColor: place.bath_policy === 'male-only' ? 'var(--color-male-light)' : 'var(--color-female-light)',
+                            color: place.bath_policy === 'male-only' ? 'var(--color-male)' : 'var(--color-female)',
                         }}
                     >
                         {place.bath_policy === 'male-only' ? '♂' : '♀'}
@@ -101,14 +102,7 @@ export default function PlaceCard({
 
     // 공통: 평점
     const scoreDisplay = stats.count > 0 && (
-        <div className="flex items-center gap-1 text-xs">
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '14px' }}>move</span>
-            <span className="font-bold" style={{ color: 'var(--color-accent)' }}>
-                {stats.avg}/5
-            </span>
-            <span className="text-stone-300">·</span>
-            <span className="text-stone-500">{stats.count}건의 기록</span>
-        </div>
+        <ScoreBadge score={stats.avg} count={stats.count} />
     )
 
     if (variant === 'minimal') {

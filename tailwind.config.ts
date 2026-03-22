@@ -24,12 +24,11 @@ const config: Config = {
         primary: 'var(--color-primary)',
         'primary-light': 'var(--color-primary-light)',
         accent: 'var(--color-accent)',
-        'accent-light': 'var(--color-accent-light)',
         // 비활성 아이콘
         'icon-inactive': 'var(--color-icon-inactive)',
         // 타입별 컬러
         bather: 'var(--color-bather)',
-        sauner: 'var(--color-sauner)',
+        saunner: 'var(--color-saunner)',
         jimi: 'var(--color-jimi)',
         // UI 컬러
         card: 'var(--color-card)',

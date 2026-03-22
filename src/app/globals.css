@@ -20,13 +20,17 @@
 
   /* Accent (밝은 레드) */
   --color-accent: #d44040;
-  --color-accent-light: #fde8e8;
-
 
   /* 타입별 포인트 컬러 (유지 — 페이지별 확인 후 조정) */
   --color-bather: #3B82F6;    /* 목욕파 = 파랑 */
   --color-saunner: #F97316;   /* 사우너파 = 오렌지 */
   --color-jimi: #22C55E;      /* 찜질파 = 초록 */
+
+  /* 성별 배지 컬러 */
+  --color-male: #1D4ED8;        /* 짙은 남색 (bather 블루와 구분) */
+  --color-male-light: #DBEAFE;
+  --color-female: #EC4899;      /* 핑크 */
+  --color-female-light: #FCE7F3;
 
   /* 스토리 카드 배경 컬러 */
   --story-bg-saunner: #c25c4a;
@@ -85,17 +89,8 @@ body {
 /* ============================================
  * 글래스모픽 유틸리티 클래스
  * ============================================ */
+.glass-card-light,
 .glass-card {
-  background: hsl(var(--glass));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 0.5px solid hsl(var(--glass-border));
-  box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08),
-              0 0 0 .5px hsl(0 0% 100% / .3);
-  border-radius: var(--radius);
-}
-
-.glass-card-light {
   background: hsl(var(--glass));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -136,10 +131,11 @@ body {
   pointer-events: auto;
 }
 .btn-primary:hover:not(:disabled) {
-  filter: brightness(1.15);
+  filter: brightness(1.08);
 }
 .btn-primary:active:not(:disabled) {
-  filter: brightness(1.25);
+  transform: scale(0.96);
+  filter: brightness(0.9);
 }
 .btn-primary:disabled {
   background-color: #d6d3d1;
