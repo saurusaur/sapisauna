@@ -677,7 +677,7 @@ export const ICONS = {
   HISTORY: 'history',
   SETTINGS: 'settings',
   EXPLORE: 'explore',
-  MY: 'person',
+  MY: 'manage_accounts',
   FAVORITE: 'bookmark_heart',
   FAVORITE_BORDER: 'bookmark_heart',
   BACK: 'arrow_back',
@@ -709,7 +709,7 @@ export const ICONS = {
 // ============================================
 export const NAV = {
   HOME: '홈',
-  HISTORY: '기록',
+  HISTORY: '내 기록',
   SA_LIST: '사-리스트',
   EXPLORE: '탐색',
   MY: '마이',

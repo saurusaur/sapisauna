@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { MESSAGES } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
@@ -36,15 +36,6 @@ export default function Home() {
 
   const hasTodayRecord = todayLogs.length > 0
   const emptyMessage = MESSAGES.HOME.EMPTY_RECORD[primaryTribe] || MESSAGES.HOME.NO_RECORDS
-
-  // 툴팁: 진입 시 표시 → 화면 탭 시 사라짐
-  const [tooltipVisible, setTooltipVisible] = useState(true)
-  const dismissTooltip = useCallback(() => setTooltipVisible(false), [])
-  useEffect(() => {
-    if (!tooltipVisible) return
-    window.addEventListener('pointerdown', dismissTooltip, { once: true })
-    return () => window.removeEventListener('pointerdown', dismissTooltip)
-  }, [tooltipVisible, dismissTooltip])
 
   // 비로그인 → 로그인 페이지로 이동
   if (!authUser) {
@@ -196,7 +187,7 @@ export default function Home() {
         )}
       </main>
 
-      <BottomNav showTooltip={!hasTodayRecord && tooltipVisible} />
+      <BottomNav />
     </div>
   )
 }
