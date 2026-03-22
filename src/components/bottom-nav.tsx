@@ -63,13 +63,17 @@ export default function BottomNav() {
           className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
           style={{
             backgroundColor: 'var(--color-primary)',
-            boxShadow: isHomeActive
-              ? '0 0 0 3px rgba(204,26,26,0.25), 0 0 20px rgba(204,26,26,0.4), 0 4px 16px rgba(204,26,26,0.35)'
-              : '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
             WebkitTapHighlightColor: 'transparent',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>home</span>
+          <span
+            className="material-symbols-outlined"
+            style={{
+              fontSize: '26px',
+              fontVariationSettings: isHomeActive ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+            }}
+          >home</span>
         </button>
       </div>
 
