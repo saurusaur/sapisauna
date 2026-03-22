@@ -700,7 +700,7 @@ export default function QuickLog() {
             <button
               onClick={handleDirectStory}
               disabled={isSaving}
-              className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all active:brightness-125 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all active:scale-[0.96] active:brightness-90 flex items-center justify-center gap-2 disabled:opacity-50"
               style={{ backgroundColor: 'var(--color-primary)' }}
             >
               {isSaving ? (

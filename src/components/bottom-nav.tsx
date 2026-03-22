@@ -60,20 +60,16 @@ export default function BottomNav() {
       <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-10 flex flex-col items-center">
         <button
           onClick={() => { if (!isHomeActive) router.push('/home') }}
-          className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 active:brightness-125"
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
           style={{
             backgroundColor: 'var(--color-primary)',
-            boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
+            boxShadow: isHomeActive
+              ? '0 0 0 3px rgba(204,26,26,0.25), 0 0 20px rgba(204,26,26,0.4), 0 4px 16px rgba(204,26,26,0.35)'
+              : '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)',
             WebkitTapHighlightColor: 'transparent',
           }}
         >
-          <span
-            className="material-symbols-outlined"
-            style={{
-              fontSize: '26px',
-              fontVariationSettings: isHomeActive ? "'FILL' 1" : "'FILL' 0",
-            }}
-          >home</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>home</span>
         </button>
       </div>
 

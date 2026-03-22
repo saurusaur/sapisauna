@@ -20,7 +20,7 @@ export default function GlobalError({
         </p>
         <button
           onClick={reset}
-          className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all active:brightness-125"
+          className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all active:scale-[0.96] active:brightness-90"
           style={{ backgroundColor: 'var(--color-primary)' }}
         >
           다시 시도

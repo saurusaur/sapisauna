@@ -46,7 +46,7 @@ export default function ConfirmModal({
               </button>
               <button
                 onClick={onConfirm}
-                className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all active:brightness-125"
+                className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all active:scale-[0.96] active:brightness-90"
                 style={{ backgroundColor: 'var(--color-primary)' }}
               >
                 {confirmLabel}
