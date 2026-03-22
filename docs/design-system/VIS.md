@@ -323,11 +323,16 @@ Inactive: glass-card-light + stone text
 
 #### BottomNav (`bottom-nav.tsx`)
 ```
-Structure: 좌2탭 [홈, SA리스트] + FAB(중앙) + 우2탭 [Explore, My]
-FAB: primary color, rounded-full, w-12 h-12, -top-4 raised
-Active tab: primary color
-Inactive tab: stone-400
-Disabled tab: opacity-20 (SA리스트 — 미출시)
+Structure: 좌2탭 [내기록, 탐색] + FAB 홈(중앙) + 우2탭 [사-리스트, 마이]
+FAB (홈):
+  - 항상 primary color BG, w-14 h-14, rounded-full, raised (-top-5)
+  - Active: 아이콘 FILL=1 (채워진 home 아이콘)
+  - Inactive: 아이콘 FILL=0 (아웃라인 home 아이콘)
+  - 링/shadow 변화 없음 — 아이콘 fill만으로 상태 표현
+일반 탭 (내기록/탐색/마이):
+  - Active: primary color 텍스트+아이콘
+  - Inactive: stone-400
+Disabled tab: opacity-20 (사-리스트 — 미출시)
 Glass BG: hsl(var(--glass)) + backdrop-blur-xl
 ```
 
