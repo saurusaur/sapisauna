@@ -165,7 +165,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
       <main className="p-4 space-y-4">
 
         {/* ── 1. 장소 카드 (장소 상세 페이지 스타일 참조) ── */}
-        <div className="glass-card p-5">
+        <div className="glass-card-light p-5">
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push(`/explore/${log.place_id}`)}
@@ -186,7 +186,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         </div>
 
         {/* ── 2. 숏 리뷰: glass card 위 editorial 메트릭 + 루틴 ── */}
-        <div className="glass-card p-5">
+        <div className="glass-card-light p-5">
 
           {/* 메트릭 — 고정 3행 그리드, 모든 타입 동일 높이 */}
           <div className="grid grid-cols-[auto_1fr] grid-rows-3 gap-x-5 items-center">

@@ -109,7 +109,7 @@ export default function PlaceCard({
         return (
             <button
                 onClick={onClick}
-                className="w-full glass-card p-3 text-left hover:shadow-md transition-all"
+                className="w-full glass-card-light p-3 text-left hover:shadow-md transition-all"
             >
                 {placeHeader}
                 {stats.count > 0 && <div className="mt-1">{scoreDisplay}</div>}
@@ -121,7 +121,7 @@ export default function PlaceCard({
     return (
         <button
             onClick={onClick}
-            className="w-full glass-card p-3 text-left hover:shadow-md transition-all"
+            className="w-full glass-card-light p-3 text-left hover:shadow-md transition-all"
         >
             <div className="mb-1">{placeHeader}</div>
             {facilityChips}

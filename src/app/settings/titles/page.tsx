@@ -85,7 +85,7 @@ export default function TitlesPage() {
       <main className="p-4 space-y-3">
         {/* 현재 활성 칭호 */}
         {user?.active_title && (
-          <div className="glass-card p-4 flex items-center justify-between">
+          <div className="glass-card-light p-4 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-semibold text-stone-400 tracking-widest uppercase mb-1">
                 Active

@@ -184,7 +184,7 @@ export default function TypeListPage() {
             </button>
 
             {showTypeDropdown && (
-              <div className="absolute top-full right-0 mt-1 glass-card rounded-xl overflow-hidden z-30 min-w-[180px]">
+              <div className="absolute top-full right-0 mt-1 glass-card-light rounded-xl overflow-hidden z-30 min-w-[180px]">
                 {VALID_TYPES.map((type) => (
                   <button
                     key={type}

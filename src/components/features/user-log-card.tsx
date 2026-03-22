@@ -27,7 +27,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
     return (
       <Wrapper
         onClick={onClick}
-        className={`w-full glass-card px-3 py-3.5 text-left h-[124px] flex flex-col justify-between overflow-hidden${onClick ? ' hover:shadow-md transition-all' : ''}`}
+        className={`w-full glass-card-light px-3 py-3.5 text-left h-[124px] flex flex-col justify-between overflow-hidden${onClick ? ' hover:shadow-md transition-all' : ''}`}
       >
         {/* Line 1: 장소명 + 트라이브 이모지 */}
         <div className="flex items-center justify-between">
@@ -74,7 +74,7 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
   return (
     <Wrapper
       onClick={onClick}
-      className={`w-full glass-card p-4 text-left${onClick ? ' hover:shadow-md transition-all' : ''}`}
+      className={`w-full glass-card-light p-4 text-left${onClick ? ' hover:shadow-md transition-all' : ''}`}
     >
       {/* 장소명 */}
       {showPlace && (

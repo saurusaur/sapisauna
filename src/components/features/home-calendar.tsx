@@ -243,7 +243,7 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
   }, [expanded, monthView, weekDays, weekMonth])
 
   return (
-    <div className="glass-card px-4 pt-3 pb-1">
+    <div className="glass-card-light px-4 pt-3 pb-1">
       {/* 상단: < 월 > + 오늘 */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">

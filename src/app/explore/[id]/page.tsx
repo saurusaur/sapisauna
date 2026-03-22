@@ -304,7 +304,7 @@ export default function PlaceDetailPage() {
 
       <main className="p-4 space-y-4">
         {/* B. 장소 정보 카드 — 평점 통합 + 하트 이름과 같은 줄 */}
-        <div className="glass-card p-4">
+        <div className="glass-card-light p-4">
           <h2 className="text-lg font-bold text-stone-700">{place.name}</h2>
           <p className="text-xs text-stone-400 mt-2">{place.address}</p>
 
@@ -375,11 +375,11 @@ export default function PlaceDetailPage() {
           </div>
         </div>
 
-        {/* C. 시설 정보 — glass-card */}
+        {/* C. 시설 정보 — glass-card-light */}
         {facilityGroups.length > 0 && (
           <div>
           <h3 className="text-sm font-semibold text-stone-500 mb-3">시설 정보</h3>
-          <div className="glass-card p-4">
+          <div className="glass-card-light p-4">
             <div className="space-y-3">
               {facilityGroups.map((group) => (
                 <div key={group.label}>
@@ -425,7 +425,7 @@ export default function PlaceDetailPage() {
                 </div>
               </div>
             </div>
-            <div className="glass-card p-4 space-y-3">
+            <div className="glass-card-light p-4 space-y-3">
 
               {/* 온도 메트릭: 항상 한 줄, 트라이브 서브메트릭과 동일 그리드 사용 */}
               {tempMetrics.length > 0 && (
@@ -567,7 +567,7 @@ export default function PlaceDetailPage() {
                   {logSort === 'tribe' && tribeSortId ? TRIBE_PERSONA_MAP[tribeSortId] : 'TRIBE'}
                 </button>
                 {logSort === 'tribe' && (
-                  <div className="absolute right-0 top-full mt-1 z-10 glass-card p-1 shadow-lg rounded-lg flex flex-col gap-0.5 min-w-[80px]">
+                  <div className="absolute right-0 top-full mt-1 z-10 glass-card-light p-1 shadow-lg rounded-lg flex flex-col gap-0.5 min-w-[80px]">
                     <button
                       onClick={() => { setTribeSortId(''); setShowAllReviews(false) }}
                       className={`px-2.5 py-1.5 rounded text-xs text-left transition-all ${

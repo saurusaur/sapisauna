@@ -23,7 +23,7 @@ export default function ProfileCard() {
   const percent = Math.round(progress * 100)
 
   return (
-    <div className="w-full glass-card p-4 transition-all">
+    <div className="w-full glass-card-light p-4 transition-all">
       {/* 1줄: 닉네임 · 칭호 */}
       <div className="flex items-center gap-1.5 mb-3">
         <span className="text-sm font-bold text-stone-700">

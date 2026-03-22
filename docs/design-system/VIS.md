@@ -155,11 +155,11 @@ px-4 (16px)       — 페이지 좌우 여백 (표준)
 
 | 클래스 | 배경 opacity | blur | border | 용도 |
 |--------|-------------|------|--------|------|
-| `.glass-card` / `.glass-card-light` | 55% white | 12px | 0.5px white/65% | 카드, 폼 섹션, 인터랙티브 패널 전반 |
+| `.glass-card-light` | 55% white | 12px | 0.5px white/65% | 카드, 폼 섹션, 인터랙티브 패널 전반 |
 | `.glass-input` | 65% white | 8px | 0.5px white/80% | 입력 필드, 검색바 |
 | `.glass-chip` | 30% white | — | 1px border | 칩 미선택 상태 |
 
-> `glass-card`와 `glass-card-light`는 동일 스타일을 공유하는 alias 관계. 신규 개발 시 둘 중 어느 것을 써도 무관하나 `glass-card-light` 권장.
+> 앱 전체 `glass-card-light` 단일 클래스로 통일. `glass-card`는 제거됨.
 
 ### 5-2. 그림자 시스템
 

@@ -72,7 +72,7 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <div className="h-[104px] glass-card flex items-center justify-center">
+            <div className="h-[104px] glass-card-light flex items-center justify-center">
               <span className="text-stone-300 text-sm">{MESSAGES.HOME.LOADING}</span>
             </div>
           ) : todayLogs.length === 0 ? (
@@ -119,11 +119,11 @@ export default function Home() {
             {recsLoading ? (
               <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] max-w-[300px] h-[100px] glass-card animate-pulse flex-shrink-0" />
+                  <div key={i} className="min-w-[260px] max-w-[300px] h-[100px] glass-card-light animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : recommendations.length === 0 ? (
-              <div className="glass-card p-6 text-center">
+              <div className="glass-card-light p-6 text-center">
                 <p className="text-stone-300 text-xs">{MESSAGES.HOME.RECOMMEND_EMPTY}</p>
               </div>
             ) : (
@@ -159,11 +159,11 @@ export default function Home() {
             {communityLoading ? (
               <div className="flex gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] max-w-[300px] h-[124px] glass-card animate-pulse flex-shrink-0" />
+                  <div key={i} className="min-w-[260px] max-w-[300px] h-[124px] glass-card-light animate-pulse flex-shrink-0" />
                 ))}
               </div>
             ) : communityLogs.length === 0 ? (
-              <div className="glass-card p-6 text-center">
+              <div className="glass-card-light p-6 text-center">
                 <p className="text-stone-300 text-xs">{MESSAGES.HOME.COMMUNITY_EMPTY}</p>
               </div>
             ) : (
