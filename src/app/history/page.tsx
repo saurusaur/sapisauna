@@ -65,24 +65,17 @@ export default function History() {
 
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg">
-      {/* 헤더 — tribe picks 전체보기와 동일 스타일 */}
+      {/* 헤더 — 탐색 페이지와 동일 스타일 */}
       <header className="p-5 pt-8">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push('/home')}
-            className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-
+        <div className="flex items-center justify-between">
           <h1
-            className="text-2xl font-extrabold italic font-heading"
+            className="text-3xl font-extrabold italic font-heading"
           >
             HISTORY
           </h1>
 
           {/* 뷰 모드 토글 — 우측 정렬 */}
-          <div className="flex bg-stone-100/60 backdrop-blur-sm rounded-lg p-0.5 ml-auto">
+          <div className="flex bg-stone-100/60 backdrop-blur-sm rounded-lg p-0.5">
             <button
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${viewMode === 'list' ? 'bg-white/80 shadow-sm text-stone-700' : 'text-stone-400'
