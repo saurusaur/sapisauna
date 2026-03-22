@@ -42,7 +42,7 @@ export default function RootLayout({
         {/* 아이콘 폰트 — block: 로딩 전까지 리거처 텍스트 숨김 (FOUT 방지) */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block"
         />
       </head>
       <body className="min-h-dvh" style={{ backgroundColor: '#f5f2ef' }}>
