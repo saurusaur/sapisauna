@@ -3,6 +3,9 @@ import './globals.css'
 import { APP } from '@/constants/content'
 import { AuthProvider } from '@/contexts/auth-context'
 import { UserProvider } from '@/contexts/user-context'
+import { ToastProvider } from '@/contexts/toast-context'
+import { SavePlaceProvider } from '@/contexts/save-place-context'
+import { ToastContainer } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
   title: APP.NAME,
@@ -48,9 +51,14 @@ export default function RootLayout({
       <body className="min-h-dvh" style={{ backgroundColor: '#f5f2ef' }}>
         <AuthProvider>
           <UserProvider>
-            <main className="max-w-md mx-auto min-h-dvh bg-[#f5f2ef] md:shadow-[0_0_40px_rgba(0,0,0,0.06)]">
-              {children}
-            </main>
+            <ToastProvider>
+              <SavePlaceProvider>
+                <main className="max-w-md mx-auto min-h-dvh bg-[#f5f2ef] md:shadow-[0_0_40px_rgba(0,0,0,0.06)]">
+                  {children}
+                </main>
+                <ToastContainer />
+              </SavePlaceProvider>
+            </ToastProvider>
           </UserProvider>
         </AuthProvider>
       </body>
