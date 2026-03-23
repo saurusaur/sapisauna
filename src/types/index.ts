@@ -200,17 +200,49 @@ export interface RewardResult {
   newTitles: string[]   // 이번에 획득한 칭호 목록
 }
 
-// 즐겨찾기 컬렉션
-export interface FavoriteCollection {
+// SA-리스트 (lists 테이블)
+export type ListType = 'default' | 'user'
+
+export type ListVisibility = 'private' | 'unlisted' | 'public'
+
+export interface SaList {
   id: string
-  name: string           // 기본: "좋아요"
-  icon: string           // Material Symbol 아이콘 (기본: "favorite")
-  placeIds: string[]
-  createdAt: string
-  updatedAt: string
+  owner_id: string
+  type: ListType
+  title: string
+  description: string | null
+  slug: string | null
+  cover_color: string | null
+  visibility: ListVisibility
+  is_featured: boolean
+  is_pinned: boolean
+  sort_order: number
+  subscriber_count: number
+  place_count: number
+  tags: string[]
+  created_at: string
+  updated_at: string
+  // JOIN 필드 (선택)
+  owner_nickname?: string
+  owner_tribe?: TribeId
 }
 
-// 즐겨찾기 데이터 (localStorage 저장 구조)
-export interface FavoritesData {
-  collections: FavoriteCollection[]
+// 리스트 아이템 (list_items 테이블)
+export interface ListItem {
+  id: string
+  list_id: string
+  place_id: string
+  memo: string | null
+  sort_order: number
+  created_at: string
+  // JOIN 필드 (선택)
+  place?: Place
+}
+
+// 리스트 구독 (list_subscriptions 테이블)
+export interface ListSubscription {
+  id: string
+  user_id: string
+  list_id: string
+  created_at: string
 }
