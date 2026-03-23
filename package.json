@@ -14,6 +14,7 @@
     "canvas-confetti": "^1.9.4",
     "country-to-currency": "^2.0.2",
     "heic-to": "^1.4.2",
+    "nanoid": "^5.1.7",
     "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

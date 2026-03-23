@@ -25,10 +25,12 @@ export function Badge24h() {
 interface PlaceCardProps {
     place: Place
     onClick: () => void
-    variant?: 'default' | 'minimal'
-    // favorite는 선택적 — place/page.tsx처럼 favorite 없는 곳에서도 사용 가능
-    isFavorited?: boolean
-    onToggleFavorite?: () => void
+    variant?: 'default' | 'minimal' | 'collection'
+    // 저장 상태 — 아무 리스트에든 들어있으면 true (heart_check)
+    isSaved?: boolean
+    onToggleSave?: () => void
+    // collection variant 전용: 리스트 생성자의 장소별 메모
+    collectionMemo?: string
 }
 
 // 기본 시설 — 카드 표시에서 후순위로 밀기 (상세 페이지에서는 전체 표시)
@@ -44,11 +46,12 @@ export default function PlaceCard({
     place,
     onClick,
     variant = 'default',
-    isFavorited,
-    onToggleFavorite,
+    isSaved,
+    onToggleSave,
+    collectionMemo,
 }: PlaceCardProps) {
     const { stats } = usePlaceStats(place.id)
-    const showFavorite = onToggleFavorite !== undefined
+    const showSave = onToggleSave !== undefined
 
     // 공통: 이름 + 24h + 좋아요 + 주소 헤더
     const placeHeader = (
@@ -67,19 +70,22 @@ export default function PlaceCard({
                     </span>
                 )}
                 {place.is_24h && <Badge24h />}
-                {showFavorite && (
+                {showSave && (
                     <div
                         onClick={(e) => {
                             e.stopPropagation()
-                            onToggleFavorite()
+                            onToggleSave()
                         }}
                         className="ml-auto flex-shrink-0"
                     >
                         <span
                             className="material-symbols-outlined text-sm"
-                            style={{ color: isFavorited ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
+                            style={{
+                                color: isSaved ? 'var(--color-primary)' : 'var(--color-icon-inactive)',
+                                fontVariationSettings: isSaved ? "'FILL' 1" : "'FILL' 0",
+                            }}
                         >
-                            {isFavorited ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+                            bookmark_heart
                         </span>
                     </div>
                 )}
@@ -105,6 +111,13 @@ export default function PlaceCard({
         <ScoreBadge score={stats.avg} count={stats.count} />
     )
 
+    // 장소별 메모 블록 (collection variant 전용)
+    const memoBlock = collectionMemo && (
+        <div className="my-1.5 pl-2 border-l-2 text-xs text-stone-500" style={{ borderColor: 'var(--color-primary)' }}>
+            {collectionMemo}
+        </div>
+    )
+
     if (variant === 'minimal') {
         return (
             <button
@@ -113,6 +126,20 @@ export default function PlaceCard({
             >
                 {placeHeader}
                 {stats.count > 0 && <div className="mt-1">{scoreDisplay}</div>}
+            </button>
+        )
+    }
+
+    if (variant === 'collection') {
+        return (
+            <button
+                onClick={onClick}
+                className="w-full glass-card-light p-3 text-left hover:shadow-md active:scale-[0.98] transition-all"
+            >
+                <div className="mb-1">{placeHeader}</div>
+                {facilityChips}
+                {memoBlock}
+                {scoreDisplay}
             </button>
         )
     }

@@ -10,7 +10,7 @@ const LEFT_TABS = [
 ] as const
 
 const RIGHT_TABS = [
-  { label: NAV.SA_LIST, icon: ICONS.SA_LIST, path: null, disabled: true },
+  { label: NAV.SA_LIST, icon: ICONS.SA_LIST, path: '/sa-list' },
   { label: NAV.MY, icon: ICONS.MY, path: '/settings' },
 ] as const
 
@@ -20,7 +20,7 @@ export default function BottomNav() {
   const isHomeActive = pathname === '/home'
 
   const renderTab = (item: { label: string; icon: string; path: string | null; disabled?: boolean }) => {
-    const isActive = item.path ? pathname === item.path : false
+    const isActive = item.path ? pathname.startsWith(item.path) : false
     const isDisabled = item.disabled
 
     return (

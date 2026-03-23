@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE,
@@ -8,12 +8,14 @@ import {
 } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
-import { useFavorites } from '@/hooks/use-favorites'
+import { useSavePlace } from '@/hooks/use-save-place'
 import type { Place } from '@/types'
 import DataState from '@/components/ui/data-state'
 import FilterControls from '@/components/features/filter-controls'
 import PlaceCard from '@/components/features/place-card'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
+import { SaveSnackbar } from '@/components/ui/snackbar'
+import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
 
 
 const VALID_TYPES = TRIBE_IDS
@@ -58,7 +60,60 @@ export default function TypeListPage() {
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
-  const { favorites, toggleFavorite, isFavorited, getFavoriteCount } = useFavorites()
+  const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
+
+  // 스낵바 + 바텀시트 상태
+  const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
+  const [sheetPlaceId, setSheetPlaceId] = useState<string>('')
+  const [sheetCreateMode, setSheetCreateMode] = useState(false)
+
+  const userCollections = useMemo(
+    () => myLists.filter((l) => l.type !== 'default'),
+    [myLists]
+  )
+
+  const handleToggleSave = useCallback(async (placeId: string) => {
+    const wasSaved = isSaved(placeId)
+    if (wasSaved) {
+      const savedListIds = getSavedListIds(placeId)
+      const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
+      if (inCustomLists.length === 0) {
+        await toggleDefaultSave(placeId)
+      } else {
+        const confirmed = window.confirm(
+          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
+        )
+        if (confirmed) await removeFromAll(placeId)
+      }
+    } else {
+      await toggleDefaultSave(placeId)
+      if (userCollections.length === 0) {
+        setSnackbarPlaceId(placeId)
+      } else {
+        setSheetPlaceId(placeId)
+        setSheetMode('save')
+        setSheetCreateMode(false)
+        setSheetOpen(true)
+      }
+    }
+  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+
+  const handleSnackbarToggle = useCallback(async (listId: string) => {
+    if (!snackbarPlaceId) return
+    await toggleListSave(snackbarPlaceId, listId)
+  }, [snackbarPlaceId, toggleListSave])
+
+  const handleShowMore = useCallback(() => {
+    if (!snackbarPlaceId) return
+    const pid = snackbarPlaceId
+    setSnackbarPlaceId(null)
+    setSheetPlaceId(pid)
+    setSheetMode('save')
+    setSheetCreateMode(true)
+    setSheetOpen(true)
+  }, [snackbarPlaceId])
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
@@ -139,9 +194,8 @@ export default function TypeListPage() {
       }
 
       if (sortType === 'popular') {
-        const favA = getFavoriteCount(a.id)
-        const favB = getFavoriteCount(b.id)
-        if (favA !== favB) return favB - favA
+        // 인기순: 로그 수 ↓ → 평균 점수 ↓ (TODO: DB save_count로 교체)
+        if (statsA.count !== statsB.count) return statsB.count - statsA.count
         return statsB.avg - statsA.avg
       }
 
@@ -149,7 +203,7 @@ export default function TypeListPage() {
     })
 
     return filtered
-  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, getFavoriteCount, placeStatsMap])
+  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, placeStatsMap])
 
   return (
     <div className="min-h-dvh pb-8 bath-tile-bg">
@@ -258,13 +312,35 @@ export default function TypeListPage() {
                 key={place.id}
                 place={place}
                 onClick={() => router.push(`/explore/${place.id}`)}
-                isFavorited={isFavorited(place.id)}
-                onToggleFavorite={() => toggleFavorite(place.id)}
+                isSaved={isSaved(place.id)}
+                onToggleSave={() => handleToggleSave(place.id)}
               />
             ))}
           </div>
         </DataState>
       </main>
+
+      {/* 스낵바 (컬렉션 없는 유저만) */}
+      <SaveSnackbar
+        visible={!!snackbarPlaceId}
+        onDismiss={() => setSnackbarPlaceId(null)}
+        savedListIds={snackbarPlaceId ? getSavedListIds(snackbarPlaceId) : []}
+        userLists={[]}
+        onToggleList={handleSnackbarToggle}
+        onShowMore={handleShowMore}
+        onMemo={handleShowMore}
+      />
+
+      {/* 인스타식 저장 바텀시트 */}
+      {sheetPlaceId && (
+        <SaveBottomSheet
+          mode={sheetMode}
+          placeId={sheetPlaceId}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          startInCreateMode={sheetCreateMode}
+        />
+      )}
     </div>
   )
 }

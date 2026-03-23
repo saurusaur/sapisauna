@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ICONS, EXPLORE, EXPLORE_FILTERS,
@@ -8,7 +8,8 @@ import {
 } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
-import { useFavorites } from '@/hooks/use-favorites'
+import { useSavePlace } from '@/hooks/use-save-place'
+import { getPlaceSaveCounts } from '@/lib/lists-service'
 import type { Place } from '@/types'
 import BottomNav from '@/components/bottom-nav'
 import TypeTab from '@/components/ui/type-tab'
@@ -17,6 +18,8 @@ import { useUser } from '@/contexts/user-context'
 import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
+import { SaveSnackbar } from '@/components/ui/snackbar'
+import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
 
 
 
@@ -38,11 +41,78 @@ export default function ExplorePage() {
     sortType, setSortType,
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
-  const { favorites, toggleFavorite, isFavorited, getFavoriteCount } = useFavorites()
+  const { isSaved, toggleDefaultSave, checkSavedStatus, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
   const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
   const [visibleCount, setVisibleCount] = useState(3)
+  const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
+
+  // 스낵바 + 바텀시트 상태
+  const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
+  const [sheetPlaceId, setSheetPlaceId] = useState<string>('')
+  const [sheetCreateMode, setSheetCreateMode] = useState(false)
+
+  // 유저 컬렉션 (default 제외)
+  const userCollections = useMemo(
+    () => myLists.filter((l) => l.type !== 'default'),
+    [myLists]
+  )
+
+  // 하트 탭 핸들러 — 인스타식 분기
+  const handleToggleSave = useCallback(async (placeId: string) => {
+    const wasSaved = isSaved(placeId)
+
+    if (wasSaved) {
+      // 저장 해제 분기
+      const savedListIds = getSavedListIds(placeId)
+      const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
+
+      if (inCustomLists.length === 0) {
+        // 기본 리스트에만 있음 → 바로 해제
+        await toggleDefaultSave(placeId)
+      } else {
+        // 다른 컬렉션에도 있음 → 확인 모달
+        const confirmed = window.confirm(
+          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
+        )
+        if (confirmed) await removeFromAll(placeId)
+      }
+    } else {
+      // 미저장 → 기본 저장
+      await toggleDefaultSave(placeId)
+
+      if (userCollections.length === 0) {
+        // 컬렉션 없음 → 스낵바
+        setSnackbarPlaceId(placeId)
+      } else {
+        // 컬렉션 있음 → 바텀시트 자동 오픈
+        setSheetPlaceId(placeId)
+        setSheetMode('save')
+        setSheetCreateMode(false)
+        setSheetOpen(true)
+      }
+    }
+  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+
+  // 스낵바에서 리스트 토글 (컬렉션 없는 유저용이므로 사실상 사용 안 됨)
+  const handleSnackbarToggle = useCallback(async (listId: string) => {
+    if (!snackbarPlaceId) return
+    await toggleListSave(snackbarPlaceId, listId)
+  }, [snackbarPlaceId, toggleListSave])
+
+  // 스낵바에서 "새 리스트" → 바텀시트 열기 (인라인 생성 모드)
+  const handleShowMore = useCallback(() => {
+    if (!snackbarPlaceId) return
+    const pid = snackbarPlaceId
+    setSnackbarPlaceId(null)
+    setSheetPlaceId(pid)
+    setSheetMode('save')
+    setSheetCreateMode(true)
+    setSheetOpen(true)
+  }, [snackbarPlaceId])
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
@@ -50,6 +120,13 @@ export default function ExplorePage() {
 
   const loading = placesLoading || logsLoading
   const error = placesError || logsError
+
+  // 장소별 저장 횟수 로드 (고유 유저 기반)
+  useEffect(() => {
+    if (places.length === 0) return
+    const ids = places.map((p) => p.id)
+    getPlaceSaveCounts(ids).then(setSaveCounts).catch(() => {})
+  }, [places])
 
 
   // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
@@ -87,10 +164,8 @@ export default function ExplorePage() {
         }
 
         if (sortType === 'popular') {
-          // 인기순: 즐겨찾기 수 ↓ → 평균 점수 ↓
-          const favA = getFavoriteCount(a.id)
-          const favB = getFavoriteCount(b.id)
-          if (favB !== favA) return favB - favA
+          // 인기순: 로그 수 ↓ → 평균 점수 ↓ (TODO: DB save_count로 교체)
+          if (sb.count !== sa.count) return sb.count - sa.count
           return (sb.sum / sb.count) - (sa.sum / sa.count)
         }
 
@@ -99,7 +174,7 @@ export default function ExplorePage() {
     }
 
     return result
-  }, [places, logs, sortType, getFavoriteCount])
+  }, [places, logs, sortType])
 
   // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
   const recommendationOrder = useMemo(() => {
@@ -185,9 +260,9 @@ export default function ExplorePage() {
       }
 
       if (sortType === 'popular') {
-        const favA = getFavoriteCount(a.id)
-        const favB = getFavoriteCount(b.id)
-        if (favA !== favB) return favB - favA
+        const savA = saveCounts[a.id] || 0
+        const savB = saveCounts[b.id] || 0
+        if (savA !== savB) return savB - savA
         return statsB.avg - statsA.avg
       }
 
@@ -195,7 +270,7 @@ export default function ExplorePage() {
     })
 
     return filtered
-  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, getFavoriteCount, placeStatsMap])
+  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, saveCounts, placeStatsMap])
 
   // 검색/필터가 활성화되어 있는지
   const isSearchOrFilterActive = searchQuery || selectedFilters.length > 0 || is24hOnly
@@ -288,8 +363,8 @@ export default function ExplorePage() {
                         <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
                           <PlaceCard
                             place={place}
-                            isFavorited={isFavorited(place.id)}
-                            onToggleFavorite={() => toggleFavorite(place.id)}
+                            isSaved={isSaved(place.id)}
+                            onToggleSave={() => handleToggleSave(place.id)}
                             onClick={() => router.push(`/explore/${place.id}`)}
                             variant="minimal"
                           />
@@ -327,8 +402,8 @@ export default function ExplorePage() {
                     <PlaceCard
                       key={place.id}
                       place={place}
-                      isFavorited={isFavorited(place.id)}
-                      onToggleFavorite={() => toggleFavorite(place.id)}
+                      isSaved={isSaved(place.id)}
+                      onToggleSave={() => handleToggleSave(place.id)}
                       onClick={() => router.push(`/explore/${place.id}`)}
                     />
                   ))}
@@ -352,8 +427,8 @@ export default function ExplorePage() {
                     <PlaceCard
                       key={place.id}
                       place={place}
-                      isFavorited={isFavorited(place.id)}
-                      onToggleFavorite={() => toggleFavorite(place.id)}
+                      isSaved={isSaved(place.id)}
+                      onToggleSave={() => handleToggleSave(place.id)}
                       onClick={() => router.push(`/explore/${place.id}`)}
                     />
                   ))}
@@ -388,6 +463,28 @@ export default function ExplorePage() {
           )}
         </DataState>
       </main>
+
+      {/* 스낵바 (컬렉션 없는 유저만) */}
+      <SaveSnackbar
+        visible={!!snackbarPlaceId}
+        onDismiss={() => setSnackbarPlaceId(null)}
+        savedListIds={snackbarPlaceId ? getSavedListIds(snackbarPlaceId) : []}
+        userLists={[]}
+        onToggleList={handleSnackbarToggle}
+        onShowMore={handleShowMore}
+        onMemo={handleShowMore}
+      />
+
+      {/* 인스타식 저장 바텀시트 */}
+      {sheetPlaceId && (
+        <SaveBottomSheet
+          mode={sheetMode}
+          placeId={sheetPlaceId}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          startInCreateMode={sheetCreateMode}
+        />
+      )}
 
       <BottomNav />
     </div>

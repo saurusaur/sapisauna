@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
@@ -10,12 +10,14 @@ import { getStepLabel } from '@/lib/utils'
 import UserLogCard from '@/components/features/user-log-card'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
-import { useFavorites } from '@/hooks/use-favorites'
+import { useSavePlace } from '@/hooks/use-save-place'
 import Badge24h from '@/components/ui/badge-24h'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import { useAuth } from '@/contexts/auth-context'
 import BottomCTA from '@/components/ui/bottom-cta'
+import { SaveSnackbar } from '@/components/ui/snackbar'
+import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
 
 // PLACE_SPECS 섹션별로 시설 분류 (AMENITIES 포함)
 const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const
@@ -28,7 +30,54 @@ export default function PlaceDetailPage() {
   const { data: place, loading: placeLoading, error: placeError } = usePlace(placeId)
   const { data: placeLogs, loading: logsLoading } = useLogsByPlace(placeId)
   const { stats } = usePlaceStats(placeId)
-  const { toggleFavorite, isFavorited } = useFavorites()
+  const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
+
+  // 스낵바 + 바텀시트 상태
+  const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
+  const [sheetCreateMode, setSheetCreateMode] = useState(false)
+
+  const userCollections = useMemo(
+    () => myLists.filter((l) => l.type !== 'default'),
+    [myLists]
+  )
+
+  const handleToggleSave = useCallback(async () => {
+    const wasSaved = isSaved(placeId)
+    if (wasSaved) {
+      const savedListIds = getSavedListIds(placeId)
+      const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
+      if (inCustomLists.length === 0) {
+        await toggleDefaultSave(placeId)
+      } else {
+        const confirmed = window.confirm(
+          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
+        )
+        if (confirmed) await removeFromAll(placeId)
+      }
+    } else {
+      await toggleDefaultSave(placeId)
+      if (userCollections.length === 0) {
+        setSnackbarPlaceId(placeId)
+      } else {
+        setSheetMode('save')
+        setSheetCreateMode(false)
+        setSheetOpen(true)
+      }
+    }
+  }, [isSaved, toggleDefaultSave, placeId, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+
+  const handleSnackbarToggle = useCallback(async (listId: string) => {
+    await toggleListSave(placeId, listId)
+  }, [placeId, toggleListSave])
+
+  const handleShowMore = useCallback(() => {
+    setSnackbarPlaceId(null)
+    setSheetMode('save')
+    setSheetCreateMode(true)
+    setSheetOpen(true)
+  }, [])
   const { user: authUser } = useAuth()
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
@@ -67,7 +116,7 @@ export default function PlaceDetailPage() {
     )
   }
 
-  const isFavoritedPlace = isFavorited(placeId)
+  const isSavedPlace = isSaved(placeId)
 
   // 시설 분류
   const facilityGroups: { label: string; items: { id: string; label: string; icon: string }[] }[] = []
@@ -363,12 +412,15 @@ export default function PlaceDetailPage() {
                 </span>
               )}
               {place.is_24h && <Badge24h />}
-              <div onClick={() => toggleFavorite(placeId)} className="cursor-pointer ml-0.5">
+              <div onClick={handleToggleSave} className="cursor-pointer ml-0.5">
                 <span
                   className="material-symbols-outlined text-lg"
-                  style={{ color: isFavoritedPlace ? 'var(--color-primary)' : 'var(--color-icon-inactive)' }}
+                  style={{
+                    color: isSavedPlace ? 'var(--color-primary)' : 'var(--color-icon-inactive)',
+                    fontVariationSettings: isSavedPlace ? "'FILL' 1" : "'FILL' 0",
+                  }}
                 >
-                  {isFavoritedPlace ? ICONS.FAVORITE : ICONS.FAVORITE_BORDER}
+                  {isSavedPlace ? 'heart_check' : 'heart_plus'}
                 </span>
               </div>
             </div>
@@ -619,6 +671,26 @@ export default function PlaceDetailPage() {
           </DataState>
         </div>
       </main>
+
+      {/* 스낵바 (컬렉션 없는 유저만) */}
+      <SaveSnackbar
+        visible={!!snackbarPlaceId}
+        onDismiss={() => setSnackbarPlaceId(null)}
+        savedListIds={getSavedListIds(placeId)}
+        userLists={[]}
+        onToggleList={handleSnackbarToggle}
+        onShowMore={handleShowMore}
+        onMemo={handleShowMore}
+      />
+
+      {/* 인스타식 저장 바텀시트 */}
+      <SaveBottomSheet
+        mode={sheetMode}
+        placeId={placeId}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        startInCreateMode={sheetCreateMode}
+      />
 
       <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>
     </div>
