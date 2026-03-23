@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ICONS } from '@/constants/content'
+import { ICONS, ADMIN_USER_ID } from '@/constants/content'
 import { useList, useListItems } from '@/hooks/use-lists'
 import { useSavePlace } from '@/hooks/use-save-place'
 import { useSubscription } from '@/hooks/use-subscriptions'
@@ -44,6 +44,7 @@ export default function SaListDetailClient() {
 
   const isMine = list?.owner_id === user?.id
   const isDefault = list?.type === 'default'
+  const isAdmin = user?.id === ADMIN_USER_ID
 
   // 3-dot 메뉴
   const [showMenu, setShowMenu] = useState(false)
@@ -149,6 +150,17 @@ export default function SaListDetailClient() {
     if (result !== true) showError(result)
   }, [list, showError])
 
+  // 어드민: 추천 등록/해제
+  const handleToggleFeatured = useCallback(async () => {
+    if (!list) return
+    try {
+      await listsService.updateList(list.id, { is_featured: !list.is_featured })
+      refreshList()
+    } catch {
+      showError('추천 상태 변경에 실패했어요')
+    }
+  }, [list, refreshList, showError])
+
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg">
       {/* 헤더 */}
@@ -163,6 +175,23 @@ export default function SaListDetailClient() {
           {list?.visibility !== 'private' && (
             <button onClick={handleShare} className="text-stone-400 hover:text-stone-600">
               <span className="material-symbols-outlined">{ICONS.SHARE}</span>
+            </button>
+          )}
+
+          {/* 어드민: 추천 등록/해제 */}
+          {isAdmin && !isDefault && (
+            <button
+              onClick={handleToggleFeatured}
+              className="text-stone-400 hover:text-stone-600"
+              title={list?.is_featured ? '추천 해제' : '추천 등록'}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  color: list?.is_featured ? 'var(--color-primary)' : undefined,
+                  fontVariationSettings: list?.is_featured ? "'FILL' 1" : "'FILL' 0",
+                }}
+              >star</span>
             </button>
           )}
 

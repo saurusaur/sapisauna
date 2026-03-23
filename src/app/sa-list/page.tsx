@@ -207,18 +207,19 @@ export default function SaListPage() {
         emptyMessage="아직 공개 리스트가 없어요"
       >
         <div className="space-y-4">
-          {/* 추천 SA-리스트 (어드민/큐레이션) */}
+          {/* 추천 SA-LIST — 가로 스크롤 캐러셀 */}
           {curatedLists.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-stone-400 mb-2">추천 SA-리스트</h3>
-              <div className="space-y-2">
+              <h3 className="text-xs font-semibold text-stone-400 mb-2">추천 SA-LIST</h3>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
                 {curatedLists.map((list) => (
-                  <SubscribedCoverCard
-                    key={list.id}
-                    list={list}
-                    onClick={() => router.push(`/sa-list/${list.id}`)}
-                    showUndo={showUndo}
-                  />
+                  <div key={list.id} className="flex-shrink-0 w-[260px]">
+                    <SubscribedCoverCard
+                      list={list}
+                      onClick={() => router.push(`/sa-list/${list.id}`)}
+                      showUndo={showUndo}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -228,7 +229,7 @@ export default function SaListPage() {
           {userPublicLists.length > 0 && (
             <div>
               {curatedLists.length > 0 && (
-                <h3 className="text-xs font-semibold text-stone-400 mb-2">최근 공개</h3>
+                <h3 className="text-xs font-semibold text-stone-400 mb-2">최근 공개 SA-LIST</h3>
               )}
               <div className="space-y-2">
                 {userPublicLists.map((list) => (

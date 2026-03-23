@@ -121,7 +121,7 @@ export async function createList(params: {
 // 리스트 수정 (visibility 전환 시 slug 자동 생성)
 export async function updateList(
   id: string,
-  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'cover_color' | 'tags'>>
+  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'tags'>>
 ): Promise<SaList> {
   const updatePayload: Record<string, unknown> = {
     ...updates,
