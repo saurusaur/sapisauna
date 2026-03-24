@@ -6,7 +6,7 @@ import {
   ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
   TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG, ADMIN_USER_ID,
 } from '@/constants/content'
-import { getStepLabel } from '@/lib/utils'
+import { getStepLabel, getCommonCityName } from '@/lib/utils'
 import UserLogCard from '@/components/features/user-log-card'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
@@ -333,10 +333,9 @@ export default function PlaceDetailPage() {
   // 지도 URL — external_id(place_id) 우선, fallback은 좌표/이름 기반
   const googleSource = place.sources.find(s => s.source === 'google')
 
-  // Naver external_id는 좌표 조합(mapx_mapy)이라 place URL로 사용 불가 → 검색 URL 사용
-  const naverSearchName = place.short_address
-    ? `${place.name} ${place.short_address}`
-    : place.name
+  // Naver: 이름 + 통용 도시명으로 검색 (97% 정확도, 전체주소는 오히려 매칭 실패)
+  const naverCity = place.country_code === 'KR' ? getCommonCityName(place.address) : ''
+  const naverSearchName = naverCity ? `${place.name} ${naverCity}` : place.name
   const naverMapUrl = place.latitude
     ? `https://map.naver.com/v5/search/${encodeURIComponent(naverSearchName)}?c=${place.longitude},${place.latitude},17`
     : `https://map.naver.com/v5/search/${encodeURIComponent(naverSearchName)}`
