@@ -46,7 +46,7 @@ export async function getDefaultList(userId: string): Promise<SaList | null> {
 export async function getPublicLists(limit = 20, offset = 0): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, tribes)')
+    .select('*, owner:users!owner_id(nickname)')
     .eq('visibility', 'public')
     .order('subscriber_count', { ascending: false })
     .range(offset, offset + limit - 1)
@@ -55,7 +55,6 @@ export async function getPublicLists(limit = 20, offset = 0): Promise<SaList[]> 
   return (data || []).map((row) => ({
     ...row,
     owner_nickname: (row.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner_tribe: ((row.owner as Record<string, unknown>)?.tribes as string[] | undefined)?.[0] as SaList['owner_tribe'],
     owner: undefined,
   }))
 }
@@ -68,7 +67,7 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
 
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, tribes)')
+    .select('*, owner:users!owner_id(nickname)')
     .eq(column, idOrSlug)
     .single()
 
@@ -79,7 +78,6 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
   return {
     ...data,
     owner_nickname: (data.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner_tribe: ((data.owner as Record<string, unknown>)?.tribes as string[] | undefined)?.[0] as SaList['owner_tribe'],
     owner: undefined,
   }
 }
@@ -290,7 +288,7 @@ async function updateSubscriberCount(listId: string): Promise<void> {
 export async function getSubscribedLists(userId: string): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('list_subscriptions')
-    .select('list:lists!list_id(*, owner:users!owner_id(nickname, tribes))')
+    .select('list:lists!list_id(*, owner:users!owner_id(nickname))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -301,7 +299,6 @@ export async function getSubscribedLists(userId: string): Promise<SaList[]> {
     return {
       ...list,
       owner_nickname: owner?.nickname as string | undefined,
-      owner_tribe: (owner?.tribes as string[] | undefined)?.[0] as SaList['owner_tribe'],
       owner: undefined,
     } as unknown as SaList
   })

@@ -14,7 +14,7 @@ export async function getListByIdServer(idOrSlug: string): Promise<SaList | null
 
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, tribes)')
+    .select('*, owner:users!owner_id(nickname)')
     .eq(column, idOrSlug)
     .single()
 
@@ -26,7 +26,6 @@ export async function getListByIdServer(idOrSlug: string): Promise<SaList | null
   return {
     ...data,
     owner_nickname: (data.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner_tribe: ((data.owner as Record<string, unknown>)?.tribes as string[] | undefined)?.[0] as SaList['owner_tribe'],
     owner: undefined,
   }
 }

@@ -32,12 +32,17 @@ export default function DataState({
 
   // Error
   if (error) {
+    const dbPatterns = /column|relation|violates|does not exist|PGRST|constraint/i
+    const displayMessage = dbPatterns.test(error)
+      ? '데이터를 불러오지 못했어요. 잠시 후 다시 시도해주세요.'
+      : error
+    console.error('DataState error:', error)
     return (
       <div className="text-center py-16">
         <span className="material-symbols-outlined text-4xl mb-3 block" style={{ color: 'var(--color-accent)' }}>
           error
         </span>
-        <p className="text-stone-500 text-sm">{error}</p>
+        <p className="text-stone-500 text-sm">{displayMessage}</p>
       </div>
     )
   }
