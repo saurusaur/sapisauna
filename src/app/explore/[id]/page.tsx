@@ -334,9 +334,12 @@ export default function PlaceDetailPage() {
   const googleSource = place.sources.find(s => s.source === 'google')
 
   // Naver external_id는 좌표 조합(mapx_mapy)이라 place URL로 사용 불가 → 검색 URL 사용
+  const naverSearchName = place.short_address
+    ? `${place.name} ${place.short_address}`
+    : place.name
   const naverMapUrl = place.latitude
-    ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}?c=${place.longitude},${place.latitude},17`
-    : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
+    ? `https://map.naver.com/v5/search/${encodeURIComponent(naverSearchName)}?c=${place.longitude},${place.latitude},17`
+    : `https://map.naver.com/v5/search/${encodeURIComponent(naverSearchName)}`
 
   const googleMapUrl = googleSource?.external_id
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${googleSource.external_id}`
