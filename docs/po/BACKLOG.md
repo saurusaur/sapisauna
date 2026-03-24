@@ -13,7 +13,8 @@
 - [ ] [인프라] 에러 로깅 — 베타 기간 버그 리포트 수집 필수. Sentry 또는 간단 에러 바운더리 | priority: P0 | added: 2026-02-28
 
 <!-- P1 — 베타 핵심 기능 -->
-- [ ] [기능] 장소 찜/컬렉션 + 큐레이션 — Spotify Playlist 모델. 찜(localStorage→DB) + 리스트 생성/관리(공개·비공개) + 어드민 큐레이션(사우나슐렝/올해의사우나 등). DB 드래프트: `scripts/010_curated_lists_DRAFT.sql` | priority: P1 | added: 2026-03-21
+- [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
+- [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P1 | added: 2026-03-23
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
@@ -34,6 +35,10 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-03-23
+- [x] [기능] SA-LIST 전체 구현 — DB 스키마(010) + 서비스 + 인스타식 저장 UX + 리스트 생성(태그+장소+메모) + 구독/해지 Undo + 어드민 추천(is_featured) + 발견 탭 캐러셀 | done: 2026-03-23
+- [x] [리팩토링] Devil's Advocate 이슈 해결 — usePlaces→usePlaceSearch, N+1→RPC, 구독 guard, 스낵바 ref, share/visibility 중복 추출, DB 트리거→코드 이동 | done: 2026-03-23
 
 ### 2026-03-21
 - [x] [기능] 딥로그 탕/사우나 온도 통합 — 온탕/열탕/냉탕 토글 통합섹션 + 건식/습식 tribe별 분기 + 점수 미선택/재클릭 해제 | done: 2026-03-21
