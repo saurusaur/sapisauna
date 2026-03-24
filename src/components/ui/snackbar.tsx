@@ -80,17 +80,6 @@ export function SaveSnackbar({
 
   if (!show) return null
 
-  // 정렬: 이미 들어있는 리스트 상위 → 나머지
-  const sortedLists = [...userLists].sort((a, b) => {
-    const aIn = savedListIds.includes(a.id) ? 0 : 1
-    const bIn = savedListIds.includes(b.id) ? 0 : 1
-    return aIn - bIn
-  })
-
-  // 최대 3개 표시, 나머지는 "···"
-  const displayLists = sortedLists.slice(0, 3)
-  const hasMore = sortedLists.length > 3
-
   return (
     <div
       className="fixed bottom-20 left-4 right-4 z-40 animate-intro-up"
@@ -100,56 +89,19 @@ export function SaveSnackbar({
       onMouseLeave={startTimer}
     >
       <div className="bg-stone-800 text-white rounded-xl px-4 py-3 shadow-lg">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-3 text-sm">
           <span className="material-symbols-rounded text-base text-green-400">check</span>
-          <span className="font-medium whitespace-nowrap">저장됨</span>
-          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-            {displayLists.map((list) => {
-              const isIn = savedListIds.includes(list.id)
-              return (
-                <button
-                  key={list.id}
-                  onClick={() => onToggleList(list.id)}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-colors ${
-                    isIn
-                      ? 'bg-white/20 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/15'
-                  }`}
-                >
-                  {isIn && (
-                    <span className="material-symbols-rounded text-xs">check</span>
-                  )}
-                  {list.title}
-                </button>
-              )
-            })}
-            {/* 새 리스트 */}
-            <button
-              onClick={onShowMore}
-              className="flex items-center gap-0.5 px-2.5 py-1 rounded-full text-xs whitespace-nowrap bg-white/10 text-white/60 hover:bg-white/15"
-            >
-              <span className="material-symbols-rounded text-xs">add</span>
-              새로
-            </button>
-            {/* 더보기 */}
-            {hasMore && (
-              <button
-                onClick={onShowMore}
-                className="px-2 py-1 text-xs text-white/60 hover:text-white"
-              >
-                ···
-              </button>
-            )}
-          </div>
-          {/* 메모 버튼 */}
+          <span className="font-medium flex-1">MY SA-LIST에 저장됨</span>
           {onMemo && (
             <button
               onClick={onMemo}
-              className="flex-shrink-0 p-1 text-white/60 hover:text-white transition-colors"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit_note</span>
-            </button>
+              className="text-xs text-white/70 hover:text-white whitespace-nowrap"
+            >메모 추가</button>
           )}
+          <button
+            onClick={onShowMore}
+            className="text-xs text-white/70 hover:text-white whitespace-nowrap"
+          >새 리스트</button>
         </div>
       </div>
     </div>

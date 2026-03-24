@@ -36,7 +36,7 @@ export default function SaListDetailClient() {
   const { isSaved, toggleDefaultSave } = useSavePlace()
   const { subscribed, toggling: subscribing, toggle: toggleSubscribe } = useSubscription(listId)
   const { user } = useAuth()
-  const { showError, showUndo } = useToast()
+  const { showError, showNotice } = useToast()
   const { toggleVisibility, deleteList: confirmDeleteList } = useListActions({
     onSuccess: refreshList,
     onError: showError,
@@ -121,7 +121,7 @@ export default function SaListDetailClient() {
   const handleRemovePlace = useCallback(async (placeId: string) => {
     try {
       await listsService.removePlaceFromList(listId, placeId)
-      showUndo('장소를 제거했어요', async () => {
+      showNotice('장소를 제거했어요', async () => {
         await listsService.addPlaceToList(listId, placeId)
         refreshItems()
       })
@@ -129,7 +129,7 @@ export default function SaListDetailClient() {
     } catch {
       showError('제거에 실패했어요')
     }
-  }, [listId, refreshItems, showError, showUndo])
+  }, [listId, refreshItems, showError, showNotice])
 
   // 메모 저장
   const handleSaveMemo = useCallback(async (placeId: string) => {
@@ -250,9 +250,9 @@ export default function SaListDetailClient() {
                     const was = subscribed
                     await toggleSubscribe()
                     if (was) {
-                      showUndo(`${list?.title} 구독 해지됨`, async () => { await toggleSubscribe() })
+                      showNotice(`${list?.title} 구독 해지됨`, async () => { await toggleSubscribe() })
                     } else {
-                      showUndo(`${list?.title} 구독됨`, async () => { await toggleSubscribe() })
+                      showNotice(`${list?.title} 구독됨`, async () => { await toggleSubscribe() })
                     }
                   }}
                   disabled={subscribing}

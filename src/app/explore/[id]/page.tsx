@@ -18,6 +18,9 @@ import { useAuth } from '@/contexts/auth-context'
 import BottomCTA from '@/components/ui/bottom-cta'
 import { SaveSnackbar } from '@/components/ui/snackbar'
 import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
+import { useToast } from '@/contexts/toast-context'
+import { BottomSheet } from '@/components/ui/bottom-sheet'
+import * as listsService from '@/lib/lists-service'
 
 // PLACE_SPECS 섹션별로 시설 분류 (AMENITIES 포함)
 const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const
@@ -31,12 +34,18 @@ export default function PlaceDetailPage() {
   const { data: placeLogs, loading: logsLoading } = useLogsByPlace(placeId)
   const { stats } = usePlaceStats(placeId)
   const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
+  const { showError, showNotice } = useToast()
 
   // 스낵바 + 바텀시트 상태
   const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
   const [sheetCreateMode, setSheetCreateMode] = useState(false)
+
+  // 메모 미니 바텀시트
+  const [memoSheetOpen, setMemoSheetOpen] = useState(false)
+  const [memoSheetText, setMemoSheetText] = useState('')
+  const [savingMemo, setSavingMemo] = useState(false)
 
   const userCollections = useMemo(
     () => myLists.filter((l) => l.type !== 'default'),
@@ -50,11 +59,15 @@ export default function PlaceDetailPage() {
       const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
       if (inCustomLists.length === 0) {
         await toggleDefaultSave(placeId)
+        showNotice('저장 해제됨')
       } else {
         const confirmed = window.confirm(
           `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
         )
-        if (confirmed) await removeFromAll(placeId)
+        if (confirmed) {
+          await removeFromAll(placeId)
+          showNotice('저장 해제됨')
+        }
       }
     } else {
       await toggleDefaultSave(placeId)
@@ -66,7 +79,7 @@ export default function PlaceDetailPage() {
         setSheetOpen(true)
       }
     }
-  }, [isSaved, toggleDefaultSave, placeId, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+  }, [isSaved, toggleDefaultSave, placeId, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
 
   const handleSnackbarToggle = useCallback(async (listId: string) => {
     await toggleListSave(placeId, listId)
@@ -78,6 +91,26 @@ export default function PlaceDetailPage() {
     setSheetCreateMode(true)
     setSheetOpen(true)
   }, [])
+
+  const handleOpenMemo = useCallback(() => {
+    setSnackbarPlaceId(null)
+    setMemoSheetOpen(true)
+    setMemoSheetText('')
+  }, [])
+
+  const handleSavePlaceMemo = useCallback(async () => {
+    if (!defaultListId) return
+    setSavingMemo(true)
+    try {
+      await listsService.updateListItemMemo(defaultListId, placeId, memoSheetText.trim() || null)
+      setMemoSheetOpen(false)
+      setMemoSheetText('')
+    } catch {
+      showError('메모 저장에 실패했어요')
+    } finally {
+      setSavingMemo(false)
+    }
+  }, [defaultListId, placeId, memoSheetText, showError])
   const { user: authUser } = useAuth()
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
@@ -302,14 +335,14 @@ export default function PlaceDetailPage() {
 
   // Naver external_id는 좌표 조합(mapx_mapy)이라 place URL로 사용 불가 → 검색 URL 사용
   const naverMapUrl = place.latitude
-    ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}?c=${place.longitude},${place.latitude},17`
+    ? `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}?c=${place.longitude},${place.latitude},17`
     : `https://map.naver.com/v5/search/${encodeURIComponent(place.name + ' ' + place.address)}`
 
   const googleMapUrl = googleSource?.external_id
-    ? `https://www.google.com/maps/place/?q=place_id:${googleSource.external_id}`
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${googleSource.external_id}`
     : place.latitude
-      ? `https://www.google.com/maps/search/${encodeURIComponent(place.name)}/@${place.latitude},${place.longitude},17z`
-      : `https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.address)}`
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
 
   // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {
@@ -420,7 +453,7 @@ export default function PlaceDetailPage() {
                     fontVariationSettings: isSavedPlace ? "'FILL' 1" : "'FILL' 0",
                   }}
                 >
-                  {isSavedPlace ? 'heart_check' : 'heart_plus'}
+                  bookmark_heart
                 </span>
               </div>
             </div>
@@ -449,7 +482,7 @@ export default function PlaceDetailPage() {
         )}
 
         {/* D. 통계 섹션 — 사-피엔스의 흔적 */}
-        {placeLogs.length > 0 && (
+        {placeLogs.length > 0 && (tempMetrics.length > 0 || tribeSubMetrics.length > 0 || crowdTotal > 0 || additionalMetrics.length > 0) && (
           <div>
             {/* 헤더 + 트라이브 바 한줄 */}
             <div className="flex items-center justify-between mb-3">
@@ -680,7 +713,7 @@ export default function PlaceDetailPage() {
         userLists={[]}
         onToggleList={handleSnackbarToggle}
         onShowMore={handleShowMore}
-        onMemo={handleShowMore}
+        onMemo={handleOpenMemo}
       />
 
       {/* 인스타식 저장 바텀시트 */}
@@ -691,6 +724,33 @@ export default function PlaceDetailPage() {
         onClose={() => setSheetOpen(false)}
         startInCreateMode={sheetCreateMode}
       />
+
+      {/* 메모 미니 바텀시트 */}
+      <BottomSheet open={memoSheetOpen} onClose={() => { setMemoSheetOpen(false); setMemoSheetText('') }} title="메모 추가">
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={memoSheetText}
+            onChange={(e) => setMemoSheetText(e.target.value.slice(0, 100))}
+            placeholder="이 장소에 대한 메모 (최대 100자)"
+            autoFocus
+            className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSavePlaceMemo() }}
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => { setMemoSheetOpen(false); setMemoSheetText('') }}
+              className="px-3 py-1.5 text-xs text-stone-400"
+            >취소</button>
+            <button
+              onClick={handleSavePlaceMemo}
+              disabled={savingMemo}
+              className="px-4 py-1.5 text-xs font-medium text-white rounded-lg disabled:opacity-40"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+            >{savingMemo ? '저장 중...' : '저장'}</button>
+          </div>
+        </div>
+      </BottomSheet>
 
       <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>
     </div>

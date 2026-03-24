@@ -40,7 +40,7 @@ interface SelectedPlace {
 export default function SaListPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const { showError, showUndo } = useToast()
+  const { showError, showNotice } = useToast()
   const [activeTab, setActiveTab] = useState<Tab>('내 리스트')
 
   // 데이터 훅
@@ -60,6 +60,7 @@ export default function SaListPage() {
 
   // 장소 검색 (300ms 디바운스)
   const { results: placeResults, loading: placeSearchLoading, search: searchPlace } = usePlaceSearch()
+  const tagInputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -98,6 +99,7 @@ export default function SaListPage() {
       setNewTags((prev) => [...prev, tag])
     }
     setTagInput('')
+    setTimeout(() => tagInputRef.current?.focus(), 0)
   }, [tagInput, newTags])
 
   const handleCreateList = useCallback(async () => {
@@ -186,7 +188,7 @@ export default function SaListPage() {
                 key={list.id}
                 list={list}
                 onClick={() => router.push(`/sa-list/${list.id}`)}
-                showUndo={showUndo}
+                showNotice={showNotice}
               />
             ))}
           </div>
@@ -217,7 +219,7 @@ export default function SaListPage() {
                     <SubscribedCoverCard
                       list={list}
                       onClick={() => router.push(`/sa-list/${list.id}`)}
-                      showUndo={showUndo}
+                      showNotice={showNotice}
                     />
                   </div>
                 ))}
@@ -237,7 +239,7 @@ export default function SaListPage() {
                     key={list.id}
                     list={list}
                     onClick={() => router.push(`/sa-list/${list.id}`)}
-                    showUndo={showUndo}
+                    showNotice={showNotice}
                   />
                 ))}
               </div>
@@ -279,7 +281,7 @@ export default function SaListPage() {
         onClose={handleCloseCreateSheet}
         title="새 리스트 만들기"
       >
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="space-y-4">
           {/* 1. 이름 */}
           <div>
             <label className="text-xs text-stone-500 mb-1 block">이름 *</label>
@@ -316,6 +318,7 @@ export default function SaListPage() {
             {newTags.length < 5 && (
               <div className="flex gap-2">
                 <input
+                  ref={tagInputRef}
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value.slice(0, 15))}
@@ -324,6 +327,7 @@ export default function SaListPage() {
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag() } }}
                 />
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleAddTag}
                   disabled={!tagInput.trim()}
                   className="px-3 py-1.5 text-xs font-medium rounded-lg disabled:opacity-40"
@@ -437,11 +441,11 @@ export default function SaListPage() {
 
 // 구독 상태가 포함된 CoverCard 래퍼 — 해지 시 Undo 토스트
 function SubscribedCoverCard({
-  list, onClick, showUndo,
+  list, onClick, showNotice,
 }: {
   list: SaList
   onClick: () => void
-  showUndo: (msg: string, undo: () => Promise<void>) => void
+  showNotice: (msg: string, undo: () => Promise<void>) => void
 }) {
   const { subscribed, toggling, toggle } = useSubscription(list.id)
 
@@ -449,11 +453,11 @@ function SubscribedCoverCard({
     const wasSubscribed = subscribed
     await toggle()
     if (wasSubscribed) {
-      showUndo(`${list.title} 구독 해지됨`, async () => { await toggle() })
+      showNotice(`${list.title} 구독 해지됨`, async () => { await toggle() })
     } else {
-      showUndo(`${list.title} 구독됨`, async () => { await toggle() })
+      showNotice(`${list.title} 구독됨`, async () => { await toggle() })
     }
-  }, [subscribed, toggle, list.title, showUndo])
+  }, [subscribed, toggle, list.title, showNotice])
 
   return (
     <CoverCard

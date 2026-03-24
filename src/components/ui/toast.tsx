@@ -1,7 +1,7 @@
 /**
  * Toast 컴포넌트 — VIS 9-7 기준
  * error: primary-light BG + primary text, 4초
- * undo: stone-800 BG + white text + "되돌리기" 버튼, 5초
+ * notice: stone-800 BG + white text + "되돌리기" 버튼 (optional), 5초
  * 위치: BottomNav 위 (bottom: 80px)
  */
 
@@ -27,7 +27,7 @@ export function ToastContainer() {
         >
           <div className="flex items-center justify-between gap-3">
             <span className="flex-1">{toast.message}</span>
-            {toast.type === 'undo' && toast.onUndo && (
+            {toast.type === 'notice' && toast.onUndo && (
               <button
                 onClick={() => {
                   toast.onUndo?.()

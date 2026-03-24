@@ -20,6 +20,9 @@ import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 import { SaveSnackbar } from '@/components/ui/snackbar'
 import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
+import { useToast } from '@/contexts/toast-context'
+import { BottomSheet } from '@/components/ui/bottom-sheet'
+import * as listsService from '@/lib/lists-service'
 
 
 
@@ -42,6 +45,7 @@ export default function ExplorePage() {
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
   const { isSaved, toggleDefaultSave, checkSavedStatus, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
+  const { showError, showNotice } = useToast()
   const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
@@ -54,6 +58,12 @@ export default function ExplorePage() {
   const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
   const [sheetPlaceId, setSheetPlaceId] = useState<string>('')
   const [sheetCreateMode, setSheetCreateMode] = useState(false)
+
+  // 메모 미니 바텀시트
+  const [memoSheetOpen, setMemoSheetOpen] = useState(false)
+  const [memoSheetText, setMemoSheetText] = useState('')
+  const [memoPlaceId, setMemoPlaceId] = useState<string>('')
+  const [savingMemo, setSavingMemo] = useState(false)
 
   // 유저 컬렉션 (default 제외)
   const userCollections = useMemo(
@@ -73,12 +83,16 @@ export default function ExplorePage() {
       if (inCustomLists.length === 0) {
         // 기본 리스트에만 있음 → 바로 해제
         await toggleDefaultSave(placeId)
+        showNotice('저장 해제됨')
       } else {
         // 다른 컬렉션에도 있음 → 확인 모달
         const confirmed = window.confirm(
           `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
         )
-        if (confirmed) await removeFromAll(placeId)
+        if (confirmed) {
+          await removeFromAll(placeId)
+          showNotice('저장 해제됨')
+        }
       }
     } else {
       // 미저장 → 기본 저장
@@ -95,7 +109,7 @@ export default function ExplorePage() {
         setSheetOpen(true)
       }
     }
-  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
 
   // 스낵바에서 리스트 토글 (컬렉션 없는 유저용이므로 사실상 사용 안 됨)
   const handleSnackbarToggle = useCallback(async (listId: string) => {
@@ -113,6 +127,28 @@ export default function ExplorePage() {
     setSheetCreateMode(true)
     setSheetOpen(true)
   }, [snackbarPlaceId])
+
+  const handleOpenMemo = useCallback(() => {
+    if (!snackbarPlaceId) return
+    setMemoPlaceId(snackbarPlaceId)
+    setSnackbarPlaceId(null)
+    setMemoSheetOpen(true)
+    setMemoSheetText('')
+  }, [snackbarPlaceId])
+
+  const handleSavePlaceMemo = useCallback(async () => {
+    if (!defaultListId || !memoPlaceId) return
+    setSavingMemo(true)
+    try {
+      await listsService.updateListItemMemo(defaultListId, memoPlaceId, memoSheetText.trim() || null)
+      setMemoSheetOpen(false)
+      setMemoSheetText('')
+    } catch {
+      showError('메모 저장에 실패했어요')
+    } finally {
+      setSavingMemo(false)
+    }
+  }, [defaultListId, memoPlaceId, memoSheetText, showError])
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
@@ -472,7 +508,7 @@ export default function ExplorePage() {
         userLists={[]}
         onToggleList={handleSnackbarToggle}
         onShowMore={handleShowMore}
-        onMemo={handleShowMore}
+        onMemo={handleOpenMemo}
       />
 
       {/* 인스타식 저장 바텀시트 */}
@@ -485,6 +521,33 @@ export default function ExplorePage() {
           startInCreateMode={sheetCreateMode}
         />
       )}
+
+      {/* 메모 미니 바텀시트 */}
+      <BottomSheet open={memoSheetOpen} onClose={() => { setMemoSheetOpen(false); setMemoSheetText('') }} title="메모 추가">
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={memoSheetText}
+            onChange={(e) => setMemoSheetText(e.target.value.slice(0, 100))}
+            placeholder="이 장소에 대한 메모 (최대 100자)"
+            autoFocus
+            className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSavePlaceMemo() }}
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => { setMemoSheetOpen(false); setMemoSheetText('') }}
+              className="px-3 py-1.5 text-xs text-stone-400"
+            >취소</button>
+            <button
+              onClick={handleSavePlaceMemo}
+              disabled={savingMemo}
+              className="px-4 py-1.5 text-xs font-medium text-white rounded-lg disabled:opacity-40"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+            >{savingMemo ? '저장 중...' : '저장'}</button>
+          </div>
+        </div>
+      </BottomSheet>
 
       <BottomNav />
     </div>

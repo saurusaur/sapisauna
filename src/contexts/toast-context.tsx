@@ -1,5 +1,5 @@
 /**
- * Toast 전역 Context — error + undo 2가지 타입만
+ * Toast 전역 Context — error + notice 2가지 타입만
  * VIS 9-7 기준: BottomNav 위 (bottom: 80px), animate-intro-up
  */
 
@@ -7,7 +7,7 @@
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 
-export type ToastType = 'error' | 'undo'
+export type ToastType = 'error' | 'notice'
 
 interface Toast {
   id: string
@@ -20,7 +20,7 @@ interface Toast {
 interface ToastContextValue {
   toasts: Toast[]
   showError: (message: string) => void
-  showUndo: (message: string, onUndo: () => void) => void
+  showNotice: (message: string, onUndo?: () => void) => void
   dismiss: (id: string) => void
 }
 
@@ -45,12 +45,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     addToast({ type: 'error', message, duration: 4000 })
   }, [addToast])
 
-  const showUndo = useCallback((message: string, onUndo: () => void) => {
-    addToast({ type: 'undo', message, onUndo, duration: 5000 })
+  const showNotice = useCallback((message: string, onUndo?: () => void) => {
+    addToast({ type: 'notice', message, onUndo, duration: 5000 })
   }, [addToast])
 
   return (
-    <ToastContext.Provider value={{ toasts, showError, showUndo, dismiss }}>
+    <ToastContext.Provider value={{ toasts, showError, showNotice, dismiss }}>
       {children}
     </ToastContext.Provider>
   )

@@ -152,7 +152,7 @@ export function SaveBottomSheet({
         title,
         type: 'user',
       })
-      await listsService.addPlaceToList(list.id, placeId)
+      await toggleListSave(placeId, list.id)
       setNewTitle('')
       setShowCreate(false)
       refreshMyLists()
@@ -200,7 +200,7 @@ export function SaveBottomSheet({
           {/* 구분선 + 섹션 헤더 */}
           {mode === 'save' && (
             <div className="flex items-center justify-between pt-2 pb-1 border-t border-stone-100">
-              <span className="text-xs font-semibold text-stone-400">SA-LIST</span>
+              <span className="text-xs font-semibold text-stone-400">내 리스트</span>
               {!showCreate && (
                 <button
                   onClick={() => setShowCreate(true)}
@@ -253,6 +253,12 @@ export function SaveBottomSheet({
                     disabled={isPending}
                     className="w-full flex items-center gap-3 px-1 py-2.5 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50"
                   >
+                    <div className="flex-1 text-left">
+                      <span className="text-sm text-stone-700">{list.title}</span>
+                    </div>
+
+                    <span className="text-xs text-stone-400">{list.place_count}곳</span>
+
                     {/* heart_plus / heart_check 토글 */}
                     <span
                       className="material-symbols-outlined"
@@ -264,12 +270,6 @@ export function SaveBottomSheet({
                     >
                       {checked ? 'heart_check' : 'heart_plus'}
                     </span>
-
-                    <div className="flex-1 text-left">
-                      <span className="text-sm text-stone-700">{list.title}</span>
-                    </div>
-
-                    <span className="text-xs text-stone-400">{list.place_count}곳</span>
                   </button>
 
                   {/* 인라인 메모 (추가 직후 표시) */}
