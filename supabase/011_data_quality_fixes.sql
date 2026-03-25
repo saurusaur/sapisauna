@@ -189,3 +189,12 @@ WHERE log_id IN (
     AND l.place_id IN (SELECT place_id FROM place_sources WHERE name_original LIKE '%도미인%인사동%')
 )
 AND cost = 140000;
+
+-- ─── 12. 현대그린사우나 → 그린사우나 시설명 수정 ───
+-- 노션 원본: "그린사우나" (경기 광주시 포돌이로 15)
+-- 시드 등록 시 네이버 검색에서 서울 관악구 "현대그린사우나"를 잘못 매칭하여 이름 덮어씀
+
+UPDATE place_sources SET name_original = '그린사우나'
+WHERE name_original LIKE '%현대그린사우나%';
+
+-- 관악사우나 → "관악프라자24시불가마사우나" — 유저가 DB에서 직접 수정 완료
