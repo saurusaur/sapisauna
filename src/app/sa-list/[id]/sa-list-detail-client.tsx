@@ -14,17 +14,17 @@ import { useSubscription } from '@/hooks/use-subscriptions'
 import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/contexts/toast-context'
 import { usePlaceSearch } from '@/hooks/use-places'
-import { useListActions } from '@/hooks/use-list-actions'
 import { shareList } from '@/lib/share'
 import * as listsService from '@/lib/lists-service'
 import PlaceCard from '@/components/features/place-card'
 import DataState from '@/components/ui/data-state'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import BottomNav from '@/components/bottom-nav'
+import { SaveFlow } from '@/components/features/save-flow'
+import { ListManageSheet } from '@/components/features/list-manage-sheet'
+import ConfirmModal from '@/components/ui/confirm-modal'
 
 const MAX_MEMO_LENGTH = 100
-const MAX_TITLE_LENGTH = 20
-const MAX_DESC_LENGTH = 140
 
 export default function SaListDetailClient() {
   const router = useRouter()
@@ -33,26 +33,20 @@ export default function SaListDetailClient() {
 
   const { data: list, loading: listLoading, error: listError, refresh: refreshList } = useList(listId)
   const { data: items, loading: itemsLoading, error: itemsError, refresh: refreshItems } = useListItems(listId)
-  const { isSaved, toggleDefaultSave } = useSavePlace()
+  const { isSaved, batchCheckSaved, getSavedListIds, removeFromAll } = useSavePlace()
   const { subscribed, toggling: subscribing, toggle: toggleSubscribe } = useSubscription(listId)
   const { user } = useAuth()
   const { showError, showNotice } = useToast()
-  const { toggleVisibility, deleteList: confirmDeleteList } = useListActions({
-    onSuccess: refreshList,
-    onError: showError,
-  })
+
+  // resolvedListId — slug URL 지원을 위해
+  const resolvedListId = list?.id || ''
 
   const isMine = list?.owner_id === user?.id
   const isDefault = list?.type === 'default'
   const isAdmin = user?.id === ADMIN_USER_ID
 
-  // 3-dot 메뉴
-  const [showMenu, setShowMenu] = useState(false)
-
-  // 리스트 편집
-  const [showEditSheet, setShowEditSheet] = useState(false)
-  const [editTitle, setEditTitle] = useState('')
-  const [editDesc, setEditDesc] = useState('')
+  // ListManageSheet (3-dot 메뉴 → 편집/공개설정/삭제)
+  const [showManageSheet, setShowManageSheet] = useState(false)
 
   // 장소 추가 검색 (서버사이드 ILIKE, 300ms 디바운스)
   const [showAddSheet, setShowAddSheet] = useState(false)
@@ -71,77 +65,74 @@ export default function SaListDetailClient() {
   const [editingMemoId, setEditingMemoId] = useState<string | null>(null)
   const [memoText, setMemoText] = useState('')
 
-  // 장소별 ··· 메뉴
-  const [itemMenuId, setItemMenuId] = useState<string | null>(null)
+  // 리스트에서 장소 제거 확인 모달
+  const [removeConfirmPlaceId, setRemoveConfirmPlaceId] = useState<string | null>(null)
+
+  // items 로드 시 batchCheckSaved
+  useEffect(() => {
+    if (items.length === 0 || !user) return
+    const placeIds = items.filter(i => i.place).map(i => i.place_id)
+    if (placeIds.length > 0) batchCheckSaved(placeIds)
+  }, [items, user, batchCheckSaved])
 
   // 검색 결과 — 이미 리스트에 있는 장소 제외
   const existingPlaceIds = new Set(items.map((item) => item.place_id))
   const filteredResults = searchResults.filter((p) => !existingPlaceIds.has(p.id)).slice(0, 10)
 
-  // visibility 순환 토글 (useListActions 사용)
-  const handleToggleVisibility = useCallback(() => {
-    if (list) toggleVisibility(list)
-  }, [list, toggleVisibility])
-
-  // 리스트 삭제 (useListActions 사용)
-  const handleDelete = useCallback(async () => {
-    if (!list) return
-    const deleted = await confirmDeleteList(list)
-    if (deleted) router.back()
-  }, [list, confirmDeleteList, router])
-
-  // 리스트 메타 수정
-  const handleEdit = useCallback(async () => {
-    if (!list) return
-    const title = editTitle.trim()
-    if (!title) return
-
-    try {
-      await listsService.updateList(list.id, {
-        title,
-        description: editDesc.trim() || null,
-      })
-      setShowEditSheet(false)
-      refreshList()
-    } catch {
-      showError('수정에 실패했어요')
-    }
-  }, [list, editTitle, editDesc, showError, refreshList])
-
+  // 장소 추가
   const handleAddPlace = useCallback(async (placeId: string) => {
     try {
-      await listsService.addPlaceToList(listId, placeId)
+      await listsService.addPlaceToList(resolvedListId || listId, placeId)
       refreshItems()
+      refreshList()
     } catch {
       showError('추가에 실패했어요')
     }
-  }, [listId, refreshItems, showError])
+  }, [resolvedListId, listId, refreshItems, refreshList, showError])
 
-  // 장소 제거
+  // 장소 제거 (isMine 북마크)
+  const handleRemoveFromList = useCallback((placeId: string) => {
+    // 다른 리스트에도 저장되어 있는지 확인
+    const savedListIds = getSavedListIds(placeId)
+    const otherLists = savedListIds.filter(id => id !== resolvedListId && id !== listId)
+
+    if (otherLists.length > 0) {
+      // 다중 리스트에 포함 → 확인 모달
+      setRemoveConfirmPlaceId(placeId)
+    } else {
+      // 이 리스트에서만 제거
+      handleRemovePlace(placeId)
+    }
+  }, [getSavedListIds, resolvedListId, listId])
+
+  // 장소 제거 실행
   const handleRemovePlace = useCallback(async (placeId: string) => {
     try {
-      await listsService.removePlaceFromList(listId, placeId)
+      await listsService.removePlaceFromList(resolvedListId || listId, placeId)
       showNotice('장소를 제거했어요', async () => {
-        await listsService.addPlaceToList(listId, placeId)
+        await listsService.addPlaceToList(resolvedListId || listId, placeId)
         refreshItems()
+        refreshList()
       })
       refreshItems()
+      refreshList()
     } catch {
       showError('제거에 실패했어요')
     }
-  }, [listId, refreshItems, showError, showNotice])
+  }, [resolvedListId, listId, refreshItems, refreshList, showError, showNotice])
 
   // 메모 저장
   const handleSaveMemo = useCallback(async (placeId: string) => {
     try {
-      await listsService.updateListItemMemo(listId, placeId, memoText.trim() || null)
+      await listsService.updateListItemMemo(resolvedListId || listId, placeId, memoText.trim() || null)
       setEditingMemoId(null)
       setMemoText('')
       refreshItems()
+      showNotice('메모가 저장되었어요')
     } catch {
       showError('메모 저장에 실패했어요')
     }
-  }, [listId, memoText, refreshItems, showError])
+  }, [resolvedListId, listId, memoText, refreshItems, showError, showNotice])
 
   // 공유 (shareList 유틸 사용)
   const handleShare = useCallback(async () => {
@@ -162,6 +153,8 @@ export default function SaListDetailClient() {
   }, [list, refreshList, showError])
 
   return (
+    <SaveFlow>
+      {(handleSaveFlowToggle) => (
     <div className="min-h-dvh pb-20 bath-tile-bg">
       {/* 헤더 */}
       <header className="p-5 pt-8">
@@ -195,9 +188,9 @@ export default function SaListDetailClient() {
             </button>
           )}
 
-          {/* 본인: 3-dot 메뉴 */}
+          {/* 본인: 3-dot 메뉴 → ListManageSheet */}
           {isMine && !isDefault && (
-            <button onClick={() => setShowMenu(true)} className="text-stone-400 hover:text-stone-600">
+            <button onClick={() => setShowManageSheet(true)} className="text-stone-400 hover:text-stone-600">
               <span className="material-symbols-outlined">more_vert</span>
             </button>
           )}
@@ -216,10 +209,9 @@ export default function SaListDetailClient() {
                 <h1 className="text-xl font-bold text-stone-800">
                   {isDefault ? 'MY SA-LIST' : list.title}
                 </h1>
-                {/* visibility 배지 */}
+                {/* visibility 배지 (읽기 전용) */}
                 {isMine && !isDefault && (
-                  <button
-                    onClick={handleToggleVisibility}
+                  <span
                     className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                     style={list.visibility === 'public'
                       ? { backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }
@@ -229,7 +221,7 @@ export default function SaListDetailClient() {
                     }
                   >
                     {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
-                  </button>
+                  </span>
                 )}
               </div>
 
@@ -244,15 +236,15 @@ export default function SaListDetailClient() {
               </div>
 
               {/* 타인: 구독 버튼 */}
-              {!isMine && (
+              {!isMine && user && (
                 <button
                   onClick={async () => {
                     const was = subscribed
                     await toggleSubscribe()
                     if (was) {
-                      showNotice(`${list?.title} 구독 해지됨`, async () => { await toggleSubscribe() })
+                      showNotice(`${list?.title} 구독해지`, async () => { await toggleSubscribe() })
                     } else {
-                      showNotice(`${list?.title} 구독됨`, async () => { await toggleSubscribe() })
+                      showNotice(`${list?.title} 구독완료!`)
                     }
                   }}
                   disabled={subscribing}
@@ -266,8 +258,19 @@ export default function SaListDetailClient() {
                   <span
                     className="material-symbols-outlined"
                     style={{ fontSize: '16px', fontVariationSettings: subscribed ? "'FILL' 1" : "'FILL' 0" }}
-                  >favorite</span>
+                  >bookmark_add</span>
                   {subscribed ? '구독중' : '구독하기'}
+                </button>
+              )}
+
+              {/* 비로그인: 로그인 유도 */}
+              {!isMine && !user && (
+                <button
+                  onClick={() => router.push('/login')}
+                  className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-input text-stone-500 hover:text-stone-700 transition-all"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>bookmark_add</span>
+                  로그인하고 구독하기
                 </button>
               )}
             </div>
@@ -302,23 +305,19 @@ export default function SaListDetailClient() {
                   <PlaceCard
                     place={item.place}
                     variant="collection"
-                    collectionMemo={item.memo || undefined}
-                    isSaved={isSaved(item.place.id)}
-                    onToggleSave={() => toggleDefaultSave(item.place!.id)}
+                    collectionMemo={item.memo ?? ''}
+                    isSaved={user ? isSaved(item.place.id) : false}
+                    isMine={isMine}
+                    onToggleSave={isMine
+                      ? () => handleRemoveFromList(item.place!.id)
+                      : user ? () => handleSaveFlowToggle(item.place!.id) : undefined
+                    }
+                    onEditMemo={isMine ? (memo) => {
+                      setMemoText(memo)
+                      setEditingMemoId(item.place_id)
+                    } : undefined}
                     onClick={() => router.push(`/explore/${item.place!.id}`)}
                   />
-
-                  {isMine && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setItemMenuId(item.place_id)
-                      }}
-                      className="absolute top-3 right-3 text-stone-400 hover:text-stone-600"
-                    >
-                      <span className="material-symbols-outlined text-lg">more_vert</span>
-                    </button>
-                  )}
 
                   {editingMemoId === item.place_id && (
                     <div className="mt-1 flex gap-2">
@@ -349,92 +348,29 @@ export default function SaListDetailClient() {
         </DataState>
       </main>
 
-      {/* 3-dot 메뉴 바텀시트 */}
-      <BottomSheet open={showMenu} onClose={() => setShowMenu(false)} title="리스트 관리">
-        <div className="space-y-1">
-          <button
-            onClick={() => {
-              setShowMenu(false)
-              setEditTitle(list?.title || '')
-              setEditDesc(list?.description || '')
-              setShowEditSheet(true)
-            }}
-            className="w-full flex items-center gap-3 px-1 py-3 rounded-lg hover:bg-stone-50 transition-colors"
-          >
-            <span className="material-symbols-outlined text-stone-500">{ICONS.EDIT}</span>
-            <span className="text-sm text-stone-700">편집</span>
-          </button>
-          <button
-            onClick={() => { setShowMenu(false); handleDelete() }}
-            className="w-full flex items-center gap-3 px-1 py-3 rounded-lg hover:bg-stone-50 transition-colors"
-          >
-            <span className="material-symbols-outlined text-red-400">{ICONS.DELETE}</span>
-            <span className="text-sm text-red-500">삭제</span>
-          </button>
-        </div>
-      </BottomSheet>
+      {/* ListManageSheet — 편집/공개설정/삭제 */}
+      {list && isMine && !isDefault && (
+        <ListManageSheet
+          list={list}
+          open={showManageSheet}
+          onClose={() => setShowManageSheet(false)}
+          onUpdated={refreshList}
+          onDeleted={() => router.back()}
+        />
+      )}
 
-      {/* 리스트 편집 바텀시트 */}
-      <BottomSheet open={showEditSheet} onClose={() => setShowEditSheet(false)} title="리스트 편집">
-        <div className="space-y-4">
-          <div>
-            <label className="text-xs text-stone-500 mb-1 block">이름</label>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value.slice(0, MAX_TITLE_LENGTH))}
-              className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200"
-            />
-            <p className="text-right text-[10px] text-stone-400 mt-1">{editTitle.length}/{MAX_TITLE_LENGTH}</p>
-          </div>
-          <div>
-            <label className="text-xs text-stone-500 mb-1 block">설명</label>
-            <textarea
-              value={editDesc}
-              onChange={(e) => setEditDesc(e.target.value.slice(0, MAX_DESC_LENGTH))}
-              rows={3}
-              className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200 resize-none"
-              placeholder="리스트에 대한 설명 (선택)"
-            />
-            <p className="text-right text-[10px] text-stone-400 mt-1">{editDesc.length}/{MAX_DESC_LENGTH}</p>
-          </div>
-          <button
-            onClick={handleEdit}
-            disabled={!editTitle.trim()}
-            className="btn-primary w-full disabled:opacity-40"
-          >
-            저장
-          </button>
-        </div>
-      </BottomSheet>
-
-      {/* 장소별 ··· 메뉴 바텀시트 */}
-      <BottomSheet open={!!itemMenuId} onClose={() => setItemMenuId(null)} title="장소 관리">
-        <div className="space-y-1">
-          <button
-            onClick={() => {
-              const item = items.find((i) => i.place_id === itemMenuId)
-              setMemoText(item?.memo || '')
-              setEditingMemoId(itemMenuId)
-              setItemMenuId(null)
-            }}
-            className="w-full flex items-center gap-3 px-1 py-3 rounded-lg hover:bg-stone-50 transition-colors"
-          >
-            <span className="material-symbols-outlined text-stone-500">{ICONS.EDIT}</span>
-            <span className="text-sm text-stone-700">메모 수정</span>
-          </button>
-          <button
-            onClick={() => {
-              if (itemMenuId) handleRemovePlace(itemMenuId)
-              setItemMenuId(null)
-            }}
-            className="w-full flex items-center gap-3 px-1 py-3 rounded-lg hover:bg-stone-50 transition-colors"
-          >
-            <span className="material-symbols-outlined text-red-400">{ICONS.DELETE}</span>
-            <span className="text-sm text-red-500">이 리스트에서 제거</span>
-          </button>
-        </div>
-      </BottomSheet>
+      {/* 리스트에서 제거 확인 모달 (다중 리스트 포함 시) */}
+      {removeConfirmPlaceId && (
+        <ConfirmModal
+          message="이 장소를 이 리스트에서 제거할까요?"
+          confirmLabel="제거"
+          onConfirm={() => {
+            handleRemovePlace(removeConfirmPlaceId)
+            setRemoveConfirmPlaceId(null)
+          }}
+          onCancel={() => setRemoveConfirmPlaceId(null)}
+        />
+      )}
 
       {/* 장소 추가 검색 바텀시트 */}
       <BottomSheet
@@ -504,5 +440,7 @@ export default function SaListDetailClient() {
 
       <BottomNav />
     </div>
+      )}
+    </SaveFlow>
   )
 }

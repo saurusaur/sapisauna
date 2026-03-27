@@ -4,6 +4,7 @@
 
 import { supabase } from './supabase'
 import { nanoid } from 'nanoid'
+import { toPlace } from './places-service'
 import type { SaList, ListItem, ListType, ListVisibility } from '@/types'
 
 // 공개 리스트용 짧은 slug 생성 (8자리)
@@ -167,7 +168,10 @@ export async function getListItems(listId: string): Promise<ListItem[]> {
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  return (data || []).map((item) => ({
+    ...item,
+    place: item.place ? toPlace(item.place as Record<string, unknown>) : null,
+  }))
 }
 
 // 장소를 리스트에 추가 + place_count 업데이트
@@ -242,6 +246,26 @@ export async function getListsContainingPlace(userId: string, placeId: string): 
 
   if (error) throw error
   return (data || []).map((row) => row.list_id)
+}
+
+// 여러 장소가 들어있는 내 리스트 ID 목록 (배치)
+export async function getListsContainingPlaces(userId: string, placeIds: string[]): Promise<Record<string, string[]>> {
+  if (placeIds.length === 0) return {}
+
+  const { data, error } = await supabase
+    .from('list_items')
+    .select('place_id, list_id, lists!inner(owner_id)')
+    .in('place_id', placeIds)
+    .eq('lists.owner_id', userId)
+
+  if (error) throw error
+
+  const result: Record<string, string[]> = {}
+  for (const pid of placeIds) result[pid] = []
+  for (const row of data || []) {
+    result[row.place_id].push(row.list_id)
+  }
+  return result
 }
 
 // ─── 구독 ───

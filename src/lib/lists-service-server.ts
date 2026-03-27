@@ -8,24 +8,26 @@ import type { SaList } from '@/types'
 
 // 리스트 단일 조회 (+ owner 정보) — UUID 또는 slug
 export async function getListByIdServer(idOrSlug: string): Promise<SaList | null> {
-  const supabase = await createServerSupabaseClient()
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug)
-  const column = isUuid ? 'id' : 'slug'
+  try {
+    const supabase = await createServerSupabaseClient()
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug)
+    const column = isUuid ? 'id' : 'slug'
 
-  const { data, error } = await supabase
-    .from('lists')
-    .select('*, owner:users!owner_id(nickname)')
-    .eq(column, idOrSlug)
-    .single()
+    const { data, error } = await supabase
+      .from('lists')
+      .select('*, owner:users!owner_id(nickname)')
+      .eq(column, idOrSlug)
+      .single()
 
-  if (error) {
-    if (error.code === 'PGRST116') return null
+    if (error || !data) return null
+
+    return {
+      ...data,
+      owner_nickname: (data.owner as Record<string, unknown>)?.nickname as string | undefined,
+      owner: undefined,
+    }
+  } catch {
+    // AbortError, network errors, etc.
     return null
-  }
-
-  return {
-    ...data,
-    owner_nickname: (data.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner: undefined,
   }
 }

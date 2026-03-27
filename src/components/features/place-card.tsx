@@ -31,6 +31,10 @@ interface PlaceCardProps {
     onToggleSave?: () => void
     // collection variant 전용: 리스트 생성자의 장소별 메모
     collectionMemo?: string
+    // collection variant 전용: 메모 탭→편집 콜백
+    onEditMemo?: (currentMemo: string) => void
+    // collection variant 전용: 본인 리스트 여부 (편집 어포던스 표시)
+    isMine?: boolean
 }
 
 // 기본 시설 — 카드 표시에서 후순위로 밀기 (상세 페이지에서는 전체 표시)
@@ -49,6 +53,8 @@ export default function PlaceCard({
     isSaved,
     onToggleSave,
     collectionMemo,
+    onEditMemo,
+    isMine,
 }: PlaceCardProps) {
     const { stats } = usePlaceStats(place.id)
     const showSave = onToggleSave !== undefined
@@ -112,11 +118,20 @@ export default function PlaceCard({
     )
 
     // 장소별 메모 블록 (collection variant 전용)
-    const memoBlock = collectionMemo && (
-        <div className="my-1.5 pl-2 border-l-2 text-xs text-stone-500" style={{ borderColor: 'var(--color-primary)' }}>
-            {collectionMemo}
+    const memoBlock = collectionMemo !== undefined ? (
+        <div
+            className={`text-xs text-stone-600 my-1 flex items-start gap-1 ${onEditMemo ? 'cursor-pointer hover:bg-stone-50 rounded-lg -mx-1 px-1 py-0.5 transition-colors' : ''}`}
+            onClick={onEditMemo ? (e) => { e.stopPropagation(); onEditMemo(collectionMemo || '') } : undefined}
+        >
+            <span className="text-stone-300 text-base leading-none mt-0.5">┃</span>
+            <span className="flex-1 line-clamp-2">
+                {collectionMemo || (isMine ? '메모 추가' : '')}
+            </span>
+            {isMine && (
+                <span className="material-symbols-outlined text-stone-300 flex-shrink-0 mt-0.5" style={{ fontSize: '14px' }}>edit</span>
+            )}
         </div>
-    )
+    ) : null
 
     if (variant === 'minimal') {
         return (

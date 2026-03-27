@@ -19,6 +19,7 @@ interface SavePlaceContextValue {
   isSaved: (placeId: string) => boolean
   isInList: (placeId: string, listId: string) => boolean
   checkSavedStatus: (placeId: string) => Promise<string[]>
+  batchCheckSaved: (placeIds: string[]) => Promise<void>
   toggleDefaultSave: (placeId: string) => Promise<boolean>
   toggleListSave: (placeId: string, listId: string) => Promise<boolean>
   getListsForPlace: (placeId: string) => SaList[]
@@ -60,6 +61,17 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
     const listIds = await listsService.getListsContainingPlace(user.id, placeId)
     setSavedMap((prev) => ({ ...prev, [placeId]: listIds }))
     return listIds
+  }, [user, savedMap])
+
+  const batchCheckSaved = useCallback(async (placeIds: string[]): Promise<void> => {
+    if (!user || placeIds.length === 0) return
+
+    // Filter out already cached
+    const uncached = placeIds.filter((id) => savedMap[id] === undefined)
+    if (uncached.length === 0) return
+
+    const result = await listsService.getListsContainingPlaces(user.id, uncached)
+    setSavedMap((prev) => ({ ...prev, ...result }))
   }, [user, savedMap])
 
   const isSaved = useCallback((placeId: string): boolean => {
@@ -135,7 +147,7 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
   return (
     <SavePlaceContext.Provider value={{
       myLists, defaultListId, loading,
-      isSaved, isInList, checkSavedStatus,
+      isSaved, isInList, checkSavedStatus, batchCheckSaved,
       toggleDefaultSave, toggleListSave,
       getListsForPlace, getSavedListIds,
       removeFromAll,

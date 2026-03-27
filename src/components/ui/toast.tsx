@@ -33,7 +33,7 @@ export function ToastContainer() {
                   toast.onUndo?.()
                   dismiss(toast.id)
                 }}
-                className="text-white/80 hover:text-white font-semibold whitespace-nowrap"
+                className="text-xs text-white/70 hover:text-white underline underline-offset-2 whitespace-nowrap py-1 px-2"
               >
                 되돌리기
               </button>

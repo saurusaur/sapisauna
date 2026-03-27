@@ -37,7 +37,12 @@ export default function CoverCard({
   onMenu,
 }: CoverCardProps) {
   const { showError } = useToast()
-  const accentColor = list.cover_color || (list.type === 'default' ? 'var(--color-primary)' : '#a8a29e')
+  const accentColor = list.cover_color || (
+    list.type === 'default' ? 'var(--color-primary)'
+    : list.visibility === 'public' ? '#292524'
+    : list.visibility === 'unlisted' ? '#78716c'
+    : '#a8a29e'
+  )
   const isDefault = list.type === 'default'
   const canShare = list.visibility !== 'private'
 
@@ -120,7 +125,7 @@ export default function CoverCard({
           {/* Row 3: 설명 메모 (없으면 생략) */}
           {list.description && (
             <p className="text-xs text-stone-500 mt-1.5 line-clamp-2">
-              &ldquo;{list.description}&rdquo;
+              {list.description}
             </p>
           )}
 
@@ -141,7 +146,7 @@ export default function CoverCard({
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '16px', fontVariationSettings: subscribed ? "'FILL' 1" : "'FILL' 0" }}
-                >favorite</span>
+                >bookmark_add</span>
                 {subscribed ? '구독중' : '구독'}
                 <span className="text-[10px] opacity-70">{list.subscriber_count}명</span>
               </button>

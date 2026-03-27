@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import {
-  ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS, QUICK_LOG,
+  ICONS, EXPLORE, PLACE_DETAIL, PLACE_SPECS,
   TRIBE_EMOJI_MAP, TRIBE_PERSONA_MAP, DEEP_LOG, ADMIN_USER_ID,
 } from '@/constants/content'
-import { getStepLabel, getCommonCityName } from '@/lib/utils'
+import { getCommonCityName } from '@/lib/utils'
 import UserLogCard from '@/components/features/user-log-card'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
@@ -16,11 +16,7 @@ import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
 import { useAuth } from '@/contexts/auth-context'
 import BottomCTA from '@/components/ui/bottom-cta'
-import { SaveSnackbar } from '@/components/ui/snackbar'
-import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
-import { useToast } from '@/contexts/toast-context'
-import { BottomSheet } from '@/components/ui/bottom-sheet'
-import * as listsService from '@/lib/lists-service'
+import { SaveFlow } from '@/components/features/save-flow'
 
 // PLACE_SPECS 섹션별로 시설 분류 (AMENITIES 포함)
 const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const
@@ -33,84 +29,7 @@ export default function PlaceDetailPage() {
   const { data: place, loading: placeLoading, error: placeError } = usePlace(placeId)
   const { data: placeLogs, loading: logsLoading } = useLogsByPlace(placeId)
   const { stats } = usePlaceStats(placeId)
-  const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
-  const { showError, showNotice } = useToast()
-
-  // 스낵바 + 바텀시트 상태
-  const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
-  const [sheetCreateMode, setSheetCreateMode] = useState(false)
-
-  // 메모 미니 바텀시트
-  const [memoSheetOpen, setMemoSheetOpen] = useState(false)
-  const [memoSheetText, setMemoSheetText] = useState('')
-  const [savingMemo, setSavingMemo] = useState(false)
-
-  const userCollections = useMemo(
-    () => myLists.filter((l) => l.type !== 'default'),
-    [myLists]
-  )
-
-  const handleToggleSave = useCallback(async () => {
-    const wasSaved = isSaved(placeId)
-    if (wasSaved) {
-      const savedListIds = getSavedListIds(placeId)
-      const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
-      if (inCustomLists.length === 0) {
-        await toggleDefaultSave(placeId)
-        showNotice('저장 해제됨')
-      } else {
-        const confirmed = window.confirm(
-          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
-        )
-        if (confirmed) {
-          await removeFromAll(placeId)
-          showNotice('저장 해제됨')
-        }
-      }
-    } else {
-      await toggleDefaultSave(placeId)
-      if (userCollections.length === 0) {
-        setSnackbarPlaceId(placeId)
-      } else {
-        setSheetMode('save')
-        setSheetCreateMode(false)
-        setSheetOpen(true)
-      }
-    }
-  }, [isSaved, toggleDefaultSave, placeId, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
-
-  const handleSnackbarToggle = useCallback(async (listId: string) => {
-    await toggleListSave(placeId, listId)
-  }, [placeId, toggleListSave])
-
-  const handleShowMore = useCallback(() => {
-    setSnackbarPlaceId(null)
-    setSheetMode('save')
-    setSheetCreateMode(true)
-    setSheetOpen(true)
-  }, [])
-
-  const handleOpenMemo = useCallback(() => {
-    setSnackbarPlaceId(null)
-    setMemoSheetOpen(true)
-    setMemoSheetText('')
-  }, [])
-
-  const handleSavePlaceMemo = useCallback(async () => {
-    if (!defaultListId) return
-    setSavingMemo(true)
-    try {
-      await listsService.updateListItemMemo(defaultListId, placeId, memoSheetText.trim() || null)
-      setMemoSheetOpen(false)
-      setMemoSheetText('')
-    } catch {
-      showError('메모 저장에 실패했어요')
-    } finally {
-      setSavingMemo(false)
-    }
-  }, [defaultListId, placeId, memoSheetText, showError])
+  const { isSaved } = useSavePlace()
   const { user: authUser } = useAuth()
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
@@ -358,6 +277,8 @@ export default function PlaceDetailPage() {
   }
 
   return (
+    <SaveFlow>
+      {(handleToggleSave) => (
     <div className="min-h-dvh pb-24 bath-tile-bg">
       {/* A. 헤더 — 서브페이지 스타일 */}
       <header className="p-5 pt-8">
@@ -447,7 +368,7 @@ export default function PlaceDetailPage() {
                 </span>
               )}
               {place.is_24h && <Badge24h />}
-              <div onClick={handleToggleSave} className="cursor-pointer ml-0.5">
+              <div onClick={() => handleToggleSave(placeId)} className="cursor-pointer ml-0.5">
                 <span
                   className="material-symbols-outlined text-lg"
                   style={{
@@ -707,54 +628,9 @@ export default function PlaceDetailPage() {
         </div>
       </main>
 
-      {/* 스낵바 (컬렉션 없는 유저만) */}
-      <SaveSnackbar
-        visible={!!snackbarPlaceId}
-        onDismiss={() => setSnackbarPlaceId(null)}
-        savedListIds={getSavedListIds(placeId)}
-        userLists={[]}
-        onToggleList={handleSnackbarToggle}
-        onShowMore={handleShowMore}
-        onMemo={handleOpenMemo}
-      />
-
-      {/* 인스타식 저장 바텀시트 */}
-      <SaveBottomSheet
-        mode={sheetMode}
-        placeId={placeId}
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        startInCreateMode={sheetCreateMode}
-      />
-
-      {/* 메모 미니 바텀시트 */}
-      <BottomSheet open={memoSheetOpen} onClose={() => { setMemoSheetOpen(false); setMemoSheetText('') }} title="메모 추가">
-        <div className="space-y-3">
-          <input
-            type="text"
-            value={memoSheetText}
-            onChange={(e) => setMemoSheetText(e.target.value.slice(0, 100))}
-            placeholder="이 장소에 대한 메모 (최대 100자)"
-            autoFocus
-            className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200"
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSavePlaceMemo() }}
-          />
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => { setMemoSheetOpen(false); setMemoSheetText('') }}
-              className="px-3 py-1.5 text-xs text-stone-400"
-            >취소</button>
-            <button
-              onClick={handleSavePlaceMemo}
-              disabled={savingMemo}
-              className="px-4 py-1.5 text-xs font-medium text-white rounded-lg disabled:opacity-40"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >{savingMemo ? '저장 중...' : '저장'}</button>
-          </div>
-        </div>
-      </BottomSheet>
-
       <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>
     </div>
+      )}
+    </SaveFlow>
   )
 }

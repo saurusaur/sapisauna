@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ICONS, EXPLORE, EXPLORE_FILTERS,
@@ -18,11 +18,7 @@ import { useUser } from '@/contexts/user-context'
 import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
-import { SaveSnackbar } from '@/components/ui/snackbar'
-import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
-import { useToast } from '@/contexts/toast-context'
-import { BottomSheet } from '@/components/ui/bottom-sheet'
-import * as listsService from '@/lib/lists-service'
+import { SaveFlow } from '@/components/features/save-flow'
 
 
 
@@ -44,111 +40,12 @@ export default function ExplorePage() {
     sortType, setSortType,
     filterCount, hasActiveFilters, resetFilters,
   } = useExploreFilters()
-  const { isSaved, toggleDefaultSave, checkSavedStatus, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
-  const { showError, showNotice } = useToast()
+  const { isSaved } = useSavePlace()
   const { primaryTribe } = useUser()
   const [activeTab, setActiveTab] = useState<string>('')
   const [showRecommendations, setShowRecommendations] = useState(true)
   const [visibleCount, setVisibleCount] = useState(3)
   const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
-
-  // 스낵바 + 바텀시트 상태
-  const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetMode, setSheetMode] = useState<'save' | 'remove'>('save')
-  const [sheetPlaceId, setSheetPlaceId] = useState<string>('')
-  const [sheetCreateMode, setSheetCreateMode] = useState(false)
-
-  // 메모 미니 바텀시트
-  const [memoSheetOpen, setMemoSheetOpen] = useState(false)
-  const [memoSheetText, setMemoSheetText] = useState('')
-  const [memoPlaceId, setMemoPlaceId] = useState<string>('')
-  const [savingMemo, setSavingMemo] = useState(false)
-
-  // 유저 컬렉션 (default 제외)
-  const userCollections = useMemo(
-    () => myLists.filter((l) => l.type !== 'default'),
-    [myLists]
-  )
-
-  // 하트 탭 핸들러 — 인스타식 분기
-  const handleToggleSave = useCallback(async (placeId: string) => {
-    const wasSaved = isSaved(placeId)
-
-    if (wasSaved) {
-      // 저장 해제 분기
-      const savedListIds = getSavedListIds(placeId)
-      const inCustomLists = savedListIds.filter((id) => id !== defaultListId)
-
-      if (inCustomLists.length === 0) {
-        // 기본 리스트에만 있음 → 바로 해제
-        await toggleDefaultSave(placeId)
-        showNotice('저장 해제됨')
-      } else {
-        // 다른 컬렉션에도 있음 → 확인 모달
-        const confirmed = window.confirm(
-          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
-        )
-        if (confirmed) {
-          await removeFromAll(placeId)
-          showNotice('저장 해제됨')
-        }
-      }
-    } else {
-      // 미저장 → 기본 저장
-      await toggleDefaultSave(placeId)
-
-      if (userCollections.length === 0) {
-        // 컬렉션 없음 → 스낵바
-        setSnackbarPlaceId(placeId)
-      } else {
-        // 컬렉션 있음 → 바텀시트 자동 오픈
-        setSheetPlaceId(placeId)
-        setSheetMode('save')
-        setSheetCreateMode(false)
-        setSheetOpen(true)
-      }
-    }
-  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
-
-  // 스낵바에서 리스트 토글 (컬렉션 없는 유저용이므로 사실상 사용 안 됨)
-  const handleSnackbarToggle = useCallback(async (listId: string) => {
-    if (!snackbarPlaceId) return
-    await toggleListSave(snackbarPlaceId, listId)
-  }, [snackbarPlaceId, toggleListSave])
-
-  // 스낵바에서 "새 리스트" → 바텀시트 열기 (인라인 생성 모드)
-  const handleShowMore = useCallback(() => {
-    if (!snackbarPlaceId) return
-    const pid = snackbarPlaceId
-    setSnackbarPlaceId(null)
-    setSheetPlaceId(pid)
-    setSheetMode('save')
-    setSheetCreateMode(true)
-    setSheetOpen(true)
-  }, [snackbarPlaceId])
-
-  const handleOpenMemo = useCallback(() => {
-    if (!snackbarPlaceId) return
-    setMemoPlaceId(snackbarPlaceId)
-    setSnackbarPlaceId(null)
-    setMemoSheetOpen(true)
-    setMemoSheetText('')
-  }, [snackbarPlaceId])
-
-  const handleSavePlaceMemo = useCallback(async () => {
-    if (!defaultListId || !memoPlaceId) return
-    setSavingMemo(true)
-    try {
-      await listsService.updateListItemMemo(defaultListId, memoPlaceId, memoSheetText.trim() || null)
-      setMemoSheetOpen(false)
-      setMemoSheetText('')
-    } catch {
-      showError('메모 저장에 실패했어요')
-    } finally {
-      setSavingMemo(false)
-    }
-  }, [defaultListId, memoPlaceId, memoSheetText, showError])
 
   // DB 데이터 로드
   const { data: places, loading: placesLoading, error: placesError } = usePlaces()
@@ -312,244 +209,199 @@ export default function ExplorePage() {
   const isSearchOrFilterActive = searchQuery || selectedFilters.length > 0 || is24hOnly
 
   return (
-    <div className="min-h-dvh pb-20 bath-tile-bg">
-      {/* 헤더 — 홈과 동일 스타일 */}
-      <header className="p-5 pt-8">
-        <h1
-          className="text-3xl font-extrabold italic font-heading"
-        >
-          EXPLORE
-        </h1>
-      </header>
-
-      <main className="p-4">
-        {/* 검색바 */}
-        <div className="relative mb-4 group">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl transition-colors group-focus-within:text-[var(--color-primary)]">
-            {ICONS.SEARCH}
-          </span>
-          <input
-            ref={searchRef}
-            type="text"
-            placeholder={EXPLORE.SEARCH_PLACEHOLDER}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 glass-input text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+    <SaveFlow>
+      {(handleToggleSave) => (
+        <div className="min-h-dvh pb-20 bath-tile-bg">
+          {/* 헤더 — 홈과 동일 스타일 */}
+          <header className="p-5 pt-8">
+            <h1
+              className="text-3xl font-extrabold italic font-heading"
             >
-              <span className="material-symbols-outlined text-xl">{ICONS.CLOSE}</span>
-            </button>
-          )}
-        </div>
+              EXPLORE
+            </h1>
+          </header>
 
-        {/* 필터/정렬 컨트롤 */}
-        <FilterControls
-          showFilters={showFilters}
-          onToggleFilters={toggleFiltersPanel}
-          selectedFilters={selectedFilters}
-          onToggleFilter={toggleFilter}
-          onResetFilters={resetFilters}
-          is24hOnly={is24hOnly}
-          onToggle24h={setIs24hOnly}
-          sortType={sortType}
-          onSortChange={setSortType}
-        />
+          <main className="p-4">
+            {/* 검색바 */}
+            <div className="relative mb-4 group">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl transition-colors group-focus-within:text-[var(--color-primary)]">
+                {ICONS.SEARCH}
+              </span>
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder={EXPLORE.SEARCH_PLACEHOLDER}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 glass-input text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-stone-200 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                >
+                  <span className="material-symbols-outlined text-xl">{ICONS.CLOSE}</span>
+                </button>
+              )}
+            </div>
 
-        {/* 데이터 로딩/에러 상태 */}
-        <DataState loading={loading} error={error} isEmpty={false}>
-          {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
-          {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
-            <div className="mb-6">
-              {/* 섹션 헤더 + 접기/펼치기 */}
-              <button
-                onClick={() => setShowRecommendations((prev) => !prev)}
-                className="flex items-center gap-1.5 mb-3"
-              >
-                <h2 className="text-sm font-semibold text-stone-500">
-                  TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
-                </h2>
-                <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-primary)' }}>
-                  {showRecommendations ? 'expand_less' : 'expand_more'}
-                </span>
-              </button>
+            {/* 필터/정렬 컨트롤 */}
+            <FilterControls
+              showFilters={showFilters}
+              onToggleFilters={toggleFiltersPanel}
+              selectedFilters={selectedFilters}
+              onToggleFilter={toggleFilter}
+              onResetFilters={resetFilters}
+              is24hOnly={is24hOnly}
+              onToggle24h={setIs24hOnly}
+              sortType={sortType}
+              onSortChange={setSortType}
+            />
 
-              {showRecommendations && (
-                <>
-                  {/* 탭 버튼 (타입별 컬러) */}
-                  <div className="flex gap-1.5 pb-3">
-                    {recommendationOrder.map((type) => (
-                      <TypeTab
-                        key={type}
-                        label={recTabLabel[type]}
-                        active={activeTab === type}
-                        onClick={() => setActiveTab(type)}
-                        color={TRIBE_COLORS[type]}
-                      />
-                    ))}
-                  </div>
+            {/* 데이터 로딩/에러 상태 */}
+            <DataState loading={loading} error={error} isEmpty={false}>
+              {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
+              {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
+                <div className="mb-6">
+                  {/* 섹션 헤더 + 접기/펼치기 */}
+                  <button
+                    onClick={() => setShowRecommendations((prev) => !prev)}
+                    className="flex items-center gap-1.5 mb-3"
+                  >
+                    <h2 className="text-sm font-semibold text-stone-500">
+                      TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
+                    </h2>
+                    <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-primary)' }}>
+                      {showRecommendations ? 'expand_less' : 'expand_more'}
+                    </span>
+                  </button>
 
-                  {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
-                  {activeTab && recommendations[activeTab] && (
-                    <div className="glass-card-light rounded-xl overflow-hidden">
-                      {recommendations[activeTab].slice(0, 3).map((place, idx) => (
-                        <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
-                          <PlaceCard
-                            place={place}
-                            isSaved={isSaved(place.id)}
-                            onToggleSave={() => handleToggleSave(place.id)}
-                            onClick={() => router.push(`/explore/${place.id}`)}
-                            variant="minimal"
+                  {showRecommendations && (
+                    <>
+                      {/* 탭 버튼 (타입별 컬러) */}
+                      <div className="flex gap-1.5 pb-3">
+                        {recommendationOrder.map((type) => (
+                          <TypeTab
+                            key={type}
+                            label={recTabLabel[type]}
+                            active={activeTab === type}
+                            onClick={() => setActiveTab(type)}
+                            color={TRIBE_COLORS[type]}
                           />
-                        </div>
-                      ))}
+                        ))}
+                      </div>
 
-                      {/* 전체 보기 버튼 */}
-                      <button
-                        onClick={() => router.push(`/explore/type/${activeTab}`)}
-                        className="w-full py-3 text-center text-sm font-medium text-stone-500 hover:text-stone-700 border-t border-stone-100 transition-colors flex items-center justify-center gap-1"
-                      >
-                        {EXPLORE.VIEW_ALL}
-                        <span className="material-symbols-outlined text-base">{ICONS.CHEVRON_RIGHT}</span>
-                      </button>
+                      {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
+                      {activeTab && recommendations[activeTab] && (
+                        <div className="glass-card-light rounded-xl overflow-hidden">
+                          {recommendations[activeTab].slice(0, 3).map((place, idx) => (
+                            <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
+                              <PlaceCard
+                                place={place}
+                                isSaved={isSaved(place.id)}
+                                onToggleSave={() => handleToggleSave(place.id)}
+                                onClick={() => router.push(`/explore/${place.id}`)}
+                                variant="minimal"
+                              />
+                            </div>
+                          ))}
+
+                          {/* 전체 보기 버튼 */}
+                          <button
+                            onClick={() => router.push(`/explore/type/${activeTab}`)}
+                            className="w-full py-3 text-center text-sm font-medium text-stone-500 hover:text-stone-700 border-t border-stone-100 transition-colors flex items-center justify-center gap-1"
+                          >
+                            {EXPLORE.VIEW_ALL}
+                            <span className="material-symbols-outlined text-base">{ICONS.CHEVRON_RIGHT}</span>
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* 장소 카드 리스트 (검색/필터 적용 시) */}
+              {isSearchOrFilterActive && (
+                <div>
+                  {filteredPlaces.length === 0 ? (
+                    <div className="text-center py-16">
+                      <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
+                        search_off
+                      </span>
+                      <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredPlaces.map((place) => (
+                        <PlaceCard
+                          key={place.id}
+                          place={place}
+                          isSaved={isSaved(place.id)}
+                          onToggleSave={() => handleToggleSave(place.id)}
+                          onClick={() => router.push(`/explore/${place.id}`)}
+                        />
+                      ))}
                     </div>
                   )}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* 장소 카드 리스트 (검색/필터 적용 시) */}
-          {isSearchOrFilterActive && (
-            <div>
-              {filteredPlaces.length === 0 ? (
-                <div className="text-center py-16">
-                  <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
-                    search_off
-                  </span>
-                  <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {filteredPlaces.map((place) => (
-                    <PlaceCard
-                      key={place.id}
-                      place={place}
-                      isSaved={isSaved(place.id)}
-                      onToggleSave={() => handleToggleSave(place.id)}
-                      onClick={() => router.push(`/explore/${place.id}`)}
-                    />
-                  ))}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
-          {!isSearchOrFilterActive && (
-            <div>
-              <h2 className="text-sm font-semibold text-stone-500 mb-3">전체 장소</h2>
-              {places.length === 0 ? (
-                <div className="text-center py-8">
-                  <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">location_off</span>
-                  <p className="text-stone-400 text-sm">등록된 장소가 없습니다</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {filteredPlaces.slice(0, visibleCount).map((place) => (
-                    <PlaceCard
-                      key={place.id}
-                      place={place}
-                      isSaved={isSaved(place.id)}
-                      onToggleSave={() => handleToggleSave(place.id)}
-                      onClick={() => router.push(`/explore/${place.id}`)}
-                    />
-                  ))}
+              {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
+              {!isSearchOrFilterActive && (
+                <div>
+                  <h2 className="text-sm font-semibold text-stone-500 mb-3">전체 장소</h2>
+                  {places.length === 0 ? (
+                    <div className="text-center py-8">
+                      <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">location_off</span>
+                      <p className="text-stone-400 text-sm">등록된 장소가 없습니다</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredPlaces.slice(0, visibleCount).map((place) => (
+                        <PlaceCard
+                          key={place.id}
+                          place={place}
+                          isSaved={isSaved(place.id)}
+                          onToggleSave={() => handleToggleSave(place.id)}
+                          onClick={() => router.push(`/explore/${place.id}`)}
+                        />
+                      ))}
 
-                  {filteredPlaces.length > visibleCount && (
-                    <div className="flex items-center justify-center gap-4 pt-2">
-                      <button
-                        onClick={() => setVisibleCount(prev => prev + 10)}
-                        className="text-xs font-medium underline underline-offset-2 transition-colors"
-                        style={{ color: 'var(--color-primary)' }}
-                      >
-                        더 보기 ({filteredPlaces.length - visibleCount}곳 남음)
-                      </button>
-                      {visibleCount > 3 && (
-                        <button
-                          onClick={() => {
-                            setVisibleCount(3)
-                            searchRef.current?.focus()
-                            window.scrollTo({ top: 0, behavior: 'smooth' })
-                          }}
-                          className="flex items-center gap-0.5 text-xs text-stone-400 hover:text-stone-600 transition-colors"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
-                          위로가기
-                        </button>
+                      {filteredPlaces.length > visibleCount && (
+                        <div className="flex items-center justify-center gap-4 pt-2">
+                          <button
+                            onClick={() => setVisibleCount(prev => prev + 10)}
+                            className="text-xs font-medium underline underline-offset-2 transition-colors"
+                            style={{ color: 'var(--color-primary)' }}
+                          >
+                            더 보기 ({filteredPlaces.length - visibleCount}곳 남음)
+                          </button>
+                          {visibleCount > 3 && (
+                            <button
+                              onClick={() => {
+                                setVisibleCount(3)
+                                searchRef.current?.focus()
+                                window.scrollTo({ top: 0, behavior: 'smooth' })
+                              }}
+                              className="flex items-center gap-0.5 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
+                              위로가기
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
               )}
-            </div>
-          )}
-        </DataState>
-      </main>
+            </DataState>
+          </main>
 
-      {/* 스낵바 (컬렉션 없는 유저만) */}
-      <SaveSnackbar
-        visible={!!snackbarPlaceId}
-        onDismiss={() => setSnackbarPlaceId(null)}
-        savedListIds={snackbarPlaceId ? getSavedListIds(snackbarPlaceId) : []}
-        userLists={[]}
-        onToggleList={handleSnackbarToggle}
-        onShowMore={handleShowMore}
-        onMemo={handleOpenMemo}
-      />
-
-      {/* 인스타식 저장 바텀시트 */}
-      {sheetPlaceId && (
-        <SaveBottomSheet
-          mode={sheetMode}
-          placeId={sheetPlaceId}
-          open={sheetOpen}
-          onClose={() => setSheetOpen(false)}
-          startInCreateMode={sheetCreateMode}
-        />
-      )}
-
-      {/* 메모 미니 바텀시트 */}
-      <BottomSheet open={memoSheetOpen} onClose={() => { setMemoSheetOpen(false); setMemoSheetText('') }} title="메모 추가">
-        <div className="space-y-3">
-          <input
-            type="text"
-            value={memoSheetText}
-            onChange={(e) => setMemoSheetText(e.target.value.slice(0, 100))}
-            placeholder="이 장소에 대한 메모 (최대 100자)"
-            autoFocus
-            className="w-full glass-input px-4 py-3 text-sm text-stone-700 outline-none focus:ring-2 focus:ring-stone-200"
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSavePlaceMemo() }}
-          />
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => { setMemoSheetOpen(false); setMemoSheetText('') }}
-              className="px-3 py-1.5 text-xs text-stone-400"
-            >취소</button>
-            <button
-              onClick={handleSavePlaceMemo}
-              disabled={savingMemo}
-              className="px-4 py-1.5 text-xs font-medium text-white rounded-lg disabled:opacity-40"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >{savingMemo ? '저장 중...' : '저장'}</button>
-          </div>
+          <BottomNav />
         </div>
-      </BottomSheet>
-
-      <BottomNav />
-    </div>
+      )}
+    </SaveFlow>
   )
 }

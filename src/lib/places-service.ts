@@ -7,7 +7,7 @@ import { generateShortAddress } from './utils'
 import type { Place, PlaceSource, FacilityType, BathPolicy } from '@/types'
 
 // DB 행 → Place 변환 (place_sources 조인 포함)
-function toPlace(row: Record<string, unknown>): Place {
+export function toPlace(row: Record<string, unknown>): Place {
   const sources = (row.place_sources as PlaceSource[] | null) || []
   // 표시용 이름/주소: naver 우선 → google → manual → 첫 번째 소스
   const preferred = sources.find(s => s.source === 'naver')

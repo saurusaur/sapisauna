@@ -12,25 +12,29 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params
-  const list = await getListByIdServer(id)
+  try {
+    const { id } = await params
+    const list = await getListByIdServer(id)
 
-  if (!list) {
-    return { title: 'SA-리스트' }
-  }
+    if (!list) {
+      return { title: 'SA-리스트' }
+    }
 
-  const description = list.description
-    || `장소 ${list.place_count}개 · 구독 ${list.subscriber_count}명`
+    const description = list.description
+      || `장소 ${list.place_count}개 · 구독 ${list.subscriber_count}명`
 
-  return {
-    title: `${list.title} — SA-리스트`,
-    description,
-    openGraph: {
+    return {
       title: `${list.title} — SA-리스트`,
       description,
-      url: `/sa-list/${list.slug || list.id}`,
-      type: 'website',
-    },
+      openGraph: {
+        title: `${list.title} — SA-리스트`,
+        description,
+        url: `/sa-list/${list.slug || list.id}`,
+        type: 'website',
+      },
+    }
+  } catch {
+    return { title: 'SA-리스트' }
   }
 }
 
