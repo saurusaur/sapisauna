@@ -43,21 +43,51 @@ export async function getDefaultList(userId: string): Promise<SaList | null> {
   return data
 }
 
-// 공개 리스트 피드 (큐레이션 상단 + 인기순)
-export async function getPublicLists(limit = 20, offset = 0): Promise<SaList[]> {
+export type PublicListSort = 'popular' | 'recent'
+
+function mapListWithOwner(row: Record<string, unknown>): SaList {
+  return {
+    ...row,
+    owner_nickname: (row.owner as Record<string, unknown>)?.nickname as string | undefined,
+    owner: undefined,
+  } as unknown as SaList
+}
+
+// 공개 리스트 피드 — popular: 구독순, recent: 최근 수정순
+export async function getPublicLists(
+  limit = 20,
+  offset = 0,
+  sort: PublicListSort = 'popular'
+): Promise<SaList[]> {
+  let q = supabase
+    .from('lists')
+    .select('*, owner:users!owner_id(nickname)')
+    .eq('visibility', 'public')
+
+  if (sort === 'popular') {
+    q = q.order('subscriber_count', { ascending: false }).order('updated_at', { ascending: false })
+  } else {
+    q = q.order('updated_at', { ascending: false })
+  }
+
+  const { data, error } = await q.range(offset, offset + limit - 1)
+
+  if (error) throw error
+  return (data || []).map((row) => mapListWithOwner(row as Record<string, unknown>))
+}
+
+/** 큐레이션 캐러셀 전용 — is_featured 공개 리스트만 */
+export async function getFeaturedPublicLists(): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('lists')
     .select('*, owner:users!owner_id(nickname)')
     .eq('visibility', 'public')
+    .eq('is_featured', true)
     .order('subscriber_count', { ascending: false })
-    .range(offset, offset + limit - 1)
+    .order('updated_at', { ascending: false })
 
   if (error) throw error
-  return (data || []).map((row) => ({
-    ...row,
-    owner_nickname: (row.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner: undefined,
-  }))
+  return (data || []).map((row) => mapListWithOwner(row as Record<string, unknown>))
 }
 
 // 리스트 단일 조회 (+ owner 정보) — UUID 또는 slug로 조회
@@ -91,6 +121,7 @@ export async function createList(params: {
   type?: ListType
   visibility?: ListVisibility
   cover_color?: string
+  cover_emoji?: string | null
   tags?: string[]
 }): Promise<SaList> {
   const visibility = params.visibility || 'private'
@@ -103,6 +134,7 @@ export async function createList(params: {
       description: params.description || null,
       visibility,
       cover_color: params.cover_color || null,
+      cover_emoji: params.cover_emoji ?? null,
       slug: visibility !== 'private' ? generateSlug() : null,
       tags: params.tags || [],
     })
@@ -120,7 +152,7 @@ export async function createList(params: {
 // 리스트 수정 (visibility 전환 시 slug 자동 생성)
 export async function updateList(
   id: string,
-  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'tags'>>
+  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'cover_emoji' | 'tags'>>
 ): Promise<SaList> {
   const updatePayload: Record<string, unknown> = {
     ...updates,

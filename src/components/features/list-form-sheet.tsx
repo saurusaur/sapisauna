@@ -17,17 +17,39 @@ export interface SelectedPlace {
   memo: string
 }
 
+/** 고정 팔레트 — 웜 스톤·슬레이트·테라코타·세이지·네이비 톤 (첫 색이 기본값) */
+export const COVER_COLOR_PALETTE = [
+  '#c4a574',
+  '#5c5348',
+  '#3d4a5c',
+  '#2f3d4f',
+  '#7a8f78',
+  '#6e6246',
+  '#b85c38',
+  '#8f6b5a',
+  '#7d6b5e',
+] as const
+
+export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]
+
+/** 커버 이모지 후보 — 플레이리스트 커버에서만 사용 (트라이브 선택 UI와 별개) */
+export const COVER_EMOJI_CHOICES = ['🔥', '♨️', '🧖', '🛁', '✨', '🌿', '💧', '🪨'] as const
+
 interface ListFormSheetProps {
   mode: 'create' | 'edit'
   initialData?: {
     title: string
     tags: string[]
     description: string
+    cover_color?: string | null
+    cover_emoji?: string | null
   }
   onSubmit: (data: {
     title: string
     tags: string[]
     description: string
+    cover_color: string
+    cover_emoji: string | null
     places?: SelectedPlace[]
   }) => Promise<void>
   /** For unsaved changes detection — parent calls this to check */
@@ -39,6 +61,20 @@ const MAX_TITLE_LENGTH = 20
 const MAX_MEMO_LENGTH = 100
 const MAX_DESC_LENGTH = 140
 
+function effectiveInitialCoverColor(cover_color: string | null | undefined): string {
+  if (cover_color == null || cover_color === '') return DEFAULT_LIST_COVER_COLOR
+  return cover_color
+}
+
+const PALETTE_HEX = COVER_COLOR_PALETTE as readonly string[]
+
+/** 밝은 스와치는 어두운 체크 아이콘 */
+function checkIconClassForHex(hex: string): string {
+  const h = hex.toLowerCase()
+  const light = ['#c4a574', '#7a8f78', '#7d6b5e']
+  return light.includes(h) ? 'text-stone-900' : 'text-white'
+}
+
 export default function ListFormSheet({
   mode,
   initialData,
@@ -49,6 +85,9 @@ export default function ListFormSheet({
   const [title, setTitle] = useState(initialData?.title || '')
   const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [desc, setDesc] = useState(initialData?.description || '')
+  const [coverColor, setCoverColor] = useState(() => effectiveInitialCoverColor(initialData?.cover_color))
+  const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
+  const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
   const [submitting, setSubmitting] = useState(false)
 
   // Create mode only
@@ -57,14 +96,19 @@ export default function ListFormSheet({
   const { results: placeResults, loading: placeSearchLoading, search: searchPlace } = usePlaceSearch()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const baselineCover = effectiveInitialCoverColor(initialData?.cover_color)
+
   // Dirty detection
   useEffect(() => {
+    const emojiDirty = (coverEmoji ?? null) !== baselineEmoji
     const isDirty = title !== (initialData?.title || '')
       || JSON.stringify(tags) !== JSON.stringify(initialData?.tags || [])
       || desc !== (initialData?.description || '')
+      || coverColor !== baselineCover
+      || emojiDirty
       || selectedPlaces.length > 0
     onDirtyChange?.(isDirty)
-  }, [title, tags, desc, selectedPlaces, initialData, onDirtyChange])
+  }, [title, tags, desc, coverColor, baselineCover, coverEmoji, baselineEmoji, selectedPlaces, initialData, onDirtyChange])
 
   // Place search with debounce (create mode only)
   useEffect(() => {
@@ -87,12 +131,14 @@ export default function ListFormSheet({
         title: trimmedTitle,
         tags,
         description: desc.trim(),
+        cover_color: coverColor,
+        cover_emoji: coverEmoji,
         places: mode === 'create' && selectedPlaces.length > 0 ? selectedPlaces : undefined,
       })
     } finally {
       setSubmitting(false)
     }
-  }, [title, tags, desc, selectedPlaces, mode, onSubmit])
+  }, [title, tags, desc, coverColor, coverEmoji, selectedPlaces, mode, onSubmit])
 
   // Dynamic submit label
   const getButtonLabel = () => {
@@ -121,10 +167,93 @@ export default function ListFormSheet({
         </p>
       </div>
 
-      {/* 2. 태그 */}
+      {/* 2. 커버 색 */}
+      <div>
+        <label className="text-xs text-stone-500 mb-1.5 block">커버 색</label>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5 scrollbar-hide">
+          {initialData?.cover_color
+            && !PALETTE_HEX.includes(initialData.cover_color) && (
+            <button
+              type="button"
+              onClick={() => setCoverColor(initialData.cover_color!)}
+              className={`flex-shrink-0 w-9 h-9 rounded-full border-2 transition-shadow flex items-center justify-center ${
+                coverColor === initialData.cover_color
+                  ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-2 ring-offset-white'
+                  : 'border-stone-200'
+              }`}
+              style={{ backgroundColor: initialData.cover_color }}
+              title="현재 저장된 색"
+            >
+              {coverColor === initialData.cover_color && (
+                <span className={`material-symbols-outlined drop-shadow-sm ${checkIconClassForHex(initialData.cover_color)}`} style={{ fontSize: '18px' }}>
+                  check
+                </span>
+              )}
+            </button>
+          )}
+          {COVER_COLOR_PALETTE.map((hex) => {
+            const selected = coverColor === hex
+            return (
+              <button
+                key={hex}
+                type="button"
+                onClick={() => setCoverColor(hex)}
+                className={`flex-shrink-0 w-9 h-9 rounded-full border-2 transition-shadow flex items-center justify-center ${
+                  selected
+                    ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-2 ring-offset-white'
+                    : 'border-stone-200'
+                }`}
+                style={{ backgroundColor: hex }}
+                aria-label={`커버 색 ${hex}`}
+              >
+                {selected && (
+                  <span className={`material-symbols-outlined drop-shadow-sm ${checkIconClassForHex(hex)}`} style={{ fontSize: '18px' }}>
+                    check
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 2b. 커버 이모지 (선택) — 플리 커버용으로만 사용 */}
+      <div>
+        <label className="text-xs text-stone-500 mb-1.5 block">커버 이모지 (선택)</label>
+        <div className="flex flex-wrap gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => setCoverEmoji(null)}
+            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+              coverEmoji === null
+                ? 'border-stone-700 bg-stone-100 text-stone-800'
+                : 'border-stone-200 text-stone-500 hover:border-stone-300'
+            }`}
+          >
+            없음
+          </button>
+          {COVER_EMOJI_CHOICES.map((emo) => (
+            <button
+              key={emo}
+              type="button"
+              onClick={() => setCoverEmoji(emo)}
+              className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center border transition-shadow ${
+                coverEmoji === emo
+                  ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-1 ring-offset-white'
+                  : 'border-stone-200 hover:border-stone-300 bg-white'
+              }`}
+              aria-label={`이모지 ${emo}`}
+            >
+              {emo}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. 태그 */}
       <TagEditor tags={tags} onChange={setTags} />
 
-      {/* 3. 설명 */}
+      {/* 4. 설명 */}
       <div>
         <label className="text-xs text-stone-500 mb-1 block">설명</label>
         <textarea
@@ -139,7 +268,7 @@ export default function ListFormSheet({
         </p>
       </div>
 
-      {/* 4. 장소 추가 — create mode only */}
+      {/* 5. 장소 추가 — create mode only */}
       {mode === 'create' && (
         <div>
           <label className="text-xs text-stone-500 mb-1 block">장소 추가 (선택)</label>
@@ -226,7 +355,7 @@ export default function ListFormSheet({
         </div>
       )}
 
-      {/* 5. Submit button */}
+      {/* 6. Submit button */}
       <button
         onClick={handleSubmit}
         disabled={!title.trim() || submitting}

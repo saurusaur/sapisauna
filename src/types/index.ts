@@ -213,6 +213,8 @@ export interface SaList {
   description: string | null
   slug: string | null
   cover_color: string | null
+  /** 리스트 커버용 이모지 1개 (선택, 생성·편집 폼에서만 설정). 마이그레이션 전 로우는 undefined일 수 있음 */
+  cover_emoji?: string | null
   visibility: ListVisibility
   is_featured: boolean
   is_pinned: boolean

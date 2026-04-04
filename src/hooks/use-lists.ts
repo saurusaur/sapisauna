@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import * as listsService from '@/lib/lists-service'
+import type { PublicListSort } from '@/lib/lists-service'
 import type { SaList, ListItem, UseDataState } from '@/types'
 
 // 내 리스트 목록 (기본 저장 포함)
@@ -31,23 +32,64 @@ export function useMyLists(): UseDataState<SaList[]> & { refresh: () => void } {
   return { data, loading, error, refresh: refetch }
 }
 
-// 공개 리스트 피드 (인기순)
-export function usePublicLists(limit = 20): UseDataState<SaList[]> {
+// 공개 리스트 피드 — sort: popular | recent, enabled=false 이면 요청 생략
+export function usePublicLists(
+  limit = 20,
+  sort: PublicListSort = 'popular',
+  enabled = true
+): UseDataState<SaList[]> {
   const [data, setData] = useState<SaList[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!enabled) {
+      setData([])
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     let cancelled = false
     setLoading(true)
+    setError(null)
 
-    listsService.getPublicLists(limit)
+    listsService.getPublicLists(limit, 0, sort)
       .then((lists) => { if (!cancelled) setData(lists) })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [limit])
+  }, [limit, sort, enabled])
+
+  return { data, loading, error }
+}
+
+/** 큐레이션(is_featured) 공개 리스트 — 캐러셀 전용 */
+export function useFeaturedPublicLists(enabled = true): UseDataState<SaList[]> {
+  const [data, setData] = useState<SaList[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!enabled) {
+      setData([])
+      setLoading(false)
+      setError(null)
+      return
+    }
+
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    listsService.getFeaturedPublicLists()
+      .then((lists) => { if (!cancelled) setData(lists) })
+      .catch((e) => { if (!cancelled) setError(e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [enabled])
 
   return { data, loading, error }
 }

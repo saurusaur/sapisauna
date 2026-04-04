@@ -137,17 +137,22 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
             </div>
 
             <ListFormSheet
+              key={list.id}
               mode="edit"
               initialData={{
                 title: list.title || '',
                 tags: list.tags || [],
                 description: list.description || '',
+                cover_color: list.cover_color,
+                cover_emoji: list.cover_emoji ?? null,
               }}
               onSubmit={async (data) => {
                 await listsService.updateList(list.id, {
                   title: data.title,
                   description: data.description || null,
                   tags: data.tags.length > 0 ? data.tags : [],
+                  cover_color: data.cover_color,
+                  cover_emoji: data.cover_emoji,
                 })
                 onUpdated()
                 showNotice('수정되었어요')
