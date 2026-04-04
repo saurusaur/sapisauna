@@ -25,12 +25,9 @@ export default function FeaturedSaListCard({ list, onClick }: FeaturedSaListCard
       style={{ backgroundColor: bg }}
     >
       <div className="absolute inset-0 p-3.5 flex flex-col">
-        <div className="flex items-start gap-0.5">
+        <div className="flex items-start">
           {emoji ? (
-            <>
-              <span className="text-[2.25rem] leading-none" aria-hidden>{emoji}</span>
-              <span className="text-[2.25rem] leading-none opacity-25 select-none" aria-hidden>{emoji}</span>
-            </>
+            <span className="text-[2.25rem] leading-none" aria-hidden>{emoji}</span>
           ) : (
             <span
               className="material-symbols-outlined text-[2.25rem] text-white/90"

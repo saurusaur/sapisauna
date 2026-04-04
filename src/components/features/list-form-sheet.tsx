@@ -17,17 +17,17 @@ export interface SelectedPlace {
   memo: string
 }
 
-/** 고정 팔레트 — 웜 스톤·슬레이트·테라코타·세이지·네이비 톤 (첫 색이 기본값) */
+/** 고정 팔레트 — 채도 높은 커버용 컬러 (첫 색이 기본값) */
 export const COVER_COLOR_PALETTE = [
-  '#c4a574',
-  '#5c5348',
-  '#3d4a5c',
-  '#2f3d4f',
-  '#7a8f78',
-  '#6e6246',
-  '#b85c38',
-  '#8f6b5a',
-  '#7d6b5e',
+  '#ef4444',
+  '#f97316',
+  '#f59e0b',
+  '#22c55e',
+  '#14b8a6',
+  '#06b6d4',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
 ] as const
 
 export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]
@@ -71,7 +71,7 @@ const PALETTE_HEX = COVER_COLOR_PALETTE as readonly string[]
 /** 밝은 스와치는 어두운 체크 아이콘 */
 function checkIconClassForHex(hex: string): string {
   const h = hex.toLowerCase()
-  const light = ['#c4a574', '#7a8f78', '#7d6b5e']
+  const light = ['#f59e0b', '#facc15', '#fde047', '#eab308']
   return light.includes(h) ? 'text-stone-900' : 'text-white'
 }
 

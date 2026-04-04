@@ -1,5 +1,5 @@
 /**
- * SA-리스트 피드 — 상단 칩(내 리스트 / 최신 / 인기) + 같은 스크롤 내 필터
+ * SA-리스트 피드 — 상단 칩(내 리스트 / 최신 / 인기), 기본 인기 탭
  * 내 리스트 탭: 내 리스트 + 구독 목록을 한 화면에서 섹션으로 표시
  */
 
@@ -38,7 +38,7 @@ export default function SaListPage() {
   const { user } = useAuth()
   const { user: profile } = useUser()
   const { showError, showNotice } = useToast()
-  const [filter, setFilter] = useState<'mine' | 'recent' | 'popular'>('mine')
+  const [filter, setFilter] = useState<'mine' | 'recent' | 'popular'>('popular')
 
   const discoverEnabled = filter === 'recent' || filter === 'popular'
   const discoverSort: PublicListSort = filter === 'recent' ? 'recent' : 'popular'
