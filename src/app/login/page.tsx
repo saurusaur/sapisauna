@@ -8,16 +8,23 @@ import { supabase } from '@/lib/supabase'
 export default function LoginPage() {
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/home'
-  const error = searchParams.get('error')
+  const callbackError = searchParams.get('error')
   const [ready, setReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    })
+    setError(null)
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      })
+      if (oauthError) setError(LOGIN.ERROR)
+    } catch {
+      setError('네트워크 연결을 확인해주세요.')
+    }
   }
 
   return (
@@ -46,9 +53,9 @@ export default function LoginPage() {
 
       {/* 하단 영역 — 버튼 */}
       <div className="flex flex-col items-center w-full flex-1 justify-start">
-        {error && (
+        {(error || callbackError) && (
           <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 text-red-500 text-sm">
-            {LOGIN.ERROR}
+            {error || LOGIN.ERROR}
           </div>
         )}
 
