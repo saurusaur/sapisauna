@@ -1,4 +1,4 @@
-import { ICONS } from '@/constants/content'
+import { ICONS, FACILITY_ICON_MAP } from '@/constants/content'
 import { getFacilityLabel } from '@/lib/utils'
 import type { Place } from '@/types'
 import { usePlaceStats } from '@/hooks/use-places'
@@ -104,7 +104,7 @@ export default function PlaceCard({
     const facilityChips = place.facilities.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-1">
             {sortFacilities(place.facilities).slice(0, 3).map((f) => (
-                <Chip key={f} label={getFacilityLabel(f)} size="sm" />
+                <Chip key={f} label={getFacilityLabel(f)} icon={FACILITY_ICON_MAP[f]} size="sm" />
             ))}
             {place.facilities.length > 3 && (
                 <Chip label={`+${place.facilities.length - 3}`} size="sm" />
