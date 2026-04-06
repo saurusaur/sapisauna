@@ -11,7 +11,7 @@ while IFS= read -r -d '' json_file; do
   if ! node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$json_file" 2>/dev/null; then
     ISSUES+=("JSON_ERROR: $json_file")
   fi
-done < <(find "$PROJECT_DIR" -name "*.json" -newer "$PROJECT_DIR/.git/index" \
+done < <(find "$PROJECT_DIR" -type f -name "*.json" -newer "$PROJECT_DIR/.git/index" \
   -not -path "*/node_modules/*" -not -path "*/.next/*" -not -path "*/.git/*" -print0 2>/dev/null)
 
 # ESLint check (warnings only, non-blocking)

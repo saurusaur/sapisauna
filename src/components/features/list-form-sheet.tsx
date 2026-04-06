@@ -10,7 +10,7 @@ import { usePlaceSearch } from '@/hooks/use-places'
 import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
-import { hslToHex, hexToHue } from '@/lib/utils'
+import { coverHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
   id: string
@@ -84,7 +84,7 @@ export default function ListFormSheet({
   const [desc, setDesc] = useState(initialData?.description || '')
   const initialHex = effectiveInitialCoverColor(initialData?.cover_color)
   const [hue, setHue] = useState(() => hexToHue(initialHex))
-  const coverColor = hslToHex(hue, 75, 55)
+  const coverColor = coverHex(hue)
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
   const [submitting, setSubmitting] = useState(false)

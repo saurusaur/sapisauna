@@ -142,6 +142,15 @@ export const STORAGE_KEYS = {
 // ============================================
 // HSL ↔ Hex 변환 (Hue 슬라이더용)
 // ============================================
+
+/** 앱 전체 커버 색상 톤 — 머티드 파스텔 */
+export const COVER_TONE = { s: 45, l: 62 } as const
+
+/** hue → 커버 색상 Hex (COVER_TONE 적용) */
+export function coverHex(hue: number): string {
+  return hslToHex(hue, COVER_TONE.s, COVER_TONE.l)
+}
+
 export function hslToHex(h: number, s: number, l: number): string {
   s /= 100; l /= 100
   const a = s * Math.min(l, 1 - l)

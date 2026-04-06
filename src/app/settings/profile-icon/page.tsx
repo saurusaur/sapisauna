@@ -7,7 +7,7 @@ import { useToast } from '@/contexts/toast-context'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
-import { hslToHex, hexToHue } from '@/lib/utils'
+import { coverHex, hexToHue } from '@/lib/utils'
 import type { TribeId } from '@/types'
 
 // 트라이브별 기본 hex 컬러
@@ -31,7 +31,7 @@ export default function ProfileIconEdit() {
   const [emoji, setEmoji] = useState<string | null>(user?.profile_emoji ?? null)
   const [saving, setSaving] = useState(false)
 
-  const currentHex = hslToHex(hue, 75, 55)
+  const currentHex = coverHex(hue)
   const displayEmoji = emoji || defaultEmoji
 
   const handleSave = async () => {

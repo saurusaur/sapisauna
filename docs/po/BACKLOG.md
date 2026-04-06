@@ -9,16 +9,16 @@
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] 에러 로깅 — 베타 기간 버그 리포트 수집 필수. Sentry 또는 간단 에러 바운더리 | priority: P0 | added: 2026-02-28
+- [ ] [리서치+UX] 나의 기록 & 통계 설계 — 히스토리 뷰 형태(타임라인/카드/리스트), 정렬·필터(날짜·평점·타입), 유저 통계 지표(총 방문수/월별 추이/자주 간 장소/트라이브 분포/온도 선호/재방문 점수), 표시 위치(프로필/히스토리/별도 탭), 시각화 방식 | priority: P0 | added: 2026-03-10
+- [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
-- [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P1 | added: 2026-03-23
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
 - [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지 | priority: P2 | added: 2026-03-02
-- [ ] [리서치+UX] 나의 기록 & 통계 설계 — 히스토리 뷰 형태(타임라인/카드/리스트), 정렬·필터(날짜·평점·타입), 유저 통계 지표(총 방문수/월별 추이/자주 간 장소/트라이브 분포/온도 선호/재방문 점수), 표시 위치(프로필/히스토리/별도 탭), 시각화 방식 | priority: P2 | added: 2026-03-10
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
 - [ ] [디자인] UI 최종 검증 — Phase 11 | priority: P2 | added: 2026-02-28
 - [ ] [리팩토링] safeParse 패턴 재검토 — 상세: `REVIEW_safeParse_errors.md` | priority: P2 | added: 2026-03-04
@@ -37,7 +37,10 @@
 - [x] [보안] OAuth 에러 핸들링 — signInWithOAuth try-catch 추가, 네트워크 실패/OAuth 에러/callback 에러 통합 UI | priority: P0 | added: 2026-03-06 | done: 2026-04-07
 - [x] [보안] 비로그인 경험 + Auth 가드 — /home·/sa-list 공개, LoginPromptModal로 찜/구독/생성/히스토리/설정 가드, 프로필 유도카드, 홈 CTA "로그인하고 기록하기", SA-LIST 내리스트 칭 숨김 | priority: P0 | added: 2026-02-28 | done: 2026-04-07
 - [x] [최적화] Google Fonts next/font 전환 — Oswald/Libre Franklin/Noto Sans KR 셀프호스팅, no-page-custom-font 워닝 제거 | priority: P3 | added: 2026-03-06 | done: 2026-04-07
-- [x] [UX] PlaceCard 시설칩 1줄 고정 — flex-nowrap overflow-hidden | done: 2026-04-07
+- [x] [UX] PlaceCard 시설칩 최대 2개 + 1줄 고정 — flex-nowrap overflow-hidden, whitespace-nowrap, slice(0,2) | done: 2026-04-07
+- [x] [UX] 이모지 피커 개선 — 사람/몸·기호·깃발 카테고리 제거(API 프록시 필터링), 섹션 제목→구분선, 이모지 28px 확대, 6열 | done: 2026-04-07
+- [x] [UX] 컬러 슬라이더 톤 조정 — 채도 75→45%, 밝기 55→62% 머티드 파스텔. COVER_TONE+coverHex() 상수 통일 | done: 2026-04-07
+- [x] [인프라] verify-gate hook 버그 수정 — find에 -type f 추가, .json 디렉토리 오인 방지 | done: 2026-04-07
 - [x] [기능] SA-LIST UI 리디자인 — 헤더 "SA-LIST" 통일, 필터칩 Chip 교체+이모지 제거, 섹션 헤더 통일, Featured 카드 정사각형+글래스 쉐도우, Hue 슬라이더 커버 색상, Frimousse 이모지 피커(lazy-load), default 리스트 ♨️ 고정+glass-card 구분, 내 리스트 정렬(default 상단 고정) | done: 2026-04-07
 - [x] [버그] PlaceCard 시설칩 아이콘 누락 — FACILITY_ICON_MAP 연결 + cold-bath 따옴표 오염 데이터 44건 정리 + 방어 로직 추가 | done: 2026-04-06
 - [x] [기능] 프로필 아이콘 커스터마이징 — DB profile_color/profile_emoji 추가, 설정 > 아이콘 편집 페이지, ProfileCard 레이아웃 D(왼쪽 아이콘+닉네임+칭호), HueSlider+Frimousse 재사용, 기본값 트라이브 컬러+이모지, EmojiPickerField 공용 컴포넌트 추출 | done: 2026-04-07

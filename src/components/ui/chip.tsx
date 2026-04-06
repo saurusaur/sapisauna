@@ -45,7 +45,7 @@ export default function Chip({
       onClick={onClick}
       className={`
         ${sizeClass} rounded-full font-medium transition-all
-        inline-flex items-center gap-0.5
+        inline-flex items-center gap-0.5 whitespace-nowrap flex-shrink-0
         ${stateClass}
       `}
       style={selected ? { backgroundColor: color } : {}}
