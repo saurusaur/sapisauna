@@ -102,7 +102,7 @@ export default function PlaceCard({
 
     // 공통: 시설 칩
     const facilityChips = place.facilities.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-1">
+        <div className="flex flex-nowrap gap-1 mb-1 overflow-hidden">
             {sortFacilities(place.facilities).slice(0, 3).map((f) => {
                 const clean = f.replace(/"/g, '')
                 return <Chip key={f} label={getFacilityLabel(clean)} icon={FACILITY_ICON_MAP[clean]} size="sm" />

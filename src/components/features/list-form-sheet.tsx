@@ -8,6 +8,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { usePlaceSearch } from '@/hooks/use-places'
 import TagEditor from '@/components/features/tag-editor'
+import HueSlider from '@/components/ui/hue-slider'
+import { hslToHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
   id: string
@@ -55,6 +57,8 @@ interface ListFormSheetProps {
   /** For unsaved changes detection — parent calls this to check */
   onDirtyChange?: (isDirty: boolean) => void
   submitLabel?: string
+  /** default 리스트는 이모지 변경 불가 */
+  isDefault?: boolean
 }
 
 const MAX_TITLE_LENGTH = 20
@@ -66,26 +70,20 @@ function effectiveInitialCoverColor(cover_color: string | null | undefined): str
   return cover_color
 }
 
-const PALETTE_HEX = COVER_COLOR_PALETTE as readonly string[]
-
-/** 밝은 스와치는 어두운 체크 아이콘 */
-function checkIconClassForHex(hex: string): string {
-  const h = hex.toLowerCase()
-  const light = ['#f59e0b', '#facc15', '#fde047', '#eab308']
-  return light.includes(h) ? 'text-stone-900' : 'text-white'
-}
-
 export default function ListFormSheet({
   mode,
   initialData,
   onSubmit,
   onDirtyChange,
   submitLabel,
+  isDefault = false,
 }: ListFormSheetProps) {
   const [title, setTitle] = useState(initialData?.title || '')
   const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [desc, setDesc] = useState(initialData?.description || '')
-  const [coverColor, setCoverColor] = useState(() => effectiveInitialCoverColor(initialData?.cover_color))
+  const initialHex = effectiveInitialCoverColor(initialData?.cover_color)
+  const [hue, setHue] = useState(() => hexToHue(initialHex))
+  const coverColor = hslToHex(hue, 75, 55)
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
   const [submitting, setSubmitting] = useState(false)
@@ -96,7 +94,7 @@ export default function ListFormSheet({
   const { results: placeResults, loading: placeSearchLoading, search: searchPlace } = usePlaceSearch()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const baselineCover = effectiveInitialCoverColor(initialData?.cover_color)
+  const baselineHue = hexToHue(initialHex)
 
   // Dirty detection
   useEffect(() => {
@@ -104,11 +102,11 @@ export default function ListFormSheet({
     const isDirty = title !== (initialData?.title || '')
       || JSON.stringify(tags) !== JSON.stringify(initialData?.tags || [])
       || desc !== (initialData?.description || '')
-      || coverColor !== baselineCover
+      || hue !== baselineHue
       || emojiDirty
       || selectedPlaces.length > 0
     onDirtyChange?.(isDirty)
-  }, [title, tags, desc, coverColor, baselineCover, coverEmoji, baselineEmoji, selectedPlaces, initialData, onDirtyChange])
+  }, [title, tags, desc, hue, baselineHue, coverEmoji, baselineEmoji, selectedPlaces, initialData, onDirtyChange])
 
   // Place search with debounce (create mode only)
   useEffect(() => {
@@ -170,85 +168,11 @@ export default function ListFormSheet({
       {/* 2. 커버 색 */}
       <div>
         <label className="text-xs text-stone-500 mb-1.5 block">커버 색</label>
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5 scrollbar-hide">
-          {initialData?.cover_color
-            && !PALETTE_HEX.includes(initialData.cover_color) && (
-            <button
-              type="button"
-              onClick={() => setCoverColor(initialData.cover_color!)}
-              className={`flex-shrink-0 w-9 h-9 rounded-full border-2 transition-shadow flex items-center justify-center ${
-                coverColor === initialData.cover_color
-                  ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-2 ring-offset-white'
-                  : 'border-stone-200'
-              }`}
-              style={{ backgroundColor: initialData.cover_color }}
-              title="현재 저장된 색"
-            >
-              {coverColor === initialData.cover_color && (
-                <span className={`material-symbols-outlined drop-shadow-sm ${checkIconClassForHex(initialData.cover_color)}`} style={{ fontSize: '18px' }}>
-                  check
-                </span>
-              )}
-            </button>
-          )}
-          {COVER_COLOR_PALETTE.map((hex) => {
-            const selected = coverColor === hex
-            return (
-              <button
-                key={hex}
-                type="button"
-                onClick={() => setCoverColor(hex)}
-                className={`flex-shrink-0 w-9 h-9 rounded-full border-2 transition-shadow flex items-center justify-center ${
-                  selected
-                    ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-2 ring-offset-white'
-                    : 'border-stone-200'
-                }`}
-                style={{ backgroundColor: hex }}
-                aria-label={`커버 색 ${hex}`}
-              >
-                {selected && (
-                  <span className={`material-symbols-outlined drop-shadow-sm ${checkIconClassForHex(hex)}`} style={{ fontSize: '18px' }}>
-                    check
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
+        <HueSlider hue={hue} onChange={setHue} />
       </div>
 
-      {/* 2b. 커버 이모지 (선택) — 플리 커버용으로만 사용 */}
-      <div>
-        <label className="text-xs text-stone-500 mb-1.5 block">커버 이모지 (선택)</label>
-        <div className="flex flex-wrap gap-2 items-center">
-          <button
-            type="button"
-            onClick={() => setCoverEmoji(null)}
-            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
-              coverEmoji === null
-                ? 'border-stone-700 bg-stone-100 text-stone-800'
-                : 'border-stone-200 text-stone-500 hover:border-stone-300'
-            }`}
-          >
-            없음
-          </button>
-          {COVER_EMOJI_CHOICES.map((emo) => (
-            <button
-              key={emo}
-              type="button"
-              onClick={() => setCoverEmoji(emo)}
-              className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center border transition-shadow ${
-                coverEmoji === emo
-                  ? 'border-stone-700 ring-2 ring-stone-300 ring-offset-1 ring-offset-white'
-                  : 'border-stone-200 hover:border-stone-300 bg-white'
-              }`}
-              aria-label={`이모지 ${emo}`}
-            >
-              {emo}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* 2b. 커버 이모지 (선택) — default 리스트는 ♨️ 고정이므로 숨김 */}
+      {!isDefault && <EmojiPickerField emoji={coverEmoji} onChange={setCoverEmoji} />}
 
       {/* 3. 태그 */}
       <TagEditor tags={tags} onChange={setTags} />
@@ -364,6 +288,87 @@ export default function ListFormSheet({
       >
         {getButtonLabel()}
       </button>
+    </div>
+  )
+}
+
+// ────────────────────────────────────────
+// 이모지 피커 필드 (탭하면 Frimousse 열림)
+// ────────────────────────────────────────
+function EmojiPickerField({ emoji, onChange }: { emoji: string | null; onChange: (v: string | null) => void }) {
+  const [open, setOpen] = useState(false)
+  const [Picker, setPicker] = useState<typeof import('frimousse')['EmojiPicker'] | null>(null)
+
+  // Frimousse를 열릴 때만 dynamic import
+  useEffect(() => {
+    if (open && !Picker) {
+      import('frimousse').then(m => setPicker(() => m.EmojiPicker))
+    }
+  }, [open, Picker])
+
+  return (
+    <div>
+      <label className="text-xs text-stone-500 mb-1.5 block">커버 이모지 (선택)</label>
+
+      {/* 접힌 상태: 선택된 이모지 + 변경/선택 버튼 */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-10 h-10 rounded-xl text-xl flex items-center justify-center border border-stone-200 bg-white hover:border-stone-300 transition-colors"
+        >
+          {emoji || <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '20px' }}>add_reaction</span>}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="text-xs text-stone-500 hover:text-stone-700 transition-colors"
+        >
+          {open ? '닫기' : emoji ? '변경' : '선택'}
+        </button>
+        {emoji && (
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            제거
+          </button>
+        )}
+      </div>
+
+      {/* 펼친 상태: Frimousse 피커 */}
+      {open && (
+        <div className="mt-2 rounded-xl border border-stone-200 overflow-hidden bg-white">
+          {!Picker ? (
+            <div className="flex items-center justify-center py-8">
+              <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
+            </div>
+          ) : (
+            <Picker.Root
+              onEmojiSelect={({ emoji: e }) => { onChange(e); setOpen(false) }}
+              locale="ko"
+              columns={7}
+            >
+              <Picker.Search
+                placeholder="이모지 검색..."
+                className="w-full px-3 py-2 text-sm text-stone-700 outline-none border-b border-stone-100 bg-transparent placeholder:text-stone-400"
+              />
+              <Picker.Viewport className="h-[200px]">
+                <Picker.Loading>
+                  <div className="flex items-center justify-center py-6">
+                    <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
+                  </div>
+                </Picker.Loading>
+                <Picker.Empty>
+                  <p className="text-center text-xs text-stone-400 py-6">결과 없음</p>
+                </Picker.Empty>
+                <Picker.List />
+              </Picker.Viewport>
+            </Picker.Root>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -51,12 +51,16 @@ export default function SaListFeedRow({
           onClick()
         }
       }}
-      className="flex items-stretch rounded-xl bg-white shadow-sm border border-stone-100/90 overflow-hidden active:scale-[0.99] transition-transform cursor-pointer"
+      className={`flex items-stretch rounded-xl overflow-hidden active:scale-[0.99] transition-transform cursor-pointer ${
+        isDefault ? 'glass-card-light' : 'bg-white shadow-sm border border-stone-100/90'
+      }`}
     >
       <div className="w-1 flex-shrink-0 rounded-l-xl" style={{ backgroundColor: accent }} />
       <div className="flex flex-1 items-center gap-3 p-3 min-w-0">
         <div className="w-11 h-11 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
-          {list.cover_emoji ? (
+          {isDefault ? (
+            <span className="text-2xl leading-none" aria-hidden>♨️</span>
+          ) : list.cover_emoji ? (
             <span className="text-2xl leading-none" aria-hidden>{list.cover_emoji}</span>
           ) : (
             <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '26px' }}>

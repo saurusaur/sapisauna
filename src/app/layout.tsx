@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Oswald, Libre_Franklin, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 import { APP } from '@/constants/content'
 import { AuthProvider } from '@/contexts/auth-context'
@@ -6,6 +7,27 @@ import { UserProvider } from '@/contexts/user-context'
 import { ToastProvider } from '@/contexts/toast-context'
 import { SavePlaceProvider } from '@/contexts/save-place-context'
 import { ToastContainer } from '@/components/ui/toast'
+
+const oswald = Oswald({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-oswald',
+})
+
+const libreFranklin = Libre_Franklin({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-libre',
+})
+
+const notoSansKR = Noto_Sans_KR({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-noto',
+})
 
 export const metadata: Metadata = {
   title: APP.NAME,
@@ -32,17 +54,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={`${oswald.variable} ${libreFranklin.variable} ${notoSansKR.variable}`}>
       <head>
-        {/* Google Fonts - Oswald (헤딩) + Libre Franklin (영문 본문) + Noto Sans KR (한글) + Material Symbols */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* 텍스트 폰트 — swap: 폴백 폰트 먼저 표시 후 교체 */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap"
-        />
-        {/* 아이콘 폰트 — block: 로딩 전까지 리거처 텍스트 숨김 (FOUT 방지) */}
+        {/* Material Symbols — next/font 미지원이라 link 유지 */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block"

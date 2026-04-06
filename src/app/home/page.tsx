@@ -13,6 +13,8 @@ import PlaceCard from '@/components/features/place-card'
 import UserLogCard from '@/components/features/user-log-card'
 import DataState from '@/components/ui/data-state'
 import ProfileCard from '@/components/features/profile-card'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 function getTodayKey(): string {
   const now = new Date()
@@ -34,14 +36,10 @@ export default function Home() {
     [userLogs, todayKey]
   )
 
+  const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
+
   const hasTodayRecord = todayLogs.length > 0
   const emptyMessage = MESSAGES.HOME.EMPTY_RECORD[primaryTribe] || MESSAGES.HOME.NO_RECORDS
-
-  // 비로그인 → 로그인 페이지로 이동
-  if (!authUser) {
-    router.push('/login')
-    return null
-  }
 
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg">
@@ -71,7 +69,11 @@ export default function Home() {
             </button>
           </div>
 
-          {loading ? (
+          {!authUser ? (
+            <div className="rounded-xl py-6 flex flex-col items-center justify-center text-center">
+              <p className="text-stone-400 text-sm">오늘 사우나 어떠셨어요?</p>
+            </div>
+          ) : loading ? (
             <div className="h-[104px] glass-card-light flex items-center justify-center">
               <span className="text-stone-300 text-sm">{MESSAGES.HOME.LOADING}</span>
             </div>
@@ -104,12 +106,16 @@ export default function Home() {
         {/* 기록하기 CTA */}
         <button
           onClick={() => {
+            if (!authUser) {
+              requireAuth()
+              return
+            }
             localStorage.setItem('selectedRecordDate', todayKey)
             router.push('/place')
           }}
           className="btn-primary"
         >
-          {MESSAGES.HOME.CTA_BUTTON}
+          {authUser ? MESSAGES.HOME.CTA_BUTTON : '로그인하고 기록하기'}
         </button>
 
         {/* 다음엔 여기 어때요? */}
@@ -188,6 +194,7 @@ export default function Home() {
       </main>
 
       <BottomNav />
+      <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
     </div>
   )
 }

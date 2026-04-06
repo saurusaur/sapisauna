@@ -14,6 +14,8 @@ import * as listsService from '@/lib/lists-service'
 import { SaveSnackbar } from '@/components/ui/snackbar'
 import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 interface SaveFlowProps {
   children: (handleToggleSave: (placeId: string) => Promise<void>) => ReactNode
@@ -21,6 +23,7 @@ interface SaveFlowProps {
 
 export function SaveFlow({ children }: SaveFlowProps) {
   const { user } = useAuth()
+  const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
   const {
     isSaved, toggleDefaultSave, myLists, defaultListId,
     getSavedListIds, toggleListSave, removeFromAll,
@@ -50,7 +53,7 @@ export function SaveFlow({ children }: SaveFlowProps) {
 
   // 메인 토글 핸들러 — 인스타식 분기
   const handleToggleSave = useCallback(async (placeId: string) => {
-    if (!user) return
+    if (!requireAuth()) return
     const wasSaved = isSaved(placeId)
 
     if (wasSaved) {
@@ -83,7 +86,7 @@ export function SaveFlow({ children }: SaveFlowProps) {
         setSheetOpen(true)
       }
     }
-  }, [user, isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
+  }, [requireAuth, isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
 
   // 스낵바 핸들러
   const handleSnackbarToggle = useCallback(async (listId: string) => {
@@ -180,6 +183,8 @@ export function SaveFlow({ children }: SaveFlowProps) {
           </div>
         </div>
       </BottomSheet>
+
+      <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
     </>
   )
 }

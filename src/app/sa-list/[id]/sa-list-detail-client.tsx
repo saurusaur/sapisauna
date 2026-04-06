@@ -23,6 +23,8 @@ import BottomNav from '@/components/bottom-nav'
 import { SaveFlow } from '@/components/features/save-flow'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 const MAX_MEMO_LENGTH = 100
 
@@ -37,6 +39,7 @@ export default function SaListDetailClient() {
   const { subscribed, toggling: subscribing, toggle: toggleSubscribe } = useSubscription(listId)
   const { user } = useAuth()
   const { showError, showNotice } = useToast()
+  const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
   // resolvedListId — slug URL 지원을 위해
   const resolvedListId = list?.id || ''
@@ -235,13 +238,16 @@ export default function SaListDetailClient() {
                 {list.subscriber_count > 0 && <span>구독 {list.subscriber_count}명</span>}
               </div>
 
-              {/* 타인: 구독 버튼 */}
-              {!isMine && user && (
+              {/* 타인/비로그인: 구독 버튼 */}
+              {!isMine && (
                 <button
                   onClick={async () => {
-                    const was = subscribed
-                    await toggleSubscribe()
-                    if (was) {
+                    const result = await toggleSubscribe()
+                    if (result === 'need_auth') {
+                      requireAuth()
+                      return
+                    }
+                    if (!result) {
                       showNotice(`${list?.title} 구독해지`, async () => { await toggleSubscribe() })
                     } else {
                       showNotice(`${list?.title} 구독완료!`)
@@ -260,17 +266,6 @@ export default function SaListDetailClient() {
                     style={{ fontSize: '16px', fontVariationSettings: subscribed ? "'FILL' 1" : "'FILL' 0" }}
                   >bookmark_add</span>
                   {subscribed ? '구독중' : '구독하기'}
-                </button>
-              )}
-
-              {/* 비로그인: 로그인 유도 */}
-              {!isMine && !user && (
-                <button
-                  onClick={() => router.push('/login')}
-                  className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-input text-stone-500 hover:text-stone-700 transition-all"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>bookmark_add</span>
-                  로그인하고 구독하기
                 </button>
               )}
             </div>
@@ -439,6 +434,7 @@ export default function SaListDetailClient() {
       </BottomSheet>
 
       <BottomNav />
+      <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
     </div>
       )}
     </SaveFlow>

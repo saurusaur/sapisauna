@@ -24,6 +24,8 @@ import Chip from '@/components/ui/chip'
 import FeaturedSaListCard from '@/components/features/featured-sa-list-card'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 const MAX_LISTS = 15
 
@@ -38,7 +40,12 @@ export default function SaListPage() {
   const { user } = useAuth()
   const { user: profile } = useUser()
   const { showError, showNotice } = useToast()
+  const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
   const [filter, setFilter] = useState<'mine' | 'recent' | 'popular'>('popular')
+
+  const visibleChips = user
+    ? FILTER_CHIPS
+    : FILTER_CHIPS.filter((c) => c.id !== 'mine')
 
   const discoverEnabled = filter === 'recent' || filter === 'popular'
   const discoverSort: PublicListSort = filter === 'recent' ? 'recent' : 'popular'
@@ -85,7 +92,7 @@ export default function SaListPage() {
 
       <main className="px-4 pb-4 flex-1 flex flex-col min-h-0">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3 flex-shrink-0 -mx-0.5 px-0.5">
-          {FILTER_CHIPS.map((c) => (
+          {visibleChips.map((c) => (
             <Chip
               key={c.id}
               label={c.label}
@@ -213,6 +220,7 @@ export default function SaListPage() {
         <ListFormSheet
           mode="create"
           onSubmit={async (data) => {
+            if (!requireAuth()) return
             if (!user) return
             if (myLists.length >= MAX_LISTS) {
               showError(`리스트는 최대 ${MAX_LISTS}개까지 만들 수 있어요`)
@@ -254,6 +262,7 @@ export default function SaListPage() {
       ) : null}
 
       <BottomNav />
+      <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
     </div>
   )
 }

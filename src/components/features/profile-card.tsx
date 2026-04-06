@@ -9,13 +9,34 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { useUserLogs } from '@/hooks/use-logs'
 import { levelProgress } from '@/lib/reward-engine'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 export default function ProfileCard() {
   const router = useRouter()
   const { user } = useUser()
   const { data: logs } = useUserLogs()
+  const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
-  if (!user) return null
+  if (!user) {
+    return (
+      <>
+        <button
+          onClick={() => requireAuth()}
+          className="w-full glass-card-light p-5 transition-all active:scale-[0.98] text-center"
+        >
+          <span
+            className="material-symbols-outlined mb-1"
+            style={{ fontSize: '28px', color: 'var(--color-primary)' }}
+          >
+            person
+          </span>
+          <p className="text-sm text-stone-500">나만의 사우나 카드를 만들어보세요</p>
+        </button>
+        <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
+      </>
+    )
+  }
 
   const logCount = logs.length
   const placeCount = new Set(logs.map(l => l.place_id)).size

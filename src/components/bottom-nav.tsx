@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { NAV, ICONS } from '@/constants/content'
+import { useAuth } from '@/contexts/auth-context'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 // 2 + center raised + 2 구성 (논리적 그룹핑)
 const LEFT_TABS = [
@@ -14,9 +17,14 @@ const RIGHT_TABS = [
   { label: NAV.MY, icon: ICONS.MY, path: '/settings' },
 ] as const
 
+// 로그인 필요한 탭 경로
+const AUTH_REQUIRED_PATHS = ['/history', '/settings']
+
 export default function BottomNav() {
   const router = useRouter()
   const pathname = usePathname()
+  const { user } = useAuth()
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const isHomeActive = pathname === '/home'
 
   const renderTab = (item: { label: string; icon: string; path: string | null; disabled?: boolean }) => {
@@ -28,6 +36,10 @@ export default function BottomNav() {
         key={item.label}
         onClick={() => {
           if (isDisabled || !item.path) return
+          if (!user && AUTH_REQUIRED_PATHS.includes(item.path)) {
+            setShowLoginPrompt(true)
+            return
+          }
           if (!isActive) router.push(item.path)
         }}
         className={`flex flex-col items-center min-w-[48px] ${
@@ -87,6 +99,8 @@ export default function BottomNav() {
         {/* 우측: 사-리스트 + 마이 */}
         {RIGHT_TABS.map(renderTab)}
       </div>
+
+      <LoginPromptModal open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
     </nav>
   )
 }

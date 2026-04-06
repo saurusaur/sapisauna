@@ -13,6 +13,8 @@ const publicRoutes = [
   '/auth/callback',
   '/api',
   '/explore',
+  '/home',
+  '/sa-list',
 ]
 
 // 정적 파일 패턴

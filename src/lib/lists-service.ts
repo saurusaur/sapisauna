@@ -20,7 +20,7 @@ export async function getMyLists(userId: string): Promise<SaList[]> {
     .from('lists')
     .select('*')
     .eq('owner_id', userId)
-    .order('is_pinned', { ascending: false })
+    .order('type', { ascending: true })
     .order('updated_at', { ascending: false })
 
   if (error) throw error

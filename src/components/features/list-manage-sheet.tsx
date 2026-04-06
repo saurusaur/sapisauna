@@ -139,6 +139,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
             <ListFormSheet
               key={list.id}
               mode="edit"
+              isDefault={list.type === 'default'}
               initialData={{
                 title: list.title || '',
                 tags: list.tags || [],

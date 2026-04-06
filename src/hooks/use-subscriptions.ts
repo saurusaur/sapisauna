@@ -47,8 +47,9 @@ export function useSubscription(listId: string) {
       .finally(() => setLoading(false))
   }, [user, listId])
 
-  const toggle = useCallback(async () => {
-    if (!user || !listId || toggling) return
+  const toggle = useCallback(async (): Promise<boolean | 'need_auth'> => {
+    if (!user) return 'need_auth'
+    if (!listId || toggling) return subscribed
     setToggling(true)
     try {
       const result = await listsService.toggleSubscription(user.id, listId)
@@ -57,7 +58,7 @@ export function useSubscription(listId: string) {
     } finally {
       setToggling(false)
     }
-  }, [user, listId, toggling])
+  }, [user, listId, toggling, subscribed])
 
   return { subscribed, loading, toggling, toggle }
 }

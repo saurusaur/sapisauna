@@ -53,10 +53,10 @@
                   0 0 0 .5px hsl(0 0% 100% / .3);
   --radius: 0.75rem;
 
-  /* 폰트 패밀리 */
-  --font-heading: 'Oswald', -apple-system, sans-serif;
-  --font-display: 'Oswald', -apple-system, sans-serif;
-  --font-sans: 'Libre Franklin', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* 폰트 패밀리 (next/font CSS 변수 참조) */
+  --font-heading: var(--font-oswald), -apple-system, sans-serif;
+  --font-display: var(--font-oswald), -apple-system, sans-serif;
+  --font-sans: var(--font-libre), var(--font-noto), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 기본 body 스타일 */
