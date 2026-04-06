@@ -22,7 +22,7 @@ export function toPlace(row: Record<string, unknown>): Place {
     country_code: (row.country_code as string) || 'KR',
     latitude: row.latitude as number | null,
     longitude: row.longitude as number | null,
-    facilities: (row.facilities as string[]) || [],
+    facilities: Array.from(new Set(((row.facilities as string[]) || []).map(f => f.replace(/"/g, '')))),
     is_24h: (row.is_24h as boolean) || false,
     facility_type: (row.facility_type as FacilityType) || 'public-bath',
     bath_policy: (row.bath_policy as BathPolicy) || 'gender-bath',

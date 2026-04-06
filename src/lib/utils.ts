@@ -233,7 +233,8 @@ export function getCommonCityName(address: string): string {
  * 시설 라벨 (영어 id → 한국어)
  */
 export function getFacilityLabel(id: string): string {
-  return FACILITY_LABEL_MAP[id] || id
+  const clean = id.replace(/"/g, '')
+  return FACILITY_LABEL_MAP[clean] || clean
 }
 
 /**
