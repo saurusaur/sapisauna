@@ -370,7 +370,7 @@ export const PLACE_SPECS = {
       { id: 'hot-bath', label: '온탕', icon: 'heat', category: 'heat', tempRange: [35, 43] },
       { id: 'very-hot-bath', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
       { id: 'dry-sauna', label: '건식사우나', icon: 'sauna', category: 'heat', tempRange: [50, 130] },
-      { id: 'wet-sauna', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 90] },
+      { id: 'wet-sauna', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 75] },
       { id: 'bulgama', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
       { id: 'salt-sauna', label: '소금사우나', icon: 'salinity', category: 'heat' },
     ],
@@ -510,7 +510,7 @@ export const DEEP_LOG = {
     WET: {
       label: '습식',
       min: 40,
-      max: 70,
+      max: 75,
       unit: '°C',
       steps: [
         { value: 40, label: '미지근' },
@@ -520,21 +520,6 @@ export const DEEP_LOG = {
         { value: 70, label: '찜기' },
       ],
     },
-  },
-  WET_SAUNA: {
-    label: '습식 사우나',
-    labelEn: 'WET SAUNA',
-    toggleLabel: '이용',
-    min: 40,
-    max: 70,
-    unit: '°C',
-    steps: [
-      { value: 40, label: '미지근' },
-      { value: 48, label: '따뜻' },
-      { value: 55, label: '뜨끈' },
-      { value: 62, label: '뜨겁' },
-      { value: 70, label: '찜기' },
-    ],
   },
   BATH_TEMPS: {
     label: '탕 온도',
