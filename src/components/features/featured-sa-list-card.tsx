@@ -2,7 +2,7 @@
 
 /**
  * 큐레이션(is_featured) 가로 캐러셀 카드 — 단색 배경 + 이모지/아이콘 + 제목·핸들·곳 수
- * 비율: 가로를 기준으로 높이를 낮춘 랜드스케이프(스샷보다 살짝 낮은 느낌).
+ * 정사각형 비율, 글래스 쉐도우 + 밝기 오버레이
  */
 
 import type { SaList } from '@/types'
@@ -21,9 +21,15 @@ export default function FeaturedSaListCard({ list, onClick }: FeaturedSaListCard
     <button
       type="button"
       onClick={onClick}
-      className="relative flex-shrink-0 w-[min(72vw,216px)] aspect-[5/4] rounded-2xl overflow-hidden text-left shadow-md active:scale-[0.98] transition-transform"
-      style={{ backgroundColor: bg }}
+      className="relative flex-shrink-0 w-[min(72vw,216px)] aspect-square rounded-2xl overflow-hidden text-left active:scale-[0.98] transition-transform ring-1 ring-inset ring-white/20"
+      style={{
+        backgroundColor: bg,
+        boxShadow: '0 12px 40px -8px hsl(0 10% 15% / .12), 0 4px 16px -4px hsl(0 10% 15% / .08), 0 0 0 .5px hsl(0 0% 100% / .3)',
+      }}
     >
+      {/* 밝기 그라데이션 오버레이 */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+
       <div className="absolute inset-0 p-3.5 flex flex-col">
         <div className="flex items-start">
           {emoji ? (

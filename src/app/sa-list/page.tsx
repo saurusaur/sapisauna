@@ -20,7 +20,7 @@ import DataState from '@/components/ui/data-state'
 import ListFormSheet from '@/components/features/list-form-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
-import SaListFilterChip from '@/components/features/sa-list-filter-chip'
+import Chip from '@/components/ui/chip'
 import FeaturedSaListCard from '@/components/features/featured-sa-list-card'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
@@ -28,9 +28,9 @@ import type { SaList } from '@/types'
 const MAX_LISTS = 15
 
 const FILTER_CHIPS: { id: 'mine' | 'recent' | 'popular'; label: string }[] = [
-  { id: 'mine', label: '내 리스트 🔥' },
-  { id: 'recent', label: '최신 ✨' },
-  { id: 'popular', label: '인기 🌊' },
+  { id: 'mine', label: '내 리스트' },
+  { id: 'recent', label: '최신' },
+  { id: 'popular', label: '인기' },
 ]
 
 export default function SaListPage() {
@@ -69,7 +69,7 @@ export default function SaListPage() {
 
   const feedListsDiscover = publicLists.filter((l) => !l.is_featured)
   const discoverEmpty = feedListsDiscover.length === 0 && featuredLists.length === 0
-  const discoverSectionTitle = filter === 'recent' ? '최근 공개 사-리스트' : '인기 사-리스트 🔥'
+  const discoverSectionTitle = filter === 'recent' ? '최근 공개 사-리스트' : '인기 사-리스트'
 
   const mineLoading = myLoading || subLoading
   const mineError = myError || subError
@@ -78,19 +78,18 @@ export default function SaListPage() {
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg flex flex-col">
       <header className="p-5 pt-8 flex-shrink-0">
-        <h1 className="text-2xl font-extrabold text-stone-900 font-heading tracking-tight">
-          사-리스트
+        <h1 className="text-3xl font-extrabold italic font-heading">
+          SA-LIST
         </h1>
-        <p className="text-sm text-stone-500 mt-1">나만의 사우나 플레이리스트</p>
       </header>
 
       <main className="px-4 pb-4 flex-1 flex flex-col min-h-0">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3 flex-shrink-0 -mx-0.5 px-0.5">
           {FILTER_CHIPS.map((c) => (
-            <SaListFilterChip
+            <Chip
               key={c.id}
               label={c.label}
-              active={filter === c.id}
+              selected={filter === c.id}
               onClick={() => setFilter(c.id)}
             />
           ))}
@@ -107,7 +106,7 @@ export default function SaListPage() {
             >
               <div className="space-y-4">
                 <section>
-                  <h3 className="text-xs font-semibold text-stone-400 mb-2">내 리스트</h3>
+                  <h3 className="text-sm font-semibold text-stone-500 mb-2">내 리스트</h3>
                   <div className="space-y-2">
                     {myLists.map((list) => (
                       <SaListFeedRow
@@ -125,7 +124,7 @@ export default function SaListPage() {
 
                 {subscribedLists.length > 0 ? (
                   <section>
-                    <h3 className="text-xs font-semibold text-stone-400 mb-2">구독 중</h3>
+                    <h3 className="text-sm font-semibold text-stone-500 mb-2">구독 중</h3>
                     <div className="space-y-2">
                       {subscribedLists.map((list) => (
                         <SubscribedFeedRow
@@ -160,7 +159,7 @@ export default function SaListPage() {
               <div className="space-y-4">
                 {featuredLists.length > 0 ? (
                   <div>
-                    <h3 className="text-xs font-semibold text-stone-400 mb-2">추천 사-리스트</h3>
+                    <h3 className="text-sm font-semibold text-stone-500 mb-2">추천 사-리스트</h3>
                     <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
                       {featuredLists.map((list) => (
                         <FeaturedSaListCard
@@ -175,7 +174,7 @@ export default function SaListPage() {
 
                 {feedListsDiscover.length > 0 ? (
                   <div>
-                    <h3 className="text-xs font-semibold text-stone-400 mb-2">{discoverSectionTitle}</h3>
+                    <h3 className="text-sm font-semibold text-stone-500 mb-2">{discoverSectionTitle}</h3>
                     <div className="space-y-2">
                       {feedListsDiscover.map((list) =>
                         user && list.owner_id === user.id ? (
