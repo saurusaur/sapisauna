@@ -9,6 +9,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { usePlaceSearch } from '@/hooks/use-places'
 import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
+import EmojiPickerField from '@/components/ui/emoji-picker-field'
 import { hslToHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
@@ -172,7 +173,7 @@ export default function ListFormSheet({
       </div>
 
       {/* 2b. 커버 이모지 (선택) — default 리스트는 ♨️ 고정이므로 숨김 */}
-      {!isDefault && <EmojiPickerField emoji={coverEmoji} onChange={setCoverEmoji} />}
+      {!isDefault && <EmojiPickerField emoji={coverEmoji} onChange={setCoverEmoji} label="커버 이모지 (선택)" />}
 
       {/* 3. 태그 */}
       <TagEditor tags={tags} onChange={setTags} />
@@ -292,83 +293,3 @@ export default function ListFormSheet({
   )
 }
 
-// ────────────────────────────────────────
-// 이모지 피커 필드 (탭하면 Frimousse 열림)
-// ────────────────────────────────────────
-function EmojiPickerField({ emoji, onChange }: { emoji: string | null; onChange: (v: string | null) => void }) {
-  const [open, setOpen] = useState(false)
-  const [Picker, setPicker] = useState<typeof import('frimousse')['EmojiPicker'] | null>(null)
-
-  // Frimousse를 열릴 때만 dynamic import
-  useEffect(() => {
-    if (open && !Picker) {
-      import('frimousse').then(m => setPicker(() => m.EmojiPicker))
-    }
-  }, [open, Picker])
-
-  return (
-    <div>
-      <label className="text-xs text-stone-500 mb-1.5 block">커버 이모지 (선택)</label>
-
-      {/* 접힌 상태: 선택된 이모지 + 변경/선택 버튼 */}
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          className="w-10 h-10 rounded-xl text-xl flex items-center justify-center border border-stone-200 bg-white hover:border-stone-300 transition-colors"
-        >
-          {emoji || <span className="material-symbols-outlined text-stone-300" style={{ fontSize: '20px' }}>add_reaction</span>}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          className="text-xs text-stone-500 hover:text-stone-700 transition-colors"
-        >
-          {open ? '닫기' : emoji ? '변경' : '선택'}
-        </button>
-        {emoji && (
-          <button
-            type="button"
-            onClick={() => onChange(null)}
-            className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
-          >
-            제거
-          </button>
-        )}
-      </div>
-
-      {/* 펼친 상태: Frimousse 피커 */}
-      {open && (
-        <div className="mt-2 rounded-xl border border-stone-200 overflow-hidden bg-white">
-          {!Picker ? (
-            <div className="flex items-center justify-center py-8">
-              <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
-            </div>
-          ) : (
-            <Picker.Root
-              onEmojiSelect={({ emoji: e }) => { onChange(e); setOpen(false) }}
-              locale="ko"
-              columns={7}
-            >
-              <Picker.Search
-                placeholder="이모지 검색..."
-                className="w-full px-3 py-2 text-sm text-stone-700 outline-none border-b border-stone-100 bg-transparent placeholder:text-stone-400"
-              />
-              <Picker.Viewport className="h-[200px]">
-                <Picker.Loading>
-                  <div className="flex items-center justify-center py-6">
-                    <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
-                  </div>
-                </Picker.Loading>
-                <Picker.Empty>
-                  <p className="text-center text-xs text-stone-400 py-6">결과 없음</p>
-                </Picker.Empty>
-                <Picker.List />
-              </Picker.Viewport>
-            </Picker.Root>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}

@@ -83,6 +83,26 @@ export default function SettingsPage() {
                 <span className="material-symbols-outlined text-stone-300">chevron_right</span>
               </div>
             </button>
+            {/* 아이콘 편집 */}
+            <button
+              onClick={() => router.push('/settings/profile-icon')}
+              className="w-full p-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-stone-500">palette</span>
+                <span className="font-medium text-stone-700">아이콘 편집</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {user?.profile_emoji || user?.profile_color ? (
+                  <span className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: user.profile_color || 'var(--color-stone-100)' }}>
+                    {user.profile_emoji || ''}
+                  </span>
+                ) : (
+                  <span className="text-sm text-stone-400">미설정</span>
+                )}
+                <span className="material-symbols-outlined text-stone-300">chevron_right</span>
+              </div>
+            </button>
           </div>
         </div>
 

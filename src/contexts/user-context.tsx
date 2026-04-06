@@ -16,6 +16,8 @@ export interface UserData {
   xp: number
   level: number
   active_title: string | null
+  profile_color: string | null
+  profile_emoji: string | null
 }
 
 // Context가 제공하는 값
@@ -46,7 +48,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           // 로그인 상태 → DB에서 프로필 로드
           const { data } = await supabase
             .from('users')
-            .select('nickname, user_types, primary_type, gender, xp, level, active_title')
+            .select('nickname, user_types, primary_type, gender, xp, level, active_title, profile_color, profile_emoji')
             .eq('id', authUser.id)
             .single()
 
@@ -59,6 +61,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
               xp: data.xp ?? 0,
               level: data.level ?? 1,
               active_title: data.active_title ?? null,
+              profile_color: data.profile_color ?? null,
+              profile_emoji: data.profile_emoji ?? null,
             })
           } else {
             // 로그인은 됐지만 프로필 없음 → 온보딩 필요

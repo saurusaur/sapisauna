@@ -154,6 +154,8 @@ export default function Onboarding() {
         xp: reward?.newTotalXp ?? 20,
         level: reward?.newLevel ?? 1,
         active_title: welcomeTitle,
+        profile_color: null,
+        profile_emoji: null,
       })
       // 웰컴 칭호를 active_title로 설정
       if (authUser) {

@@ -11,6 +11,7 @@ import { useUserLogs } from '@/hooks/use-logs'
 import { levelProgress } from '@/lib/reward-engine'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import { TRIBE_EMOJI_MAP } from '@/constants/content'
 
 export default function ProfileCard() {
   const router = useRouter()
@@ -45,16 +46,24 @@ export default function ProfileCard() {
 
   return (
     <div className="w-full glass-card-light p-4 transition-all">
-      {/* 1줄: 닉네임 · 칭호 */}
-      <div className="flex items-center gap-1.5 mb-3">
-        <span className="text-sm font-bold text-stone-700">
-          {user.nickname}
-        </span>
-        {user.active_title && (
-          <span className="text-sm text-amber-600/70 px-2 py-0.5 rounded-full bg-amber-50 truncate">
-            {user.active_title}
+      {/* 1줄: 아이콘 + 닉네임 · 칭호 */}
+      <div className="flex items-center gap-2.5 mb-3">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: user.profile_color || `var(--color-${user.primary_type || 'saunner'})` }}
+        >
+          <span className="text-lg leading-none">{user.profile_emoji || TRIBE_EMOJI_MAP[user.primary_type || 'saunner']}</span>
+        </div>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-sm font-bold text-stone-700 truncate">
+            {user.nickname}
           </span>
-        )}
+          {user.active_title && (
+            <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50 truncate flex-shrink-0">
+              {user.active_title}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 2줄: 3컬럼 — 기록 / 방문 / 레벨 (각각 독립 탭 영역) */}
