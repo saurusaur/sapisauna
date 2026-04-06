@@ -35,10 +35,12 @@
 
 ### 2026-04-07
 - [x] [보안] OAuth 에러 핸들링 — signInWithOAuth try-catch 추가, 네트워크 실패/OAuth 에러/callback 에러 통합 UI | priority: P0 | added: 2026-03-06 | done: 2026-04-07
-- [x] [보안] 비로그인 경험 + Auth 가드 — /home·/sa-list 공개, LoginPromptModal로 찜/구독/생성/히스토리/설정 가드, 프로필 유도카드, 홈 CTA "로그인하고 기록하기", SA-LIST 내리스트 칩 숨김 | priority: P0 | added: 2026-02-28 | done: 2026-04-07
+- [x] [보안] 비로그인 경험 + Auth 가드 — /home·/sa-list 공개, LoginPromptModal로 찜/구독/생성/히스토리/설정 가드, 프로필 유도카드, 홈 CTA "로그인하고 기록하기", SA-LIST 내리스트 칭 숨김 | priority: P0 | added: 2026-02-28 | done: 2026-04-07
 - [x] [최적화] Google Fonts next/font 전환 — Oswald/Libre Franklin/Noto Sans KR 셀프호스팅, no-page-custom-font 워닝 제거 | priority: P3 | added: 2026-03-06 | done: 2026-04-07
 - [x] [UX] PlaceCard 시설칩 1줄 고정 — flex-nowrap overflow-hidden | done: 2026-04-07
-- [x] [기능] SA-LIST UI 리디자인 — Hue 슬라이더 커버 색상, Frimousse 이모지 피커, default ♨️ 고정 | done: 2026-04-07
+- [x] [기능] SA-LIST UI 리디자인 — 헤더 "SA-LIST" 통일, 필터칩 Chip 교체+이모지 제거, 섹션 헤더 통일, Featured 카드 정사각형+글래스 쉐도우, Hue 슬라이더 커버 색상, Frimousse 이모지 피커(lazy-load), default 리스트 ♨️ 고정+glass-card 구분, 내 리스트 정렬(default 상단 고정) | done: 2026-04-07
+- [x] [버그] PlaceCard 시설칩 아이콘 누락 — FACILITY_ICON_MAP 연결 + cold-bath 따옴표 오염 데이터 44건 정리 + 방어 로직 추가 | done: 2026-04-06
+- [x] [기능] 프로필 아이콘 커스터마이징 — DB profile_color/profile_emoji 추가, 설정 > 아이콘 편집 페이지, ProfileCard 레이아웃 D(왼쪽 아이콘+닉네임+칭호), HueSlider+Frimousse 재사용, 기본값 트라이브 컬러+이모지, EmojiPickerField 공용 컴포넌트 추출 | done: 2026-04-07
 
 ### 2026-04-06
 - [x] [데이터] 신규 시설 9건 등록 + 온도 보강 4건 — 한림탕/리버사우나/소금강스파/봉래탕/서울사우나/인천조탕/라파사우나/동아온천사우나/씨메르. 노다지·아쿠아필드·워커힐·오레브 온도 보강. 습식 CHECK 65→75 통일 (012) | done: 2026-04-06
