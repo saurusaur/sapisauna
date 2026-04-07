@@ -24,15 +24,37 @@ export default function ProfileCard() {
       <>
         <button
           onClick={() => requireAuth()}
-          className="w-full glass-card-light p-5 transition-all active:scale-[0.98] text-center"
+          className="relative w-full glass-card-light p-4 transition-all active:scale-[0.98] overflow-hidden"
         >
-          <span
-            className="material-symbols-outlined mb-1"
-            style={{ fontSize: '28px', color: 'var(--color-primary)' }}
-          >
-            person
-          </span>
-          <p className="text-sm text-stone-500">나만의 사우나 카드를 만들어보세요</p>
+          {/* 실제 카드 레이아웃 미리보기 (흐리게) */}
+          <div className="opacity-40">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-stone-200" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-bold text-stone-700">GUEST</span>
+                <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50">예비 사-피엔스</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3">
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-stone-700 font-heading leading-none">0</span>
+                <span className="text-[10px] text-stone-400 mt-1">기록</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-stone-700 font-heading leading-none">0</span>
+                <span className="text-[10px] text-stone-400 mt-1">방문</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-stone-700 font-heading leading-none">Lv.1</span>
+                <div className="w-12 h-1.5 rounded-full bg-stone-200 overflow-hidden mt-1" />
+              </div>
+            </div>
+          </div>
+
+          {/* 오버레이 문구 */}
+          <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px] rounded-2xl">
+            <p className="text-sm font-medium text-stone-600">나만의 사우나 카드를 만들어보세요</p>
+          </div>
         </button>
         <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
       </>

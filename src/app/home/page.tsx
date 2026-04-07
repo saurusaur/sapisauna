@@ -59,14 +59,16 @@ export default function Home() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-semibold text-stone-500">{MESSAGES.HOME.TODAY_HEADING}</h2>
-            <button
-              onClick={() => router.push('/history')}
-              className="text-xs font-medium hover:opacity-70 transition-colors flex items-center gap-0.5"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              {MESSAGES.HOME.VIEW_ALL}
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
-            </button>
+            {authUser && (
+              <button
+                onClick={() => router.push('/history')}
+                className="text-xs font-medium hover:opacity-70 transition-colors flex items-center gap-0.5"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                {MESSAGES.HOME.VIEW_ALL}
+                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
+              </button>
+            )}
           </div>
 
           {!authUser ? (
@@ -115,7 +117,7 @@ export default function Home() {
           }}
           className="btn-primary"
         >
-          {authUser ? MESSAGES.HOME.CTA_BUTTON : '로그인하고 기록하기'}
+          {MESSAGES.HOME.CTA_BUTTON}
         </button>
 
         {/* 다음엔 여기 어때요? */}

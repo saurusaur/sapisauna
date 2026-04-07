@@ -371,7 +371,7 @@ export const PLACE_SPECS = {
       { id: 'very-hot-bath', label: '열탕', icon: 'emergency_heat_2', category: 'heat', tempRange: [40, 46] },
       { id: 'dry-sauna', label: '건식사우나', icon: 'sauna', category: 'heat', tempRange: [50, 130] },
       { id: 'wet-sauna', label: '습식사우나', icon: 'water_voc', category: 'heat', tempRange: [40, 75] },
-      { id: 'bulgama', label: '불한증막', icon: 'warehouse', category: 'heat', tempRange: [60, 140] },
+      { id: 'bulgama', label: '불한증막', icon: 'nest_multi_room', category: 'heat', tempRange: [60, 140] },
       { id: 'salt-sauna', label: '소금사우나', icon: 'salinity', category: 'heat' },
     ],
   },

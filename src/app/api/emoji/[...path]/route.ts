@@ -56,9 +56,14 @@ export async function HEAD(
 
   try {
     const res = await fetch(`${EMOJIBASE_CDN}/${subpath}`, { method: 'HEAD' })
+    const originEtag = res.headers.get('ETag') || ''
+    // data.json은 필터링하므로 ETag를 변경하여 캐시 무효화
+    const etag = subpath.endsWith('data.json') && originEtag
+      ? `"filtered-${originEtag.replace(/"/g, '')}"`
+      : originEtag
     return new NextResponse(null, {
       status: res.status,
-      headers: { ETag: res.headers.get('ETag') || '' },
+      headers: { ETag: etag },
     })
   } catch {
     return new NextResponse(null, { status: 502 })

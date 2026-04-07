@@ -30,15 +30,12 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
             className="material-symbols-outlined mb-3"
             style={{ fontSize: '36px', color: 'var(--color-primary)' }}
           >
-            spa
+            emoji_people
           </span>
           <p className="text-sm text-stone-700 leading-relaxed">
-            이 기능을 사용하려면
+            3초 만에 사-피엔스 합류하고
             <br />
-            로그인이 필요해요.
-          </p>
-          <p className="text-sm font-semibold mt-2" style={{ color: 'var(--color-primary)' }}>
-            사-피엔스에 합류하세요!
+            더 풍성한 사우나 라이프를 즐기세요!
           </p>
         </div>
 
@@ -54,7 +51,7 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
             className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all active:scale-[0.96] active:brightness-90"
             style={{ backgroundColor: 'var(--color-primary)' }}
           >
-            로그인하기
+            로그인
           </button>
         </div>
       </div>

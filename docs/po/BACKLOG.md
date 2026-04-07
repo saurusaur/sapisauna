@@ -13,6 +13,8 @@
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
+- [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
+- [ ] [디자인] SA-LIST featured 카드 & 페이지 레이아웃 다듬기 — featured 리스트 카드 디자인 개선 + 리스트 상세 페이지 레이아웃 정리 | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28

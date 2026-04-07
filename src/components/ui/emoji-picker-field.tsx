@@ -4,9 +4,10 @@
  * EmojiPickerField — 탭하면 Frimousse 이모지 피커가 열리는 공용 필드
  * 사용처: SA-LIST 커버 이모지, 프로필 아이콘
  * 사람/몸, 기호, 깃발 카테고리 제거 (API 프록시로 필터링)
+ * 카테고리 탭 바로 섹션 간 빠른 이동
  */
 
-import { useState, useEffect, type ComponentProps } from 'react'
+import { useState, useEffect, useRef, type ComponentProps } from 'react'
 
 interface EmojiPickerFieldProps {
   emoji: string | null
@@ -14,9 +15,19 @@ interface EmojiPickerFieldProps {
   label?: string
 }
 
-// 커스텀 컴포넌트: 카테고리 헤더 → 구분선만
+// 카테고리 탭 정의 (필터 후 남는 카테고리)
+const CATEGORY_TABS = [
+  { icon: '😊', label: '웃는 얼굴과 감정' },
+  { icon: '🐻', label: '동물과 자연' },
+  { icon: '🍔', label: '음식 및 음료' },
+  { icon: '✈️', label: '여행 및 장소' },
+  { icon: '⚽', label: '액티비티' },
+  { icon: '💡', label: '사물' },
+]
+
+// 커스텀 컴포넌트: 카테고리 헤더 → 구분선 + 스크롤 타겟
 function CategoryHeader({ category, ...props }: { category: { label: string } } & ComponentProps<'div'>) {
-  return <div {...props} className="border-t border-stone-100" />
+  return <div {...props} data-category-label={category.label} className="border-t border-stone-100" />
 }
 
 // 커스텀 컴포넌트: 이모지 버튼 → 크게
@@ -37,12 +48,22 @@ function EmojiButton({ emoji, ...props }: { emoji: { emoji: string; label: strin
 export default function EmojiPickerField({ emoji, onChange, label = '이모지 (선택)' }: EmojiPickerFieldProps) {
   const [open, setOpen] = useState(false)
   const [Picker, setPicker] = useState<typeof import('frimousse')['EmojiPicker'] | null>(null)
+  const [activeTab, setActiveTab] = useState(0)
+  const pickerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (open && !Picker) {
       import('frimousse').then(m => setPicker(() => m.EmojiPicker))
     }
   }, [open, Picker])
+
+  const scrollToCategory = (index: number) => {
+    setActiveTab(index)
+    const container = pickerRef.current
+    if (!container) return
+    const target = container.querySelector(`[data-category-label="${CATEGORY_TABS[index].label}"]`)
+    target?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
 
   return (
     <div>
@@ -75,7 +96,7 @@ export default function EmojiPickerField({ emoji, onChange, label = '이모지 (
       </div>
 
       {open && (
-        <div className="mt-2 rounded-xl border border-stone-200 overflow-hidden bg-white">
+        <div ref={pickerRef} className="mt-2 rounded-xl border border-stone-200 overflow-hidden bg-white">
           {!Picker ? (
             <div className="flex items-center justify-center py-8">
               <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
@@ -91,7 +112,25 @@ export default function EmojiPickerField({ emoji, onChange, label = '이모지 (
                 placeholder="이모지 검색..."
                 className="w-full px-3 py-2.5 text-sm text-stone-700 outline-none border-b border-stone-100 bg-transparent placeholder:text-stone-400"
               />
-              <Picker.Viewport className="h-[260px]">
+
+              {/* 카테고리 탭 바 */}
+              <div className="flex justify-around px-1 py-1.5 border-b border-stone-100">
+                {CATEGORY_TABS.map((tab, i) => (
+                  <button
+                    key={tab.label}
+                    type="button"
+                    onClick={() => scrollToCategory(i)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-base transition-colors ${
+                      activeTab === i ? 'bg-stone-100' : 'hover:bg-stone-50'
+                    }`}
+                    title={tab.label}
+                  >
+                    {tab.icon}
+                  </button>
+                ))}
+              </div>
+
+              <Picker.Viewport className="h-[240px]">
                 <Picker.Loading>
                   <div className="flex items-center justify-center py-6">
                     <span className="material-symbols-outlined text-stone-300 animate-spin">progress_activity</span>
