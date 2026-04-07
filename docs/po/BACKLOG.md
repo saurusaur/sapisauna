@@ -8,7 +8,7 @@
 ## Backlog
 
 <!-- P0 — 베타 출시 전 필수 -->
-- [ ] [인프라] 에러 로깅 — 베타 기간 버그 리포트 수집 필수. Sentry 또는 간단 에러 바운더리 | priority: P0 | added: 2026-02-28
+- [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
 - [ ] [리서치+UX] 나의 기록 & 통계 설계 — 히스토리 뷰 형태(타임라인/카드/리스트), 정렬·필터(날짜·평점·타입), 유저 통계 지표(총 방문수/월별 추이/자주 간 장소/트라이브 분포/온도 선호/재방문 점수), 표시 위치(프로필/히스토리/별도 탭), 시각화 방식 | priority: P0 | added: 2026-03-10
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
