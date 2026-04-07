@@ -30,7 +30,7 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
             className="material-symbols-outlined mb-3"
             style={{ fontSize: '36px', color: 'var(--color-primary)' }}
           >
-            emoji_people
+            account_box
           </span>
           <p className="text-sm text-stone-700 leading-relaxed">
             3초 만에 사-피엔스 합류하고

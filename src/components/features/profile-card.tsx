@@ -29,7 +29,7 @@ export default function ProfileCard() {
           {/* 실제 카드 레이아웃 미리보기 (흐리게) */}
           <div className="opacity-40">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-stone-200" />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.5 }} />
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-bold text-stone-700">GUEST</span>
                 <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50">예비 사-피엔스</span>
@@ -45,7 +45,7 @@ export default function ProfileCard() {
                 <span className="text-[10px] text-stone-400 mt-1">방문</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-lg font-bold text-stone-700 font-heading leading-none">Lv.1</span>
+                <span className="text-lg font-bold text-stone-700 font-heading leading-none">Lv.0</span>
                 <div className="w-12 h-1.5 rounded-full bg-stone-200 overflow-hidden mt-1" />
               </div>
             </div>

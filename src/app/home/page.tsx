@@ -15,6 +15,7 @@ import DataState from '@/components/ui/data-state'
 import ProfileCard from '@/components/features/profile-card'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import TribePicksCard from '@/components/features/tribe-picks-card'
 
 function getTodayKey(): string {
   const now = new Date()
@@ -71,11 +72,7 @@ export default function Home() {
             )}
           </div>
 
-          {!authUser ? (
-            <div className="rounded-xl py-6 flex flex-col items-center justify-center text-center">
-              <p className="text-stone-400 text-sm">오늘 사우나 어떠셨어요?</p>
-            </div>
-          ) : loading ? (
+          {!authUser ? null : loading ? (
             <div className="h-[104px] glass-card-light flex items-center justify-center">
               <span className="text-stone-300 text-sm">{MESSAGES.HOME.LOADING}</span>
             </div>
@@ -117,8 +114,11 @@ export default function Home() {
           }}
           className="btn-primary"
         >
-          {MESSAGES.HOME.CTA_BUTTON}
+          {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 5초 기록하기'}
         </button>
+
+        {/* TRIBE PICKS — 비로그인 전용 */}
+        {!authUser && <TribePicksCard />}
 
         {/* 다음엔 여기 어때요? */}
         {!recsLoading && recommendations.length === 0 ? null : (

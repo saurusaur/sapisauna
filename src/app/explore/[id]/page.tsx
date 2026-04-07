@@ -628,7 +628,7 @@ export default function PlaceDetailPage() {
         </div>
       </main>
 
-      <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>
+      {authUser && <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>}
     </div>
       )}
     </SaveFlow>
