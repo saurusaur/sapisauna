@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
+import { captureError } from '@/lib/error-logger'
 import BottomCTA from '@/components/ui/bottom-cta'
 
 export default function DeepLog() {
@@ -219,7 +220,7 @@ export default function DeepLog() {
       localStorage.removeItem('selectedRecordDate')
       router.push('/story')
     } catch (err) {
-      console.error('저장 실패:', err)
+      captureError(err, { label: '딥로그 저장 실패' })
       setSaveError('저장에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setIsSaving(false)

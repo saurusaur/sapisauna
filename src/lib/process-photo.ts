@@ -6,6 +6,8 @@
  * 비-HEIC: Object URL 즉시 반환 (프리뷰는 CSS cover, export는 Canvas drawImage가 리사이즈)
  */
 
+const isDev = process.env.NODE_ENV === 'development'
+
 /** 클라이언트 HEIC → JPEG 변환 (heic-to WASM) */
 async function convertHeic(file: File): Promise<Blob> {
   const { heicTo } = await import('heic-to')
@@ -25,19 +27,16 @@ function isHeic(file: File): boolean {
  * 비-HEIC: 즉시 반환 (~0ms)
  */
 export async function processPhoto(file: File): Promise<string> {
-  console.time('📸 processPhoto 전체')
-  console.log(`📸 원본: ${file.name}, ${(file.size / 1024 / 1024).toFixed(1)}MB, ${file.type}`)
+  if (isDev) console.time('processPhoto')
 
   if (isHeic(file)) {
-    console.time('📸 HEIC→JPEG 변환 (heic-to WASM)')
+    if (isDev) console.time('HEIC→JPEG')
     const blob = await convertHeic(file)
-    console.timeEnd('📸 HEIC→JPEG 변환 (heic-to WASM)')
-    console.log(`📸 변환 결과: ${(blob.size / 1024 / 1024).toFixed(1)}MB`)
-    console.timeEnd('📸 processPhoto 전체')
+    if (isDev) console.timeEnd('HEIC→JPEG')
+    if (isDev) console.timeEnd('processPhoto')
     return URL.createObjectURL(blob)
   }
 
-  console.log('📸 비-HEIC: 변환 불필요')
-  console.timeEnd('📸 processPhoto 전체')
+  if (isDev) console.timeEnd('processPhoto')
   return URL.createObjectURL(file)
 }

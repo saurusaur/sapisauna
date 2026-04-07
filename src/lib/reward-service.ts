@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabase'
+import { captureError } from './error-logger'
 import { XP_VALUES, type XpAction, TRIBE_LOG_MILESTONES, ACTIVITY_MILESTONES } from '@/constants/rewards'
 import { levelFromXp, generateRandomTitle, addAdjectivePrefix } from './reward-engine'
 import type { TribeId, RewardResult } from '@/types'
@@ -191,7 +192,7 @@ async function insertTitle(
 
   if (error) {
     if (error.code === '23505') return false
-    console.error('칭호 삽입 실패:', error)
+    captureError(error, { label: '칭호 삽입 실패' })
     return false
   }
   return true

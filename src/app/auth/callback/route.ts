@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { captureError } from '@/lib/error-logger'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error('[Auth Callback] code 교환 실패:', error.message, error.status)
+      captureError(error, { label: 'Auth Callback code 교환 실패', extra: { status: String(error.status) } })
     }
 
     if (!error) {

@@ -2,6 +2,8 @@
  * 공용 데이터 상태 래퍼 — Loading / Error / Empty 처리
  */
 
+import { captureError } from '@/lib/error-logger'
+
 interface DataStateProps {
   loading: boolean
   error: string | null
@@ -36,7 +38,7 @@ export default function DataState({
     const displayMessage = dbPatterns.test(error)
       ? '데이터를 불러오지 못했어요. 잠시 후 다시 시도해주세요.'
       : error
-    console.error('DataState error:', error)
+    captureError(error, { label: 'DataState 에러' })
     return (
       <div className="text-center py-16">
         <span className="material-symbols-outlined text-4xl mb-3 block" style={{ color: 'var(--color-accent)' }}>

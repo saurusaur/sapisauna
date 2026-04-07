@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
 import { safeParse } from '@/lib/utils'
+import { captureError } from '@/lib/error-logger'
 import type { TribeId } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
@@ -251,7 +252,7 @@ export default function QuickLog() {
       localStorage.removeItem('selectedRecordDate')
       router.push('/story')
     } catch (err) {
-      console.error('저장 실패:', err)
+      captureError(err, { label: '로그 저장 실패' })
       setSaveError('저장에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setIsSaving(false)

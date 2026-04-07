@@ -15,6 +15,7 @@ import type { LogWithPlace } from '@/types'
 import { getMyLogById } from '@/lib/logs-service'
 import { renderCard, shareImage, downloadImage } from '@/lib/image-export'
 import { processPhoto } from '@/lib/process-photo'
+import { captureError } from '@/lib/error-logger'
 import confetti from 'canvas-confetti'
 import SteamCardReveal from '@/components/features/steam-card-reveal'
 import type { RewardResult } from '@/types'
@@ -162,7 +163,7 @@ export default function Story() {
       }
       showMessage('완료!', 'success', mode)
     } catch (err) {
-      console.error('Export failed:', err)
+      captureError(err, { label: 'Story export 실패' })
       showMessage('실패', 'error', mode)
     } finally {
       setIsExporting(false)
@@ -181,7 +182,7 @@ export default function Story() {
       if (bgPhoto) URL.revokeObjectURL(bgPhoto)
       setBgPhoto(url)
     } catch (err) {
-      console.error('Photo processing failed:', err)
+      captureError(err, { label: 'Photo 처리 실패' })
     } finally {
       setIsProcessingPhoto(false)
     }

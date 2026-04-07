@@ -131,10 +131,7 @@ function measureHalfLeading(ctx: CanvasRenderingContext2D): number {
 }
 
 export async function renderCard(p: CardRenderParams): Promise<Blob> {
-  console.time('🎨 renderCard 전체')
-  console.time('🎨 1. 폰트 로딩')
   await document.fonts.ready
-  console.timeEnd('🎨 1. 폰트 로딩')
 
   const canvas = document.createElement('canvas')
   canvas.width = W
@@ -154,18 +151,13 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
   // ── 배경 ──
   if (p.bgPhoto) {
-    console.time('🎨 2. 배경사진 loadImage')
     const photo = await loadImage(p.bgPhoto)
-    console.timeEnd('🎨 2. 배경사진 loadImage')
-    console.log(`🎨 사진 크기: ${photo.naturalWidth}×${photo.naturalHeight}`)
-    console.time('🎨 3. 배경사진 drawImage+blur')
     ctx.save()
     ctx.filter = 'blur(3px)'
     ctx.scale(1.02, 1.02)
     ctx.translate(-W * 0.01, -H * 0.01)
     drawCoverFit(ctx, photo, W, H)
     ctx.restore()
-    console.timeEnd('🎨 3. 배경사진 drawImage+blur')
     const rgb = colors.rgb
     const grad = ctx.createLinearGradient(0, 0, 0, H)
     grad.addColorStop(0, `rgba(${rgb},0.88)`)
@@ -341,9 +333,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   }
 
   if (svgStr) {
-    console.time('🎨 4. SVG→Image 변환')
     const svgImg = await svgToImage(svgStr)
-    console.timeEnd('🎨 4. SVG→Image 변환')
     // 그래프 영역: CSS width:140% (부모 컨텐츠 너비 기준) height:640px marginLeft:-80px
     const contentW = W - 2 * PX  // 920 (패딩 제외 내부 너비)
     const areaX = 0              // CSS: content(x=80) + marginLeft(-80) = 0
@@ -423,17 +413,12 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   setLetterSpacing(ctx, 0)
 
   // ── Blob 반환 ──
-  console.time('🎨 5. canvas.toBlob (PNG)')
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       blob => {
-        console.timeEnd('🎨 5. canvas.toBlob (PNG)')
         if (blob) {
-          console.log(`🎨 최종 PNG: ${(blob.size / 1024 / 1024).toFixed(1)}MB`)
-          console.timeEnd('🎨 renderCard 전체')
           resolve(blob)
         } else {
-          console.timeEnd('🎨 renderCard 전체')
           reject(new Error('toBlob failed'))
         }
       },

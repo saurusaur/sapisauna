@@ -1,11 +1,18 @@
 'use client'
 
-export default function GlobalError({
+import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
+
+export default function ErrorPage({
+  error,
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
   return (
     <div className="bath-tile-bg min-h-dvh flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-8 max-w-sm w-full text-center">

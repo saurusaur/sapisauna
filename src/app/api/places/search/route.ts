@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { captureError } from '@/lib/error-logger'
 
 // 정제된 장소 데이터 타입 (places 테이블 호환)
 // 카테고리는 장소가 아닌 logs.log_type으로 관리
@@ -236,7 +237,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ results })
   } catch (error) {
-    console.error('Place search error:', error)
+    captureError(error, { label: 'Place search', extra: { source, query: query ?? '' } })
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Search failed' },
       { status: 500 }

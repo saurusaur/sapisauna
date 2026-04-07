@@ -7,6 +7,7 @@ import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
 import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
+import { captureError } from '@/lib/error-logger'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -43,7 +44,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
       await deleteLog(params.id)
       router.push('/history')
     } catch (e) {
-      console.error('삭제 실패:', e)
+      captureError(e, { label: '로그 삭제 실패' })
       setIsDeleting(false)
       setShowDeleteConfirm(false)
     }

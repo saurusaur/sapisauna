@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './auth-context'
 import { supabase } from '@/lib/supabase'
+import { captureError } from '@/lib/error-logger'
 import { FALLBACK_TRIBE } from '@/constants/content'
 import type { TribeId } from '@/types'
 
@@ -76,7 +77,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setUserState(null)
         }
       } catch (e) {
-        console.error('프로필 로드 실패:', e)
+        captureError(e, { label: '프로필 로드 실패' })
         setUserState(null)
       }
       setIsLoaded(true)
@@ -105,7 +106,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       .eq('id', authUser.id)
 
     if (error) {
-      console.error('프로필 업데이트 실패:', error)
+      captureError(error, { label: '프로필 업데이트 실패' })
       // 실패 시 롤백
       setUserState(prev)
     }
