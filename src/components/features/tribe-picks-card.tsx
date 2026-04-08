@@ -88,7 +88,6 @@ export default function TribePicksCard() {
         <p
           key={activeTribe.id}
           className="text-xs text-stone-500 text-center"
-          style={{ animation: 'fade-in 0.15s ease-out' }}
         >
           &ldquo;{activeTribe.description}&rdquo;
         </p>
