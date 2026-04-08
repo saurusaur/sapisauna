@@ -31,7 +31,7 @@ export default function ProfileCard() {
             <div className="flex items-center gap-2.5 mb-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.5 }} />
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-stone-700">GUEST</span>
+                <span className="text-sm font-bold text-stone-700">SA-PIEN</span>
                 <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50">예비 사-피엔스</span>
               </div>
             </div>

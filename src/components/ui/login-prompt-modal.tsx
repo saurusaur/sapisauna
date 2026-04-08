@@ -28,12 +28,10 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
         <div className="flex flex-col items-center text-center mb-8">
           <h2 className="text-xl font-extrabold italic font-heading mb-3">
             WELCOME{' '}
-            <span style={{ color: 'var(--color-primary)' }}>SA-PIENS</span>
+            <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
           </h2>
           <p className="text-sm text-stone-700 leading-relaxed">
-            지금 바로 사-피 합류하고
-            <br />
-            더 풍성한 사우나 라이프를 즐기세요!
+            더 풍성한 사우나 라이프 즐기자!
           </p>
         </div>
 

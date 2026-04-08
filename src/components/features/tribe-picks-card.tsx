@@ -97,7 +97,7 @@ export default function TribePicksCard() {
           className="mt-2 text-[11px] font-medium flex items-center gap-0.5 hover:opacity-70 transition-opacity"
           style={{ color: activeTribe.color }}
         >
-          TRIBE 추천 사우나 보기
+          {activeTribe.persona} 추천 사우나 보기
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
         </button>
       </div>
