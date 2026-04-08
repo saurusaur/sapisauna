@@ -25,13 +25,13 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
 
       {/* 모달 본체 */}
       <div className="relative bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] w-full max-w-[300px] p-6">
-        <div className="flex flex-col items-center text-center mb-8">
-          <h2 className="text-xl font-extrabold italic font-heading mb-3">
+        <div className="flex flex-col items-center text-center mb-5">
+          <h2 className="text-xl font-extrabold italic font-heading mb-2">
             WELCOME{' '}
             <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
           </h2>
           <p className="text-sm text-stone-700 leading-relaxed">
-            앗! 로그인이 필요해요.
+            사-피엔스 전용 기능이에요.
             <br />
             지금 바로 사-피 합류하기!
           </p>
