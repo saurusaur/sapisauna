@@ -35,20 +35,7 @@ export default function TribePicksCard() {
     router.push(`/explore/type/${TRIBE_LIST[index].id}`)
   }
 
-  const [displayIndex, setDisplayIndex] = useState(0)
-  const [textOpacity, setTextOpacity] = useState(1)
-
-  useEffect(() => {
-    // activeIndex 변경 → opacity 0 (300ms) → 텍스트 교체 → opacity 1
-    setTextOpacity(0)
-    const timer = setTimeout(() => {
-      setDisplayIndex(activeIndex)
-      setTextOpacity(1)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [activeIndex])
-
-  const activeTribe = TRIBE_LIST[displayIndex]
+  const activeTribe = TRIBE_LIST[activeIndex]
 
   return (
     <div className="glass-card-light p-5">
@@ -97,10 +84,7 @@ export default function TribePicksCard() {
       </div>
 
       {/* 설명 + 전체 보기 */}
-      <div
-        className="min-h-[48px] flex flex-col items-center justify-center transition-opacity duration-300"
-        style={{ opacity: textOpacity }}
-      >
+      <div className="min-h-[48px] flex flex-col items-center justify-center">
         <p className="text-xs text-stone-500 text-center">
           &ldquo;{activeTribe.description}&rdquo;
         </p>
