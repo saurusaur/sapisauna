@@ -35,7 +35,20 @@ export default function TribePicksCard() {
     router.push(`/explore/type/${TRIBE_LIST[index].id}`)
   }
 
-  const activeTribe = TRIBE_LIST[activeIndex]
+  const [displayIndex, setDisplayIndex] = useState(0)
+  const [textOpacity, setTextOpacity] = useState(1)
+
+  useEffect(() => {
+    // activeIndex 변경 → opacity 0 (300ms) → 텍스트 교체 → opacity 1
+    setTextOpacity(0)
+    const timer = setTimeout(() => {
+      setDisplayIndex(activeIndex)
+      setTextOpacity(1)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [activeIndex])
+
+  const activeTribe = TRIBE_LIST[displayIndex]
 
   return (
     <div className="glass-card-light p-5">
@@ -54,7 +67,7 @@ export default function TribePicksCard() {
                 onClick={() => handleClick(i)}
                 className={`
                   w-20 h-20 rounded-xl flex items-center justify-center text-3xl
-                  transition-all duration-300 cursor-pointer
+                  cursor-pointer
                   ${isActive
                     ? 'shadow-md scale-105'
                     : 'glass-card-light text-stone-400 hover:shadow-sm'
@@ -84,16 +97,16 @@ export default function TribePicksCard() {
       </div>
 
       {/* 설명 + 전체 보기 */}
-      <div className="min-h-[48px] flex flex-col items-center justify-center">
-        <p
-          key={activeTribe.id}
-          className="text-xs text-stone-500 text-center"
-        >
+      <div
+        className="min-h-[48px] flex flex-col items-center justify-center transition-opacity duration-300"
+        style={{ opacity: textOpacity }}
+      >
+        <p className="text-xs text-stone-500 text-center">
           &ldquo;{activeTribe.description}&rdquo;
         </p>
         <button
           onClick={() => router.push(`/explore/type/${activeTribe.id}`)}
-          className="mt-2 text-[11px] font-medium flex items-center gap-0.5 hover:opacity-70 transition-opacity"
+          className="mt-2 text-[11px] font-medium flex items-center gap-0.5 hover:opacity-70 transition-[color] duration-300"
           style={{ color: activeTribe.color }}
         >
           {activeTribe.persona} 추천 사우나 보기
