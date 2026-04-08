@@ -32,13 +32,13 @@ export default function TribePicksCard() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [startAutoScroll])
 
-  // 카드 transition 300ms와 동기화: fade-out 150ms → 텍스트 교체 → fade-in 150ms
+  // fade-out 100ms → 텍스트 교체 → fade-in 100ms, 최소 opacity 0.3으로 깜박임 완화
   useEffect(() => {
-    setTextOpacity(0)
+    setTextOpacity(0.3)
     const timer = setTimeout(() => {
       setDisplayIndex(activeIndex)
       setTextOpacity(1)
-    }, 150)
+    }, 100)
     return () => clearTimeout(timer)
   }, [activeIndex])
 
@@ -97,7 +97,7 @@ export default function TribePicksCard() {
 
       {/* 설명 + 전체 보기 — fade 150ms로 카드 300ms transition과 동기화 */}
       <div
-        className="min-h-[48px] flex flex-col items-center justify-center transition-opacity duration-150"
+        className="min-h-[48px] flex flex-col items-center justify-center transition-opacity duration-100"
         style={{ opacity: textOpacity }}
       >
         <p className="text-xs text-stone-500 text-center">
