@@ -114,7 +114,7 @@ export default function Home() {
           }}
           className="btn-primary"
         >
-          {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 5초 기록하기'}
+          {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 기록하기'}
         </button>
 
         {/* TRIBE PICKS — 비로그인 전용 */}

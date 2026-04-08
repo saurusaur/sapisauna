@@ -26,14 +26,12 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
       {/* 모달 본체 */}
       <div className="relative bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] w-full max-w-[300px] p-6">
         <div className="flex flex-col items-center text-center mb-8">
-          <span
-            className="material-symbols-outlined mb-3"
-            style={{ fontSize: '36px', color: 'var(--color-primary)' }}
-          >
-            account_box
-          </span>
+          <h2 className="text-xl font-extrabold italic font-heading mb-3">
+            WELCOME{' '}
+            <span style={{ color: 'var(--color-primary)' }}>SA-PIENS</span>
+          </h2>
           <p className="text-sm text-stone-700 leading-relaxed">
-            3초 만에 사-피엔스 합류하고
+            지금 바로 사-피 합류하고
             <br />
             더 풍성한 사우나 라이프를 즐기세요!
           </p>
@@ -51,7 +49,7 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
             className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all active:scale-[0.96] active:brightness-90"
             style={{ backgroundColor: 'var(--color-primary)' }}
           >
-            로그인
+            3초 로그인
           </button>
         </div>
       </div>

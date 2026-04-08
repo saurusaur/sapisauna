@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { TRIBES } from '@/constants/content'
 
 const TRIBE_LIST = Object.values(TRIBES)
-const INTERVAL_MS = 3500
+const INTERVAL_MS = 3000
 
 export default function TribePicksCard() {
   const router = useRouter()
@@ -87,7 +87,8 @@ export default function TribePicksCard() {
       <div className="min-h-[48px] flex flex-col items-center justify-center">
         <p
           key={activeTribe.id}
-          className="text-xs text-stone-500 text-center animate-fade-in"
+          className="text-xs text-stone-500 text-center"
+          style={{ animation: 'fade-in 0.15s ease-out' }}
         >
           &ldquo;{activeTribe.description}&rdquo;
         </p>
@@ -96,7 +97,7 @@ export default function TribePicksCard() {
           className="mt-2 text-[11px] font-medium flex items-center gap-0.5 hover:opacity-70 transition-opacity"
           style={{ color: activeTribe.color }}
         >
-          전체 보기
+          TRIBE 추천 사우나 보기
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
         </button>
       </div>
