@@ -31,7 +31,7 @@ export default function LoginPromptModal({ open, onClose }: LoginPromptModalProp
             <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
           </h2>
           <p className="text-sm text-stone-700 leading-relaxed">
-            로그인이 필요해요
+            멤버 전용 기능이에요
             <br />
             지금 바로 사-피 합류하기!
           </p>
