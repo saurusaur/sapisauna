@@ -96,7 +96,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
       ]
     : [
         { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
-        { value: log.ice_time || null, label: 'ICE', unit: 'MIN' },
+        { value: log.ice_time || null, label: 'ICE', unit: 'SEC' },
         { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
         { value: log.repeat || null, label: 'RPT', unit: 'SET' },
       ]

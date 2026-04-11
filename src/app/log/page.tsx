@@ -612,6 +612,7 @@ export default function QuickLog() {
                 placeholder={QUICK_LOG.COMMON.ROUTINE.ICE.placeholder}
                 min={QUICK_LOG.COMMON.ROUTINE.ICE.min}
                 max={QUICK_LOG.COMMON.ROUTINE.ICE.max}
+                step={QUICK_LOG.COMMON.ROUTINE.ICE.step}
                 unit={QUICK_LOG.COMMON.ROUTINE.ICE.unit}
                 onChange={setIceTime}
               />

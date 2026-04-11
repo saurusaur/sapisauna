@@ -144,6 +144,7 @@ export function RoutineCounter({
   placeholder,
   min,
   max,
+  step = 1,
   unit = '분',
   onChange,
 }: {
@@ -152,6 +153,7 @@ export function RoutineCounter({
   placeholder: number
   min: number
   max: number
+  step?: number
   unit?: string
   onChange: (v: number | null) => void
 }) {
@@ -179,7 +181,7 @@ export function RoutineCounter({
         )}
 
         <button
-          onClick={isActive ? (e) => { e.stopPropagation(); onChange(Math.max(min, displayValue - 1)) } : undefined}
+          onClick={isActive ? (e) => { e.stopPropagation(); onChange(Math.max(min, displayValue - step)) } : undefined}
           className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>remove</span>
@@ -193,7 +195,7 @@ export function RoutineCounter({
         </span>
 
         <button
-          onClick={isActive ? (e) => { e.stopPropagation(); onChange(Math.min(max, displayValue + 1)) } : undefined}
+          onClick={isActive ? (e) => { e.stopPropagation(); onChange(Math.min(max, displayValue + step)) } : undefined}
           className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
