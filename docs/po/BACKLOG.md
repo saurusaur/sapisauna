@@ -35,6 +35,14 @@
 
 ## Done
 
+### 2026-04-11
+- [x] [UX] TRIBE PICKS 카드 — 비로그인 홈에 트라이브 선택 유도 카드 (3초 오토 스크롤, 트라이브별 설명+CTA, /explore/type 연결) | done: 2026-04-08
+- [x] [UX] 비로그인 홈 디테일 — ProfileCard 게스트 미리보기(SA-PIEN, 예비 사-피엔스), explore/[id] 기록하기 숨김, 홈 CTA "오늘 사우나 기록하기", 전체보기 숨김 | done: 2026-04-08
+- [x] [UX] LoginPromptModal UX — WELCOME SA-PIEN 헤딩, "멤버 전용 기능이에요" 문구, "3초 로그인" 버튼 | done: 2026-04-11
+- [x] [인프라] public_profiles 뷰 — 비로그인에서도 닉네임/칭호 표시 (gender 등 비공개 컬럼 차단) | done: 2026-04-08
+- [x] [UX] 이모지 피커 카테고리 탭 바 — 섹션 간 빠른 이동, ETag 캐시 무효화 | done: 2026-04-08
+- [x] [UX] 컬러 슬라이더 채도 상향 — 45→55% (탁함 개선) | done: 2026-04-08
+
 ### 2026-04-07
 - [x] [보안] OAuth 에러 핸들링 — signInWithOAuth try-catch 추가, 네트워크 실패/OAuth 에러/callback 에러 통합 UI | priority: P0 | added: 2026-03-06 | done: 2026-04-07
 - [x] [보안] 비로그인 경험 + Auth 가드 — /home·/sa-list 공개, LoginPromptModal로 찜/구독/생성/히스토리/설정 가드, 프로필 유도카드, 홈 CTA "로그인하고 기록하기", SA-LIST 내리스트 칭 숨김 | priority: P0 | added: 2026-02-28 | done: 2026-04-07
