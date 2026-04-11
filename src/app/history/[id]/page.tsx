@@ -89,16 +89,16 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   // 루틴 뱃지 (항상 4개 표시, 미입력은 '-')
   const routineBadges = log.tribe_id === 'jimi'
     ? [
-        { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
-        { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
-        { value: log.repeat || null, label: 'RPT', unit: 'SET' },
-        { value: log.sweat_quality || null, label: 'SWEAT', unit: '/5' },
+        { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
+        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.repeat || null, label: 'RPT', suffix: 'set' },
+        { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
     : [
-        { value: log.heat_time || null, label: 'HEAT', unit: 'MIN' },
-        { value: log.ice_time || null, label: 'ICE', unit: 'SEC' },
-        { value: log.pause_time || null, label: 'PAUSE', unit: 'MIN' },
-        { value: log.repeat || null, label: 'RPT', unit: 'SET' },
+        { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
+        { value: log.ice_time || null, label: 'ICE', suffix: 's' },
+        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.repeat || null, label: 'RPT', suffix: 'set' },
       ]
 
   return (
@@ -273,8 +273,8 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                     }}
                   >
                     {badge.value ?? '-'}
-                    {badge.unit === '/5' && badge.value != null && (
-                      <span className="text-stone-400 font-semibold" style={{ fontSize: '14px' }}>/5</span>
+                    {badge.suffix && badge.value != null && (
+                      <span className="text-stone-400 font-semibold" style={{ fontSize: '14px' }}>{badge.suffix}</span>
                     )}
                   </span>
                   <span
