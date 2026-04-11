@@ -62,11 +62,15 @@ export default function EmojiPickerField({ emoji, onChange, label = '이모지 (
     const container = pickerRef.current
     if (!container) return
     const viewport = container.querySelector<HTMLElement>('[frimousse-viewport]')
-    // n번째 카테고리 컨테이너 (absolute positioned, 항상 DOM에 존재)
-    const categories = container.querySelectorAll<HTMLElement>('[frimousse-category]')
-    const target = categories[index]
-    if (!target || !viewport) return
-    viewport.scrollTo({ top: target.offsetTop, behavior: 'smooth' })
+    if (!viewport) return
+    // 라벨 매칭으로 정확한 카테고리 헤더 찾기 (인덱스 불일치 방지)
+    const headerEl = container.querySelector<HTMLElement>(`[data-category-label="${CATEGORY_TABS[index].label}"]`)
+    if (!headerEl) return
+    // absolute positioned 부모 컨테이너의 rect으로 정확한 스크롤 위치 계산
+    const categoryEl = headerEl.closest<HTMLElement>('[frimousse-category]')
+    if (!categoryEl) return
+    const scrollTarget = categoryEl.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop
+    viewport.scrollTo({ top: scrollTarget, behavior: 'smooth' })
   }
 
   return (
