@@ -61,19 +61,12 @@ export default function EmojiPickerField({ emoji, onChange, label = '이모지 (
     setActiveTab(index)
     const container = pickerRef.current
     if (!container) return
-    // Viewport 내부의 실제 스크롤 컨테이너를 찾아서 scrollTop으로 제어
-    const viewport = container.querySelector('[style*="overflow"]') ?? container.querySelector('[class*="h-["]')
-    const target = container.querySelector(`[data-category-label="${CATEGORY_TABS[index].label}"]`)
-    if (!target || !viewport) {
-      target?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-      return
-    }
-    const viewportRect = viewport.getBoundingClientRect()
-    const targetRect = target.getBoundingClientRect()
-    viewport.scrollTo({
-      top: viewport.scrollTop + (targetRect.top - viewportRect.top),
-      behavior: 'smooth',
-    })
+    const viewport = container.querySelector<HTMLElement>('[frimousse-viewport]')
+    // n번째 카테고리 컨테이너 (absolute positioned, 항상 DOM에 존재)
+    const categories = container.querySelectorAll<HTMLElement>('[frimousse-category]')
+    const target = categories[index]
+    if (!target || !viewport) return
+    viewport.scrollTo({ top: target.offsetTop, behavior: 'smooth' })
   }
 
   return (
