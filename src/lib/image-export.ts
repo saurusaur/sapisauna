@@ -256,16 +256,16 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   // ── 루틴 뱃지 ──
   const badges = p.tribeId === 'jimi'
     ? [
-        { value: p.heatTime, label: 'HEAT', suffix: '' },
-        { value: p.pauseTime, label: 'PAUSE', suffix: '' },
-        { value: p.repeat, label: 'RPT', suffix: '' },
+        { value: p.heatTime, label: 'HEAT', suffix: 'm' },
+        { value: p.pauseTime, label: 'PAUSE', suffix: 'm' },
+        { value: p.repeat, label: 'RPT', suffix: 'set' },
         { value: p.sweatQuality, label: 'SWEAT', suffix: '/5' },
       ]
     : [
-        { value: p.heatTime, label: 'HEAT', suffix: '' },
-        { value: p.iceTime, label: 'ICE', suffix: '' },
-        { value: p.pauseTime, label: 'PAUSE', suffix: '' },
-        { value: p.repeat, label: 'RPT', suffix: '' },
+        { value: p.heatTime, label: 'HEAT', suffix: 'm' },
+        { value: p.iceTime, label: 'ICE', suffix: 's' },
+        { value: p.pauseTime, label: 'PAUSE', suffix: 'm' },
+        { value: p.repeat, label: 'RPT', suffix: 'set' },
       ]
   const valTexts = badges.map(b => b.value != null ? String(b.value) : '-')
 

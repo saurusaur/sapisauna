@@ -218,17 +218,17 @@ export default function Story() {
     if (!log) return []
     if (log.tribe_id === 'jimi') {
       return [
-        { value: log.heat_time || null, label: 'HEAT', suffix: '' },
-        { value: log.pause_time || null, label: 'PAUSE', suffix: '' },
-        { value: log.repeat || null, label: 'RPT', suffix: '' },
+        { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
+        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.repeat || null, label: 'RPT', suffix: 'set' },
         { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
     }
     return [
-      { value: log.heat_time || null, label: 'HEAT', suffix: '' },
-      { value: log.ice_time || null, label: 'ICE', suffix: '' },
-      { value: log.pause_time || null, label: 'PAUSE', suffix: '' },
-      { value: log.repeat || null, label: 'RPT', suffix: '' },
+      { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
+      { value: log.ice_time || null, label: 'ICE', suffix: 's' },
+      { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+      { value: log.repeat || null, label: 'RPT', suffix: 'set' },
     ]
   }
 
