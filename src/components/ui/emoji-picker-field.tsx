@@ -18,11 +18,11 @@ interface EmojiPickerFieldProps {
 // 카테고리 탭 정의 (필터 후 남는 카테고리)
 const CATEGORY_TABS = [
   { icon: '😊', label: '웃는 얼굴과 감정' },
-  { icon: '🐻', label: '동물과 자연' },
-  { icon: '🍔', label: '음식 및 음료' },
-  { icon: '✈️', label: '여행 및 장소' },
-  { icon: '⚽', label: '액티비티' },
-  { icon: '💡', label: '사물' },
+  { icon: '🐾', label: '동물과 자연' },
+  { icon: '🍽️', label: '음식 및 음료' },
+  { icon: '🌍', label: '여행 및 장소' },
+  { icon: '🏃', label: '액티비티' },
+  { icon: '💎', label: '사물' },
 ]
 
 // 커스텀 컴포넌트: 카테고리 헤더 → 구분선 + 스크롤 타겟
@@ -61,8 +61,19 @@ export default function EmojiPickerField({ emoji, onChange, label = '이모지 (
     setActiveTab(index)
     const container = pickerRef.current
     if (!container) return
+    // Viewport 내부의 실제 스크롤 컨테이너를 찾아서 scrollTop으로 제어
+    const viewport = container.querySelector('[style*="overflow"]') ?? container.querySelector('[class*="h-["]')
     const target = container.querySelector(`[data-category-label="${CATEGORY_TABS[index].label}"]`)
-    target?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    if (!target || !viewport) {
+      target?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+      return
+    }
+    const viewportRect = viewport.getBoundingClientRect()
+    const targetRect = target.getBoundingClientRect()
+    viewport.scrollTo({
+      top: viewport.scrollTop + (targetRect.top - viewportRect.top),
+      behavior: 'smooth',
+    })
   }
 
   return (
