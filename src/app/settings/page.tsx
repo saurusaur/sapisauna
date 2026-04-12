@@ -89,7 +89,7 @@ export default function SettingsPage() {
               className="w-full p-4 flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-stone-500">palette</span>
+                <span className="material-symbols-outlined text-stone-500">sticker</span>
                 <span className="font-medium text-stone-700">아이콘 편집</span>
               </div>
               <div className="flex items-center gap-2">
