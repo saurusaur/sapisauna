@@ -281,7 +281,7 @@ export default function History() {
               logs={typeFilteredLogs}
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
-              defaultExpanded
+              defaultExpanded={false}
               onMonthChange={setCalendarMonth}
               dotColor={dotColor}
             />
@@ -289,17 +289,7 @@ export default function History() {
             {/* 기간 토글 */}
             <PeriodToggle value={period} onChange={setPeriod} />
 
-            {/* 루틴 카드 (전체 탭에서는 미표시) */}
-            {typeFilter !== 'all' && (
-              <RoutineCard
-                tribe={typeFilter}
-                routine={routine}
-                color={currentColor}
-                isEmpty={isPeriodEmpty}
-              />
-            )}
-
-            {/* 인사이트 카드 */}
+            {/* 인사이트 카드 (먼저) */}
             <InsightCard
               tribe={typeFilter}
               period={period}
@@ -311,6 +301,16 @@ export default function History() {
               jimiInsight={jimiInsight}
               isEmpty={isPeriodEmpty}
             />
+
+            {/* 루틴 카드 (전체 탭에서는 미표시) */}
+            {typeFilter !== 'all' && (
+              <RoutineCard
+                tribe={typeFilter}
+                routine={routine}
+                color={currentColor}
+                isEmpty={isPeriodEmpty}
+              />
+            )}
 
             {/* 최근 기록 */}
             <div className="mt-1">
