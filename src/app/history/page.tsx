@@ -40,7 +40,7 @@ const TRIBE_FILTER_IDS = ['all', ...TRIBE_IDS] as const
 export default function History() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar')
   const [typeFilter, setTypeFilter] = useState<string>('all')
 
   // DB 로그 로드
@@ -189,16 +189,16 @@ export default function History() {
           {/* 뷰 모드 토글 */}
           <div className="flex bg-stone-100/60 backdrop-blur-sm rounded-lg p-0.5">
             <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${viewMode === 'list' ? 'bg-white/80 shadow-sm text-stone-700' : 'text-stone-400'}`}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>list</span>
-            </button>
-            <button
               onClick={() => setViewMode('calendar')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${viewMode === 'calendar' ? 'bg-white/80 shadow-sm text-stone-700' : 'text-stone-400'}`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>calendar_month</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${viewMode === 'list' ? 'bg-white/80 shadow-sm text-stone-700' : 'text-stone-400'}`}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>list</span>
             </button>
           </div>
         </div>
@@ -250,7 +250,9 @@ export default function History() {
             <DataState loading={loading} error={error} isEmpty={Object.keys(groupedLogs).length === 0} emptyIcon="search_off" emptyMessage={searchQuery ? `'${searchQuery}'에 대한 기록이 없습니다` : '기록이 없습니다'}>
               {Object.entries(groupedLogs).map(([month, logs]) => (
                 <div key={month} className="mb-6">
-                  <h2 className="text-sm font-semibold text-stone-500 mb-3">{month}</h2>
+                  <h2 className="text-sm font-semibold text-stone-500 mb-3">
+                    {month} <span className="text-stone-400 font-normal">(총 {logs.length}회)</span>
+                  </h2>
                   <div className="space-y-3">
                     {logs.map((log) => (
                       <RecordCard
