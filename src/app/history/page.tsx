@@ -9,6 +9,7 @@ import DataState from '@/components/ui/data-state'
 import HomeCalendar from '@/components/features/home-calendar'
 import RecordCard from '@/components/features/record-card'
 import { useUserLogs } from '@/hooks/use-logs'
+import { useUser } from '@/contexts/user-context'
 import type { LogWithPlace, TribeId } from '@/types'
 import {
   KpiRow,
@@ -34,14 +35,21 @@ import {
 // 뷰 모드: 리스트 or 캘린더
 type ViewMode = 'list' | 'calendar'
 
-// 타입 필터 옵션
-const TRIBE_FILTER_IDS = ['all', ...TRIBE_IDS] as const
-
 export default function History() {
   const router = useRouter()
+  const { user, primaryTribe } = useUser()
+
+  // 유저 선호 트라이브 순서 → 전체는 맨 끝
+  const tribeFilterIds = useMemo(() => {
+    const userTypes = (user?.user_types || []) as TribeId[]
+    // user_types 순서 유지 + 빠진 트라이브 보충 + 맨 끝 'all'
+    const ordered = [...userTypes, ...TRIBE_IDS.filter(id => !userTypes.includes(id))]
+    return [...ordered, 'all'] as const
+  }, [user?.user_types])
+
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<ViewMode>('calendar')
-  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>(primaryTribe)
 
   // DB 로그 로드
   const { data: allLogs, loading, error } = useUserLogs()
@@ -206,7 +214,7 @@ export default function History() {
 
       {/* 타입 필터 (이모지 칩) */}
       <div className="px-4 pt-3 flex gap-1.5">
-        {TRIBE_FILTER_IDS.map((id) => {
+        {tribeFilterIds.map((id) => {
           const emoji = id !== 'all' ? TRIBE_EMOJI_MAP[id] : ''
           const label = id === 'all' ? '전체' : TRIBE_PERSONA_MAP[id]
           return (
