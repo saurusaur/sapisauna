@@ -115,7 +115,7 @@ function RingArea({
 function EmptyOverlay({ children }: { children: React.ReactNode }) {
   return (
     <div className="glass-card-light p-4 rounded-xl relative">
-      <div className="opacity-30 pointer-events-none">{children}</div>
+      <div className="opacity-30 blur-[2px] pointer-events-none">{children}</div>
       <div className="absolute inset-0 flex items-center justify-center">
         <p className="text-sm text-stone-500 font-medium">기록을 추가해보세요!</p>
       </div>

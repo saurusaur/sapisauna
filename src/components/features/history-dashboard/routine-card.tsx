@@ -65,7 +65,7 @@ export default function RoutineCard({ tribe, routine, color, isEmpty }: RoutineC
 
   return (
     <div className="glass-card-light p-4 rounded-xl relative">
-      <div className={shouldDim ? 'opacity-30 pointer-events-none' : ''}>
+      <div className={shouldDim ? 'opacity-30 blur-[2px] pointer-events-none' : ''}>
         <p className="text-[11px] font-bold text-stone-500 text-center mb-3">
           나의 평균 루틴
         </p>
