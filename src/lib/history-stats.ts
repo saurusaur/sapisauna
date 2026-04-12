@@ -179,7 +179,17 @@ export function computeRoutine(logs: LogWithPlace[]): RoutineData {
 // 히트 링 계산
 // ============================================
 
-const HEAT_TARGET = 57 // 주간 목표 분
+// 트라이브별 주간 목표 (분)
+const HEAT_TARGETS: Record<string, number> = {
+  bather: 60,
+  saunner: 57,
+  jimi: 57,
+  all: 57,
+}
+
+export function getHeatTarget(tribe: string): number {
+  return HEAT_TARGETS[tribe] ?? 57
+}
 
 /** 주간 heat exposure 계산: sum(heat_time * repeat), 둘 다 있는 로그만 */
 export function computeWeeklyHeatMinutes(logs: LogWithPlace[]): number {
@@ -196,6 +206,7 @@ export function computeMonthWeekRings(
   logs: LogWithPlace[],
   year: number,
   month: number,
+  tribe: string = 'all',
 ): WeekRingData[] {
   const weeks = getWeeksInMonth(year, month)
   return weeks.map((range, i) => {
@@ -203,7 +214,7 @@ export function computeMonthWeekRings(
     return {
       weekLabel: `W${i + 1}`,
       heatMinutes: computeWeeklyHeatMinutes(weekLogs),
-      target: HEAT_TARGET,
+      target: getHeatTarget(tribe),
     }
   })
 }
@@ -223,6 +234,7 @@ export interface AllInsight {
 export function computeAllInsight(
   periodLogs: LogWithPlace[],
   allLogsBeforePeriod: LogWithPlace[],
+  tribe: string = 'all',
 ): AllInsight {
   // 신규 방문 장소: 이 기간에 방문했지만 이전에 방문한 적 없는 장소
   const priorPlaces = new Set(allLogsBeforePeriod.map((l) => l.place_id))
@@ -234,7 +246,7 @@ export function computeAllInsight(
 
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(periodLogs),
-    heatTarget: HEAT_TARGET,
+    heatTarget: getHeatTarget(tribe),
     newPlaces,
     avgRevisitScore: safeAvg(periodLogs.map((l) => l.revisit_score)),
   }
@@ -248,10 +260,10 @@ export interface BatherInsight {
 }
 
 /** Bather 인사이트 */
-export function computeBatherInsight(logs: LogWithPlace[]): BatherInsight {
+export function computeBatherInsight(logs: LogWithPlace[], tribe: string = 'bather'): BatherInsight {
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
-    heatTarget: HEAT_TARGET,
+    heatTarget: getHeatTarget(tribe),
     avgHotBathTemp: safeAvg(logs.map((l) => l.hot_bath_temp)),
     avgWaterQuality: safeAvg(logs.map((l) => l.water_quality)),
   }
@@ -265,7 +277,7 @@ export interface SaunnerInsight {
 }
 
 /** Saunner 인사이트 */
-export function computeSaunnerInsight(logs: LogWithPlace[]): SaunnerInsight {
+export function computeSaunnerInsight(logs: LogWithPlace[], tribe: string = 'saunner'): SaunnerInsight {
   // 평균 온도차: sauna_temp - cold_bath_temp (둘 다 있는 로그만)
   const tempDiffs = logs
     .filter((l) => l.sauna_temp != null && l.cold_bath_temp != null)
@@ -276,7 +288,7 @@ export function computeSaunnerInsight(logs: LogWithPlace[]): SaunnerInsight {
 
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
-    heatTarget: HEAT_TARGET,
+    heatTarget: getHeatTarget(tribe),
     avgTempDiff,
     avgTotonoScore: safeAvg(logs.map((l) => l.totono_score)),
   }
@@ -290,10 +302,10 @@ export interface JimiInsight {
 }
 
 /** Jimi 인사이트 */
-export function computeJimiInsight(logs: LogWithPlace[]): JimiInsight {
+export function computeJimiInsight(logs: LogWithPlace[], tribe: string = 'jimi'): JimiInsight {
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
-    heatTarget: HEAT_TARGET,
+    heatTarget: getHeatTarget(tribe),
     avgJjimTemp: safeAvg(logs.map((l) => l.jjim_temp)),
     avgSweatQuality: safeAvg(logs.map((l) => l.sweat_quality)),
   }

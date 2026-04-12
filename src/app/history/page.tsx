@@ -148,7 +148,7 @@ export default function History() {
   // 주간 링 데이터 (MONTH 모드일 때 2x2 그리드용)
   const weekRings = useMemo(() => {
     if (period !== 'month') return undefined
-    return computeMonthWeekRings(typeFilteredLogs, calendarMonth.year, calendarMonth.month)
+    return computeMonthWeekRings(typeFilteredLogs, calendarMonth.year, calendarMonth.month, typeFilter)
   }, [period, typeFilteredLogs, calendarMonth])
 
   // 트라이브 컬러
