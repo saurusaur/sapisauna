@@ -249,16 +249,25 @@ export default function HomeCalendar({
         <div className="flex h-3 items-center justify-center">
           {hasLogs && (
             hasDeepLog ? (
-              // 딥로그: 외곽 링 + 내부 점
+              // 딥로그: 외곽 링 + 내부 점 (absolute 중앙 정렬)
               <span
-                className="w-3 h-3 rounded-full flex items-center justify-center"
+                className="relative rounded-full"
                 style={{
+                  width: 12,
+                  height: 12,
                   border: `1.5px solid ${resolvedDotColor}`,
                 }}
               >
                 <span
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{ backgroundColor: resolvedDotColor }}
+                  className="absolute rounded-full"
+                  style={{
+                    width: 5,
+                    height: 5,
+                    backgroundColor: resolvedDotColor,
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
                 />
               </span>
             ) : (
