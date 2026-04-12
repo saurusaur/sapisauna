@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { TRIBE_COLORS, MESSAGES } from '@/constants/content'
 import type { LogWithPlace } from '@/types'
 
@@ -13,6 +13,10 @@ interface HomeCalendarProps {
   onSelectDate: (date: string) => void
   /** 월간 뷰로 시작 (기본: 주간 뷰) */
   defaultExpanded?: boolean
+  /** 월간 뷰의 현재 연/월을 부모에 전달 */
+  onMonthChange?: (value: { year: number; month: number }) => void
+  /** 날짜 점 색상 (기본: primary) */
+  dotColor?: string
 }
 
 // 월요일 시작 기준으로 해당 날짜가 속한 주의 7일 반환
@@ -66,7 +70,14 @@ function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export default function HomeCalendar({ logs, selectedDate, onSelectDate, defaultExpanded = false }: HomeCalendarProps) {
+export default function HomeCalendar({
+  logs,
+  selectedDate,
+  onSelectDate,
+  defaultExpanded = false,
+  onMonthChange,
+  dotColor = 'var(--color-primary)',
+}: HomeCalendarProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [weekBase, setWeekBase] = useState(() => new Date())
   const [monthView, setMonthView] = useState(() => {
@@ -115,6 +126,10 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
     () => getMonthGrid(monthView.year, monthView.month),
     [monthView.year, monthView.month]
   )
+
+  useEffect(() => {
+    onMonthChange?.(monthView)
+  }, [monthView, onMonthChange])
 
   // 네비게이션
   const goToPrevWeek = useCallback(() => {
@@ -190,7 +205,18 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
     const isToday = key === todayKey
     const isOtherMonth = date.getMonth() !== referenceMonth
     const dayLogs = logsByDate[key] || []
-    const uniqueTypes = Array.from(new Set(dayLogs.map((l) => l.tribe_id)))
+    const hasLogs = dayLogs.length > 0
+    const hasDeepLog = dayLogs.some((log) => Boolean(log.deep_log))
+
+    // 점 색상: dotColor prop이 있으면 단일 색상, 없으면 트라이브별 자동 결정
+    const resolvedDotColor = (() => {
+      if (dotColor) return dotColor
+      if (!hasLogs) return 'var(--color-primary)'
+      const tribes = new Set(dayLogs.map((l) => l.tribe_id))
+      if (tribes.size > 1) return 'var(--color-primary)' // 복수 트라이브 → 앱 레드
+      const tribeId = dayLogs[0].tribe_id
+      return TRIBE_COLORS[tribeId] || 'var(--color-primary)'
+    })()
 
     // 월간 뷰에서 해당 월이 아닌 날짜는 빈 셀로 처리
     if (isOtherMonth && expanded) {
@@ -220,14 +246,18 @@ export default function HomeCalendar({ logs, selectedDate, onSelectDate, default
           {date.getDate()}
         </span>
 
-        <div className="flex gap-0.5 h-2 items-center">
-          {uniqueTypes.map((type) => (
+        <div className="flex h-3 items-center justify-center">
+          {hasLogs && (
             <span
-              key={type}
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: TRIBE_COLORS[type] || '#d6d3d1' }}
-            />
-          ))}
+              className={`flex items-center justify-center rounded-full ${hasDeepLog ? 'w-3 h-3 ring-1 ring-stone-300/80' : 'w-2 h-2'}`}
+              style={hasDeepLog ? { boxShadow: `0 0 0 1px ${resolvedDotColor}33 inset` } : undefined}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: resolvedDotColor }}
+              />
+            </span>
+          )}
         </div>
       </button>
     )
