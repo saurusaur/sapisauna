@@ -171,20 +171,18 @@ export default function InsightCard({
   // === Bather ===
   if (tribe === 'bather') {
     const bi = batherInsight
+    const metrics = [
+      { label: '평균 수온', value: fmtVal(bi?.avgHotBathTemp, '°C') },
+      { label: '수질 만족도', value: fmtVal(bi?.avgWaterQuality, '/5'), color },
+    ]
     const content = (
-      <div className="flex items-center gap-4" style={{ minHeight: RING_AREA_HEIGHT }}>
-        <div className="flex-1 flex flex-col justify-center">
-          <p className="text-[9px] font-bold text-stone-500 tracking-wide">총 입수 시간</p>
-          <p className="font-heading text-[42px] font-semibold leading-none" style={{ color }}>
-            {bi?.totalImmersionTime != null ? bi.totalImmersionTime : '-'}
-            <span className="text-base text-stone-400 font-normal"> MIN</span>
-          </p>
-        </div>
-        <div className="flex-1 flex flex-col gap-4 justify-center">
-          <MetricRow label="평균 수온" value={fmtVal(bi?.avgHotBathTemp, '°C')} />
-          <MetricRow label="수질 만족도" value={fmtVal(bi?.avgWaterQuality, '/5')} color={color} />
-        </div>
-      </div>
+      <RingCardContent
+        period={period} color={color}
+        heatMinutes={bi?.weeklyHeatMinutes ?? 0}
+        heatTarget={57}
+        weekRings={weekRings}
+        metrics={metrics}
+      />
     )
     if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>
     return <div className="glass-card-light p-4 rounded-xl">{content}</div>

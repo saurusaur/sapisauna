@@ -241,21 +241,17 @@ export function computeAllInsight(
 }
 
 export interface BatherInsight {
-  totalImmersionTime: number | null
+  weeklyHeatMinutes: number
+  heatTarget: number
   avgHotBathTemp: number | null
   avgWaterQuality: number | null
 }
 
 /** Bather 인사이트 */
 export function computeBatherInsight(logs: LogWithPlace[]): BatherInsight {
-  // 총 입수 시간: heat_time * repeat (둘 다 있는 로그만)
-  const validLogs = logs.filter((l) => l.heat_time != null && l.repeat != null)
-  const totalTime = validLogs.length > 0
-    ? validLogs.reduce((sum, l) => sum + l.heat_time! * l.repeat!, 0)
-    : null
-
   return {
-    totalImmersionTime: totalTime,
+    weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
+    heatTarget: HEAT_TARGET,
     avgHotBathTemp: safeAvg(logs.map((l) => l.hot_bath_temp)),
     avgWaterQuality: safeAvg(logs.map((l) => l.water_quality)),
   }

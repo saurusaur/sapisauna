@@ -53,10 +53,19 @@ function getSlots(tribe: string, routine: RoutineData): SlotConfig[] {
 export default function RoutineCard({ tribe, routine, color, isEmpty }: RoutineCardProps) {
   const slots = getSlots(tribe, routine)
 
+  // 기록은 있지만 루틴 시간이 하나도 입력 안 된 경우
+  const noRoutineData = !isEmpty
+    && routine.avgHeatTime == null
+    && routine.avgIceTime == null
+    && routine.avgPauseTime == null
+    && routine.avgRepeat == null
+
+  const shouldDim = isEmpty || noRoutineData
+  const overlayMsg = isEmpty ? '기록을 추가해보세요!' : '루틴 입력을 해주세요'
+
   return (
     <div className="glass-card-light p-4 rounded-xl relative">
-      {/* 카드 본체 — isEmpty면 흐림 처리 */}
-      <div className={isEmpty ? 'opacity-30 pointer-events-none' : ''}>
+      <div className={shouldDim ? 'opacity-30 pointer-events-none' : ''}>
         <p className="text-[11px] font-bold text-stone-500 text-center mb-3">
           나의 평균 루틴
         </p>
@@ -64,7 +73,7 @@ export default function RoutineCard({ tribe, routine, color, isEmpty }: RoutineC
           {slots.map((slot) => {
             const mapping = ICON_MAP[slot.iconKey]
             if (!mapping) return null
-            const hasValue = slot.value != null && !isEmpty
+            const hasValue = slot.value != null && !shouldDim
 
             return (
               <div key={slot.iconKey} className="flex flex-col items-center gap-1.5">
@@ -103,9 +112,9 @@ export default function RoutineCard({ tribe, routine, color, isEmpty }: RoutineC
         </div>
       </div>
       {/* 기록 없을 때 오버레이 */}
-      {isEmpty && (
+      {shouldDim && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-sm text-stone-500 font-medium">기록을 추가해보세요!</p>
+          <p className="text-sm text-stone-500 font-medium">{overlayMsg}</p>
         </div>
       )}
     </div>
