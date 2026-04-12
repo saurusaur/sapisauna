@@ -243,9 +243,16 @@ export const QUICK_LOG = {
       REPEAT: {
         label: "REPEAT",
         labelEn: "REPEAT",
+        placeholder: 3,
         min: 1,
         max: 7,
         unit: "sets",
+      },
+      // 트라이브별 placeholder 오버라이드 (saunner/bather는 기본값 사용)
+      PLACEHOLDER_BY_TRIBE: {
+        saunner: { HEAT: 12, ICE: 60, PAUSE: 5, REPEAT: 3 },
+        bather: { HEAT: 12, ICE: 60, PAUSE: 5, REPEAT: 3 },
+        jimi: { HEAT: 15, PAUSE: 10, REPEAT: 3 },
       },
     },
   },

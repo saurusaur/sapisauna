@@ -599,7 +599,7 @@ export default function QuickLog() {
             <RoutineCounter
               label={QUICK_LOG.COMMON.ROUTINE.HEAT.label}
               value={heatTime}
-              placeholder={QUICK_LOG.COMMON.ROUTINE.HEAT.placeholder}
+              placeholder={QUICK_LOG.COMMON.ROUTINE.PLACEHOLDER_BY_TRIBE[logType]?.HEAT ?? QUICK_LOG.COMMON.ROUTINE.HEAT.placeholder}
               min={QUICK_LOG.COMMON.ROUTINE.HEAT.min}
               max={QUICK_LOG.COMMON.ROUTINE.HEAT.max}
               unit={QUICK_LOG.COMMON.ROUTINE.HEAT.unit}
@@ -609,7 +609,7 @@ export default function QuickLog() {
               <RoutineCounter
                 label={QUICK_LOG.COMMON.ROUTINE.ICE.label}
                 value={iceTime}
-                placeholder={QUICK_LOG.COMMON.ROUTINE.ICE.placeholder}
+                placeholder={QUICK_LOG.COMMON.ROUTINE.PLACEHOLDER_BY_TRIBE[logType]?.ICE ?? QUICK_LOG.COMMON.ROUTINE.ICE.placeholder}
                 min={QUICK_LOG.COMMON.ROUTINE.ICE.min}
                 max={QUICK_LOG.COMMON.ROUTINE.ICE.max}
                 step={QUICK_LOG.COMMON.ROUTINE.ICE.step}
@@ -620,7 +620,7 @@ export default function QuickLog() {
             <RoutineCounter
               label={QUICK_LOG.COMMON.ROUTINE.PAUSE.label}
               value={pauseTime}
-              placeholder={QUICK_LOG.COMMON.ROUTINE.PAUSE.placeholder}
+              placeholder={QUICK_LOG.COMMON.ROUTINE.PLACEHOLDER_BY_TRIBE[logType]?.PAUSE ?? QUICK_LOG.COMMON.ROUTINE.PAUSE.placeholder}
               min={QUICK_LOG.COMMON.ROUTINE.PAUSE.min}
               max={QUICK_LOG.COMMON.ROUTINE.PAUSE.max}
               unit={QUICK_LOG.COMMON.ROUTINE.PAUSE.unit}
