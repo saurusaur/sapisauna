@@ -82,8 +82,9 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
   )
 }
 
-// 링 영역: 고정 너비 130px → WEEK/MONTH 토글 시 우측 메트릭 위치 고정
+// 링 영역: 고정 너비+높이 → WEEK/MONTH 토글 시 카드 크기 고정
 const RING_AREA_WIDTH = 130
+const RING_AREA_HEIGHT = 148
 
 function RingArea({
   period, color, heatMinutes, heatTarget, weekRings,
@@ -94,7 +95,7 @@ function RingArea({
   return (
     <div
       className="flex flex-col items-center justify-center gap-1 flex-shrink-0"
-      style={{ width: RING_AREA_WIDTH }}
+      style={{ width: RING_AREA_WIDTH, minHeight: RING_AREA_HEIGHT }}
     >
       {period === 'week' ? (
         <HeatRing current={heatMinutes} target={heatTarget} size={120} strokeWidth={8} color={color} />
@@ -169,15 +170,15 @@ export default function InsightCard({
   if (tribe === 'bather') {
     const bi = batherInsight
     const content = (
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
+      <div className="flex items-center gap-4" style={{ minHeight: RING_AREA_HEIGHT }}>
+        <div className="flex-1 flex flex-col justify-center">
           <p className="text-[9px] font-bold text-stone-500 tracking-wide">총 입수 시간</p>
           <p className="font-heading text-[42px] font-semibold leading-none" style={{ color }}>
             {bi?.totalImmersionTime != null ? bi.totalImmersionTime : '-'}
             <span className="text-base text-stone-400 font-normal"> MIN</span>
           </p>
         </div>
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4 justify-center">
           <MetricRow label="평균 수온" value={fmtVal(bi?.avgHotBathTemp, '°C')} />
           <MetricRow label="수질 만족도" value={fmtVal(bi?.avgWaterQuality, '/5')} color={color} />
         </div>
