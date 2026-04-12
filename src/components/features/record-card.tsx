@@ -22,7 +22,7 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
                 <span className="font-medium text-sm text-stone-700 truncate">{log.place_name}</span>
                 <span className="flex items-center gap-1 flex-shrink-0 ml-2">
                     {hasDeepLog ? (
-                        <span className="w-3 h-3 flex items-center justify-center rounded-full" style={{ border: '1.5px solid #a8a29e' }}>
+                        <span className="w-3 h-3 flex items-center justify-center rounded-full" style={{ border: '2px solid #78716c' }}>
                             <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                         </span>
                     ) : (
