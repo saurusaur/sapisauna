@@ -149,7 +149,7 @@ export default function History() {
   const weekRings = useMemo(() => {
     if (period !== 'month') return undefined
     return computeMonthWeekRings(typeFilteredLogs, calendarMonth.year, calendarMonth.month, typeFilter)
-  }, [period, typeFilteredLogs, calendarMonth])
+  }, [period, typeFilteredLogs, calendarMonth, typeFilter])
 
   // 트라이브 컬러
   const currentColor = typeFilter === 'all'
