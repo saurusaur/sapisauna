@@ -10,6 +10,7 @@ interface RoutineCardProps {
   tribe: string        // 'bather' | 'saunner' | 'jimi'
   routine: RoutineData
   color: string        // 트라이브 CSS 컬러 변수
+  isEmpty?: boolean    // 해당 기간 기록 없음 → 흐림 처리
 }
 
 // 트라이브별 아이콘 매핑
@@ -31,30 +32,29 @@ interface SlotConfig {
 function getSlots(tribe: string, routine: RoutineData): SlotConfig[] {
   const hotKey = `${tribe}-hot`
   const fmtMin = (v: number) => `${Math.round(v)}m`
+  const fmtSec = (v: number) => `${Math.round(v)}s`
   const fmtRepeat = (v: number) => `x${v % 1 === 0 ? v : v.toFixed(1)}`
 
   if (tribe === 'jimi') {
-    // Jimi: 3슬롯 (ICE 없음)
     return [
       { iconKey: hotKey, value: routine.avgHeatTime, format: fmtMin },
       { iconKey: 'rest', value: routine.avgPauseTime, format: fmtMin },
       { iconKey: 'repeat', value: routine.avgRepeat, format: fmtRepeat },
     ]
   }
-  // Bather, Saunner: 4슬롯
   return [
     { iconKey: hotKey, value: routine.avgHeatTime, format: fmtMin },
-    { iconKey: 'ice', value: routine.avgIceTime, format: fmtMin },
+    { iconKey: 'ice', value: routine.avgIceTime, format: fmtSec },
     { iconKey: 'rest', value: routine.avgPauseTime, format: fmtMin },
     { iconKey: 'repeat', value: routine.avgRepeat, format: fmtRepeat },
   ]
 }
 
-export default function RoutineCard({ tribe, routine, color }: RoutineCardProps) {
+export default function RoutineCard({ tribe, routine, color, isEmpty }: RoutineCardProps) {
   const slots = getSlots(tribe, routine)
 
   return (
-    <div className="glass-card-light p-4 rounded-xl">
+    <div className={`glass-card-light p-4 rounded-xl relative ${isEmpty ? 'opacity-50' : ''}`}>
       <p className="text-[11px] font-bold text-stone-500 text-center mb-3">
         나의 평균 루틴
       </p>
@@ -62,11 +62,10 @@ export default function RoutineCard({ tribe, routine, color }: RoutineCardProps)
         {slots.map((slot) => {
           const mapping = ICON_MAP[slot.iconKey]
           if (!mapping) return null
-          const hasValue = slot.value != null
+          const hasValue = slot.value != null && !isEmpty
 
           return (
             <div key={slot.iconKey} className="flex flex-col items-center gap-1.5">
-              {/* 아이콘 박스 */}
               <div
                 className="w-11 h-11 rounded-xl flex items-center justify-center"
                 style={
@@ -76,7 +75,7 @@ export default function RoutineCard({ tribe, routine, color }: RoutineCardProps)
                 }
               >
                 <span
-                  className={`material-symbols-rounded ${hasValue ? 'filled' : ''}`}
+                  className="material-symbols-outlined"
                   style={{
                     fontSize: '22px',
                     fontVariationSettings: hasValue
@@ -87,14 +86,12 @@ export default function RoutineCard({ tribe, routine, color }: RoutineCardProps)
                   {mapping.icon}
                 </span>
               </div>
-              {/* 값 */}
               <span
                 className="font-heading text-[15px] font-semibold"
                 style={{ color: hasValue ? color : '#d6d3d1' }}
               >
                 {hasValue ? slot.format(slot.value!) : '-'}
               </span>
-              {/* 라벨 */}
               <span className="text-[8px] text-stone-400 font-medium tracking-wider uppercase">
                 {mapping.label}
               </span>
@@ -102,6 +99,12 @@ export default function RoutineCard({ tribe, routine, color }: RoutineCardProps)
           )
         })}
       </div>
+      {/* 기록 없을 때 오버레이 메시지 */}
+      {isEmpty && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-sm text-stone-400">아직 기록이 없어요..</p>
+        </div>
+      )}
     </div>
   )
 }

@@ -76,7 +76,7 @@ export default function HomeCalendar({
   onSelectDate,
   defaultExpanded = false,
   onMonthChange,
-  dotColor = 'var(--color-primary)',
+  dotColor,
 }: HomeCalendarProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [weekBase, setWeekBase] = useState(() => new Date())

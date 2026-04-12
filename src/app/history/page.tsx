@@ -157,8 +157,13 @@ export default function History() {
     : TRIBE_COLORS[typeFilter as TribeId]
 
   // dotColor: 전체 탭이면 undefined (캘린더 내부에서 트라이브별 자동 결정)
-  // 트라이브 탭이면 해당 컬러
   const dotColor = typeFilter === 'all' ? undefined : TRIBE_COLORS[typeFilter as TribeId]
+
+  // 해당 기간에 기록이 없는지 (루틴/인사이트 흐림 처리용)
+  const isPeriodEmpty = periodLogs.length === 0
+
+  // 트라이브명 (KPI 헤더용)
+  const tribeName = typeFilter === 'all' ? 'ALL' : TRIBE_PERSONA_MAP[typeFilter] || 'ALL'
 
   // 선택된 날짜의 로그
   const selectedDateLogs = useMemo(
@@ -266,9 +271,8 @@ export default function History() {
       {viewMode === 'calendar' && (
         <main className="p-4 space-y-3">
           <DataState loading={loading} error={error} isEmpty={false}>
-            {/* 이번 달 요약 */}
-            <p className="text-[11px] font-bold text-stone-500 px-1">이번 달 요약</p>
-            <KpiRow {...kpi} accentColor={currentColor} />
+            {/* KPI (헤더 "이번 달 요약" + "기록의 역사" 내장) */}
+            <KpiRow {...kpi} accentColor={currentColor} tribeName={tribeName} />
 
             {/* 캘린더 (기존 HomeCalendar) */}
             <HomeCalendar
@@ -289,6 +293,7 @@ export default function History() {
                 tribe={typeFilter}
                 routine={routine}
                 color={currentColor}
+                isEmpty={isPeriodEmpty}
               />
             )}
 
@@ -302,6 +307,7 @@ export default function History() {
               batherInsight={batherInsight}
               saunnerInsight={saunnerInsight}
               jimiInsight={jimiInsight}
+              isEmpty={isPeriodEmpty}
             />
 
             {/* 최근 기록 */}
