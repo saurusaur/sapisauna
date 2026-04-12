@@ -71,14 +71,16 @@ export function getISOWeekRange(dateStr: string): DateRange {
   }
 }
 
-/** 해당 월에 포함된 주(week) 목록 반환 (월요일 기준) */
+/** 해당 월에 포함된 주(week) 목록 반환 (월요일~일요일 전체, clamp 없음)
+ * W1의 월요일이 전달에 있어도 그 주 전체(월~일)를 범위로 반환
+ * → 월간 뷰에서 각 주의 heat exposure를 실제 한 주 기준으로 계산 */
 export function getWeeksInMonth(year: number, month: number): DateRange[] {
   const weeks: DateRange[] = []
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
 
-  // 첫 번째 주: 1일이 속한 주의 월요일 ~ 일요일
-  let current = new Date(firstDay)
+  // 1일이 속한 주의 월요일 찾기
+  const current = new Date(firstDay)
   const dow = current.getDay()
   const diffToMonday = dow === 0 ? -6 : 1 - dow
   current.setDate(current.getDate() + diffToMonday)
@@ -88,16 +90,12 @@ export function getWeeksInMonth(year: number, month: number): DateRange[] {
     const weekEnd = new Date(current)
     weekEnd.setDate(weekEnd.getDate() + 6)
 
-    // 해당 월과 겹치는 범위만 포함
-    const clampedStart = weekStart < firstDay ? firstDay : weekStart
-    const clampedEnd = weekEnd > lastDay ? lastDay : weekEnd
-
+    // clamp 없이 전체 주 범위 사용
     weeks.push({
-      start: toDateKey(clampedStart),
-      end: toDateKey(clampedEnd),
+      start: toDateKey(weekStart),
+      end: toDateKey(weekEnd),
     })
 
-    // 다음 주 월요일로 이동
     current.setDate(current.getDate() + 7)
   }
 

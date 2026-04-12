@@ -54,8 +54,9 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
   const topRow = rings.slice(0, 2)
   const bottomRow = rings.slice(2)
 
-  const ringSize = count >= 5 ? 44 : 48
-  const sw = count >= 5 ? 3.5 : 4
+  // 130px 영역 안에 맞추기: 4주=56px, 5주=40px
+  const ringSize = count >= 5 ? 40 : 56
+  const sw = count >= 5 ? 3 : 4
 
   return (
     <div className="flex flex-col items-center gap-1.5">
@@ -81,6 +82,9 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
   )
 }
 
+// 링 영역: 고정 너비 130px → WEEK/MONTH 토글 시 우측 메트릭 위치 고정
+const RING_AREA_WIDTH = 130
+
 function RingArea({
   period, color, heatMinutes, heatTarget, weekRings,
 }: {
@@ -88,7 +92,10 @@ function RingArea({
   weekRings?: WeekRingData[]
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 flex-shrink-0">
+    <div
+      className="flex flex-col items-center justify-center gap-1 flex-shrink-0"
+      style={{ width: RING_AREA_WIDTH }}
+    >
       {period === 'week' ? (
         <HeatRing current={heatMinutes} target={heatTarget} size={120} strokeWidth={8} color={color} />
       ) : weekRings ? (
