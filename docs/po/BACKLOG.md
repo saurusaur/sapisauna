@@ -13,6 +13,7 @@
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
+- [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [디자인] SA-LIST featured 카드 & 페이지 레이아웃 다듬기 — featured 리스트 카드 디자인 개선 + 리스트 상세 페이지 레이아웃 정리 | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
@@ -36,8 +37,15 @@
 ## Done
 
 ### 2026-04-12
-- [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰 대시보드 고도화: KPI 행(기록한 날/다녀온 곳/총 기록 카운트), 트라이브별 루틴 카드(Material Symbols 아이콘), 인사이트 카드(히트 링 WEEK/MONTH 토글, 2x2/2+3 미니 링), 트라이브별 주간 목표(Bather 60m, Saunner/Jimi 57m), 캘린더 트라이브별 dot 컬러+딥로그 외곽 링, empty state 블러 처리, 리스트 뷰 월별 카운트 추가 | done: 2026-04-12
-- [x] [UX] 홈 프로필 카드 리디자인 — 이번 주 열기 히트 링(전체 합산, primary red) + 총 기록/방문 장소 3칸 그리드, 레벨 프로그레스바+숫자 우상단, 프로필 영역 유저홈 링크 분리 준비 | done: 2026-04-12
+- [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰 대시보드 고도화: KPI 행, 루틴 카드, 인사이트 카드, WEEK/MONTH 토글, 딥로그 링, empty state 블러 | done: 2026-04-12
+- [x] [UX] 홈 프로필 카드 리디자인 — 히트 링 + 총기록/방문장소 3칸 그리드, 레벨 프로그레스바 | done: 2026-04-12
+- [x] [UX] 이모지 피커 스크롤 앵커링 수정 + 대표 이모지 변경 — 라벨 매칭+closest 방식으로 정확한 섹션 이동 | done: 2026-04-12
+- [x] [UX] 설정 아이콘 편집 심볼 palette → sticker 변경 | done: 2026-04-12
+- [x] [기능] ICE 입력 분→초 단위 전환 — 10~90초 step 10, DB CHECK 완화+마이그레이션 | done: 2026-04-12
+- [x] [UX] 루틴 뱃지 단위 suffix 추가 — 스토리/상세/이미지 내보내기에 m/s/set 표기 | done: 2026-04-12
+- [x] [UX] 기록 카드 딥로그 표기 통일 — stacks 심볼 → 달력 스타일 스톤 점/링 | done: 2026-04-12
+- [x] [기능] 트라이브별 루틴 기본값 — saunner/bather: HEAT 12m ICE 60s PAUSE 5m, jimi: HEAT 15m PAUSE 10m | done: 2026-04-12
+- [x] [UX] 기록 페이지 기본 랜딩 메인 트라이브 + 탭 순서 유저 선호순 + 전체 맨 끝 | done: 2026-04-12
 
 ### 2026-04-11
 - [x] [UX] TRIBE PICKS 카드 — 비로그인 홈에 트라이브 선택 유도 카드 (3초 오토 스크롤, 트라이브별 설명+CTA, /explore/type 연결) | done: 2026-04-08
