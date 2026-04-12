@@ -56,8 +56,8 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
   const topRow = rings.slice(0, half)
   const bottomRow = rings.slice(half)
 
-  // 130px 영역 안에 맞추기: 4주=56px, 5주=40px, 6주=38px
-  const ringSize = count <= 4 ? 56 : count <= 5 ? 40 : 38
+  // 130px 영역: 4주=56px(2개/줄), 5~6주=40px(3개/줄)
+  const ringSize = count <= 4 ? 56 : 40
   const sw = count <= 4 ? 4 : 3
 
   return (
