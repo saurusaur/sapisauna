@@ -51,12 +51,14 @@ function MetricRow({ label, value, color }: { label: string; value: string; colo
 // 월간 미니 링: 4주=위2+아래2, 5주=위2+아래3
 function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string }) {
   const count = rings.length
-  const topRow = rings.slice(0, 2)
-  const bottomRow = rings.slice(2)
+  // 균등 분배: 4주=2+2, 5주=2+3, 6주=3+3
+  const half = Math.ceil(count / 2)
+  const topRow = rings.slice(0, half)
+  const bottomRow = rings.slice(half)
 
-  // 130px 영역 안에 맞추기: 4주=56px, 5주=40px
-  const ringSize = count >= 5 ? 40 : 56
-  const sw = count >= 5 ? 3 : 4
+  // 130px 영역 안에 맞추기: 4주=56px, 5주=40px, 6주=38px
+  const ringSize = count <= 4 ? 56 : count <= 5 ? 40 : 38
+  const sw = count <= 4 ? 4 : 3
 
   return (
     <div className="flex flex-col items-center gap-1.5">
