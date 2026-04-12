@@ -22,11 +22,11 @@ export default function RecordCard({ log, onClick }: RecordCardProps) {
                 <span className="font-medium text-sm text-stone-700 truncate">{log.place_name}</span>
                 <span className="flex items-center gap-1 flex-shrink-0 ml-2">
                     {hasDeepLog ? (
-                        <span className="w-3 h-3 flex items-center justify-center rounded-full ring-1 ring-stone-300/80">
+                        <span className="w-3 h-3 flex items-center justify-center rounded-full" style={{ border: '1.5px solid #a8a29e' }}>
                             <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                         </span>
                     ) : (
-                        <span className="w-2 h-2 rounded-full bg-stone-300" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                     )}
                     <span className="text-sm">{TRIBE_EMOJI_MAP[log.tribe_id]}</span>
                 </span>
