@@ -248,15 +248,26 @@ export default function HomeCalendar({
 
         <div className="flex h-3 items-center justify-center">
           {hasLogs && (
-            <span
-              className={`flex items-center justify-center rounded-full ${hasDeepLog ? 'w-3 h-3 ring-1 ring-stone-300/80' : 'w-2 h-2'}`}
-              style={hasDeepLog ? { boxShadow: `0 0 0 1px ${resolvedDotColor}33 inset` } : undefined}
-            >
+            hasDeepLog ? (
+              // 딥로그: 외곽 링 + 내부 점
+              <span
+                className="w-3 h-3 rounded-full flex items-center justify-center"
+                style={{
+                  border: `1.5px solid ${resolvedDotColor}`,
+                }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: resolvedDotColor }}
+                />
+              </span>
+            ) : (
+              // 일반 로그: 점만
               <span
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ backgroundColor: resolvedDotColor }}
               />
-            </span>
+            )
           )}
         </div>
       </button>

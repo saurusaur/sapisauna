@@ -6,6 +6,8 @@
  *   우측: 서브 메트릭 2개
  *
  * Bather: 좌측 큰 숫자 + 우측 메트릭
+ *
+ * isEmpty: 기본 레이아웃 유지 + 흐림 + "기록을 추가해보세요!" 오버레이
  */
 
 import HeatRing from './heat-ring'
@@ -46,12 +48,11 @@ function MetricRow({ label, value, color }: { label: string; value: string; colo
   )
 }
 
-// 월간 미니 링: 좌측 영역 안에서 위아래 줄 배치
-// 4주 = 위 2개 + 아래 2개, 5주 = 위 2개 + 아래 3개
+// 월간 미니 링: 4주=위2+아래2, 5주=위2+아래3
 function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string }) {
   const count = rings.length
   const topRow = rings.slice(0, 2)
-  const bottomRow = rings.slice(2) // 4주면 2개, 5주면 3개
+  const bottomRow = rings.slice(2)
 
   const ringSize = count >= 5 ? 44 : 48
   const sw = count >= 5 ? 3.5 : 4
@@ -61,14 +62,8 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
       <div className="flex gap-2 justify-center">
         {topRow.map((ring) => (
           <div key={ring.weekLabel} className="flex flex-col items-center gap-0.5">
-            <HeatRing
-              current={ring.heatMinutes}
-              target={ring.target}
-              size={ringSize}
-              strokeWidth={sw}
-              color={ring.heatMinutes > 0 ? color : '#d6d3d1'}
-              showLabel
-            />
+            <HeatRing current={ring.heatMinutes} target={ring.target} size={ringSize} strokeWidth={sw}
+              color={ring.heatMinutes > 0 ? color : '#d6d3d1'} showLabel />
             <span className="text-[7px] text-stone-400 font-semibold">{ring.weekLabel}</span>
           </div>
         ))}
@@ -76,14 +71,8 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
       <div className="flex gap-2 justify-center">
         {bottomRow.map((ring) => (
           <div key={ring.weekLabel} className="flex flex-col items-center gap-0.5">
-            <HeatRing
-              current={ring.heatMinutes}
-              target={ring.target}
-              size={ringSize}
-              strokeWidth={sw}
-              color={ring.heatMinutes > 0 ? color : '#d6d3d1'}
-              showLabel
-            />
+            <HeatRing current={ring.heatMinutes} target={ring.target} size={ringSize} strokeWidth={sw}
+              color={ring.heatMinutes > 0 ? color : '#d6d3d1'} showLabel />
             <span className="text-[7px] text-stone-400 font-semibold">{ring.weekLabel}</span>
           </div>
         ))}
@@ -92,7 +81,6 @@ function MultiRingGrid({ rings, color }: { rings: WeekRingData[]; color: string 
   )
 }
 
-// 링 + 라벨 (좌측 영역)
 function RingArea({
   period, color, heatMinutes, heatTarget, weekRings,
 }: {
@@ -113,112 +101,124 @@ function RingArea({
   )
 }
 
+// 흐림 + 오버레이 래퍼
+function EmptyOverlay({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="glass-card-light p-4 rounded-xl relative">
+      <div className="opacity-30 pointer-events-none">{children}</div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <p className="text-sm text-stone-500 font-medium">기록을 추가해보세요!</p>
+      </div>
+    </div>
+  )
+}
+
+// 링 카드 내부 콘텐츠 (전체/Saunner/Jimi 공통)
+function RingCardContent({
+  period, color, heatMinutes, heatTarget, weekRings, metrics,
+}: {
+  period: Period; color: string; heatMinutes: number; heatTarget: number
+  weekRings?: WeekRingData[]
+  metrics: { label: string; value: string; color?: string }[]
+}) {
+  return (
+    <div className="flex items-center gap-4">
+      <RingArea period={period} color={color} heatMinutes={heatMinutes} heatTarget={heatTarget} weekRings={weekRings} />
+      <div className="flex-1 flex flex-col gap-4">
+        {metrics.map((m) => (
+          <MetricRow key={m.label} label={m.label} value={m.value} color={m.color} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function InsightCard({
   tribe, period, color, weekRings,
   allInsight, batherInsight, saunnerInsight, jimiInsight,
   isEmpty,
 }: InsightCardProps) {
 
-  // 기록 없을 때
-  if (isEmpty) {
-    return (
-      <div className="glass-card-light p-4 rounded-xl opacity-50 relative">
-        <div className="h-28" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-sm text-stone-400">아직 기록이 없어요..</p>
-        </div>
-      </div>
-    )
-  }
-
   // === 전체 ===
-  if (tribe === 'all' && allInsight) {
-    return (
-      <div className="glass-card-light p-4 rounded-xl">
-        <div className="flex items-center gap-4">
-          <RingArea
-            period={period} color={color}
-            heatMinutes={allInsight.weeklyHeatMinutes}
-            heatTarget={allInsight.heatTarget}
-            weekRings={weekRings}
-          />
-          <div className="flex-1 flex flex-col gap-4">
-            <MetricRow label="신규 방문 장소" value={`${allInsight.newPlaces}곳`} />
-            <MetricRow label="재방문 점수" value={fmtVal(allInsight.avgRevisitScore, '/5')} color={color} />
-          </div>
-        </div>
-      </div>
+  if (tribe === 'all') {
+    const metrics = [
+      { label: '신규 방문 장소', value: `${allInsight?.newPlaces ?? 0}곳` },
+      { label: '재방문 점수', value: fmtVal(allInsight?.avgRevisitScore, '/5'), color },
+    ]
+    const content = (
+      <RingCardContent
+        period={period} color={color}
+        heatMinutes={allInsight?.weeklyHeatMinutes ?? 0}
+        heatTarget={57}
+        weekRings={weekRings}
+        metrics={metrics}
+      />
     )
+    if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>
+    return <div className="glass-card-light p-4 rounded-xl">{content}</div>
   }
 
-  // === Bather (링 없음, 큰 숫자) ===
-  if (tribe === 'bather' && batherInsight) {
-    return (
-      <div className="glass-card-light p-4 rounded-xl">
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <p className="text-[9px] font-bold text-stone-500 tracking-wide">총 입수 시간</p>
-            <p className="font-heading text-[42px] font-semibold leading-none" style={{ color }}>
-              {batherInsight.totalImmersionTime != null ? batherInsight.totalImmersionTime : '-'}
-              <span className="text-base text-stone-400 font-normal"> MIN</span>
-            </p>
-          </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <MetricRow label="평균 수온" value={fmtVal(batherInsight.avgHotBathTemp, '°C')} />
-            <MetricRow label="수질 만족도" value={fmtVal(batherInsight.avgWaterQuality, '/5')} color={color} />
-          </div>
+  // === Bather ===
+  if (tribe === 'bather') {
+    const bi = batherInsight
+    const content = (
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <p className="text-[9px] font-bold text-stone-500 tracking-wide">총 입수 시간</p>
+          <p className="font-heading text-[42px] font-semibold leading-none" style={{ color }}>
+            {bi?.totalImmersionTime != null ? bi.totalImmersionTime : '-'}
+            <span className="text-base text-stone-400 font-normal"> MIN</span>
+          </p>
+        </div>
+        <div className="flex-1 flex flex-col gap-4">
+          <MetricRow label="평균 수온" value={fmtVal(bi?.avgHotBathTemp, '°C')} />
+          <MetricRow label="수질 만족도" value={fmtVal(bi?.avgWaterQuality, '/5')} color={color} />
         </div>
       </div>
     )
+    if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>
+    return <div className="glass-card-light p-4 rounded-xl">{content}</div>
   }
 
   // === Saunner ===
-  if (tribe === 'saunner' && saunnerInsight) {
-    return (
-      <div className="glass-card-light p-4 rounded-xl">
-        <div className="flex items-center gap-4">
-          <RingArea
-            period={period} color={color}
-            heatMinutes={saunnerInsight.weeklyHeatMinutes}
-            heatTarget={saunnerInsight.heatTarget}
-            weekRings={weekRings}
-          />
-          <div className="flex-1 flex flex-col gap-4">
-            <MetricRow label="평균 온도차" value={fmtVal(saunnerInsight.avgTempDiff, '°C')} />
-            <MetricRow label="토토노이 점수" value={fmtVal(saunnerInsight.avgTotonoScore, '/5')} color={color} />
-          </div>
-        </div>
-      </div>
+  if (tribe === 'saunner') {
+    const si = saunnerInsight
+    const metrics = [
+      { label: '평균 온도차', value: fmtVal(si?.avgTempDiff, '°C') },
+      { label: '토토노이 점수', value: fmtVal(si?.avgTotonoScore, '/5'), color },
+    ]
+    const content = (
+      <RingCardContent
+        period={period} color={color}
+        heatMinutes={si?.weeklyHeatMinutes ?? 0}
+        heatTarget={57}
+        weekRings={weekRings}
+        metrics={metrics}
+      />
     )
+    if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>
+    return <div className="glass-card-light p-4 rounded-xl">{content}</div>
   }
 
   // === Jimi ===
-  if (tribe === 'jimi' && jimiInsight) {
-    return (
-      <div className="glass-card-light p-4 rounded-xl">
-        <div className="flex items-center gap-4">
-          <RingArea
-            period={period} color={color}
-            heatMinutes={jimiInsight.weeklyHeatMinutes}
-            heatTarget={jimiInsight.heatTarget}
-            weekRings={weekRings}
-          />
-          <div className="flex-1 flex flex-col gap-4">
-            <MetricRow label="평균 찜질 온도" value={fmtVal(jimiInsight.avgJjimTemp, '°C')} />
-            <MetricRow label="발한 점수" value={fmtVal(jimiInsight.avgSweatQuality, '/5')} color={color} />
-          </div>
-        </div>
-      </div>
+  if (tribe === 'jimi') {
+    const ji = jimiInsight
+    const metrics = [
+      { label: '평균 찜질 온도', value: fmtVal(ji?.avgJjimTemp, '°C') },
+      { label: '발한 점수', value: fmtVal(ji?.avgSweatQuality, '/5'), color },
+    ]
+    const content = (
+      <RingCardContent
+        period={period} color={color}
+        heatMinutes={ji?.weeklyHeatMinutes ?? 0}
+        heatTarget={57}
+        weekRings={weekRings}
+        metrics={metrics}
+      />
     )
+    if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>
+    return <div className="glass-card-light p-4 rounded-xl">{content}</div>
   }
 
-  // fallback
-  return (
-    <div className="glass-card-light p-4 rounded-xl">
-      <div className="text-center py-6 text-stone-400">
-        <span className="material-symbols-outlined text-3xl opacity-30 block mb-2">water_drop</span>
-        <p className="text-sm">기록이 더 쌓이면 보여드릴게요</p>
-      </div>
-    </div>
-  )
+  return null
 }
