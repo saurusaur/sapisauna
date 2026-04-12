@@ -9,7 +9,7 @@
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
-- [ ] [리서치+UX] 나의 기록 & 통계 설계 — 히스토리 뷰 형태(타임라인/카드/리스트), 정렬·필터(날짜·평점·타입), 유저 통계 지표(총 방문수/월별 추이/자주 간 장소/트라이브 분포/온도 선호/재방문 점수), 표시 위치(프로필/히스토리/별도 탭), 시각화 방식 | priority: P0 | added: 2026-03-10
+- [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰를 대시보드로 고도화. KPI(기록한 날/다녀온 곳/총 기록 카운트), 트라이브별 루틴 카드(HOT/ICE/REST/REPEAT), 인사이트 카드(히트 링/평균 수온/토토노이 등), WEEK/MONTH 토글, 캘린더 트라이브별 점 컬러+딥로그 링, 홈 프로필 카드 히트 링 추가 | priority: P0 | added: 2026-03-10 | done: 2026-04-12
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
@@ -34,6 +34,10 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-04-12
+- [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰 대시보드 고도화: KPI 행(기록한 날/다녀온 곳/총 기록 카운트), 트라이브별 루틴 카드(Material Symbols 아이콘), 인사이트 카드(히트 링 WEEK/MONTH 토글, 2x2/2+3 미니 링), 트라이브별 주간 목표(Bather 60m, Saunner/Jimi 57m), 캘린더 트라이브별 dot 컬러+딥로그 외곽 링, empty state 블러 처리, 리스트 뷰 월별 카운트 추가 | done: 2026-04-12
+- [x] [UX] 홈 프로필 카드 리디자인 — 이번 주 열기 히트 링(전체 합산, primary red) + 총 기록/방문 장소 3칸 그리드, 레벨 프로그레스바+숫자 우상단, 프로필 영역 유저홈 링크 분리 준비 | done: 2026-04-12
 
 ### 2026-04-11
 - [x] [UX] TRIBE PICKS 카드 — 비로그인 홈에 트라이브 선택 유도 카드 (3초 오토 스크롤, 트라이브별 설명+CTA, /explore/type 연결) | done: 2026-04-08
