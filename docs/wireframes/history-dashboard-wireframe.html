@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History Dashboard Wireframe v4 — Sauna Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #cc1a1a;
+    --color-primary-light: #fde8e8;
+    --color-saunner: #F97316;
+    --color-bather: #3B82F6;
+    --color-jimi: #22C55E;
+    --color-bg: #f5f2ef;
+    --color-border: #e2deda;
+    --glass-bg: hsla(0,0%,100%,0.55);
+    --glass-border: hsla(0,0%,100%,0.65);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',-apple-system,sans-serif; background:#1a1a1a; display:flex; flex-direction:column; align-items:center; padding:40px 20px; gap:60px; }
+  .material-symbols-rounded { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .material-symbols-rounded.filled { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+  /* Keep outline version explicitly */
+  .mat-outline { font-family:'Material Symbols Outlined'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  h1.page-title { font-family:'Oswald',sans-serif; color:#fff; font-size:28px; text-align:center; margin-bottom:-20px; }
+  .subtitle { color:#999; font-size:13px; text-align:center; margin-bottom:20px; max-width:700px; line-height:1.6; }
+  .screen-row { display:flex; gap:30px; flex-wrap:wrap; justify-content:center; }
+  .screen-wrapper { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .screen-label { font-family:'Oswald',sans-serif; color:#aaa; font-size:14px; font-weight:600; letter-spacing:2px; text-transform:uppercase; }
+
+  .phone { width:375px; height:900px; background:var(--color-bg); border-radius:40px; overflow:hidden; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.4); display:flex; flex-direction:column; }
+  .status-bar { height:54px; padding:14px 24px 0; display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:600; flex-shrink:0; }
+  .content { flex:1; overflow-y:auto; padding:0 16px 100px; display:flex; flex-direction:column; gap:12px; }
+
+  /* Header — matches actual code */
+  .header { display:flex; justify-content:space-between; align-items:center; padding:12px 4px 0; }
+  .header h2 { font-family:'Oswald',sans-serif; font-size:26px; font-weight:800; font-style:italic; color:#292524; /* black, not red */ }
+  .view-toggle { display:flex; background:rgba(120,113,108,0.08); backdrop-filter:blur(4px); border-radius:8px; padding:2px; gap:2px; }
+  .view-btn { padding:6px 8px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+  .view-btn.active { background:rgba(255,255,255,0.8); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+  .view-btn .material-symbols-rounded { font-size:16px; }
+  .view-btn.active .material-symbols-rounded { color:#57534e; }
+  .view-btn:not(.active) .material-symbols-rounded { color:#a8a29e; }
+
+  /* Tribe tabs — matches actual code: pill chips with emoji */
+  .tribe-tabs { display:flex; gap:6px; padding:4px 0; }
+  .tribe-tab { padding:7px 12px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(120,113,108,0.06); color:#a8a29e; white-space:nowrap; }
+  .tribe-tab.active { color:#fff; }
+  .tribe-tab.active.t-all { background:var(--color-primary); }
+  .tribe-tab.active.t-bather { background:var(--color-bather); }
+  .tribe-tab.active.t-saunner { background:var(--color-saunner); }
+  .tribe-tab.active.t-jimi { background:var(--color-jimi); }
+
+  .glass-card { background:var(--glass-bg); backdrop-filter:blur(12px); border:0.5px solid var(--glass-border); border-radius:12px; padding:16px; }
+
+  /* KPI */
+  .kpi-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .kpi-item { background:var(--glass-bg); backdrop-filter:blur(12px); border:0.5px solid var(--glass-border); border-radius:12px; padding:12px 14px; }
+  .kpi-label { font-size:10px; font-weight:600; margin-bottom:4px; color:#78716c; }
+  .kpi-value { font-family:'Oswald',sans-serif; font-size:30px; font-weight:600; color:#292524; }
+  .kpi-value span { font-size:15px; color:#a8a29e; font-weight:400; }
+  .kpi-fixed { opacity:0.7; } /* visually hint it's always-fixed */
+
+  .section-label { font-size:11px; font-weight:700; letter-spacing:0.5px; color:#78716c; text-align:center; padding:8px 0 4px; }
+
+  /* Period toggle */
+  .period-toggle { display:flex; background:rgba(120,113,108,0.06); border-radius:8px; padding:2px; gap:2px; align-self:center; margin:0 auto; }
+  .period-btn { padding:5px 14px; border-radius:6px; font-size:10px; font-weight:600; color:#a8a29e; letter-spacing:0.5px; }
+  .period-btn.active { background:rgba(255,255,255,0.8); color:#57534e; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
+  /* Calendar — matches actual code */
+  .cal-header { display:flex; justify-content:space-between; align-items:center; padding:0 4px 8px; }
+  .cal-month { font-weight:700; font-size:15px; color:#57534e; min-width:90px; text-align:center; }
+  .cal-arrow .material-symbols-rounded { font-size:18px; color:#a8a29e; }
+  .cal-today-btn { font-size:11px; font-weight:600; color:var(--color-primary); padding:2px 8px; border-radius:6px; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; text-align:center; }
+  .cal-dow { font-size:10px; font-weight:500; color:#a8a29e; padding:4px 0; }
+  .cal-dow.weekend { font-weight:700; color:#78716c; }
+  .cal-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:13px; color:#57534e; font-weight:500; border-radius:10px; position:relative; gap:1px; }
+  .cal-day.today { font-weight:700; color:var(--color-primary); }
+  .cal-day.selected { background:var(--color-primary-light); font-weight:700; color:#57534e; }
+  .cal-day.muted { color:#d6d3d1; }
+  .cal-day .v-dot { width:6px; height:6px; border-radius:50%; position:absolute; bottom:3px; }
+  .cal-day .v-ring { width:11px; height:11px; border-radius:50%; border:1.5px solid; position:absolute; bottom:2px; display:flex; align-items:center; justify-content:center; }
+  .cal-day .v-ring .v-inner { width:6px; height:6px; border-radius:50%; }
+  .cal-expand { text-align:center; padding:2px 0; }
+  .cal-expand .material-symbols-rounded { font-size:20px; color:var(--color-primary); }
+
+  /* Routine */
+  .routine-card { display:flex; justify-content:space-around; align-items:center; padding:14px 8px 8px; }
+  .routine-slot { display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .routine-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; }
+  .routine-icon.filled-i { color:#fff; }
+  .routine-icon.outline-i { border:1.5px solid #d6d3d1; color:#a8a29e; background:transparent; }
+  .routine-val { font-family:'Oswald',sans-serif; font-size:15px; font-weight:600; }
+  .routine-name { font-size:8px; color:#a8a29e; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
+
+  /* Insight card */
+  .insight-card { display:flex; align-items:center; gap:16px; padding:12px 4px; }
+  .insight-left { display:flex; flex-direction:column; align-items:center; gap:2px; flex-shrink:0; }
+  .insight-ring { width:100px; height:100px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+  .insight-ring svg { position:absolute; top:0; left:0; width:100%; height:100%; }
+  .ring-val { font-family:'Oswald',sans-serif; font-size:28px; font-weight:600; color:#292524; z-index:1; }
+  .ring-sub { font-size:10px; color:#a8a29e; z-index:1; }
+  .ring-label { font-size:8px; color:#a8a29e; letter-spacing:0.8px; text-transform:uppercase; font-weight:600; margin-top:3px; text-align:center; line-height:1.3; }
+  .insight-right { flex:1; display:flex; flex-direction:column; gap:14px; }
+  .metric-label { font-size:9px; font-weight:700; letter-spacing:0.5px; color:#78716c; }
+  .metric-val { font-family:'Oswald',sans-serif; font-size:26px; font-weight:600; color:#292524; }
+  .metric-val span { font-size:13px; color:#a8a29e; font-weight:400; }
+
+  .insight-big-label { font-size:9px; font-weight:700; letter-spacing:0.5px; color:#78716c; }
+  .insight-big-val { font-family:'Oswald',sans-serif; font-size:44px; font-weight:600; line-height:1; }
+  .insight-big-val span { font-size:16px; color:#a8a29e; font-weight:400; }
+
+  /* Multi-ring 2x2 grid for MONTH view — same footprint as single ring */
+  .multi-ring-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100px; height:100px; }
+  .mini-ring-wrap { display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .mini-ring { width:44px; height:44px; position:relative; display:flex; align-items:center; justify-content:center; }
+  .mini-ring svg { position:absolute; top:0; left:0; width:100%; height:100%; }
+  .mini-ring-val { font-family:'Oswald',sans-serif; font-size:10px; font-weight:600; color:#292524; z-index:1; }
+  .mini-ring-label { font-size:7px; color:#a8a29e; font-weight:600; }
+
+  /* RecordCard — matches actual code structure */
+  .record-card { padding:12px; }
+  .rc-row1 { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+  .rc-place { font-size:14px; font-weight:500; color:#57534e; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rc-badges { display:flex; align-items:center; gap:4px; flex-shrink:0; margin-left:8px; }
+  .rc-deep-icon { font-size:16px; color:#d6d3d1; }
+  .rc-tribe-emoji { font-size:14px; }
+  .rc-detail { font-size:12px; color:#a8a29e; margin-bottom:4px; }
+  .rc-row3 { display:flex; justify-content:space-between; align-items:center; }
+  .rc-score { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600; }
+  .rc-score .material-symbols-rounded { font-size:14px; }
+  .rc-meta { font-size:11px; color:#a8a29e; text-align:right; }
+
+  .recent-label { font-size:11px; font-weight:700; letter-spacing:0.5px; color:#78716c; padding:6px 0 2px; }
+
+  .bottom-nav { position:absolute; bottom:0; left:0; right:0; height:84px; background:rgba(250,248,246,0.9); backdrop-filter:blur(20px); border-top:0.5px solid var(--color-border); display:flex; align-items:flex-start; justify-content:space-around; padding-top:8px; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; color:#a8a29e; font-weight:500; }
+  .nav-item.active { color:var(--color-primary); }
+  .nav-home { width:48px; height:48px; background:var(--color-primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; margin-top:-16px; box-shadow:0 4px 12px rgba(204,26,26,0.3); }
+  .empty-state { text-align:center; padding:30px 20px; color:#a8a29e; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">HISTORY DASHBOARD WIREFRAME v5</h1>
+<p class="subtitle">기존 HomeCalendar · RecordCard · TypeTab 컴포넌트 그대로 사용 | WEEK/MONTH 토글 | 링 2x2 그리드 (MONTH)</p>
+
+<!-- ===== ROW 1: 전체 + BATHER ===== -->
+<div class="screen-row">
+
+  <!-- 전체 (Overall) -->
+  <div class="screen-wrapper">
+    <span class="screen-label">전체 (Overall)</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <!-- Header: black title + icon toggle -->
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn active"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+
+        <!-- Tribe tabs with emoji -->
+        <div class="tribe-tabs">
+          <div class="tribe-tab active t-all">전체</div>
+          <div class="tribe-tab">🧖 Bather</div>
+          <div class="tribe-tab">🔥 Saunner</div>
+          <div class="tribe-tab">🧘 Jjimi</div>
+        </div>
+
+        <!-- 이번 달 요약 -->
+        <div class="section-label" style="text-align:left; padding:4px 0 2px;">이번 달 요약</div>
+        <div class="kpi-row">
+          <div class="kpi-item">
+            <div class="kpi-label">기록한 날</div>
+            <div class="kpi-value">12<span>/30</span></div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-label">다녀온 곳</div>
+            <div class="kpi-value">05</div>
+          </div>
+          <div class="kpi-item kpi-fixed">
+            <div class="kpi-label">역대 방문</div>
+            <div class="kpi-value">128</div>
+          </div>
+        </div>
+
+        <!-- Calendar (actual code style) -->
+        <div class="glass-card" style="padding:12px 16px 4px;">
+          <div class="cal-header">
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_left</span></div>
+            <span class="cal-month">2026년 4월</span>
+            <span class="cal-today-btn">오늘</span>
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow weekend">토</div><div class="cal-dow weekend">일</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div>
+            <div class="cal-day">1<span class="v-dot" style="background:var(--color-bather);"></span></div>
+            <div class="cal-day">2</div>
+            <div class="cal-day">3<span class="v-ring" style="border-color:var(--color-primary);"><span class="v-inner" style="background:var(--color-primary);"></span></span></div>
+            <div class="cal-day">4<span class="v-dot" style="background:var(--color-saunner);"></span></div>
+            <div class="cal-day">5<span class="v-dot" style="background:var(--color-jimi);"></span></div>
+            <div class="cal-day">6</div>
+            <div class="cal-day">7<span class="v-ring" style="border-color:var(--color-bather);"><span class="v-inner" style="background:var(--color-bather);"></span></span></div>
+            <div class="cal-day">8</div>
+            <div class="cal-day">9<span class="v-dot" style="background:var(--color-saunner);"></span></div>
+            <div class="cal-day selected">10<span class="v-ring" style="border-color:var(--color-jimi);"><span class="v-inner" style="background:var(--color-jimi);"></span></span></div>
+            <div class="cal-day today">11</div>
+            <div class="cal-day">12</div><div class="cal-day">13</div>
+          </div>
+          <div class="cal-expand"><span class="material-symbols-rounded">expand_more</span></div>
+        </div>
+
+        <!-- Period toggle -->
+        <div class="period-toggle">
+          <span class="period-btn">WEEK</span>
+          <span class="period-btn active">MONTH</span>
+        </div>
+
+        <!-- Overall Insight — MONTH view: 2x2 ring grid (same footprint as WEEK single ring) -->
+        <div class="glass-card">
+          <div class="insight-card">
+            <div class="insight-left">
+              <div class="multi-ring-grid">
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#f0e0d0" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="89" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">12</span>
+                  </div>
+                  <span class="mini-ring-label">W1</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#f0e0d0" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="30" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">42</span>
+                  </div>
+                  <span class="mini-ring-label">W2</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#f0e0d0" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val" style="font-size:9px;">57+</span>
+                  </div>
+                  <span class="mini-ring-label">W3</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#f0e0d0" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="57" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">28</span>
+                  </div>
+                  <span class="mini-ring-label">W4</span>
+                </div>
+              </div>
+              <div class="ring-label">WEEKLY HEAT<br>EXPOSURE</div>
+            </div>
+            <div class="insight-right">
+              <div><div class="metric-label">신규 방문 장소</div><div class="metric-val">3</div></div>
+              <div><div class="metric-label">재방문 점수</div><div class="metric-val" style="color:var(--color-primary);">4.6<span> /5</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent — actual RecordCard style -->
+        <!-- 기존 RecordCard 컴포넌트 그대로 사용 -->
+        <div class="recent-label">최근 기록</div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">스파랜드</span>
+            <span class="rc-badges">
+              <span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span>
+              <span class="rc-tribe-emoji">🧖</span>
+            </span>
+          </div>
+          <div class="rc-detail">온탕 22m · 냉탕 3m · 휴식 12m · 3회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(59,130,246,0.1); color:var(--color-bather);">
+              <span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.8
+            </span>
+            <span class="rc-meta">Apr 10</span>
+          </div>
+        </div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">만리동 사우나</span>
+            <span class="rc-badges">
+              <span class="rc-tribe-emoji">🔥</span>
+            </span>
+          </div>
+          <div class="rc-detail">사우나 18m · 냉수 2m · 휴식 10m · 4회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(249,115,22,0.1); color:var(--color-saunner);">
+              <span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 5.0
+            </span>
+            <span class="rc-meta">Apr 7</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BATHER (Master) -->
+  <div class="screen-wrapper">
+    <span class="screen-label">Bather (Master)</span>
+    <div class="phone" style="box-shadow:0 20px 60px rgba(59,130,246,0.25),0 20px 60px rgba(0,0,0,0.3);">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn active"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+        <div class="tribe-tabs">
+          <div class="tribe-tab">전체</div>
+          <div class="tribe-tab active t-bather">🧖 Bather</div>
+          <div class="tribe-tab">🔥 Saunner</div>
+          <div class="tribe-tab">🧘 Jjimi</div>
+        </div>
+        <div class="section-label" style="text-align:left; padding:4px 0 2px;">이번 달 요약</div>
+        <div class="kpi-row">
+          <div class="kpi-item">
+            <div class="kpi-label" style="color:var(--color-bather);">기록한 날</div>
+            <div class="kpi-value">8<span>/30</span></div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-label" style="color:var(--color-bather);">다녀온 곳</div>
+            <div class="kpi-value">03</div>
+          </div>
+          <div class="kpi-item kpi-fixed">
+            <div class="kpi-label" style="color:var(--color-bather);">역대 방문</div>
+            <div class="kpi-value">56</div>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding:12px 16px 4px;">
+          <div class="cal-header">
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_left</span></div>
+            <span class="cal-month">2026년 4월</span>
+            <span class="cal-today-btn">오늘</span>
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow weekend">토</div><div class="cal-dow weekend">일</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div>
+            <div class="cal-day">1</div><div class="cal-day">2</div>
+            <div class="cal-day">3<span class="v-ring" style="border-color:var(--color-bather);"><span class="v-inner" style="background:var(--color-bather);"></span></span></div>
+            <div class="cal-day">4</div>
+            <div class="cal-day">5<span class="v-dot" style="background:var(--color-bather);"></span></div>
+            <div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day selected">8<span class="v-dot" style="background:var(--color-bather);"></span></div>
+            <div class="cal-day">9</div>
+            <div class="cal-day">10<span class="v-ring" style="border-color:var(--color-bather);"><span class="v-inner" style="background:var(--color-bather);"></span></span></div>
+            <div class="cal-day today">11</div>
+            <div class="cal-day">12</div><div class="cal-day">13</div>
+          </div>
+          <div class="cal-expand"><span class="material-symbols-rounded">expand_more</span></div>
+        </div>
+
+        <div class="period-toggle">
+          <span class="period-btn active">WEEK</span>
+          <span class="period-btn">MONTH</span>
+        </div>
+
+        <!-- Routine — WEEK view, all filled -->
+        <div class="glass-card">
+          <div class="section-label">나의 평균 루틴</div>
+          <div class="routine-card">
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:20px;">hot_tub</span></div>
+              <div class="routine-val" style="color:var(--color-bather);">22m</div>
+              <div class="routine-name">HOT</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:20px;">ac_unit</span></div>
+              <div class="routine-val" style="color:var(--color-bather);">3m</div>
+              <div class="routine-name">ICE</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:20px;">airline_seat_recline_extra</span></div>
+              <div class="routine-val" style="color:var(--color-bather);">12m</div>
+              <div class="routine-name">REST</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:20px;">loop</span></div>
+              <div class="routine-val" style="color:var(--color-bather);">x3</div>
+              <div class="routine-name">REPEAT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bather Insight — WEEK view: single big number -->
+        <div class="glass-card">
+          <div class="insight-card">
+            <div style="flex:1;">
+              <div class="insight-big-label">총 입수 시간</div>
+              <div class="insight-big-val" style="color:var(--color-bather);">198<span> MIN</span></div>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+              <div>
+                <div class="metric-label">평균 수온</div>
+                <div class="metric-val">40<span>&deg;C</span></div>
+              </div>
+              <div>
+                <div class="metric-label">수질 만족도</div>
+                <div class="metric-val" style="color:var(--color-bather);">4.9<span> /5</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기존 RecordCard 컴포넌트 그대로 사용 -->
+        <div class="recent-label">최근 기록</div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">스파랜드</span>
+            <span class="rc-badges">
+              <span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span>
+              <span class="rc-tribe-emoji">🧖</span>
+            </span>
+          </div>
+          <div class="rc-detail">온탕 22m · 냉탕 3m · 휴식 12m · 3회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(59,130,246,0.1); color:var(--color-bather);">
+              <span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.8
+            </span>
+            <span class="rc-meta">Apr 10</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROW 2: SAUNNER + JJIMI ===== -->
+<div class="screen-row">
+
+  <!-- SAUNNER — WEEK view (single ring) -->
+  <div class="screen-wrapper">
+    <span class="screen-label">Saunner (Week)</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn active"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+        <div class="tribe-tabs">
+          <div class="tribe-tab">전체</div>
+          <div class="tribe-tab">🧖 Bather</div>
+          <div class="tribe-tab active t-saunner">🔥 Saunner</div>
+          <div class="tribe-tab">🧘 Jjimi</div>
+        </div>
+        <div class="section-label" style="text-align:left; padding:4px 0 2px;">이번 달 요약</div>
+        <div class="kpi-row">
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-saunner);">기록한 날</div><div class="kpi-value">10<span>/30</span></div></div>
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-saunner);">다녀온 곳</div><div class="kpi-value">04</div></div>
+          <div class="kpi-item kpi-fixed"><div class="kpi-label" style="color:var(--color-saunner);">역대 방문</div><div class="kpi-value">48</div></div>
+        </div>
+        <div class="glass-card" style="padding:12px 16px 4px;">
+          <div class="cal-header">
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_left</span></div>
+            <span class="cal-month">2026년 4월</span>
+            <span class="cal-today-btn">오늘</span>
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow weekend">토</div><div class="cal-dow weekend">일</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div>
+            <div class="cal-day">1<span class="v-dot" style="background:var(--color-saunner);"></span></div>
+            <div class="cal-day">2</div><div class="cal-day">3</div>
+            <div class="cal-day">4<span class="v-ring" style="border-color:var(--color-saunner);"><span class="v-inner" style="background:var(--color-saunner);"></span></span></div>
+            <div class="cal-day">5</div>
+            <div class="cal-day">6<span class="v-dot" style="background:var(--color-saunner);"></span></div>
+            <div class="cal-day">7</div><div class="cal-day">8</div>
+            <div class="cal-day selected">9<span class="v-dot" style="background:var(--color-saunner);"></span></div>
+            <div class="cal-day">10</div>
+            <div class="cal-day today">11</div><div class="cal-day">12</div><div class="cal-day">13</div>
+          </div>
+          <div class="cal-expand"><span class="material-symbols-rounded">expand_more</span></div>
+        </div>
+
+        <div class="period-toggle">
+          <span class="period-btn active">WEEK</span>
+          <span class="period-btn">MONTH</span>
+        </div>
+
+        <div class="glass-card">
+          <div class="section-label">나의 평균 루틴</div>
+          <div class="routine-card">
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:20px;">sauna</span></div>
+              <div class="routine-val" style="color:var(--color-saunner);">18m</div>
+              <div class="routine-name">HOT</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:20px;">ac_unit</span></div>
+              <div class="routine-val" style="color:var(--color-saunner);">2m</div>
+              <div class="routine-name">ICE</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:20px;">airline_seat_recline_extra</span></div>
+              <div class="routine-val" style="color:var(--color-saunner);">10m</div>
+              <div class="routine-name">REST</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:20px;">loop</span></div>
+              <div class="routine-val" style="color:var(--color-saunner);">x4</div>
+              <div class="routine-name">REPEAT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEEK view: single ring -->
+        <div class="glass-card">
+          <div class="insight-card">
+            <div class="insight-left">
+              <div class="insight-ring">
+                <svg viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#fde0c8" stroke-width="7"/>
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--color-saunner)" stroke-width="7" stroke-dasharray="264" stroke-dashoffset="70" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                </svg>
+                <span class="ring-val">42</span>
+                <span class="ring-sub">/57M</span>
+              </div>
+              <div class="ring-label">WEEKLY HEAT<br>EXPOSURE</div>
+            </div>
+            <div class="insight-right">
+              <div><div class="metric-label">평균 온도차</div><div class="metric-val">82<span>&deg;C</span></div></div>
+              <div><div class="metric-label">토토노이 점수</div><div class="metric-val" style="color:var(--color-saunner);">4.8<span> /5</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기존 RecordCard 컴포넌트 그대로 사용 -->
+        <div class="recent-label">최근 기록</div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">만리동 사우나</span>
+            <span class="rc-badges"><span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span><span class="rc-tribe-emoji">🔥</span></span>
+          </div>
+          <div class="rc-detail">사우나 18m · 냉수 2m · 휴식 10m · 4회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(249,115,22,0.1); color:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 5.0</span>
+            <span class="rc-meta">Apr 9</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JJIMI — MONTH view (multi-ring) -->
+  <div class="screen-wrapper">
+    <span class="screen-label">Jjimi (Month)</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn active"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+        <div class="tribe-tabs">
+          <div class="tribe-tab">전체</div>
+          <div class="tribe-tab">🧖 Bather</div>
+          <div class="tribe-tab">🔥 Saunner</div>
+          <div class="tribe-tab active t-jimi">🧘 Jjimi</div>
+        </div>
+        <div class="section-label" style="text-align:left; padding:4px 0 2px;">이번 달 요약</div>
+        <div class="kpi-row">
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-jimi);">기록한 날</div><div class="kpi-value">6<span>/30</span></div></div>
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-jimi);">다녀온 곳</div><div class="kpi-value">02</div></div>
+          <div class="kpi-item kpi-fixed"><div class="kpi-label" style="color:var(--color-jimi);">역대 방문</div><div class="kpi-value">24</div></div>
+        </div>
+        <div class="glass-card" style="padding:12px 16px 4px;">
+          <div class="cal-header">
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_left</span></div>
+            <span class="cal-month">2026년 4월</span>
+            <span class="cal-today-btn">오늘</span>
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow weekend">토</div><div class="cal-dow weekend">일</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div>
+            <div class="cal-day">1</div>
+            <div class="cal-day">2<span class="v-ring" style="border-color:var(--color-jimi);"><span class="v-inner" style="background:var(--color-jimi);"></span></span></div>
+            <div class="cal-day">3</div><div class="cal-day">4</div>
+            <div class="cal-day selected">5<span class="v-dot" style="background:var(--color-jimi);"></span></div>
+            <div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day">8<span class="v-ring" style="border-color:var(--color-jimi);"><span class="v-inner" style="background:var(--color-jimi);"></span></span></div>
+            <div class="cal-day">9</div><div class="cal-day">10</div>
+            <div class="cal-day today">11</div><div class="cal-day">12</div><div class="cal-day">13</div>
+          </div>
+          <div class="cal-expand"><span class="material-symbols-rounded">expand_more</span></div>
+        </div>
+
+        <div class="period-toggle">
+          <span class="period-btn">WEEK</span>
+          <span class="period-btn active">MONTH</span>
+        </div>
+
+        <!-- Routine -->
+        <div class="glass-card">
+          <div class="section-label">나의 평균 루틴</div>
+          <div class="routine-card">
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-jimi);"><span class="material-symbols-rounded filled" style="font-size:20px;">local_fire_department</span></div>
+              <div class="routine-val" style="color:var(--color-jimi);">48m</div>
+              <div class="routine-name">HOT</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-jimi);"><span class="material-symbols-rounded filled" style="font-size:20px;">airline_seat_recline_extra</span></div>
+              <div class="routine-val" style="color:var(--color-jimi);">15m</div>
+              <div class="routine-name">REST</div>
+            </div>
+            <div class="routine-slot">
+              <div class="routine-icon filled-i" style="background:var(--color-jimi);"><span class="material-symbols-rounded filled" style="font-size:20px;">loop</span></div>
+              <div class="routine-val" style="color:var(--color-jimi);">3.4x</div>
+              <div class="routine-name">REPEAT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MONTH view: 2x2 ring grid -->
+        <div class="glass-card">
+          <div class="insight-card">
+            <div class="insight-left">
+              <div class="multi-ring-grid">
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#d4edda" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-jimi)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="75" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">20</span>
+                  </div>
+                  <span class="mini-ring-label">W1</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#d4edda" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-jimi)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="38" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">38</span>
+                  </div>
+                  <span class="mini-ring-label">W2</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#d4edda" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="#d6d3d1" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="113" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val" style="color:#d6d3d1;">-</span>
+                  </div>
+                  <span class="mini-ring-label">W3</span>
+                </div>
+                <div class="mini-ring-wrap">
+                  <div class="mini-ring">
+                    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#d4edda" stroke-width="3.5"/><circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-jimi)" stroke-width="3.5" stroke-dasharray="113" stroke-dashoffset="57" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+                    <span class="mini-ring-val">28</span>
+                  </div>
+                  <span class="mini-ring-label">W4</span>
+                </div>
+              </div>
+              <div class="ring-label">WEEKLY HEAT<br>EXPOSURE</div>
+            </div>
+            <div class="insight-right">
+              <div><div class="metric-label">평균 찜질 온도</div><div class="metric-val">88<span>&deg;C</span></div></div>
+              <div><div class="metric-label">발한 점수</div><div class="metric-val" style="color:var(--color-jimi);">4.2<span> /5</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기존 RecordCard 컴포넌트 그대로 사용 -->
+        <div class="recent-label">최근 기록</div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">드래곤힐스파</span>
+            <span class="rc-badges"><span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span><span class="rc-tribe-emoji">🧘</span></span>
+          </div>
+          <div class="rc-detail">찜질 48m · 휴식 15m · 3회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(34,197,94,0.1); color:var(--color-jimi);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.7</span>
+            <span class="rc-meta">Apr 8</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROW 3: EMPTY + LIST ===== -->
+<div class="screen-row">
+
+  <!-- EMPTY STATE -->
+  <div class="screen-wrapper">
+    <span class="screen-label">Empty State</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn active"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+        <div class="tribe-tabs">
+          <div class="tribe-tab">전체</div>
+          <div class="tribe-tab active t-bather">🧖 Bather</div>
+          <div class="tribe-tab">🔥 Saunner</div>
+          <div class="tribe-tab">🧘 Jjimi</div>
+        </div>
+        <div class="section-label" style="text-align:left; padding:4px 0 2px;">이번 달 요약</div>
+        <div class="kpi-row">
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-bather);">기록한 날</div><div class="kpi-value" style="color:#d6d3d1;">0<span>/30</span></div></div>
+          <div class="kpi-item"><div class="kpi-label" style="color:var(--color-bather);">다녀온 곳</div><div class="kpi-value" style="color:#d6d3d1;">0</div></div>
+          <div class="kpi-item kpi-fixed"><div class="kpi-label" style="color:var(--color-bather);">역대 방문</div><div class="kpi-value" style="color:#d6d3d1;">0</div></div>
+        </div>
+        <div class="glass-card" style="padding:12px 16px 4px;">
+          <div class="cal-header">
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_left</span></div>
+            <span class="cal-month">2026년 4월</span>
+            <span class="cal-today-btn">오늘</span>
+            <div class="cal-arrow"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow weekend">토</div><div class="cal-dow weekend">일</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div>
+            <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div>
+            <div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div>
+            <div class="cal-day today">11</div><div class="cal-day">12</div>
+          </div>
+          <div class="cal-expand"><span class="material-symbols-rounded">expand_more</span></div>
+        </div>
+        <div class="period-toggle">
+          <span class="period-btn">WEEK</span>
+          <span class="period-btn active">MONTH</span>
+        </div>
+        <div class="glass-card" style="opacity:0.5;">
+          <div class="section-label">나의 평균 루틴</div>
+          <div class="routine-card">
+            <div class="routine-slot"><div class="routine-icon outline-i"><span class="material-symbols-rounded" style="font-size:20px;">hot_tub</span></div><div class="routine-val" style="color:#d6d3d1;">-</div></div>
+            <div class="routine-slot"><div class="routine-icon outline-i"><span class="material-symbols-rounded" style="font-size:20px;">ac_unit</span></div><div class="routine-val" style="color:#d6d3d1;">-</div></div>
+            <div class="routine-slot"><div class="routine-icon outline-i"><span class="material-symbols-rounded" style="font-size:20px;">airline_seat_recline_extra</span></div><div class="routine-val" style="color:#d6d3d1;">-</div></div>
+            <div class="routine-slot"><div class="routine-icon outline-i"><span class="material-symbols-rounded" style="font-size:20px;">loop</span></div><div class="routine-val" style="color:#d6d3d1;">-</div></div>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="empty-state">
+            <span class="material-symbols-rounded" style="font-size:36px; opacity:0.3;">water_drop</span>
+            <div style="margin-top:12px; font-size:14px;">아직 기록이 없어요<br><span style="font-size:12px; color:#c4b5a4;">첫 번째 방문을 기록하면<br>나만의 통계가 시작돼요!</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="screen-wrapper">
+    <span class="screen-label">List View</span>
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span style="font-size:12px;">...</span></div>
+      <div class="content">
+        <div class="header">
+          <h2>HISTORY</h2>
+          <div class="view-toggle">
+            <div class="view-btn active"><span class="material-symbols-rounded">list</span></div>
+            <div class="view-btn"><span class="material-symbols-rounded">calendar_month</span></div>
+          </div>
+        </div>
+        <div class="glass-card" style="padding:10px 14px; display:flex; align-items:center; gap:8px;">
+          <span class="material-symbols-rounded" style="color:#a8a29e; font-size:20px;">search</span>
+          <span style="color:#a8a29e; font-size:13px;">장소 검색...</span>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:8px; padding:10px 4px 2px;">
+          <span style="font-size:14px; font-weight:600; color:#78716c;">2026년 4월</span>
+          <span style="font-size:12px; color:#a8a29e;">(총 18회)</span>
+        </div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">스파랜드</span>
+            <span class="rc-badges"><span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span><span class="rc-tribe-emoji">🧖</span></span>
+          </div>
+          <div class="rc-detail">온탕 22m · 냉탕 3m · 휴식 12m · 3회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(59,130,246,0.1); color:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.8</span>
+            <span class="rc-meta">Apr 10</span>
+          </div>
+        </div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">만리동 사우나</span>
+            <span class="rc-badges"><span class="rc-tribe-emoji">🔥</span></span>
+          </div>
+          <div class="rc-detail">사우나 18m · 냉수 2m · 휴식 10m · 4회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(249,115,22,0.1); color:var(--color-saunner);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 5.0</span>
+            <span class="rc-meta">Apr 9</span>
+          </div>
+        </div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">드래곤힐스파</span>
+            <span class="rc-badges"><span class="material-symbols-rounded rc-deep-icon" style="font-size:16px;">stacks</span><span class="rc-tribe-emoji">🧘</span></span>
+          </div>
+          <div class="rc-detail">찜질 48m · 휴식 15m · 3회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(34,197,94,0.1); color:var(--color-jimi);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.7</span>
+            <span class="rc-meta">Apr 8</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:8px; padding:10px 4px 2px;">
+          <span style="font-size:14px; font-weight:600; color:#78716c;">2026년 3월</span>
+          <span style="font-size:12px; color:#a8a29e;">(총 22회)</span>
+        </div>
+        <div class="glass-card record-card">
+          <div class="rc-row1">
+            <span class="rc-place">실로암 사우나</span>
+            <span class="rc-badges"><span class="rc-tribe-emoji">🧖</span></span>
+          </div>
+          <div class="rc-detail">온탕 20m · 냉탕 5m · 휴식 10m · 2회</div>
+          <div class="rc-row3">
+            <span class="rc-score" style="background:rgba(59,130,246,0.1); color:var(--color-bather);"><span class="material-symbols-rounded filled" style="font-size:14px;">favorite</span> 4.6</span>
+            <span class="rc-meta">Mar 28</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="material-symbols-rounded" style="font-size:22px;">history</span><span>History</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">explore</span><span>Explore</span></div>
+        <div class="nav-item"><div class="nav-home"><span class="material-symbols-rounded filled" style="font-size:24px;">add</span></div></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">bookmark</span><span>SA-List</span></div>
+        <div class="nav-item"><span class="material-symbols-rounded" style="font-size:22px;">person</span><span>My</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
