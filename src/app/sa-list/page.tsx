@@ -25,6 +25,7 @@ import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import ConfirmModal from '@/components/ui/confirm-modal'
 
 const MAX_LISTS = 15
 const MY_CARD_LIMIT = 5
@@ -70,6 +71,7 @@ export default function SaListPage() {
   const [manageList, setManageList] = useState<SaList | null>(null)
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [createDirty, setCreateDirty] = useState(false)
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
   const viewerNick = profile?.nickname ?? null
 
@@ -101,8 +103,8 @@ export default function SaListPage() {
 
   const handleCloseCreateSheet = useCallback(() => {
     if (createDirty) {
-      const confirmed = window.confirm('작성 중인 내용이 사라집니다. 나가시겠어요?')
-      if (!confirmed) return
+      setShowCloseConfirm(true)
+      return
     }
     setShowCreateSheet(false)
   }, [createDirty])
@@ -114,9 +116,9 @@ export default function SaListPage() {
 
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg flex flex-col">
-      {/* 헤더: SA-LIST + 검색/생성 버튼 (배경 없이 아이콘만) */}
-      <header className="px-5 pt-12 pb-3 flex items-center justify-between flex-shrink-0">
-        <h1 className="text-[28px] font-extrabold italic font-heading text-stone-800">
+      {/* 헤더: SA-LIST + 검색/생성 버튼 (다른 페이지와 동일 p-5 pt-8) */}
+      <header className="p-5 pt-8 flex items-center justify-between flex-shrink-0">
+        <h1 className="text-3xl font-extrabold italic font-heading">
           SA-LIST
         </h1>
         <div className="flex gap-1">
@@ -194,7 +196,7 @@ export default function SaListPage() {
           <section>
             <div className="px-5 pt-5 pb-2 flex items-center justify-between">
               <h2 className="text-sm font-bold text-stone-600">내 리스트</h2>
-              <Link href="/sa-list/my" className="text-[11px] text-stone-400">
+              <Link href="/sa-list/my" className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
                 전체보기
               </Link>
             </div>
@@ -328,11 +330,23 @@ export default function SaListPage() {
         </section>
       </main>
 
+      {/* 나가기 확인 모달 */}
+      {showCloseConfirm && (
+        <ConfirmModal
+          message="작성 중인 내용이 사라집니다. 나가시겠어요?"
+          confirmLabel="나가기"
+          cancelLabel="계속 작성"
+          onConfirm={() => { setShowCloseConfirm(false); setShowCreateSheet(false) }}
+          onCancel={() => setShowCloseConfirm(false)}
+        />
+      )}
+
       {/* 시트들 */}
       <BottomSheet
         open={showCreateSheet}
         onClose={handleCloseCreateSheet}
         title="새 리스트 만들기"
+        fullScreen
       >
         <ListFormSheet
           mode="create"
@@ -398,7 +412,7 @@ function MyCardItem({
   const isDefault = kind === 'default'
   const isSubscribed = kind === 'subscribed'
   const emoji = isDefault ? '♨️' : list.cover_emoji
-  const thumbBg = list.cover_color || '#78716c'
+  const thumbBg = isDefault ? '#ffffff' : (list.cover_color || '#78716c')
   const title = isDefault ? 'MY SA-LIST' : list.title
 
   const visibilityBadge = isSubscribed

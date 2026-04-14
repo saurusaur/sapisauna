@@ -82,15 +82,18 @@ export default function SaListMyPage() {
 
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg flex flex-col">
-      {/* 헤더 */}
-      <header className="px-5 pt-12 pb-3 flex items-center gap-3 flex-shrink-0">
-        <button type="button" onClick={() => router.back()} className="p-1" aria-label="뒤로">
-          <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '22px' }}>arrow_back</span>
-        </button>
-        <h1 className="text-lg font-bold text-stone-800">내 리스트</h1>
+      {/* 헤더 — place 상세 레이아웃과 통일 */}
+      <header className="p-5 pt-8">
+        <div className="flex items-center gap-3 mb-3">
+          <button type="button" onClick={() => router.back()} className="text-stone-500 hover:text-stone-700">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <div className="flex-1" />
+        </div>
+        <h1 className="text-2xl font-extrabold italic font-heading">MY SA-LISTS</h1>
       </header>
 
-      {/* 탭 */}
+      {/* 탭 — 하이라이트 레드 */}
       <div className="px-5 flex gap-4 border-b border-stone-200/60 flex-shrink-0">
         {TABS.map((t) => (
           <button
@@ -99,9 +102,10 @@ export default function SaListMyPage() {
             onClick={() => setTab(t.id)}
             className={`text-sm font-semibold pb-2.5 border-b-2 transition-colors ${
               tab === t.id
-                ? 'text-stone-800 border-stone-800'
+                ? 'text-stone-800'
                 : 'text-stone-400 border-transparent'
             }`}
+            style={tab === t.id ? { borderColor: 'var(--color-primary)' } : undefined}
           >
             {t.label} {counts[t.id] > 0 && <span className="text-stone-400 font-normal">{counts[t.id]}</span>}
           </button>

@@ -12,9 +12,11 @@ interface BottomSheetProps {
   onClose: () => void
   title?: string
   children: ReactNode
+  /** 화면 상단까지 확장 */
+  fullScreen?: boolean
 }
 
-export function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
+export function BottomSheet({ open, onClose, title, children, fullScreen = false }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
 
   // ESC 키로 닫기
@@ -45,7 +47,9 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
       {/* 시트 */}
       <div
         ref={sheetRef}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl animate-slide-up max-h-[70vh] flex flex-col"
+        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl animate-slide-up flex flex-col ${
+          fullScreen ? 'max-h-[95vh]' : 'max-h-[70vh]'
+        }`}
       >
         {/* 핸들 */}
         <div className="flex justify-center pt-3 pb-1">
