@@ -53,16 +53,23 @@ function mapListWithOwner(row: Record<string, unknown>): SaList {
   } as unknown as SaList
 }
 
-// 공개 리스트 피드 — popular: 구독순, recent: 최근 수정순
+// 공개 리스트 피드 — popular: 구독순, recent: 최근 수정순, search: 제목/태그 검색
 export async function getPublicLists(
   limit = 20,
   offset = 0,
-  sort: PublicListSort = 'popular'
+  sort: PublicListSort = 'popular',
+  search?: string
 ): Promise<SaList[]> {
   let q = supabase
     .from('lists')
     .select('*, owner:users!owner_id(nickname)')
     .eq('visibility', 'public')
+
+  if (search && search.trim().length >= 2) {
+    const term = search.trim()
+    // 제목 ILIKE 또는 태그 포함 검색
+    q = q.or(`title.ilike.%${term}%,tags.cs.{${term}}`)
+  }
 
   if (sort === 'popular') {
     q = q.order('subscriber_count', { ascending: false }).order('updated_at', { ascending: false })
@@ -74,6 +81,13 @@ export async function getPublicLists(
 
   if (error) throw error
   return (data || []).map((row) => mapListWithOwner(row as Record<string, unknown>))
+}
+
+// 인기 태그 조회 (RPC)
+export async function getPopularTags(limitCount = 10): Promise<{ tag: string; count: number }[]> {
+  const { data, error } = await supabase.rpc('get_popular_tags', { limit_count: limitCount })
+  if (error) throw error
+  return (data || []) as { tag: string; count: number }[]
 }
 
 /** 큐레이션 캐러셀 전용 — is_featured 공개 리스트만 */

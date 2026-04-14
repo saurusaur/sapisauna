@@ -1,15 +1,15 @@
 /**
- * SA-리스트 피드 — 상단 칩(내 리스트 / 최신 / 인기), 기본 인기 탭
- * 내 리스트 탭: 내 리스트 + 구독 목록을 한 화면에서 섹션으로 표시
+ * SA-리스트 홈 — 단일 세로 스크롤
+ * Featured 캐러셀 → 내 리스트 가로카드 → 인기 태그(Phase2) → 인기/최신 피드
  */
 
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMyLists, usePublicLists, useFeaturedPublicLists } from '@/hooks/use-lists'
-import { useSubscribedLists } from '@/hooks/use-subscriptions'
-import { useSubscription } from '@/hooks/use-subscriptions'
+import Link from 'next/link'
+import { useMyLists, usePublicLists, useFeaturedPublicLists, usePopularTags } from '@/hooks/use-lists'
+import { useSubscribedLists, useSubscription } from '@/hooks/use-subscriptions'
 import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
@@ -20,7 +20,6 @@ import DataState from '@/components/ui/data-state'
 import ListFormSheet from '@/components/features/list-form-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
-import Chip from '@/components/ui/chip'
 import FeaturedSaListCard from '@/components/features/featured-sa-list-card'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
@@ -28,12 +27,7 @@ import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 const MAX_LISTS = 15
-
-const FILTER_CHIPS: { id: 'mine' | 'recent' | 'popular'; label: string }[] = [
-  { id: 'mine', label: '내 리스트' },
-  { id: 'recent', label: '최신' },
-  { id: 'popular', label: '인기' },
-]
+const MY_CARD_LIMIT = 5
 
 export default function SaListPage() {
   const router = useRouter()
@@ -41,25 +35,69 @@ export default function SaListPage() {
   const { user: profile } = useUser()
   const { showError, showNotice } = useToast()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
-  const [filter, setFilter] = useState<'mine' | 'recent' | 'popular'>('popular')
 
-  const visibleChips = user
-    ? FILTER_CHIPS
-    : FILTER_CHIPS.filter((c) => c.id !== 'mine')
+  // 데이터 훅
+  const { data: myLists, loading: myLoading, refresh: refreshMyLists } = useMyLists()
+  const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
+  const { data: featuredLists } = useFeaturedPublicLists()
+  const { data: popularTags } = usePopularTags()
 
-  const discoverEnabled = filter === 'recent' || filter === 'popular'
-  const discoverSort: PublicListSort = filter === 'recent' ? 'recent' : 'popular'
+  // 검색 + 태그 필터
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [activeTag, setActiveTag] = useState<string | null>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
-  const { data: myLists, loading: myLoading, error: myError, refresh: refreshMyLists } = useMyLists()
-  const { data: subscribedLists, loading: subLoading, error: subError, refresh: refreshSubscribed } = useSubscribedLists()
-  const { data: publicLists, loading: pubLoading, error: pubError } = usePublicLists(20, discoverSort, discoverEnabled)
-  const { data: featuredLists } = useFeaturedPublicLists(discoverEnabled)
+  // 300ms debounce
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim().length >= 2 ? searchInput.trim() : '')
+    }, 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [searchInput])
 
+  // 검색어 또는 태그 → 피드 필터
+  const feedSearch = activeTag || debouncedSearch || undefined
+
+  // 피드 정렬
+  const [feedSort, setFeedSort] = useState<PublicListSort>('popular')
+  const { data: publicLists, loading: pubLoading, error: pubError } = usePublicLists(20, feedSort, true, feedSearch)
+
+  // 시트 상태
   const [manageList, setManageList] = useState<SaList | null>(null)
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [createDirty, setCreateDirty] = useState(false)
 
   const viewerNick = profile?.nickname ?? null
+
+  // 구독 ID Set (Featured 카드 구독 표시용)
+  const subscribedIds = useMemo(
+    () => new Set(subscribedLists.map((l) => l.id)),
+    [subscribedLists]
+  )
+
+  // 내 리스트 가로 카드: 기본 리스트 맨 앞 + 나머지 최근 수정순 (내 리스트 + 구독 혼합)
+  const myCardItems = useMemo(() => {
+    const defaultList = myLists.find((l) => l.type === 'default')
+    const otherMyLists = myLists.filter((l) => l.type !== 'default')
+
+    // 내 리스트 + 구독 리스트를 updated_at 기준 내림차순 정렬
+    const mixed = [
+      ...otherMyLists.map((l) => ({ list: l, kind: 'mine' as const })),
+      ...subscribedLists.map((l) => ({ list: l, kind: 'subscribed' as const })),
+    ].sort((a, b) => new Date(b.list.updated_at).getTime() - new Date(a.list.updated_at).getTime())
+
+    const result: { list: SaList; kind: 'default' | 'mine' | 'subscribed' }[] = []
+    if (defaultList) result.push({ list: defaultList, kind: 'default' })
+    result.push(...mixed.slice(0, MY_CARD_LIMIT - (defaultList ? 1 : 0)))
+    return result
+  }, [myLists, subscribedLists])
+
+  // 피드에서 featured 제외
+  const feedLists = publicLists.filter((l) => !l.is_featured)
 
   const handleCloseCreateSheet = useCallback(() => {
     if (createDirty) {
@@ -74,144 +112,223 @@ export default function SaListPage() {
     refreshSubscribed()
   }, [refreshMyLists, refreshSubscribed])
 
-  const feedListsDiscover = publicLists.filter((l) => !l.is_featured)
-  const discoverEmpty = feedListsDiscover.length === 0 && featuredLists.length === 0
-  const discoverSectionTitle = filter === 'recent' ? '최근 공개 사-리스트' : '인기 사-리스트'
-
-  const mineLoading = myLoading || subLoading
-  const mineError = myError || subError
-  const mineEmpty = myLists.length === 0 && subscribedLists.length === 0
-
   return (
     <div className="min-h-dvh pb-20 bath-tile-bg flex flex-col">
-      <header className="p-5 pt-8 flex-shrink-0">
-        <h1 className="text-3xl font-extrabold italic font-heading">
+      {/* 헤더: SA-LIST + 검색/생성 버튼 (배경 없이 아이콘만) */}
+      <header className="px-5 pt-12 pb-3 flex items-center justify-between flex-shrink-0">
+        <h1 className="text-[28px] font-extrabold italic font-heading text-stone-800">
           SA-LIST
         </h1>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            className="p-1"
+            aria-label="검색"
+            onClick={() => {
+              setShowSearch((v) => !v)
+              if (!showSearch) setTimeout(() => searchRef.current?.focus(), 100)
+            }}
+          >
+            <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '22px' }}>search</span>
+          </button>
+          <button
+            type="button"
+            className="p-1"
+            aria-label="새 리스트"
+            onClick={() => {
+              if (!requireAuth()) return
+              setShowCreateSheet(true)
+            }}
+          >
+            <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '22px' }}>add</span>
+          </button>
+        </div>
       </header>
 
-      <main className="px-4 pb-4 flex-1 flex flex-col min-h-0">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3 flex-shrink-0 -mx-0.5 px-0.5">
-          {visibleChips.map((c) => (
-            <Chip
-              key={c.id}
-              label={c.label}
-              selected={filter === c.id}
-              onClick={() => setFilter(c.id)}
+      <main className="flex-1 overflow-y-auto">
+        {/* ── 검색 바 ── */}
+        {showSearch && (
+          <div className="mx-5 mb-2 px-3.5 py-2.5 rounded-[14px] glass-card-light flex items-center gap-2">
+            <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>search</span>
+            <input
+              ref={searchRef}
+              type="text"
+              value={searchInput}
+              onChange={(e) => { setSearchInput(e.target.value); setActiveTag(null) }}
+              placeholder="리스트 또는 태그 검색"
+              className="flex-1 bg-transparent outline-none text-sm text-stone-800 placeholder:text-stone-300"
             />
-          ))}
-        </div>
+            {searchInput && (
+              <button type="button" onClick={() => { setSearchInput(''); setActiveTag(null) }} className="p-0.5">
+                <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '16px' }}>close</span>
+              </button>
+            )}
+          </div>
+        )}
 
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {filter === 'mine' ? (
-            <DataState
-              loading={mineLoading}
-              error={mineError}
-              isEmpty={mineEmpty}
-              emptyIcon="playlist_add"
-              emptyMessage="아직 리스트가 없어요. 탐색에서 하트를 눌러 저장해보세요!"
-            >
-              <div className="space-y-4">
-                <section>
-                  <h3 className="text-sm font-semibold text-stone-500 mb-2">내 리스트</h3>
-                  <div className="space-y-2">
-                    {myLists.map((list) => (
-                      <SaListFeedRow
-                        key={list.id}
-                        list={list}
-                        displayHandle={viewerNick}
-                        isMine
-                        isDefault={list.type === 'default'}
-                        onClick={() => router.push(`/sa-list/${list.id}`)}
-                        {...(list.type !== 'default' ? { onMenu: () => setManageList(list) } : {})}
-                      />
-                    ))}
-                  </div>
-                </section>
+        {/* ── Featured 캐러셀 ── */}
+        {featuredLists.length > 0 && (
+          <section>
+            <div className="px-5 pt-2 pb-2">
+              <h2 className="text-sm font-bold text-stone-600">Featured</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 px-5">
+              {featuredLists.map((list) => (
+                <FeaturedSaListCard
+                  key={list.id}
+                  list={list}
+                  onClick={() => router.push(`/sa-list/${list.id}`)}
+                  subscribed={user ? subscribedIds.has(list.id) : undefined}
+                  onSubscribe={() => {
+                    if (!requireAuth()) return
+                    // 구독 토글은 SubscribedFeedRow 패턴 재사용
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
-                {subscribedLists.length > 0 ? (
-                  <section>
-                    <h3 className="text-sm font-semibold text-stone-500 mb-2">구독 중</h3>
-                    <div className="space-y-2">
-                      {subscribedLists.map((list) => (
-                        <SubscribedFeedRow
-                          key={list.id}
-                          list={list}
-                          onClick={() => router.push(`/sa-list/${list.id}`)}
-                          showNotice={showNotice}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
-
+        {/* ── 내 리스트 가로 카드 ── */}
+        {user && (
+          <section>
+            <div className="px-5 pt-5 pb-2 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-stone-600">내 리스트</h2>
+              <Link href="/sa-list/my" className="text-[11px] text-stone-400">
+                전체보기
+              </Link>
+            </div>
+            {myLoading || subLoading ? (
+              <div className="px-5 py-4 text-xs text-stone-400">불러오는 중...</div>
+            ) : (
+              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-5 pb-1">
+                {myCardItems.map(({ list, kind }) => (
+                  <MyCardItem
+                    key={list.id}
+                    list={list}
+                    kind={kind}
+                    onClick={() => router.push(`/sa-list/${list.id}`)}
+                  />
+                ))}
+                {/* 새 리스트 카드 */}
                 <button
                   type="button"
-                  onClick={() => setShowCreateSheet(true)}
-                  className="w-full py-3 flex items-center justify-center gap-2 glass-card-light rounded-xl text-sm text-stone-500 hover:text-stone-700 transition-colors"
+                  onClick={() => {
+                    if (!requireAuth()) return
+                    setShowCreateSheet(true)
+                  }}
+                  className="flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
                 >
-                  <span className="material-symbols-outlined text-lg">add</span>
-                  새 리스트 만들기
+                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>add</span>
+                  <span className="text-[11px] text-stone-400 font-medium">새 리스트</span>
                 </button>
               </div>
-            </DataState>
-          ) : (
+            )}
+          </section>
+        )}
+
+        {/* ── 인기 태그 ── */}
+        {popularTags.length > 0 && (
+          <section>
+            <div className="px-5 pt-5 pb-2">
+              <h2 className="text-sm font-bold text-stone-600">인기 태그</h2>
+            </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide px-5 pb-1">
+              <button
+                type="button"
+                onClick={() => { setActiveTag(null); setSearchInput('') }}
+                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  !activeTag
+                    ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                    : 'bg-white/30 text-stone-500 border-stone-200'
+                }`}
+              >
+                전체
+              </button>
+              {popularTags.map(({ tag }) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => { setActiveTag(activeTag === tag ? null : tag); setSearchInput('') }}
+                  className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
+                    activeTag === tag
+                      ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                      : 'bg-white/30 text-stone-500 border-stone-200'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── 인기/최신 피드 ── */}
+        <section>
+          <div className="px-5 pt-5 pb-1">
+            <h2 className="text-sm font-bold text-stone-600">인기 리스트</h2>
+          </div>
+          <div className="px-5 pt-1 pb-2 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setFeedSort('popular')}
+              className={`text-xs font-semibold pb-1 border-b-2 transition-colors ${
+                feedSort === 'popular'
+                  ? 'text-stone-800 border-stone-800'
+                  : 'text-stone-400 border-transparent'
+              }`}
+            >
+              인기순
+            </button>
+            <button
+              type="button"
+              onClick={() => setFeedSort('recent')}
+              className={`text-xs font-semibold pb-1 border-b-2 transition-colors ${
+                feedSort === 'recent'
+                  ? 'text-stone-800 border-stone-800'
+                  : 'text-stone-400 border-transparent'
+              }`}
+            >
+              최신순
+            </button>
+          </div>
+
+          <div className="px-5 pb-4">
             <DataState
               loading={pubLoading}
               error={pubError}
-              isEmpty={discoverEmpty}
+              isEmpty={feedLists.length === 0}
               emptyIcon="explore"
               emptyMessage="아직 공개 리스트가 없어요"
             >
-              <div className="space-y-4">
-                {featuredLists.length > 0 ? (
-                  <div>
-                    <h3 className="text-sm font-semibold text-stone-500 mb-2">추천 사-리스트</h3>
-                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
-                      {featuredLists.map((list) => (
-                        <FeaturedSaListCard
-                          key={list.id}
-                          list={list}
-                          onClick={() => router.push(`/sa-list/${list.id}`)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {feedListsDiscover.length > 0 ? (
-                  <div>
-                    <h3 className="text-sm font-semibold text-stone-500 mb-2">{discoverSectionTitle}</h3>
-                    <div className="space-y-2">
-                      {feedListsDiscover.map((list) =>
-                        user && list.owner_id === user.id ? (
-                          <SaListFeedRow
-                            key={list.id}
-                            list={list}
-                            displayHandle={viewerNick}
-                            isMine
-                            isDefault={list.type === 'default'}
-                            onClick={() => router.push(`/sa-list/${list.id}`)}
-                            {...(list.type !== 'default' ? { onMenu: () => setManageList(list) } : {})}
-                          />
-                        ) : (
-                          <SubscribedFeedRow
-                            key={list.id}
-                            list={list}
-                            onClick={() => router.push(`/sa-list/${list.id}`)}
-                            showNotice={showNotice}
-                          />
-                        )
-                      )}
-                    </div>
-                  </div>
-                ) : null}
+              <div className="flex flex-col gap-2.5">
+                {feedLists.map((list) =>
+                  user && list.owner_id === user.id ? (
+                    <SaListFeedRow
+                      key={list.id}
+                      list={list}
+                      displayHandle={viewerNick}
+                      isMine
+                      isDefault={list.type === 'default'}
+                      onClick={() => router.push(`/sa-list/${list.id}`)}
+                      {...(list.type !== 'default' ? { onMenu: () => setManageList(list) } : {})}
+                    />
+                  ) : (
+                    <SubscribedFeedRow
+                      key={list.id}
+                      list={list}
+                      onClick={() => router.push(`/sa-list/${list.id}`)}
+                      showNotice={showNotice}
+                    />
+                  )
+                )}
               </div>
             </DataState>
-          )}
-        </div>
+          </div>
+        </section>
       </main>
 
+      {/* 시트들 */}
       <BottomSheet
         open={showCreateSheet}
         onClose={handleCloseCreateSheet}
@@ -251,7 +368,7 @@ export default function SaListPage() {
         />
       </BottomSheet>
 
-      {manageList ? (
+      {manageList && (
         <ListManageSheet
           list={manageList}
           open={!!manageList}
@@ -259,13 +376,80 @@ export default function SaListPage() {
           onUpdated={refreshMine}
           onDeleted={() => { setManageList(null); refreshMine() }}
         />
-      ) : null}
+      )}
 
       <BottomNav />
       <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
     </div>
   )
 }
+
+/* ── 내 리스트 가로 미니카드 (인라인) ── */
+
+function MyCardItem({
+  list,
+  kind,
+  onClick,
+}: {
+  list: SaList
+  kind: 'default' | 'mine' | 'subscribed'
+  onClick: () => void
+}) {
+  const isDefault = kind === 'default'
+  const isSubscribed = kind === 'subscribed'
+  const emoji = isDefault ? '♨️' : list.cover_emoji
+  const thumbBg = list.cover_color || '#78716c'
+  const title = isDefault ? 'MY SA-LIST' : list.title
+
+  const visibilityBadge = isSubscribed
+    ? { label: '구독 중', cls: 'bg-stone-200 text-stone-500' }
+    : {
+        label: VISIBILITY_LABEL[list.visibility],
+        cls: list.visibility === 'public'
+          ? 'bg-green-500/10 text-green-600'
+          : list.visibility === 'unlisted'
+            ? 'bg-blue-500/10 text-blue-500'
+            : 'bg-stone-500/10 text-stone-500',
+      }
+
+  const meta = isSubscribed
+    ? `${(list.owner_nickname || '').toUpperCase()} · ${list.place_count}곳`
+    : `${list.place_count}곳${list.subscriber_count > 0 ? ` · 구독 ${list.subscriber_count}` : ''}`
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] p-3 flex flex-col justify-between gap-1.5 text-left active:scale-[0.96] transition-transform glass-card-light ${
+        isDefault ? 'ring-1 ring-inset ring-red-600/10' : ''
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <div
+          className="w-9 h-9 rounded-[10px] flex items-center justify-center text-xl"
+          style={{ backgroundColor: thumbBg }}
+        >
+          {emoji || <span className="material-symbols-outlined text-white/80" style={{ fontSize: '18px' }}>playlist_play</span>}
+        </div>
+        <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-md ${visibilityBadge.cls}`}>
+          {visibilityBadge.label}
+        </span>
+      </div>
+      <div>
+        <p className="text-[13px] font-semibold text-stone-800 truncate">{title}</p>
+        <p className="text-[11px] text-stone-400">{meta}</p>
+      </div>
+    </button>
+  )
+}
+
+const VISIBILITY_LABEL: Record<string, string> = {
+  public: '공개',
+  private: '비공개',
+  unlisted: '링크공유',
+}
+
+/* ── 구독 가능한 피드 행 (내부 컴포넌트) ── */
 
 function SubscribedFeedRow({
   list,

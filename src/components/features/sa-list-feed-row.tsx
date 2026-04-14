@@ -1,7 +1,8 @@
 'use client'
 
 /**
- * 사-리스트 피드 세로 리스트 행 — 악센트 바 + 썸네일(커버 이모지 또는 아이콘) + 메타 + 구독
+ * 사-리스트 피드 세로 리스트 행 — cover_color 배경 썸네일 + 메타 + 구독
+ * accent bar 제거, glass-card-light 스타일, 유저네임 대문자
  */
 
 import type { SaList } from '@/types'
@@ -33,9 +34,14 @@ export default function SaListFeedRow({
   onSubscribe,
   showSubscribe = false,
 }: SaListFeedRowProps) {
-  const accent = list.cover_color || 'var(--color-primary)'
+  const thumbBg = list.cover_color || '#78716c'
   const title = isDefault ? 'MY SA-LIST' : list.title
-  const handlePart = displayHandle?.trim() ? `@${displayHandle.trim()}` : null
+  const handleText = displayHandle?.trim()
+    ? displayHandle.trim().toUpperCase()
+    : list.owner_nickname
+      ? list.owner_nickname.toUpperCase()
+      : null
+  const handlePart = handleText ? `@${handleText}` : null
   const metaLine = [handlePart, `${list.place_count}곳`, `구독 ${list.subscriber_count}`]
     .filter(Boolean)
     .join(' · ')
@@ -51,55 +57,59 @@ export default function SaListFeedRow({
           onClick()
         }
       }}
-      className={`flex items-stretch rounded-xl overflow-hidden active:scale-[0.99] transition-transform cursor-pointer ${
-        isDefault ? 'glass-card-light' : 'bg-white shadow-sm border border-stone-100/90'
-      }`}
+      className="flex items-center gap-3 p-3 rounded-xl active:scale-[0.99] transition-transform cursor-pointer glass-card-light"
+      style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,0.06)' }}
     >
-      <div className="w-1 flex-shrink-0 rounded-l-xl" style={{ backgroundColor: accent }} />
-      <div className="flex flex-1 items-center gap-3 p-3 min-w-0">
-        <div className="w-11 h-11 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
-          {isDefault ? (
-            <span className="text-2xl leading-none" aria-hidden>♨️</span>
-          ) : list.cover_emoji ? (
-            <span className="text-2xl leading-none" aria-hidden>{list.cover_emoji}</span>
-          ) : (
-            <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '26px' }}>
-              playlist_play
-            </span>
+      {/* 이모지+배경색 썸네일 */}
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: thumbBg }}
+      >
+        {isDefault ? (
+          <span className="text-[22px] leading-none" aria-hidden>♨️</span>
+        ) : list.cover_emoji ? (
+          <span className="text-[22px] leading-none" aria-hidden>{list.cover_emoji}</span>
+        ) : (
+          <span className="material-symbols-outlined text-white/80" style={{ fontSize: '22px' }}>
+            playlist_play
+          </span>
+        )}
+      </div>
+
+      {/* 콘텐츠 */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <p className="font-semibold text-sm text-stone-800 truncate">{title}</p>
+          {isMine && onMenu && !isDefault && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onMenu() }}
+              className="text-stone-400 hover:text-stone-600 flex-shrink-0 p-0.5 -mr-1"
+              aria-label="메뉴"
+            >
+              <span className="material-symbols-outlined text-lg">more_vert</span>
+            </button>
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <p className="font-semibold text-sm text-stone-800 truncate">{title}</p>
-            {isMine && onMenu && !isDefault ? (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onMenu() }}
-                className="text-stone-400 hover:text-stone-600 flex-shrink-0 p-0.5 -mr-1"
-                aria-label="메뉴"
-              >
-                <span className="material-symbols-outlined text-lg">more_vert</span>
-              </button>
-            ) : null}
-          </div>
-          <p className="text-xs text-stone-400 mt-0.5 truncate">{metaLine}</p>
-        </div>
-        {showSubscribe && onSubscribe ? (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onSubscribe() }}
-            disabled={subscribing}
-            className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-50"
-            style={
-              subscribed
-                ? { backgroundColor: '#e7e5e4', color: '#57534e' }
-                : { backgroundColor: 'var(--color-primary)', color: '#fff' }
-            }
-          >
-            {subscribed ? '구독중' : '구독'}
-          </button>
-        ) : null}
+        <p className="text-[11px] text-stone-400 mt-0.5 truncate uppercase tracking-wide">{metaLine}</p>
       </div>
+
+      {/* 구독 버튼 */}
+      {showSubscribe && onSubscribe && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onSubscribe() }}
+          disabled={subscribing}
+          className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-50"
+          style={
+            subscribed
+              ? { backgroundColor: '#e7e5e4', color: '#57534e' }
+              : { backgroundColor: 'var(--color-primary)', color: '#fff' }
+          }
+        >
+          {subscribed ? '구독중' : '구독'}
+        </button>
+      )}
     </div>
   )
 }

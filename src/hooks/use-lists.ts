@@ -32,11 +32,12 @@ export function useMyLists(): UseDataState<SaList[]> & { refresh: () => void } {
   return { data, loading, error, refresh: refetch }
 }
 
-// 공개 리스트 피드 — sort: popular | recent, enabled=false 이면 요청 생략
+// 공개 리스트 피드 — sort: popular | recent, search: 제목/태그 검색
 export function usePublicLists(
   limit = 20,
   sort: PublicListSort = 'popular',
-  enabled = true
+  enabled = true,
+  search?: string
 ): UseDataState<SaList[]> {
   const [data, setData] = useState<SaList[]>([])
   const [loading, setLoading] = useState(true)
@@ -54,13 +55,34 @@ export function usePublicLists(
     setLoading(true)
     setError(null)
 
-    listsService.getPublicLists(limit, 0, sort)
+    listsService.getPublicLists(limit, 0, sort, search)
       .then((lists) => { if (!cancelled) setData(lists) })
       .catch((e) => { if (!cancelled) setError(e.message) })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [limit, sort, enabled])
+  }, [limit, sort, enabled, search])
+
+  return { data, loading, error }
+}
+
+/** 인기 태그 조회 */
+export function usePopularTags(limit = 10): UseDataState<{ tag: string; count: number }[]> {
+  const [data, setData] = useState<{ tag: string; count: number }[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+
+    listsService.getPopularTags(limit)
+      .then((tags) => { if (!cancelled) setData(tags) })
+      .catch((e) => { if (!cancelled) setError(e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [limit])
 
   return { data, loading, error }
 }
