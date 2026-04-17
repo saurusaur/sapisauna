@@ -21,7 +21,7 @@ const CATEGORY_TABS = [
   { icon: '🐾', label: '동물과 자연' },
   { icon: '🍽️', label: '음식 및 음료' },
   { icon: '🌍', label: '여행 및 장소' },
-  { icon: '🏃', label: '액티비티' },
+  { icon: '🧖', label: '액티비티' },
   { icon: '💎', label: '사물' },
 ]
 
