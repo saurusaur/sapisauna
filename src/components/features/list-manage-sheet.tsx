@@ -28,8 +28,9 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
   const [view, setView] = useState<View>('menu')
   const [editDirty, setEditDirty] = useState(false)
 
-  // Delete confirm
+  // Confirm modals
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showDirtyConfirm, setShowDirtyConfirm] = useState<'close' | 'back' | null>(null)
 
   // Reset on open
   useEffect(() => {
@@ -42,8 +43,8 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
   // Handle close with unsaved changes check
   const handleClose = useCallback(() => {
     if (view === 'edit' && editDirty) {
-      const confirmed = window.confirm('변경사항이 저장되지 않았어요.\n나가시겠어요?')
-      if (!confirmed) return
+      setShowDirtyConfirm('close')
+      return
     }
     onClose()
   }, [view, editDirty, onClose])
@@ -51,8 +52,8 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
   // Back to menu (with unsaved changes check)
   const handleBack = useCallback(() => {
     if (view === 'edit' && editDirty) {
-      const confirmed = window.confirm('변경사항이 저장되지 않았어요.\n나가시겠어요?')
-      if (!confirmed) return
+      setShowDirtyConfirm('back')
+      return
     }
     setView('menu')
   }, [view, editDirty])
@@ -207,6 +208,21 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
           cancelLabel="취소"
           onConfirm={handleDelete}
           onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+
+      {/* Unsaved changes confirmation */}
+      {showDirtyConfirm && (
+        <ConfirmModal
+          message="변경사항이 저장되지 않았어요.\n나가시겠어요?"
+          confirmLabel="나가기"
+          cancelLabel="계속 작성"
+          onConfirm={() => {
+            setShowDirtyConfirm(null)
+            if (showDirtyConfirm === 'close') onClose()
+            else setView('menu')
+          }}
+          onCancel={() => setShowDirtyConfirm(null)}
         />
       )}
     </>

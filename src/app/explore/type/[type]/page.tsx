@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { useRouter, useParams } from 'next/navigation'
 import {
   ICONS, EXPLORE,
@@ -62,6 +63,9 @@ export default function TypeListPage() {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
 
+  // 다중 리스트 제거 확인
+  const [removeConfirm, setRemoveConfirm] = useState<{ placeId: string; count: number } | null>(null)
+
   // 스낵바 + 바텀시트 상태
   const [snackbarPlaceId, setSnackbarPlaceId] = useState<string | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -82,10 +86,7 @@ export default function TypeListPage() {
       if (inCustomLists.length === 0) {
         await toggleDefaultSave(placeId)
       } else {
-        const confirmed = window.confirm(
-          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
-        )
-        if (confirmed) await removeFromAll(placeId)
+        setRemoveConfirm({ placeId, count: inCustomLists.length })
       }
     } else {
       await toggleDefaultSave(placeId)
@@ -339,6 +340,20 @@ export default function TypeListPage() {
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
           startInCreateMode={sheetCreateMode}
+        />
+      )}
+
+      {removeConfirm && (
+        <ConfirmModal
+          message={`이 장소가 ${removeConfirm.count}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`}
+          confirmLabel="모두 제거"
+          cancelLabel="취소"
+          onConfirm={async () => {
+            const pid = removeConfirm.placeId
+            setRemoveConfirm(null)
+            await removeFromAll(pid)
+          }}
+          onCancel={() => setRemoveConfirm(null)}
         />
       )}
     </div>

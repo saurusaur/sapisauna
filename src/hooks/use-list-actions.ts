@@ -35,13 +35,8 @@ export function useListActions(callbacks: ListActionCallbacks) {
     }
   }, [callbacks])
 
-  // 리스트 삭제 (확인 다이얼로그 포함)
+  // 리스트 삭제 (confirm은 호출부에서 ConfirmModal로 처리)
   const deleteList = useCallback(async (list: SaList) => {
-    const confirmed = window.confirm(
-      `이 리스트를 삭제할까요?\n장소 ${list.place_count}개가 포함되어 있어요.`
-    )
-    if (!confirmed) return false
-
     try {
       await listsService.deleteList(list.id)
       return true

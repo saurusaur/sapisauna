@@ -16,6 +16,7 @@ import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import ConfirmModal from '@/components/ui/confirm-modal'
 
 interface SaveFlowProps {
   children: (handleToggleSave: (placeId: string) => Promise<void>) => ReactNode
@@ -45,6 +46,9 @@ export function SaveFlow({ children }: SaveFlowProps) {
   const [memoPlaceId, setMemoPlaceId] = useState<string>('')
   const [savingMemo, setSavingMemo] = useState(false)
 
+  // 다중 리스트 제거 확인
+  const [removeConfirm, setRemoveConfirm] = useState<{ placeId: string; count: number } | null>(null)
+
   // 유저 컬렉션 (default 제외)
   const userCollections = useMemo(
     () => myLists.filter((l) => l.type !== 'default'),
@@ -65,13 +69,7 @@ export function SaveFlow({ children }: SaveFlowProps) {
         await toggleDefaultSave(placeId)
         showNotice('저장 해제됨')
       } else {
-        const confirmed = window.confirm(
-          `이 장소가 ${inCustomLists.length}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`
-        )
-        if (confirmed) {
-          await removeFromAll(placeId)
-          showNotice('저장 해제됨')
-        }
+        setRemoveConfirm({ placeId, count: inCustomLists.length })
       }
     } else {
       // 미저장 → 기본 저장
@@ -185,6 +183,21 @@ export function SaveFlow({ children }: SaveFlowProps) {
       </BottomSheet>
 
       <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
+
+      {removeConfirm && (
+        <ConfirmModal
+          message={`이 장소가 ${removeConfirm.count}개 리스트에도 포함되어 있어요.\n모두에서 제거할까요?`}
+          confirmLabel="모두 제거"
+          cancelLabel="취소"
+          onConfirm={async () => {
+            const pid = removeConfirm.placeId
+            setRemoveConfirm(null)
+            await removeFromAll(pid)
+            showNotice('저장 해제됨')
+          }}
+          onCancel={() => setRemoveConfirm(null)}
+        />
+      )}
     </>
   )
 }

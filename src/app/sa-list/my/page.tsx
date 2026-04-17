@@ -6,6 +6,7 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
+import ConfirmModal from '@/components/ui/confirm-modal'
 import { useRouter } from 'next/navigation'
 import { useMyLists } from '@/hooks/use-lists'
 import { useSubscribedLists, useSubscription } from '@/hooks/use-subscriptions'
@@ -46,6 +47,7 @@ export default function SaListMyPage() {
   const [manageList, setManageList] = useState<SaList | null>(null)
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [createDirty, setCreateDirty] = useState(false)
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
   const viewerNick = profile?.nickname ?? null
 
@@ -56,8 +58,8 @@ export default function SaListMyPage() {
 
   const handleCloseCreateSheet = useCallback(() => {
     if (createDirty) {
-      const confirmed = window.confirm('작성 중인 내용이 사라집니다. 나가시겠어요?')
-      if (!confirmed) return
+      setShowCloseConfirm(true)
+      return
     }
     setShowCreateSheet(false)
   }, [createDirty])
@@ -210,6 +212,16 @@ export default function SaListMyPage() {
           onClose={() => setManageList(null)}
           onUpdated={refreshMine}
           onDeleted={() => { setManageList(null); refreshMine() }}
+        />
+      )}
+
+      {showCloseConfirm && (
+        <ConfirmModal
+          message="작성 중인 내용이 사라집니다. 나가시겠어요?"
+          confirmLabel="나가기"
+          cancelLabel="계속 작성"
+          onConfirm={() => { setShowCloseConfirm(false); setShowCreateSheet(false) }}
+          onCancel={() => setShowCloseConfirm(false)}
         />
       )}
 

@@ -391,8 +391,8 @@ export default function AddPlace() {
 
           {/* 선택된 장소 표시 */}
           {selectedPlace && (
-            <div className="mt-3 p-3 rounded-xl flex items-center gap-3" style={{ backgroundColor: 'var(--color-primary-light)' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>check_circle</span>
+            <div className="mt-3 p-3 rounded-xl flex items-center gap-3 bg-stone-100">
+              <span className="material-symbols-outlined text-stone-500">check_circle</span>
               <div className="flex-1">
                 <p className="font-medium text-stone-700">{selectedPlace.name}</p>
                 <p className="text-sm text-stone-500">{selectedPlace.address}</p>
