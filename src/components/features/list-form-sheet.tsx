@@ -9,6 +9,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { usePlaceSearch } from '@/hooks/use-places'
 import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
+import EmojiPickerField from '@/components/ui/emoji-picker-field'
 import { coverHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
@@ -34,14 +35,6 @@ export const COVER_COLOR_PALETTE = [
 
 export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]
 
-/** 커버 이모지 — 표준 이모지 카테고리별 그룹핑 */
-export const COVER_EMOJI_GROUPS = [
-  { label: '사람', emojis: ['🧖', '💆', '🧤'] },
-  { label: '자연', emojis: ['🔥', '💧', '❄️', '🌿', '☁️', '💨'] },
-  { label: '음식 · 사물', emojis: ['🧊', '🧂', '🛁', '🛋️'] },
-  { label: '장소', emojis: ['♨️', '🏞️', '🏔️', '📍', '🗺️'] },
-  { label: '기호', emojis: ['⭐', '✨', '❤️', '🪨'] },
-] as const
 
 interface ListFormSheetProps {
   mode: 'create' | 'edit'
@@ -177,42 +170,8 @@ export default function ListFormSheet({
         <HueSlider hue={hue} onChange={setHue} />
       </div>
 
-      {/* 2b. 커버 이모지 — 카테고리별 그룹 선택 (default 리스트는 ♨️ 고정이므로 숨김) */}
-      {!isDefault && (
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs text-stone-500">커버 이모지 (선택)</label>
-            {coverEmoji && (
-              <button type="button" onClick={() => setCoverEmoji(null)} className="text-xs text-stone-400 hover:text-stone-600">
-                제거
-              </button>
-            )}
-          </div>
-          <div className="space-y-2">
-            {COVER_EMOJI_GROUPS.map((group) => (
-              <div key={group.label}>
-                <p className="text-[10px] text-stone-400 font-medium uppercase tracking-wider mb-1">{group.label}</p>
-                <div className="flex gap-1.5 flex-wrap">
-                  {group.emojis.map((e) => (
-                    <button
-                      key={e}
-                      type="button"
-                      onClick={() => setCoverEmoji(coverEmoji === e ? null : e)}
-                      className={`w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-colors ${
-                        coverEmoji === e
-                          ? 'bg-stone-800 ring-2 ring-stone-800 ring-offset-1'
-                          : 'bg-stone-50 hover:bg-stone-100'
-                      }`}
-                    >
-                      {e}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 2b. 커버 이모지 (선택) — default 리스트는 ♨️ 고정이므로 숨김 */}
+      {!isDefault && <EmojiPickerField emoji={coverEmoji} onChange={setCoverEmoji} label="커버 이모지 (선택)" />}
 
       {/* 3. 태그 */}
       <TagEditor tags={tags} onChange={setTags} />
