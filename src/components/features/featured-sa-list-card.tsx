@@ -77,7 +77,7 @@ export default function FeaturedSaListCard({
             {list.title}
           </p>
           {list.description && (
-            <p className="text-white/70 text-xs mt-0.5 line-clamp-2 leading-relaxed">
+            <p className="text-white/90 text-xs mt-0.5 line-clamp-2 leading-relaxed drop-shadow-sm">
               {list.description}
             </p>
           )}

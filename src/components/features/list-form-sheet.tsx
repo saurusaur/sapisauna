@@ -20,17 +20,17 @@ export interface SelectedPlace {
   memo: string
 }
 
-/** 고정 팔레트 — 채도 높은 커버용 컬러 (첫 색이 기본값) */
+/** 고정 팔레트 — 쨍한 원색, 흰 텍스트 가독성 확보된 어두운 톤 (첫 색이 기본값) */
 export const COVER_COLOR_PALETTE = [
-  '#ef4444',
-  '#f97316',
-  '#f59e0b',
-  '#22c55e',
-  '#14b8a6',
-  '#06b6d4',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
+  '#dc2626',
+  '#ea580c',
+  '#d97706',
+  '#16a34a',
+  '#0d9488',
+  '#0891b2',
+  '#2563eb',
+  '#7c3aed',
+  '#db2777',
 ] as const
 
 export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]

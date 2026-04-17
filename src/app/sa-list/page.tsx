@@ -172,7 +172,7 @@ export default function SaListPage() {
         {featuredLists.length > 0 && (
           <section>
             <div className="px-5 pt-2 pb-2">
-              <h2 className="text-sm font-bold text-stone-600">Featured</h2>
+              <h2 className="text-sm font-bold text-stone-600">사-피 픽</h2>
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 px-5">
               {featuredLists.map((list) => (
@@ -195,7 +195,7 @@ export default function SaListPage() {
         {user && (
           <section>
             <div className="px-5 pt-5 pb-2 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-600">내 리스트</h2>
+              <h2 className="text-sm font-bold text-stone-600">내 사-리스트</h2>
               <Link href="/sa-list/my" className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
                 전체보기
               </Link>
@@ -268,7 +268,7 @@ export default function SaListPage() {
         {/* ── 인기/최신 피드 ── */}
         <section>
           <div className="px-5 pt-5 pb-1">
-            <h2 className="text-sm font-bold text-stone-600">인기 리스트</h2>
+            <h2 className="text-sm font-bold text-stone-600">인기 사-리스트</h2>
           </div>
           <div className="px-5 pt-1 pb-2 flex gap-3">
             <button
