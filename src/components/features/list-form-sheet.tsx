@@ -34,13 +34,13 @@ export const COVER_COLOR_PALETTE = [
 
 export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]
 
-/** 커버 이모지 — 카테고리별 그룹핑 */
+/** 커버 이모지 — 표준 이모지 카테고리별 그룹핑 */
 export const COVER_EMOJI_GROUPS = [
-  { label: 'HEAT 온열', emojis: ['🔥', '♨️', '🧖', '💨', '🪨', '🧂'] },
-  { label: 'ICE 냉각', emojis: ['🧊', '❄️', '🏔️'] },
-  { label: 'PAUSE 휴식', emojis: ['🌿', '🛋️', '☁️'] },
-  { label: 'BEYOND 추가', emojis: ['✨', '🏞️', '💧', '🧤', '💆'] },
-  { label: 'ETC', emojis: ['🛁', '⭐', '📍', '🗺️', '❤️'] },
+  { label: '사람', emojis: ['🧖', '💆', '🧤'] },
+  { label: '자연', emojis: ['🔥', '💧', '❄️', '🌿', '☁️', '💨'] },
+  { label: '음식 · 사물', emojis: ['🧊', '🧂', '🛁', '🛋️'] },
+  { label: '장소', emojis: ['♨️', '🏞️', '🏔️', '📍', '🗺️'] },
+  { label: '기호', emojis: ['⭐', '✨', '❤️', '🪨'] },
 ] as const
 
 interface ListFormSheetProps {
