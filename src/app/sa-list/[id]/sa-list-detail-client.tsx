@@ -255,7 +255,7 @@ export default function SaListDetailClient() {
         {!isMine && (
           <>
             {list.subscriber_count === 0 && (
-              <p className="text-center text-[11px] text-stone-400 mb-2">첫 번째 구독자가 되어보세요</p>
+              <p className="text-center text-[11px] text-stone-400 mb-2">구독하고 내 사-리스트에서 언제든 확인해보세요!</p>
             )}
             <button
               onClick={async () => {
