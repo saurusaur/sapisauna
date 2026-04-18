@@ -140,6 +140,7 @@ export async function createList(params: {
   cover_color?: string
   cover_emoji?: string | null
   tags?: string[]
+  creator_links?: Record<string, string>
 }): Promise<SaList> {
   const visibility = params.visibility || 'private'
   const { data, error } = await supabase
@@ -154,6 +155,7 @@ export async function createList(params: {
       cover_emoji: params.cover_emoji ?? null,
       slug: visibility !== 'private' ? generateSlug() : null,
       tags: params.tags || [],
+      ...(params.creator_links ? { creator_links: params.creator_links } : {}),
     })
     .select()
     .single()
@@ -169,7 +171,7 @@ export async function createList(params: {
 // 리스트 수정 (visibility 전환 시 slug 자동 생성)
 export async function updateList(
   id: string,
-  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'cover_emoji' | 'tags'>>
+  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'cover_emoji' | 'tags' | 'creator_links'>>
 ): Promise<SaList> {
   const updatePayload: Record<string, unknown> = {
     ...updates,

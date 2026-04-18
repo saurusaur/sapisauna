@@ -10,9 +10,12 @@ export async function shareList(list: SaList): Promise<true | string> {
   const url = `${window.location.origin}/sa-list/${shareId}`
   const title = list.title || 'SA-리스트'
 
+  const emoji = list.cover_emoji || '🧖'
+  const text = `${emoji} ${title} | SA-PI에서 보기`
+
   try {
     if (navigator.share) {
-      await navigator.share({ title, url })
+      await navigator.share({ title, text, url })
       return true
     }
     await navigator.clipboard.writeText(url)

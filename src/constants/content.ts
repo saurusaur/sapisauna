@@ -979,3 +979,16 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   }
   return map;
 })();
+
+// ============================================
+// 크리에이터 소셜 링크
+// ============================================
+export const CREATOR_LINK_PLATFORMS = [
+  { id: 'instagram', label: 'Instagram', prefix: 'https://instagram.com/' },
+  { id: 'naver_blog', label: 'Naver Blog', prefix: 'https://blog.naver.com/' },
+  { id: 'threads', label: 'Threads', prefix: 'https://threads.net/@' },
+] as const
+
+export const CREATOR_LINK_PREFIXES: Record<string, string> = Object.fromEntries(
+  CREATOR_LINK_PLATFORMS.map((p) => [p.id, p.prefix])
+)

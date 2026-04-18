@@ -25,6 +25,8 @@ import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import { CREATOR_LINK_PREFIXES } from '@/constants/content'
+import { SOCIAL_ICON_MAP } from '@/components/svg/social-icons'
 
 const MAX_MEMO_LENGTH = 100
 
@@ -224,20 +226,41 @@ export default function SaListDetailClient() {
             </p>
           </div>
 
-          {/* Owner: 공개상태 배지 + 쉐브론 */}
-          {isMine && !isDefault && (
-            <button
-              onClick={() => setShowManageSheet(true)}
-              className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-xs font-medium text-stone-500"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
-                {list.visibility === 'public' ? 'public' : list.visibility === 'unlisted' ? 'link' : 'lock'}
-              </span>
-              {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#a8a29e' }}>expand_more</span>
-            </button>
+          {/* 소셜 아이콘 버튼 — Visitor/Owner 공통 */}
+          {list.creator_links && Object.keys(list.creator_links).length > 0 && (
+            <div className="flex gap-1.5">
+              {Object.entries(list.creator_links).map(([platform, username]) => {
+                const Icon = SOCIAL_ICON_MAP[platform]
+                const prefix = CREATOR_LINK_PREFIXES[platform]
+                if (!Icon || !prefix || !username) return null
+                return (
+                  <button
+                    key={platform}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); window.open(`${prefix}${username}`, '_blank') }}
+                    className="w-[30px] h-[30px] rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition-colors"
+                  >
+                    <Icon size={16} />
+                  </button>
+                )
+              })}
+            </div>
           )}
         </div>
+
+        {/* Owner: 공개상태 배지 — 소셜 아이콘 아래 */}
+        {isMine && !isDefault && (
+          <button
+            onClick={() => setShowManageSheet(true)}
+            className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-xs font-medium text-stone-500 mb-1 self-start"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+              {list.visibility === 'public' ? 'public' : list.visibility === 'unlisted' ? 'link' : 'lock'}
+            </span>
+            {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
+            <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#a8a29e' }}>expand_more</span>
+          </button>
+        )}
 
         {/* 통계 */}
         <div className="flex items-center gap-4 mb-3">

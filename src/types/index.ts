@@ -229,6 +229,8 @@ export interface SaList {
   owner_tribe?: TribeId
   owner_profile_emoji?: string | null
   owner_profile_color?: string | null
+  /** 크리에이터 소셜 링크 { instagram?: string, naver_blog?: string, threads?: string } */
+  creator_links?: Record<string, string>
 }
 
 // 리스트 아이템 (list_items 테이블)

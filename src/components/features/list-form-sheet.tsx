@@ -10,6 +10,7 @@ import { usePlaceSearch } from '@/hooks/use-places'
 import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
+import { CREATOR_LINK_PLATFORMS } from '@/constants/content'
 import { coverHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
@@ -44,6 +45,7 @@ interface ListFormSheetProps {
     description: string
     cover_color?: string | null
     cover_emoji?: string | null
+    creator_links?: Record<string, string>
   }
   onSubmit: (data: {
     title: string
@@ -51,6 +53,7 @@ interface ListFormSheetProps {
     description: string
     cover_color: string
     cover_emoji: string | null
+    creator_links?: Record<string, string>
     places?: SelectedPlace[]
   }) => Promise<void>
   /** For unsaved changes detection — parent calls this to check */
@@ -86,6 +89,26 @@ export default function ListFormSheet({
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
   const [submitting, setSubmitting] = useState(false)
+
+  // 소셜 링크
+  const [activePlatforms, setActivePlatforms] = useState<Set<string>>(
+    () => new Set(Object.keys(initialData?.creator_links || {}))
+  )
+  const [linkUsernames, setLinkUsernames] = useState<Record<string, string>>(
+    () => initialData?.creator_links || {}
+  )
+
+  const togglePlatform = (id: string) => {
+    setActivePlatforms((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) { next.delete(id) } else { next.add(id) }
+      return next
+    })
+  }
+
+  const setUsername = (id: string, value: string) => {
+    setLinkUsernames((prev) => ({ ...prev, [id]: value }))
+  }
 
   // Create mode only
   const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([])
@@ -124,12 +147,20 @@ export default function ListFormSheet({
     if (!trimmedTitle) return
     setSubmitting(true)
     try {
+      // 활성 플랫폼만 + 빈 값 제외
+      const links: Record<string, string> = {}
+      Array.from(activePlatforms).forEach((id) => {
+        const username = linkUsernames[id]?.trim()
+        if (username) links[id] = username
+      })
+
       await onSubmit({
         title: trimmedTitle,
         tags,
         description: desc.trim(),
         cover_color: coverColor,
         cover_emoji: coverEmoji,
+        creator_links: Object.keys(links).length > 0 ? links : undefined,
         places: mode === 'create' && selectedPlaces.length > 0 ? selectedPlaces : undefined,
       })
     } finally {
@@ -191,7 +222,43 @@ export default function ListFormSheet({
         </p>
       </div>
 
-      {/* 5. 장소 추가 — create mode only */}
+      {/* 5. 소셜 링크 */}
+      <div>
+        <label className="text-xs text-stone-500 mb-2 block">소셜 링크 (선택)</label>
+        <div className="flex gap-2 mb-2">
+          {CREATOR_LINK_PLATFORMS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => togglePlatform(p.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                activePlatforms.has(p.id)
+                  ? 'border-stone-800 bg-stone-800 text-white'
+                  : 'border-stone-200 bg-white text-stone-500'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        {CREATOR_LINK_PLATFORMS.filter((p) => activePlatforms.has(p.id)).map((p) => (
+          <div key={p.id} className="flex items-center gap-2 mb-2">
+            <span className="text-[11px] text-stone-400 w-16 flex-shrink-0 truncate">{p.label}</span>
+            <div className="flex-1 flex items-center glass-input rounded-lg overflow-hidden">
+              <span className="text-[11px] text-stone-300 pl-3 flex-shrink-0">@</span>
+              <input
+                type="text"
+                value={linkUsernames[p.id] || ''}
+                onChange={(e) => setUsername(p.id, e.target.value)}
+                placeholder="username"
+                className="flex-1 px-2 py-2 text-sm text-stone-700 bg-transparent outline-none"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 6. 장소 추가 — create mode only */}
       {mode === 'create' && (
         <div>
           <label className="text-xs text-stone-500 mb-1 block">장소 추가 (선택)</label>

@@ -375,6 +375,7 @@ export default function SaListPage() {
               description: data.description || undefined,
               cover_color: data.cover_color,
               cover_emoji: data.cover_emoji,
+              creator_links: data.creator_links,
             })
             if (data.places) {
               for (const place of data.places) {
