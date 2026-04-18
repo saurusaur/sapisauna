@@ -46,9 +46,12 @@ export async function getDefaultList(userId: string): Promise<SaList | null> {
 export type PublicListSort = 'popular' | 'recent'
 
 function mapListWithOwner(row: Record<string, unknown>): SaList {
+  const owner = row.owner as Record<string, unknown> | null
   return {
     ...row,
-    owner_nickname: (row.owner as Record<string, unknown>)?.nickname as string | undefined,
+    owner_nickname: owner?.nickname as string | undefined,
+    owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
+    owner_profile_color: owner?.profile_color as string | null | undefined,
     owner: undefined,
   } as unknown as SaList
 }
@@ -62,7 +65,7 @@ export async function getPublicLists(
 ): Promise<SaList[]> {
   let q = supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
     .eq('visibility', 'public')
 
   if (search && search.trim().length >= 2) {
@@ -94,7 +97,7 @@ export async function getPopularTags(limitCount = 10): Promise<{ tag: string; co
 export async function getFeaturedPublicLists(): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
     .eq('visibility', 'public')
     .eq('is_featured', true)
     .order('subscriber_count', { ascending: false })
@@ -112,7 +115,7 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
 
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
     .eq(column, idOrSlug)
     .single()
 
@@ -358,7 +361,7 @@ async function updateSubscriberCount(listId: string): Promise<void> {
 export async function getSubscribedLists(userId: string): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('list_subscriptions')
-    .select('list:lists!list_id(*, owner:users!owner_id(nickname))')
+    .select('list:lists!list_id(*, owner:users!owner_id(nickname, profile_emoji, profile_color))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -369,6 +372,8 @@ export async function getSubscribedLists(userId: string): Promise<SaList[]> {
     return {
       ...list,
       owner_nickname: owner?.nickname as string | undefined,
+      owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
+      owner_profile_color: owner?.profile_color as string | null | undefined,
       owner: undefined,
     } as unknown as SaList
   })

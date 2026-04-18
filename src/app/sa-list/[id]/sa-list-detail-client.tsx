@@ -159,128 +159,152 @@ export default function SaListDetailClient() {
     <SaveFlow>
       {(handleSaveFlowToggle) => (
     <div className="min-h-dvh pb-20 bath-tile-bg">
-      {/* 헤더 */}
-      <header className="p-5 pt-8">
-        <div className="flex items-center gap-3 mb-3">
-          <button onClick={() => router.back()} className="text-stone-500 hover:text-stone-700">
-            <span className="material-symbols-outlined">{ICONS.BACK}</span>
+      <DataState loading={listLoading} error={listError} isEmpty={!list}>
+        {list && (<>
+
+      {/* ── 커버 헤더 ── */}
+      <header
+        className="relative flex flex-col justify-end min-h-[250px] px-5 pt-12 pb-6"
+        style={{ backgroundColor: list.cover_color || '#78716c' }}
+      >
+        {/* 네비 — 흰 아이콘, 배경 없음 */}
+        <div className="absolute top-12 left-4 right-4 flex justify-between z-10">
+          <button onClick={() => router.back()} className="p-1">
+            <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>arrow_back</span>
           </button>
-          <div className="flex-1" />
+          <div className="flex gap-1">
+            {list.visibility !== 'private' && (
+              <button onClick={handleShare} className="p-1">
+                <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>share</span>
+              </button>
+            )}
+            {isAdmin && !isDefault && (
+              <button onClick={handleToggleFeatured} className="p-1">
+                <span
+                  className="material-symbols-outlined text-white/90"
+                  style={{ fontSize: '22px', fontVariationSettings: list.is_featured ? "'FILL' 1" : "'FILL' 0" }}
+                >star</span>
+              </button>
+            )}
+            {isMine && !isDefault && (
+              <button onClick={() => setShowManageSheet(true)} className="p-1">
+                <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>more_vert</span>
+              </button>
+            )}
+          </div>
+        </div>
 
-          {/* 공유 (비공개가 아닐 때만) */}
-          {list?.visibility !== 'private' && (
-            <button onClick={handleShare} className="text-stone-400 hover:text-stone-600">
-              <span className="material-symbols-outlined">{ICONS.SHARE}</span>
-            </button>
+        {/* 커버 콘텐츠 */}
+        <div className="relative z-[1]">
+          <span className="text-5xl mb-3 block" aria-hidden>
+            {isDefault ? '♨️' : (list.cover_emoji || '🧖')}
+          </span>
+          <h1 className="text-[22px] font-bold text-white leading-tight mb-1.5">
+            {isDefault ? 'MY SA-LIST' : list.title}
+          </h1>
+          {list.description && (
+            <p className="text-[13px] text-white/85 leading-relaxed">{list.description}</p>
           )}
+        </div>
+      </header>
 
-          {/* 어드민: 추천 등록/해제 */}
-          {isAdmin && !isDefault && (
-            <button
-              onClick={handleToggleFeatured}
-              className="text-stone-400 hover:text-stone-600"
-              title={list?.is_featured ? '추천 해제' : '추천 등록'}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{
-                  color: list?.is_featured ? 'var(--color-primary)' : undefined,
-                  fontVariationSettings: list?.is_featured ? "'FILL' 1" : "'FILL' 0",
-                }}
-              >star</span>
-            </button>
-          )}
+      {/* ── 크리에이터 섹션 ── */}
+      <section className="px-5 py-4 border-b border-stone-100">
+        <div className="flex items-center gap-2.5 mb-3">
+          {/* 아바타 — 둥근 사각형 */}
+          <div
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center text-lg flex-shrink-0"
+            style={{ backgroundColor: list.owner_profile_color || '#e7e5e4' }}
+          >
+            {list.owner_profile_emoji || '🧖'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-stone-800 uppercase tracking-wide truncate">
+              {list.owner_nickname || 'USER'}
+            </p>
+          </div>
 
-          {/* 본인: 3-dot 메뉴 → ListManageSheet */}
+          {/* Owner: 공개상태 배지 + 쉐브론 */}
           {isMine && !isDefault && (
-            <button onClick={() => setShowManageSheet(true)} className="text-stone-400 hover:text-stone-600">
-              <span className="material-symbols-outlined">more_vert</span>
+            <button
+              onClick={() => setShowManageSheet(true)}
+              className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-xs font-medium text-stone-500"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                {list.visibility === 'public' ? 'public' : list.visibility === 'unlisted' ? 'link' : 'lock'}
+              </span>
+              {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#a8a29e' }}>expand_more</span>
             </button>
           )}
         </div>
 
-        {/* 타이틀 */}
-        <DataState loading={listLoading} error={listError} isEmpty={!list}>
-          {list && (
-            <div>
-              <div className="flex items-center gap-2">
-                {isDefault && (
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontVariationSettings: "'FILL' 1", fontSize: '20px' }}>
-                    bookmark_heart
-                  </span>
-                )}
-                <h1 className="text-xl font-bold text-stone-800">
-                  {isDefault ? 'MY SA-LIST' : list.title}
-                </h1>
-                {/* visibility 배지 (읽기 전용) */}
-                {isMine && !isDefault && (
-                  <span
-                    className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                    style={list.visibility === 'public'
-                      ? { backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }
-                      : list.visibility === 'unlisted'
-                        ? { backgroundColor: '#dbeafe', color: '#2563eb' }
-                        : { backgroundColor: '#f5f5f4', color: '#78716c' }
-                    }
-                  >
-                    {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
-                  </span>
-                )}
-              </div>
+        {/* 통계 */}
+        <div className="flex items-center gap-4 mb-3">
+          <span className="text-xs text-stone-500 flex items-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>onsen</span>
+            <strong className="font-bold text-stone-700">{list.place_count}</strong>곳
+          </span>
+          <span className="text-xs text-stone-500 flex items-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
+            구독자 <strong className="font-bold text-stone-700">{list.subscriber_count}</strong>명
+          </span>
+        </div>
 
-              {list.description && (
-                <p className="text-sm text-stone-500 mt-1">{list.description}</p>
+        {/* Visitor: 구독 버튼 (풀너비) */}
+        {!isMine && (
+          <>
+            {list.subscriber_count === 0 && (
+              <p className="text-center text-[11px] text-stone-400 mb-2">첫 번째 구독자가 되어보세요</p>
+            )}
+            <button
+              onClick={async () => {
+                const result = await toggleSubscribe()
+                if (result === 'need_auth') { requireAuth(); return }
+                if (!result) {
+                  showNotice(`${list.title} 구독해지`, async () => { await toggleSubscribe() })
+                } else {
+                  showNotice(`${list.title} 구독완료!`)
+                }
+              }}
+              disabled={subscribing}
+              className={`w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 ${
+                subscribed ? 'bg-stone-200 text-stone-600' : 'text-white'
+              }`}
+              style={!subscribed ? { backgroundColor: 'var(--color-primary)' } : {}}
+            >
+              {subscribed ? (
+                <><span className="material-symbols-outlined" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>check</span>구독중</>
+              ) : (
+                <><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>구독하기</>
               )}
+            </button>
+          </>
+        )}
+      </section>
 
-              <div className="flex items-center gap-3 mt-2 text-xs text-stone-400">
-                {list.owner_nickname && <span>@{list.owner_nickname}</span>}
-                <span>장소 {list.place_count}개</span>
-                {list.subscriber_count > 0 && <span>구독 {list.subscriber_count}명</span>}
-              </div>
+      {/* ── 태그 섹션 ── */}
+      {list.tags && list.tags.length > 0 && (
+        <div className="px-5 py-3 flex gap-1.5 flex-wrap border-b border-stone-100">
+          {list.tags.map((tag) => (
+            <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] text-stone-500 bg-white/30 border border-stone-200">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
 
-              {/* 타인/비로그인: 구독 버튼 */}
-              {!isMine && (
-                <button
-                  onClick={async () => {
-                    const result = await toggleSubscribe()
-                    if (result === 'need_auth') {
-                      requireAuth()
-                      return
-                    }
-                    if (!result) {
-                      showNotice(`${list?.title} 구독해지`, async () => { await toggleSubscribe() })
-                    } else {
-                      showNotice(`${list?.title} 구독완료!`)
-                    }
-                  }}
-                  disabled={subscribing}
-                  className={`mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
-                    subscribed
-                      ? 'text-white'
-                      : 'glass-input text-stone-500 hover:text-stone-700'
-                  }`}
-                  style={subscribed ? { backgroundColor: 'var(--color-primary)' } : {}}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '16px', fontVariationSettings: subscribed ? "'FILL' 1" : "'FILL' 0" }}
-                  >bookmark_add</span>
-                  {subscribed ? '구독중' : '구독하기'}
-                </button>
-              )}
-            </div>
-          )}
-        </DataState>
-      </header>
+        </>)}
+      </DataState>
 
       {/* 장소 리스트 */}
       <main className="p-4">
         {isMine && (
           <button
             onClick={() => setShowAddSheet(true)}
-            className="w-full mb-3 py-2.5 flex items-center justify-center gap-2 glass-card-light rounded-xl text-sm text-stone-500 hover:text-stone-700 transition-colors"
+            className="w-full mb-3 py-2.5 flex items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-dashed border-stone-300 text-[13px] font-medium text-stone-500 hover:text-stone-700 hover:border-stone-400 transition-colors"
           >
-            <span className="material-symbols-outlined text-lg">add</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_location</span>
             장소 추가
           </button>
         )}
@@ -314,6 +338,7 @@ export default function SaListDetailClient() {
                     onClick={() => router.push(`/explore/${item.place!.id}`)}
                   />
 
+                  {/* Owner: 메모 편집 인라인 */}
                   {editingMemoId === item.place_id && (
                     <div className="mt-1 flex gap-2">
                       <input
@@ -334,6 +359,26 @@ export default function SaListDetailClient() {
                         onClick={() => { setEditingMemoId(null); setMemoText('') }}
                         className="px-2 py-1 text-xs text-stone-400"
                       >취소</button>
+                    </div>
+                  )}
+
+                  {/* Owner: 메모수정 + 제거 버튼 */}
+                  {isMine && editingMemoId !== item.place_id && (
+                    <div className="flex items-center gap-1 mt-1.5">
+                      <button
+                        onClick={() => { setMemoText(item.memo ?? ''); setEditingMemoId(item.place_id) }}
+                        className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-[10px] font-medium text-stone-500"
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>{item.memo ? 'edit' : 'add'}</span>
+                        {item.memo ? '메모 수정' : '메모 추가'}
+                      </button>
+                      <button
+                        onClick={() => handleRemoveFromList(item.place!.id)}
+                        className="flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-medium text-stone-400 ml-auto"
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>close</span>
+                        제거
+                      </button>
                     </div>
                   )}
                 </div>

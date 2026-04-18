@@ -181,9 +181,19 @@ export default function SaListPage() {
                   list={list}
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                   subscribed={user ? subscribedIds.has(list.id) : undefined}
-                  onSubscribe={() => {
-                    if (!requireAuth()) return
-                    // 구독 토글은 SubscribedFeedRow 패턴 재사용
+                  onSubscribe={async () => {
+                    if (!requireAuth() || !user) return
+                    const wasSub = subscribedIds.has(list.id)
+                    await listsService.toggleSubscription(user.id, list.id)
+                    refreshSubscribed()
+                    if (wasSub) {
+                      showNotice(`${list.title} 구독해지`, async () => {
+                        await listsService.toggleSubscription(user.id, list.id)
+                        refreshSubscribed()
+                      })
+                    } else {
+                      showNotice(`${list.title} 구독완료!`)
+                    }
                   }}
                 />
               ))}

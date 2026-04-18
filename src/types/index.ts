@@ -227,6 +227,8 @@ export interface SaList {
   // JOIN 필드 (선택)
   owner_nickname?: string
   owner_tribe?: TribeId
+  owner_profile_emoji?: string | null
+  owner_profile_color?: string | null
 }
 
 // 리스트 아이템 (list_items 테이블)
