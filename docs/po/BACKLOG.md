@@ -9,19 +9,23 @@
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
-- [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰를 대시보드로 고도화. KPI(기록한 날/다녀온 곳/총 기록 카운트), 트라이브별 루틴 카드(HOT/ICE/REST/REPEAT), 인사이트 카드(히트 링/평균 수온/토토노이 등), WEEK/MONTH 토글, 캘린더 트라이브별 점 컬러+딥로그 링, 홈 프로필 카드 히트 링 추가 | priority: P0 | added: 2026-03-10 | done: 2026-04-12
+- [x] [기능+UX] 나의 기록 대시보드 | priority: P0 | added: 2026-03-10 | done: 2026-04-12
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
-- [ ] [디자인] SA-LIST featured 카드 & 페이지 레이아웃 다듬기 — featured 리스트 카드 디자인 개선 + 리스트 상세 페이지 레이아웃 정리 | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
+- [ ] [버그] Google 주소 포맷팅 + country_code — formatted_address 파싱 실패 시 기본값 KR → 일본 장소에 네이버 지도 표시, 타투 모달 미트리거. address_components에서 country 직접 추출 필요. 핸드오프: `docs/handoff/handoff_20260418_bugfix_and_features.md` | priority: P1 | added: 2026-04-18
+- [ ] [버그] place_count 실시간 싱크 — 리스트에서 장소 삭제 후 place_count 미갱신 (캐시/리프레시 흐름 점검 필요) | priority: P1 | added: 2026-04-18
+- [ ] [기능] 급냉탕 온도 필드 추가 — ICE 섹션에 ice_bath_temp 컬럼 + 로그 폼 + 장소 상세 표시. DB 마이그레이션 필요 | priority: P1 | added: 2026-04-18
 - [ ] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 검색 결과 0건일 때 "이 장소를 직접 추가하기" CTA로 장소 등록 플로우 연결 | priority: P1 | added: 2026-04-14
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
+- [ ] [UX] 트라이브 픽 → 사-리스트 이동 — 홈 "추천 사우나" 트라이브 픽 섹션을 사-리스트 탭으로 이동 (추천 로직이 리스트 기반) | priority: P2 | added: 2026-04-18
+- [ ] [기능] 탐색 탭 → 지도 뷰 전환 — 탐색을 "주변 사우나 찾기 + 장소 정보" 지도 중심으로 변경. 지도 API 선정(Naver/Mapbox) 필요 | priority: P2 | added: 2026-04-18
 - [ ] [UX] 장소 상세보기 SA-LIST 섹션 — 해당 장소가 포함된 공개 리스트 수 + 인기순 리스트 목록 표시 | priority: P2 | added: 2026-04-13
 - [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
 - [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지 | priority: P2 | added: 2026-03-02
@@ -38,6 +42,16 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-04-18
+- [x] [기능] SA-LIST 리뉴얼 Phase 1+2 — 홈 탭→단일 스크롤(Featured/내 리스트/인기태그/피드), 전체보기(/sa-list/my), 검색+태그 칩 필터, DB RPC(017) | done: 2026-04-14
+- [x] [디자인] SA-LIST featured 카드 & 페이지 레이아웃 다듬기 — 구독 pill(아웃라인), 그라데이션 제거→inner shadow, 설명 2줄 min-height, 커버 팔레트 어두운 원색, 프로필 톤 맑은 파스텔 | done: 2026-04-17
+- [x] [기능] SA-LIST 리뉴얼 Phase 3 — 상세 커버 헤더(cover_color+이모지 48px), 크리에이터 섹션(아바타+닉네임+통계), 태그 칩, Owner 메모수정/제거 버튼, Featured 구독 토글 연결 | done: 2026-04-18
+- [x] [기능] SA-LIST 리뉴얼 Phase 4 — 크리에이터 소셜 링크(인스타/네이버/쓰레드, DB 018), 폼 플랫폼 선택 UI, 상세 소셜 아이콘, 공유 문구("[이모지] [제목] | SA-PI에서 보기") | done: 2026-04-18
+- [x] [버그] window.confirm → ConfirmModal 교체 — 6곳(sa-list/my, list-manage-sheet x2, save-flow, explore/type, use-list-actions) | done: 2026-04-18
+- [x] [UX] 검색 결과 선택 배경색 레드→그레이 | done: 2026-04-17
+- [x] [UX] 섹션 헤더 문구 변경 — Featured→사-피 픽, 내 리스트→내 사-리스트, 인기 리스트→인기 사-리스트 | done: 2026-04-17
+- [x] [UX] 이모지 피커 액티비티 탭 대표 이모지 🏃→🧖 | done: 2026-04-17
 
 ### 2026-04-12
 - [x] [기능+UX] 나의 기록 대시보드 — History 캘린더 뷰 대시보드 고도화: KPI 행, 루틴 카드, 인사이트 카드, WEEK/MONTH 토글, 딥로그 링, empty state 블러 | done: 2026-04-12
