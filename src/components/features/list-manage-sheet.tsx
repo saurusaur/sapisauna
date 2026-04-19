@@ -19,13 +19,14 @@ interface ListManageSheetProps {
   onClose: () => void
   onUpdated: () => void
   onDeleted: () => void
+  initialView?: 'menu' | 'visibility'
 }
 
 type View = 'menu' | 'edit' | 'visibility'
 
-export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: ListManageSheetProps) {
+export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, initialView = 'menu' }: ListManageSheetProps) {
   const { showError, showNotice } = useToast()
-  const [view, setView] = useState<View>('menu')
+  const [view, setView] = useState<View>(initialView)
   const [editDirty, setEditDirty] = useState(false)
 
   // Confirm modals
@@ -35,10 +36,10 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted }: L
   // Reset on open
   useEffect(() => {
     if (open) {
-      setView('menu')
+      setView(initialView)
       setEditDirty(false)
     }
-  }, [open])
+  }, [open, initialView])
 
   // Handle close with unsaved changes check
   const handleClose = useCallback(() => {

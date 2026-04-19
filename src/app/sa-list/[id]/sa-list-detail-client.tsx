@@ -50,8 +50,9 @@ export default function SaListDetailClient() {
   const isDefault = list?.type === 'default'
   const isAdmin = user?.id === ADMIN_USER_ID
 
-  // ListManageSheet (3-dot 메뉴 → 편집/공개설정/삭제)
+  // ListManageSheet (3-dot 메뉴 → 편집/공개설정/삭제, 공개 pill → visibility 뷰)
   const [showManageSheet, setShowManageSheet] = useState(false)
+  const [manageInitialView, setManageInitialView] = useState<'menu' | 'visibility'>('menu')
 
   // 장소 추가 검색 (서버사이드 ILIKE, 300ms 디바운스)
   const [showAddSheet, setShowAddSheet] = useState(false)
@@ -177,7 +178,7 @@ export default function SaListDetailClient() {
           <div className="flex gap-1 items-center">
             {isMine && !isDefault && (
               <button
-                onClick={() => setShowManageSheet(true)}
+                onClick={() => { setManageInitialView('visibility'); setShowManageSheet(true) }}
                 className="h-7 px-2.5 rounded-full bg-white/90 text-stone-600 text-[11px] font-medium inline-flex items-center gap-0.5"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#57534e' }}>
@@ -201,7 +202,7 @@ export default function SaListDetailClient() {
               </button>
             )}
             {isMine && !isDefault && (
-              <button onClick={() => setShowManageSheet(true)} className="p-1">
+              <button onClick={() => { setManageInitialView('menu'); setShowManageSheet(true) }} className="p-1">
                 <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>more_vert</span>
               </button>
             )}
@@ -406,6 +407,7 @@ export default function SaListDetailClient() {
           onClose={() => setShowManageSheet(false)}
           onUpdated={refreshList}
           onDeleted={() => router.back()}
+          initialView={manageInitialView}
         />
       )}
 
