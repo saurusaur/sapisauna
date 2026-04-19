@@ -16,9 +16,7 @@
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
-- [ ] [버그] 인기 태그 검색 시 사-리스트 미노출 — 태그 칩 클릭 시 피드 빈 결과. 어드민 리스트 필터링 또는 is_featured 제외 로직 확인 필요 | priority: P1 | added: 2026-04-19
 - [ ] [버그] Google 주소 포맷팅 + country_code — formatted_address 파싱 실패 시 기본값 KR → 일본 장소에 네이버 지도 표시, 타투 모달 미트리거. address_components에서 country 직접 추출 필요. 핸드오프: `docs/handoff/handoff_20260418_bugfix_and_features.md` | priority: P1 | added: 2026-04-18
-- [ ] [버그] place_count 실시간 싱크 — 리스트에서 장소 삭제 후 place_count 미갱신 (캐시/리프레시 흐름 점검 필요) | priority: P1 | added: 2026-04-18
 - [ ] [기능] 급냉탕 온도 필드 추가 — ICE 섹션에 ice_bath_temp 컬럼 + 로그 폼 + 장소 상세 표시. DB 마이그레이션 필요 | priority: P1 | added: 2026-04-18
 - [ ] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 검색 결과 0건일 때 "이 장소를 직접 추가하기" CTA로 장소 등록 플로우 연결 | priority: P1 | added: 2026-04-14
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
@@ -43,6 +41,12 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-04-20
+- [x] [UX] 공개 pill 클릭 시 공개 설정 뷰 바로 오픈 — ListManageSheet initialView prop 추가, 3-dot과 분기 (6bd5420) | done: 2026-04-20
+- [x] [UX] 사-리스트 상세 헤더 상단 여백 통일 pt-12→pt-8 — 네비-이모지 호흡 확보 (cc48f8a) | done: 2026-04-20
+- [x] [버그] 인기 태그 검색 시 사-리스트 미노출 — feedSearch 모드에서 is_featured 필터 해제 (4941cca) | done: 2026-04-20
+- [x] [버그] place_count 실시간 싱크 — SavePlaceContext SSOT로 통합, useMyLists 훅 제거, toggle 후 loadMyLists 호출 (4941cca) | done: 2026-04-20
 
 ### 2026-04-19
 - [x] [리팩토링] 컬러 저장 hex → hue(int)로 DB/코드 전면 전환 — OKLCH 기반 perceptual-uniform 톤, hexToHue/hexToOklchHue 역산 함수 제거, 020 SQL로 hex 컬럼 drop · 뷰 재생성. 플랜: archive/PLAN_color_hue_migration.md | done: 2026-04-19
