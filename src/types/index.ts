@@ -176,6 +176,8 @@ export interface LogWithPlace {
     wet_sauna_temp?: number | null
     has_very_hot_bath?: boolean
     very_hot_bath_temp?: number | null
+    has_ice_bath?: boolean
+    ice_bath_temp?: number | null
     scrub_types?: string[]
     scrub_cost?: number | null
   }

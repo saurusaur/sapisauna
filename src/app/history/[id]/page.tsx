@@ -385,6 +385,12 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium text-stone-700">{log.deep_log.very_hot_bath_temp}°C</span>
                 </div>
               )}
+              {log.deep_log.has_ice_bath && log.deep_log.ice_bath_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">급냉탕</span>
+                  <span className="text-sm font-medium text-stone-700">{log.deep_log.ice_bath_temp}°C</span>
+                </div>
+              )}
               {log.deep_log.has_scrub && (
                 <>
                   <div className="flex justify-between items-baseline">

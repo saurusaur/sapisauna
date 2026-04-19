@@ -68,6 +68,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       wet_sauna_temp: dl.wet_sauna_temp as number | null,
       has_very_hot_bath: dl.has_very_hot_bath as boolean | undefined,
       very_hot_bath_temp: dl.very_hot_bath_temp as number | null,
+      has_ice_bath: dl.has_ice_bath as boolean | undefined,
+      ice_bath_temp: dl.ice_bath_temp as number | null,
       scrub_types: (dl.scrub_types as string[]) || [],
       scrub_cost: dl.scrub_cost as number | null,
     } : undefined,
@@ -296,6 +298,8 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     wet_sauna_temp: deepData.wet_sauna_temp ?? null,
     has_very_hot_bath: deepData.has_very_hot_bath ?? false,
     very_hot_bath_temp: deepData.very_hot_bath_temp ?? null,
+    has_ice_bath: deepData.has_ice_bath ?? false,
+    ice_bath_temp: deepData.ice_bath_temp ?? null,
     scrub_types: deepData.scrub_types ?? [],
     scrub_cost: deepData.scrub_cost ?? null,
     updated_at: new Date().toISOString(),
@@ -334,6 +338,7 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   if (deepData.sauna_temp != null) autoTags.push('dry-sauna')
   if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
+  if (deepData.has_ice_bath) autoTags.push('ice-bath')
   if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')
   if (deepData.has_hot_bath) autoTags.push('hot-bath')
   if (deepData.has_scrub) {

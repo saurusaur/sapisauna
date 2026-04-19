@@ -59,6 +59,7 @@ export default function DeepLog() {
   const [hotBathTemp, setHotBathTemp] = useState<number | null>(null)
   const [veryHotBathTemp, setVeryHotBathTemp] = useState<number | null>(null)
   const [coldBathTemp, setColdBathTemp] = useState<number | null>(null)
+  const [iceBathTemp, setIceBathTemp] = useState<number | null>(null)
 
   // 세신/마사지
   const [hasScrub, setHasScrub] = useState(false)
@@ -117,10 +118,11 @@ export default function DeepLog() {
           if (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner') setDrySaunaTemp(parsed.sauna_temp as number)
         }
         // 탕 온도 복원
-        const hasAnyBathTemp = dl.has_very_hot_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
+        const hasAnyBathTemp = dl.has_very_hot_bath || dl.has_ice_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
         if (hasAnyBathTemp) {
           setHasBathTemps(true)
           if (dl.has_very_hot_bath) setVeryHotBathTemp(dl.very_hot_bath_temp as number)
+          if (dl.has_ice_bath) setIceBathTemp(dl.ice_bath_temp as number)
           if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp as number)
           if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp as number)
         }
@@ -174,6 +176,8 @@ export default function DeepLog() {
       hot_bath_temp: hasBathTemps ? hotBathTemp : null,
       has_very_hot_bath: hasBathTemps && veryHotBathTemp != null,
       very_hot_bath_temp: hasBathTemps ? veryHotBathTemp : null,
+      has_ice_bath: hasBathTemps && iceBathTemp != null,
+      ice_bath_temp: hasBathTemps ? iceBathTemp : null,
       // 냉탕: logs 테이블에 저장 (saveOrUpdateDeepLog에서 처리)
       cold_bath_temp: hasBathTemps ? coldBathTemp : null,
       has_scrub: hasScrub,
@@ -449,8 +453,9 @@ export default function DeepLog() {
           const showHot = !quickHasHot
           const showVeryHot = true
           const showCold = !quickHasCold
+          const showIce = true
           // 표시할 슬라이더가 있을 때만 섹션 표시
-          if (!showHot && !showVeryHot && !showCold) return null
+          if (!showHot && !showVeryHot && !showCold && !showIce) return null
           return (
             <div className="glass-card-light px-4 py-4">
               <div className="flex items-center justify-between">
@@ -513,6 +518,21 @@ export default function DeepLog() {
                       onActivate={() => setColdBathTemp(15)}
                       showReset={coldBathTemp != null}
                       onReset={() => setColdBathTemp(null)}
+                    />
+                  )}
+                  {showIce && (
+                    <Slider
+                      label={DEEP_LOG.BATH_TEMPS.ICE_BATH.label}
+                      value={iceBathTemp ?? 5}
+                      min={DEEP_LOG.BATH_TEMPS.ICE_BATH.min}
+                      max={DEEP_LOG.BATH_TEMPS.ICE_BATH.max}
+                      unit={DEEP_LOG.BATH_TEMPS.ICE_BATH.unit}
+                      steps={DEEP_LOG.BATH_TEMPS.ICE_BATH.steps}
+                      onChange={(v) => setIceBathTemp(v)}
+                      inactive={iceBathTemp == null}
+                      onActivate={() => setIceBathTemp(5)}
+                      showReset={iceBathTemp != null}
+                      onReset={() => setIceBathTemp(null)}
                     />
                   )}
                 </div>

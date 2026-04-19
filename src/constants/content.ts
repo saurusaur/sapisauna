@@ -704,6 +704,18 @@ export const DEEP_LOG = {
         { value: 30, label: "미온" },
       ],
     },
+    ICE_BATH: {
+      label: "급냉탕",
+      min: 0,
+      max: 15,
+      unit: "°C",
+      steps: [
+        { value: 0, label: "얼음" },
+        { value: 5, label: "극냉" },
+        { value: 10, label: "짜릿" },
+        { value: 15, label: "차갑" },
+      ],
+    },
   },
   SCRUB: {
     label: "세신/마사지",
