@@ -142,8 +142,9 @@ export const STORAGE_KEYS = {
 // ============================================
 // 색상 변환 (Hue 슬라이더용)
 // — 프로필: HSL 파스텔, 리스트: OKLCH perceptual-uniform
+// DB에는 hue(0~360)만 저장. hex는 렌더 시점에 계산.
 // ============================================
-import { formatHex, clampChroma, oklch } from 'culori'
+import { formatHex, clampChroma } from 'culori'
 
 /** 프로필 아이콘 색상 톤 — 맑은 파스텔 (HSL) */
 export const COVER_TONE = { s: 45, l: 78 } as const
@@ -169,6 +170,19 @@ export function listCoverHex(hue: number): string {
   return formatHex(color) ?? '#78716c'
 }
 
+/** 리스트 커버 배경색 — hue NULL이면 기본 스톤 회색 */
+export function listBgColor(hue: number | null | undefined): string {
+  return hue == null ? '#78716c' : listCoverHex(hue)
+}
+
+/** 프로필 아이콘 배경색 — hue NULL이면 fallback(트라이브 색 등) */
+export function profileBgColor(
+  hue: number | null | undefined,
+  fallback: string
+): string {
+  return hue == null ? fallback : coverHex(hue)
+}
+
 export function hslToHex(h: number, s: number, l: number): string {
   s /= 100; l /= 100
   const a = s * Math.min(l, 1 - l)
@@ -178,26 +192,6 @@ export function hslToHex(h: number, s: number, l: number): string {
     return Math.round(255 * color).toString(16).padStart(2, '0')
   }
   return `#${f(0)}${f(8)}${f(4)}`
-}
-
-export function hexToHue(hex: string): number {
-  const r = parseInt(hex.slice(1, 3), 16) / 255
-  const g = parseInt(hex.slice(3, 5), 16) / 255
-  const b = parseInt(hex.slice(5, 7), 16) / 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  const d = max - min
-  if (d === 0) return 0
-  let h = 0
-  if (max === r) h = ((g - b) / d + 6) % 6
-  else if (max === g) h = (b - r) / d + 2
-  else h = (r - g) / d + 4
-  return Math.round(h * 60)
-}
-
-/** hex → OKLCH hue. 리스트 커버(OKLCH 기반) 편집 진입 시 drift 방지용. */
-export function hexToOklchHue(hex: string): number {
-  const c = oklch(hex)
-  return Math.round(c?.h ?? 0)
 }
 
 // ============================================

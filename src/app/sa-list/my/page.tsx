@@ -186,7 +186,7 @@ export default function SaListMyPage() {
               type: 'user',
               tags: data.tags.length > 0 ? data.tags : undefined,
               description: data.description || undefined,
-              cover_color: data.cover_color,
+              cover_hue: data.cover_hue,
               cover_emoji: data.cover_emoji,
               creator_links: data.creator_links,
             })

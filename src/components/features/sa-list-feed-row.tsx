@@ -1,11 +1,12 @@
 'use client'
 
 /**
- * 사-리스트 피드 세로 리스트 행 — cover_color 배경 썸네일 + 메타 + 구독
+ * 사-리스트 피드 세로 리스트 행 — 커버 색 썸네일 + 메타 + 구독
  * accent bar 제거, glass-card-light 스타일, 유저네임 대문자
  */
 
 import type { SaList } from '@/types'
+import { listBgColor } from '@/lib/utils'
 
 interface SaListFeedRowProps {
   list: SaList
@@ -34,7 +35,7 @@ export default function SaListFeedRow({
   onSubscribe,
   showSubscribe = false,
 }: SaListFeedRowProps) {
-  const thumbBg = list.cover_color || '#78716c'
+  const thumbBg = listBgColor(list.cover_hue)
   const title = isDefault ? 'MY SA-LIST' : list.title
   const handleText = displayHandle?.trim()
     ? displayHandle.trim().toUpperCase()

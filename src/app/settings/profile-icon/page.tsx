@@ -7,14 +7,14 @@ import { useToast } from '@/contexts/toast-context'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
-import { coverHex, hexToHue } from '@/lib/utils'
+import { coverHex } from '@/lib/utils'
 import type { TribeId } from '@/types'
 
-// 트라이브별 기본 hex 컬러
-const TRIBE_DEFAULT_HEX: Record<TribeId, string> = {
-  bather: '#3B82F6',
-  saunner: '#F97316',
-  jimi: '#22C55E',
+// 트라이브별 기본 hue (HSL, 0~360). 프로필 hue가 null일 때 초기값.
+const TRIBE_DEFAULT_HUE: Record<TribeId, number> = {
+  bather: 217,   // 파랑
+  saunner: 25,   // 주황
+  jimi: 142,     // 초록
 }
 
 export default function ProfileIconEdit() {
@@ -23,11 +23,10 @@ export default function ProfileIconEdit() {
   const { showNotice } = useToast()
 
   const tribe = user?.primary_type || 'saunner'
-  const defaultHex = TRIBE_DEFAULT_HEX[tribe]
+  const defaultHue = TRIBE_DEFAULT_HUE[tribe]
   const defaultEmoji = TRIBE_EMOJI_MAP[tribe]
 
-  const initialHex = user?.profile_color || defaultHex
-  const [hue, setHue] = useState(() => hexToHue(initialHex))
+  const [hue, setHue] = useState(user?.profile_hue ?? defaultHue)
   const [emoji, setEmoji] = useState<string | null>(user?.profile_emoji ?? null)
   const [saving, setSaving] = useState(false)
 
@@ -38,7 +37,7 @@ export default function ProfileIconEdit() {
     setSaving(true)
     try {
       await updateUser({
-        profile_color: currentHex,
+        profile_hue: hue,
         profile_emoji: emoji,
       })
       showNotice('아이콘이 저장되었어요')
@@ -49,7 +48,7 @@ export default function ProfileIconEdit() {
   }
 
   const handleReset = () => {
-    setHue(hexToHue(defaultHex))
+    setHue(defaultHue)
     setEmoji(null)
   }
 

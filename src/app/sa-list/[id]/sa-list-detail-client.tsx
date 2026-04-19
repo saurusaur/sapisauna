@@ -27,6 +27,7 @@ import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import { CREATOR_LINK_PREFIXES } from '@/constants/content'
 import { SOCIAL_ICON_MAP } from '@/components/svg/social-icons'
+import { listBgColor, profileBgColor } from '@/lib/utils'
 
 const MAX_MEMO_LENGTH = 100
 
@@ -168,7 +169,7 @@ export default function SaListDetailClient() {
       {/* ── 커버 헤더 ── */}
       <header
         className="relative flex flex-col justify-end min-h-[220px] px-5 pt-8 pb-5"
-        style={{ backgroundColor: list.cover_color || '#78716c' }}
+        style={{ backgroundColor: listBgColor(list.cover_hue) }}
       >
         {/* 네비 — 좌: 뒤로 / 우: 공개 pill(owner) · share · star(admin) · more(owner) */}
         <div className="absolute top-8 left-4 right-4 flex justify-between items-center z-10">
@@ -255,7 +256,7 @@ export default function SaListDetailClient() {
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div
             className="w-6 h-6 rounded-md flex items-center justify-center text-[12px] flex-shrink-0"
-            style={{ backgroundColor: list.owner_profile_color || '#e7e5e4' }}
+            style={{ backgroundColor: profileBgColor(list.owner_profile_hue, '#e7e5e4') }}
           >
             {list.owner_profile_emoji || '🧖'}
           </div>

@@ -146,7 +146,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
                 title: list.title || '',
                 tags: list.tags || [],
                 description: list.description || '',
-                cover_color: list.cover_color,
+                cover_hue: list.cover_hue,
                 cover_emoji: list.cover_emoji ?? null,
               }}
               onSubmit={async (data) => {
@@ -154,7 +154,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
                   title: data.title,
                   description: data.description || null,
                   tags: data.tags.length > 0 ? data.tags : [],
-                  cover_color: data.cover_color,
+                  cover_hue: data.cover_hue,
                   cover_emoji: data.cover_emoji,
                 })
                 onUpdated()

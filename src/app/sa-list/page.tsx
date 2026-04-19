@@ -16,6 +16,7 @@ import { useToast } from '@/contexts/toast-context'
 import { useSavePlace } from '@/contexts/save-place-context'
 import * as listsService from '@/lib/lists-service'
 import type { PublicListSort } from '@/lib/lists-service'
+import { listBgColor } from '@/lib/utils'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
 import ListFormSheet from '@/components/features/list-form-sheet'
@@ -376,7 +377,7 @@ export default function SaListPage() {
               type: 'user',
               tags: data.tags.length > 0 ? data.tags : undefined,
               description: data.description || undefined,
-              cover_color: data.cover_color,
+              cover_hue: data.cover_hue,
               cover_emoji: data.cover_emoji,
               creator_links: data.creator_links,
             })
@@ -426,7 +427,7 @@ function MyCardItem({
   const isDefault = kind === 'default'
   const isSubscribed = kind === 'subscribed'
   const emoji = isDefault ? '♨️' : list.cover_emoji
-  const thumbBg = isDefault ? '#ffffff' : (list.cover_color || '#78716c')
+  const thumbBg = isDefault ? '#ffffff' : listBgColor(list.cover_hue)
   const title = isDefault ? 'MY SA-LIST' : list.title
 
   const visibilityBadge = isSubscribed

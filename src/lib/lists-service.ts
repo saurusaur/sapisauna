@@ -51,7 +51,7 @@ function mapListWithOwner(row: Record<string, unknown>): SaList {
     ...row,
     owner_nickname: owner?.nickname as string | undefined,
     owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
-    owner_profile_color: owner?.profile_color as string | null | undefined,
+    owner_profile_hue: owner?.profile_hue as number | null | undefined,
     owner: undefined,
   } as unknown as SaList
 }
@@ -65,7 +65,7 @@ export async function getPublicLists(
 ): Promise<SaList[]> {
   let q = supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
     .eq('visibility', 'public')
 
   if (search && search.trim().length >= 2) {
@@ -97,7 +97,7 @@ export async function getPopularTags(limitCount = 10): Promise<{ tag: string; co
 export async function getFeaturedPublicLists(): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
     .eq('visibility', 'public')
     .eq('is_featured', true)
     .order('subscriber_count', { ascending: false })
@@ -115,7 +115,7 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
 
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_color)')
+    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
     .eq(column, idOrSlug)
     .single()
 
@@ -133,7 +133,7 @@ export async function createList(params: {
   description?: string
   type?: ListType
   visibility?: ListVisibility
-  cover_color?: string
+  cover_hue?: number | null
   cover_emoji?: string | null
   tags?: string[]
   creator_links?: Record<string, string>
@@ -147,7 +147,7 @@ export async function createList(params: {
       title: params.title,
       description: params.description || null,
       visibility,
-      cover_color: params.cover_color || null,
+      cover_hue: params.cover_hue ?? null,
       cover_emoji: params.cover_emoji ?? null,
       slug: visibility !== 'private' ? generateSlug() : null,
       tags: params.tags || [],
@@ -167,7 +167,7 @@ export async function createList(params: {
 // 리스트 수정 (visibility 전환 시 slug 자동 생성)
 export async function updateList(
   id: string,
-  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_color' | 'cover_emoji' | 'tags' | 'creator_links'>>
+  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_hue' | 'cover_emoji' | 'tags' | 'creator_links'>>
 ): Promise<SaList> {
   const updatePayload: Record<string, unknown> = {
     ...updates,
@@ -359,7 +359,7 @@ async function updateSubscriberCount(listId: string): Promise<void> {
 export async function getSubscribedLists(userId: string): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('list_subscriptions')
-    .select('list:lists!list_id(*, owner:users!owner_id(nickname, profile_emoji, profile_color))')
+    .select('list:lists!list_id(*, owner:users!owner_id(nickname, profile_emoji, profile_hue))')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -371,7 +371,7 @@ export async function getSubscribedLists(userId: string): Promise<SaList[]> {
       ...list,
       owner_nickname: owner?.nickname as string | undefined,
       owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
-      owner_profile_color: owner?.profile_color as string | null | undefined,
+      owner_profile_hue: owner?.profile_hue as number | null | undefined,
       owner: undefined,
     } as unknown as SaList
   })

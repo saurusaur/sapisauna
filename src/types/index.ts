@@ -212,7 +212,8 @@ export interface SaList {
   title: string
   description: string | null
   slug: string | null
-  cover_color: string | null
+  /** 리스트 커버 hue (0~360). NULL이면 기본 스톤 회색. 렌더 시 listCoverHex로 hex 계산. */
+  cover_hue: number | null
   /** 리스트 커버용 이모지 1개 (선택, 생성·편집 폼에서만 설정). 마이그레이션 전 로우는 undefined일 수 있음 */
   cover_emoji?: string | null
   visibility: ListVisibility
@@ -228,7 +229,8 @@ export interface SaList {
   owner_nickname?: string
   owner_tribe?: TribeId
   owner_profile_emoji?: string | null
-  owner_profile_color?: string | null
+  /** 오너 프로필 hue (0~360). NULL이면 트라이브 색 fallback. */
+  owner_profile_hue?: number | null
   /** 크리에이터 소셜 링크 { instagram?: string, naver_blog?: string, threads?: string } */
   creator_links?: Record<string, string>
 }

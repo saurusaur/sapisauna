@@ -7,6 +7,7 @@ import BottomNav from '@/components/bottom-nav'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
+import { profileBgColor } from '@/lib/utils'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -93,8 +94,8 @@ export default function SettingsPage() {
                 <span className="font-medium text-stone-700">아이콘 편집</span>
               </div>
               <div className="flex items-center gap-2">
-                {user?.profile_emoji || user?.profile_color ? (
-                  <span className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: user.profile_color || 'var(--color-stone-100)' }}>
+                {user?.profile_emoji || user?.profile_hue != null ? (
+                  <span className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: profileBgColor(user.profile_hue, 'var(--color-stone-100)') }}>
                     {user.profile_emoji || ''}
                   </span>
                 ) : (

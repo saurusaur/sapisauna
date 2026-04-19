@@ -14,6 +14,7 @@ import { levelProgress } from '@/lib/reward-engine'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
+import { profileBgColor } from '@/lib/utils'
 import { HeatRing } from '@/components/features/history-dashboard'
 import { getISOWeekRange, filterByDateRange, computeWeeklyHeatMinutes, getHeatTarget } from '@/lib/history-stats'
 
@@ -89,7 +90,7 @@ export default function ProfileCard() {
         >
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: user.profile_color || `var(--color-${user.primary_type || 'saunner'})` }}
+            style={{ backgroundColor: profileBgColor(user.profile_hue, `var(--color-${user.primary_type || 'saunner'})`) }}
           >
             <span className="text-lg leading-none">{user.profile_emoji || TRIBE_EMOJI_MAP[user.primary_type || 'saunner']}</span>
           </div>

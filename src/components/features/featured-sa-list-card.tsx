@@ -8,6 +8,7 @@
  */
 
 import type { SaList } from '@/types'
+import { listBgColor } from '@/lib/utils'
 
 interface FeaturedSaListCardProps {
   list: SaList
@@ -24,7 +25,7 @@ export default function FeaturedSaListCard({
   subscribed,
   onSubscribe,
 }: FeaturedSaListCardProps) {
-  const bg = list.cover_color || '#78716c'
+  const bg = listBgColor(list.cover_hue)
   const handle = list.owner_nickname ? list.owner_nickname.toUpperCase() : ''
   const emoji = list.cover_emoji
 

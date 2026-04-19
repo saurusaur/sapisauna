@@ -2,7 +2,7 @@
  * CoverCard — SA-리스트 커버카드 (VIS 9-2)
  *
  * 리스트 프리뷰 카드. 피드/검색에서 사용.
- * cover_color 악센트 바 + 타이틀 + 설명 + 구독/공유
+ * 커버 hue 악센트 바 + 타이틀 + 설명 + 구독/공유
  */
 
 'use client'
@@ -11,6 +11,7 @@ import { useCallback } from 'react'
 import type { SaList } from '@/types'
 import { useToast } from '@/contexts/toast-context'
 import { shareList } from '@/lib/share'
+import { listCoverHex } from '@/lib/utils'
 
 interface CoverCardProps {
   list: SaList
@@ -37,12 +38,12 @@ export default function CoverCard({
   onMenu,
 }: CoverCardProps) {
   const { showError } = useToast()
-  const accentColor = list.cover_color || (
-    list.type === 'default' ? 'var(--color-primary)'
-    : list.visibility === 'public' ? '#292524'
-    : list.visibility === 'unlisted' ? '#78716c'
-    : '#a8a29e'
-  )
+  const accentColor = list.cover_hue != null
+    ? listCoverHex(list.cover_hue)
+    : list.type === 'default' ? 'var(--color-primary)'
+      : list.visibility === 'public' ? '#292524'
+      : list.visibility === 'unlisted' ? '#78716c'
+      : '#a8a29e'
   const isDefault = list.type === 'default'
   const canShare = list.visibility !== 'private'
 

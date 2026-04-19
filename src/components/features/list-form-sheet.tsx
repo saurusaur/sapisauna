@@ -11,7 +11,7 @@ import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
 import { CREATOR_LINK_PLATFORMS } from '@/constants/content'
-import { listCoverHex, hexToOklchHue } from '@/lib/utils'
+import { listCoverHex } from '@/lib/utils'
 
 export interface SelectedPlace {
   id: string
@@ -21,8 +21,8 @@ export interface SelectedPlace {
   memo: string
 }
 
-/** 신규 리스트 기본 커버 색 — 슬라이더 초기 hue 유도용 (빨강 hue ≈ 0°) */
-const DEFAULT_LIST_COVER_COLOR = '#dc2626'
+/** 신규 리스트 기본 hue — 빨강(0°). 편집 모드에서 cover_hue가 null이면 이 값 사용. */
+const DEFAULT_LIST_COVER_HUE = 0
 
 
 interface ListFormSheetProps {
@@ -31,7 +31,7 @@ interface ListFormSheetProps {
     title: string
     tags: string[]
     description: string
-    cover_color?: string | null
+    cover_hue?: number | null
     cover_emoji?: string | null
     creator_links?: Record<string, string>
   }
@@ -39,7 +39,7 @@ interface ListFormSheetProps {
     title: string
     tags: string[]
     description: string
-    cover_color: string
+    cover_hue: number
     cover_emoji: string | null
     creator_links?: Record<string, string>
     places?: SelectedPlace[]
@@ -55,11 +55,6 @@ const MAX_TITLE_LENGTH = 20
 const MAX_MEMO_LENGTH = 100
 const MAX_DESC_LENGTH = 140
 
-function effectiveInitialCoverColor(cover_color: string | null | undefined): string {
-  if (cover_color == null || cover_color === '') return DEFAULT_LIST_COVER_COLOR
-  return cover_color
-}
-
 export default function ListFormSheet({
   mode,
   initialData,
@@ -71,8 +66,8 @@ export default function ListFormSheet({
   const [title, setTitle] = useState(initialData?.title || '')
   const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [desc, setDesc] = useState(initialData?.description || '')
-  const initialHex = effectiveInitialCoverColor(initialData?.cover_color)
-  const [hue, setHue] = useState(() => hexToOklchHue(initialHex))
+  const baselineHue = initialData?.cover_hue ?? DEFAULT_LIST_COVER_HUE
+  const [hue, setHue] = useState(baselineHue)
   const coverColor = listCoverHex(hue)
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
@@ -103,8 +98,6 @@ export default function ListFormSheet({
   const [placeQuery, setPlaceQuery] = useState('')
   const { results: placeResults, loading: placeSearchLoading, search: searchPlace } = usePlaceSearch()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const baselineHue = hexToOklchHue(initialHex)
 
   // Dirty detection
   useEffect(() => {
@@ -146,7 +139,7 @@ export default function ListFormSheet({
         title: trimmedTitle,
         tags,
         description: desc.trim(),
-        cover_color: coverColor,
+        cover_hue: hue,
         cover_emoji: coverEmoji,
         creator_links: Object.keys(links).length > 0 ? links : undefined,
         places: mode === 'create' && selectedPlaces.length > 0 ? selectedPlaces : undefined,
@@ -154,7 +147,7 @@ export default function ListFormSheet({
     } finally {
       setSubmitting(false)
     }
-  }, [title, tags, desc, coverColor, coverEmoji, selectedPlaces, mode, onSubmit])
+  }, [title, tags, desc, hue, coverEmoji, selectedPlaces, mode, onSubmit])
 
   // Dynamic submit label
   const getButtonLabel = () => {
