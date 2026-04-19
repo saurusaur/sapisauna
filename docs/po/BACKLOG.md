@@ -45,6 +45,10 @@
 ## Done
 
 ### 2026-04-19
+- [x] [리팩토링] 컬러 저장 hex → hue(int)로 DB/코드 전면 전환 — OKLCH 기반 perceptual-uniform 톤, hexToHue/hexToOklchHue 역산 함수 제거, 020 SQL로 hex 컬럼 drop · 뷰 재생성. 플랜: archive/PLAN_color_hue_migration.md | done: 2026-04-19
+- [x] [UX] SA-리스트 상세 J 레이아웃 — visitor 구독 outline pill(커버 내부), owner 공개 네비 pill, 크리에이터+소셜+통계 한 줄 통합, PlaceCard 메모 수정 중복 제거 | done: 2026-04-19
+- [x] [디자인] 커버 컬러피커 OKLCH 전환 — 라임/시안 눈부심 근본 해결 (perceptual uniform) | done: 2026-04-19
+- [x] [i18n] 크리에이터 소셜 링크 라벨 한글화 — 인스타그램/네이버 블로그/스레드 | done: 2026-04-19
 - [x] [버그] 상세 페이지 owner 프로필 이모지 미표시 — getListById에서 mapListWithOwner 미사용으로 profile_emoji 누락 | done: 2026-04-19
 - [x] [UX] 이모지 피커 탭 대표 아이콘 변경 — 액티비티 🎊, 사물 🫧 | done: 2026-04-19
 - [x] [UX] 내 사-리스트 카드 공개/비공개 배지 상단 정렬 | done: 2026-04-19
