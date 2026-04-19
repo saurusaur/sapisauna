@@ -452,14 +452,14 @@ function MyCardItem({
         isDefault ? 'ring-1 ring-inset ring-red-600/10' : ''
       }`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div
           className="w-9 h-9 rounded-[10px] flex items-center justify-center text-xl"
           style={{ backgroundColor: thumbBg }}
         >
           {emoji || <span className="material-symbols-outlined text-white/80" style={{ fontSize: '18px' }}>playlist_play</span>}
         </div>
-        <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-md ${visibilityBadge.cls}`}>
+        <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-md mt-0.5 ${visibilityBadge.cls}`}>
           {visibilityBadge.label}
         </span>
       </div>
