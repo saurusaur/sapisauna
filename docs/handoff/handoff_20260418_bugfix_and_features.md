@@ -11,6 +11,21 @@
 
 ## 미완료 이슈 (다음 세션)
 
+### 0. 인기 태그 검색 시 사-리스트 미노출 (P1)
+
+**현상:**
+- 인기 태그 칩 클릭 시 피드에 사-리스트가 안 뜸
+- 어드민이 만든 사-리스트여서 필터링되는 건지 확인 필요
+
+**확인 포인트:**
+- `getPublicLists`의 search/tag 쿼리에서 어드민 ID 제외 로직이 있는지
+- `tags @> ARRAY[search]` 쿼리가 정상 동작하는지 (RPC 실행 여부)
+- Featured 리스트가 피드에서 `is_featured` 필터로 제외되고 있는데, 태그 검색에서도 제외되는지
+
+**관련 파일:**
+- `src/lib/lists-service.ts` (getPublicLists search 로직)
+- `src/app/sa-list/page.tsx` (feedLists에서 is_featured 필터)
+
 ### 1. Google 주소 포맷팅 + country_code 이슈 (P0)
 
 **현상:**

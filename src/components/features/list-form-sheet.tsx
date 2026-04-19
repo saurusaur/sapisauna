@@ -243,7 +243,7 @@ export default function ListFormSheet({
         </div>
         {CREATOR_LINK_PLATFORMS.filter((p) => activePlatforms.has(p.id)).map((p) => (
           <div key={p.id} className="flex items-center gap-2 mb-2">
-            <span className="text-[11px] text-stone-400 w-16 flex-shrink-0 truncate">{p.label}</span>
+            <span className="text-[11px] text-stone-400 w-20 flex-shrink-0 truncate">{p.label}</span>
             <div className="flex-1 flex items-center glass-input rounded-lg overflow-hidden">
               <span className="text-[11px] text-stone-300 pl-3 flex-shrink-0">@</span>
               <input
