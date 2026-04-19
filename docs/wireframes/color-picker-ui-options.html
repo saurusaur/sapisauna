@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>컬러 피커 UI 단순화 비교 (OKLCH 적용)</title>
+<style>
+  :root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+    --l: 72%; --c: 0.13;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 64px; background:#fafaf9; color:#1c1917; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .note { font-size:12px; color:#78716c; margin:0 0 24px; line-height:1.55; }
+  h2 { font-size:14px; margin:28px 0 8px; display:flex; align-items:baseline; gap:8px; }
+  h2 .formula { font-size:11px; font-weight:500; color:#a8a29e; font-family:'SF Mono', monospace; }
+  .desc { font-size:12px; color:#57534e; margin:0 0 14px; line-height:1.5; }
+  .phone {
+    width: 360px; background:#fff; border-radius:20px;
+    box-shadow: 0 4px 20px -4px rgba(0,0,0,0.1);
+    padding: 16px; margin: 0 auto 8px;
+  }
+  .field-label { font-size:11px; color:#78716c; margin-bottom:8px; }
+  .rec-tag {
+    display:inline-block; font-size:10px;
+    background:#dcfce7; color:#15803d;
+    padding:1px 6px; border-radius:999px; font-weight:600; margin-left:4px;
+  }
+  hr { border:0; border-top:1px solid #e7e5e4; margin:28px 0 0; }
+
+  /* ==== 공통 gradient (OKLCH) ==== */
+  .grad-oklch {
+    background: linear-gradient(in oklch to right,
+      oklch(var(--l) var(--c) 0),
+      oklch(var(--l) var(--c) 60),
+      oklch(var(--l) var(--c) 120),
+      oklch(var(--l) var(--c) 180),
+      oklch(var(--l) var(--c) 240),
+      oklch(var(--l) var(--c) 300),
+      oklch(var(--l) var(--c) 360));
+  }
+  .grad-hsl-old {
+    background: linear-gradient(to right,
+      hsl(0,55%,56%), hsl(60,55%,56%), hsl(120,55%,56%), hsl(180,55%,56%),
+      hsl(240,55%,56%), hsl(300,55%,56%), hsl(360,55%,56%));
+  }
+
+  /* ==== A안: 현재 유지 ==== */
+  .picker-a { display:flex; align-items:center; gap:12px; }
+  .picker-a .preview {
+    width:36px; height:36px; border-radius:50%;
+    border: 2px solid #e7e5e4;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    flex-shrink:0;
+    background: oklch(72% 0.13 25);
+  }
+  .picker-a .bar {
+    flex:1; height:12px; border-radius:999px;
+    position:relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .picker-a .thumb {
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    left: 8%;
+    width:20px; height:20px; border-radius:50%;
+    background:white; border:2px solid #d6d3d1;
+    box-shadow: 0 2px 6px -1px rgba(0,0,0,0.15);
+  }
+
+  /* ==== B안: 바 확대 + 프리뷰 제거 ==== */
+  .picker-b { }
+  .picker-b .bar {
+    width:100%; height:32px; border-radius:16px;
+    position:relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .picker-b .thumb {
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    left: 8%;
+    width:28px; height:28px; border-radius:50%;
+    background:white; border:2px solid rgba(0,0,0,0.1);
+    box-shadow: 0 3px 8px -1px rgba(0,0,0,0.2);
+  }
+  .picker-b .current-label {
+    font-size:11px; color:#78716c;
+    margin-top:8px;
+    font-family: 'SF Mono', monospace;
+  }
+
+  /* ==== C안: 실물 프리뷰 + 얇은 바 ==== */
+  .picker-c .preview-card {
+    width:100%; aspect-ratio: 2.5/1;
+    border-radius: 14px; padding:14px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    background: oklch(72% 0.13 25);
+    margin-bottom:10px;
+    box-shadow:
+      0 2px 8px -2px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .picker-c .preview-card .emoji {
+    font-size: 22px; line-height:1;
+  }
+  .picker-c .preview-card .title {
+    color:#fff; font-weight:700; font-size:13px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.22);
+    margin-top:auto;
+  }
+  .picker-c .bar {
+    width:100%; height:10px; border-radius:999px;
+    position:relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .picker-c .thumb {
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    left:8%;
+    width:18px; height:18px; border-radius:50%;
+    background:white; border:2px solid #d6d3d1;
+    box-shadow: 0 2px 6px -1px rgba(0,0,0,0.15);
+  }
+
+  .footnote {
+    font-size: 11px; color:#78716c; margin-top:10px;
+    display:flex; flex-wrap:wrap; gap:4px 12px;
+  }
+  .footnote b { color: #44403c; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>컬러 피커 UI 단순화 비교 · OKLCH 적용</h1>
+<p class="note">
+  OKLCH로 gradient 밝기 균일화 + 피커 UI 3가지 방향. 모두 gradient bar 유지 (지정 팔레트 없음).
+</p>
+
+<!-- ============ A. 최소 변경 ============ -->
+<h2>A. 현재 UI 그대로 <span class="formula">preview 원 + h-3 바</span></h2>
+<p class="desc">OKLCH만 적용, UI 변경 0. 가장 안전.</p>
+<div class="phone">
+  <div class="field-label">커버 컬러</div>
+  <div class="picker-a">
+    <div class="preview"></div>
+    <div class="bar grad-oklch">
+      <div class="thumb"></div>
+    </div>
+  </div>
+</div>
+<div class="footnote">
+  <span><b>장</b> UI 0 변경 · 리그레션 위험 최소</span>
+  <span><b>단</b> preview 원이 thumb과 중복 · 바가 얇아 모바일 터치 애매</span>
+</div>
+
+<hr/>
+
+<!-- ============ B. 바 확대 + 프리뷰 제거 ============ -->
+<h2>B. 바 확대 + 프리뷰 제거 <span class="rec-tag">추천</span><span class="formula">h-8 바 only</span></h2>
+<p class="desc">preview 원 제거. 바를 h-3 → h-8(32px)로 키워 바 자체가 색상면 + 선택면 역할. 모바일 터치 친화.</p>
+<div class="phone">
+  <div class="field-label">커버 컬러</div>
+  <div class="picker-b">
+    <div class="bar grad-oklch">
+      <div class="thumb"></div>
+    </div>
+  </div>
+</div>
+<div class="footnote">
+  <span><b>장</b> 시각 요소 1개로 축소 · 터치 쉬움 · 바가 대담해 보여 맑은 톤 강조</span>
+  <span><b>단</b> thumb 하단에 색 직접 안 보임 → 살짝 정밀성 감소</span>
+</div>
+
+<hr/>
+
+<!-- ============ C. 실물 프리뷰 + 얇은 바 ============ -->
+<h2>C. 실물 프리뷰 카드 + 얇은 바<span class="formula">카드 미리보기 + h-2.5 바</span></h2>
+<p class="desc">실제 SA-리스트 커버와 동일한 비율의 프리뷰 카드 + 아래 얇은 바. 결과가 즉시 실물로 보임.</p>
+<div class="phone">
+  <div class="field-label">커버 컬러</div>
+  <div class="picker-c">
+    <div class="preview-card">
+      <span class="emoji">🔥</span>
+      <div class="title">리스트 제목</div>
+    </div>
+    <div class="bar grad-oklch">
+      <div class="thumb"></div>
+    </div>
+  </div>
+</div>
+<div class="footnote">
+  <span><b>장</b> WYSIWYG — 실제 커버 느낌 즉시 확인</span>
+  <span><b>단</b> 카드가 공간 차지 — 폼시트에서 세로 스크롤↑</span>
+</div>
+
+<hr/>
+
+<!-- ============ 참고: OKLCH vs HSL gradient 차이 ============ -->
+<h2>참고 · OKLCH vs HSL 그라데이션 직접 비교</h2>
+<p class="desc">같은 바 크기로 놓고 비교. OKLCH가 전체적으로 밝기 균일 — 라임/시안이 덜 튐.</p>
+<div class="phone" style="padding:20px 16px;">
+  <div class="field-label">HSL {55,56} — 현재</div>
+  <div style="height:32px; border-radius:16px; margin-bottom:16px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);" class="grad-hsl-old"></div>
+
+  <div class="field-label">OKLCH {l:0.72, c:0.13} — 새 톤</div>
+  <div style="height:32px; border-radius:16px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);" class="grad-oklch"></div>
+</div>
+
+</body>
+</html>
