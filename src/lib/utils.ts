@@ -140,10 +140,12 @@ export const STORAGE_KEYS = {
 } as const
 
 // ============================================
-// HSL ↔ Hex 변환 (Hue 슬라이더용)
+// 색상 변환 (Hue 슬라이더용)
+// — 프로필: HSL 파스텔, 리스트: OKLCH perceptual-uniform
 // ============================================
+import { formatHex, clampChroma, oklch } from 'culori'
 
-/** 프로필 아이콘 색상 톤 — 맑은 파스텔 */
+/** 프로필 아이콘 색상 톤 — 맑은 파스텔 (HSL) */
 export const COVER_TONE = { s: 45, l: 78 } as const
 
 /** hue → 프로필 커버 색상 Hex (파스텔) */
@@ -151,12 +153,20 @@ export function coverHex(hue: number): string {
   return hslToHex(hue, COVER_TONE.s, COVER_TONE.l)
 }
 
-/** 사-리스트 커버 색상 톤 — 마카롱+선명 (맑고 밝게, 눈부심 완화) */
-export const LIST_COVER_TONE = { s: 62, l: 56 } as const
+/**
+ * 사-리스트 커버 색상 톤 — OKLCH 기반.
+ * HSL 대비 모든 hue에서 체감 밝기 균일 (라임/시안 눈부심 해결).
+ * l: lightness (0~1), c: chroma (0~0.4)
+ */
+export const LIST_COVER_TONE = { l: 0.72, c: 0.13 } as const
 
-/** hue → 리스트 커버 색상 Hex (마카롱+선명) */
+/** hue → 리스트 커버 색상 Hex (OKLCH). sRGB gamut 밖이면 chroma 클램핑. */
 export function listCoverHex(hue: number): string {
-  return hslToHex(hue, LIST_COVER_TONE.s, LIST_COVER_TONE.l)
+  const color = clampChroma(
+    { mode: 'oklch', l: LIST_COVER_TONE.l, c: LIST_COVER_TONE.c, h: hue },
+    'oklch'
+  )
+  return formatHex(color) ?? '#78716c'
 }
 
 export function hslToHex(h: number, s: number, l: number): string {
@@ -182,6 +192,12 @@ export function hexToHue(hex: string): number {
   else if (max === g) h = (b - r) / d + 2
   else h = (r - g) / d + 4
   return Math.round(h * 60)
+}
+
+/** hex → OKLCH hue. 리스트 커버(OKLCH 기반) 편집 진입 시 drift 방지용. */
+export function hexToOklchHue(hex: string): number {
+  const c = oklch(hex)
+  return Math.round(c?.h ?? 0)
 }
 
 // ============================================

@@ -11,7 +11,7 @@ import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
 import { CREATOR_LINK_PLATFORMS } from '@/constants/content'
-import { listCoverHex, hexToHue } from '@/lib/utils'
+import { listCoverHex, hexToOklchHue } from '@/lib/utils'
 
 export interface SelectedPlace {
   id: string
@@ -21,20 +21,8 @@ export interface SelectedPlace {
   memo: string
 }
 
-/** 고정 팔레트 — 쨍한 원색, 흰 텍스트 가독성 확보된 어두운 톤 (첫 색이 기본값) */
-export const COVER_COLOR_PALETTE = [
-  '#dc2626',
-  '#ea580c',
-  '#d97706',
-  '#16a34a',
-  '#0d9488',
-  '#0891b2',
-  '#2563eb',
-  '#7c3aed',
-  '#db2777',
-] as const
-
-export const DEFAULT_LIST_COVER_COLOR = COVER_COLOR_PALETTE[0]
+/** 신규 리스트 기본 커버 색 — 슬라이더 초기 hue 유도용 (빨강 hue ≈ 0°) */
+const DEFAULT_LIST_COVER_COLOR = '#dc2626'
 
 
 interface ListFormSheetProps {
@@ -84,7 +72,7 @@ export default function ListFormSheet({
   const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [desc, setDesc] = useState(initialData?.description || '')
   const initialHex = effectiveInitialCoverColor(initialData?.cover_color)
-  const [hue, setHue] = useState(() => hexToHue(initialHex))
+  const [hue, setHue] = useState(() => hexToOklchHue(initialHex))
   const coverColor = listCoverHex(hue)
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
@@ -116,7 +104,7 @@ export default function ListFormSheet({
   const { results: placeResults, loading: placeSearchLoading, search: searchPlace } = usePlaceSearch()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const baselineHue = hexToHue(initialHex)
+  const baselineHue = hexToOklchHue(initialHex)
 
   // Dirty detection
   useEffect(() => {

@@ -2,8 +2,8 @@
 
 /**
  * HueSlider — Hue 슬라이더 + 색 미리보기
- * variant="profile": 맑은 파스텔 (채도 45%, 밝기 78%)
- * variant="list": 마카롱+선명 (채도 62%, 밝기 56%)
+ * variant="profile": 맑은 파스텔 (HSL)
+ * variant="list": OKLCH perceptual-uniform (라임/시안 눈부심 없음)
  */
 
 import { coverHex, listCoverHex, COVER_TONE, LIST_COVER_TONE } from '@/lib/utils'
@@ -18,8 +18,10 @@ const PROFILE_GRADIENT = `linear-gradient(to right, ${
   [0, 60, 120, 180, 240, 300, 360].map(h => `hsl(${h},${COVER_TONE.s}%,${COVER_TONE.l}%)`).join(', ')
 })`
 
-const LIST_GRADIENT = `linear-gradient(to right, ${
-  [0, 60, 120, 180, 240, 300, 360].map(h => `hsl(${h},${LIST_COVER_TONE.s}%,${LIST_COVER_TONE.l}%)`).join(', ')
+const LIST_GRADIENT = `linear-gradient(in oklch to right, ${
+  [0, 60, 120, 180, 240, 300, 360]
+    .map(h => `oklch(${LIST_COVER_TONE.l * 100}% ${LIST_COVER_TONE.c} ${h})`)
+    .join(', ')
 })`
 
 export default function HueSlider({ hue, onChange, variant = 'profile' }: HueSliderProps) {
