@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA-LIST Detail v2 — Visitor vs Owner</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #cc1a1a;
+    --color-primary-light: #fde8e8;
+    --color-border: #e2deda;
+    --radius: 0.75rem;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #e7e5e4;
+    display: flex; justify-content: center; padding: 20px; gap: 24px;
+    flex-wrap: wrap;
+  }
+  .variant-label {
+    width: 100%; text-align: center;
+    font-size: 13px; font-weight: 600; color: #78716c;
+    margin-bottom: -12px;
+  }
+  .phone {
+    width: 375px; min-height: 812px;
+    background: #fafaf9;
+    border-radius: 40px; overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    border: 8px solid #1c1917; position: relative;
+  }
+  .screen { height: 100%; overflow-y: auto; padding-bottom: 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px; color: #78716c;
+  }
+  .glass-card-light {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(255,255,255,0.65);
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06);
+    border-radius: var(--radius);
+  }
+
+  /* ===== Cover Header ===== */
+  .cover-header {
+    position: relative;
+    /* 하단 고정: 제목은 항상 하단, 설명 길이에 따라 커버 높이가 늘어남 */
+    padding: 32px 20px 16px;
+    min-height: 220px;
+    display: flex; flex-direction: column;
+  }
+
+  /* 네비 */
+  .cover-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .cover-nav-left { display: flex; gap: 4px; }
+  .cover-nav-right { display: flex; gap: 4px; align-items: center; }
+  .cover-nav-btn {
+    padding: 4px; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cover-nav-btn .material-symbols-outlined {
+    color: rgba(255,255,255,0.9); font-size: 22px;
+  }
+
+  /* 공개배지 — 네비줄 (흰 pill) */
+  .nav-visibility {
+    display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+    font-size: 11px; font-weight: 500; color: #57534e;
+    padding: 4px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.9);
+    border: none; cursor: pointer;
+    line-height: 1;
+  }
+  .nav-visibility .material-symbols-outlined { font-size: 13px; color: #57534e; line-height: 1; }
+
+  /* 크리에이터 바 — 아바타+닉네임+소셜 (왼) + 구독/공개 (오) */
+  .creator-bar {
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid #f5f5f4;
+  }
+  .creator-bar-left {
+    display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;
+  }
+  /* 네비용 구독 pill (Featured 카드와 동일 패턴) */
+  .nav-sub-pill {
+    padding: 4px 10px; border-radius: 8px;
+    font-size: 11px; font-weight: 600; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .nav-sub-pill.unsub {
+    background: rgba(255,255,255,0.9); color: var(--color-primary);
+  }
+  .nav-sub-pill.subbed {
+    background: rgba(255,255,255,0.9); color: #292524;
+  }
+  .nav-sub-pill .material-symbols-outlined { font-size: 13px; }
+  .creator-bar-avatar {
+    width: 24px; height: 24px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .creator-bar-name {
+    font-size: 11px; font-weight: 600; color: #57534e;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .creator-bar-socials {
+    display: flex; gap: 4px; margin-left: 6px;
+  }
+  .social-btn-sm {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: #f5f5f4;
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer;
+  }
+  .social-btn-sm:hover { background: #e7e5e4; }
+  .social-btn-sm svg { width: 12px; height: 12px; fill: #57534e; }
+
+  /* 커버 하단 콘텐츠 — 항상 하단 고정 */
+  .cover-bottom {
+    position: relative; z-index: 2;
+  }
+  .cover-emoji { font-size: 42px; margin-bottom: 10px; }
+  .cover-title {
+    font-size: 20px; font-weight: 700; color: white;
+    line-height: 1.3; margin-bottom: 4px;
+  }
+  .cover-desc {
+    font-size: 12px; color: rgba(255,255,255,0.85); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ===== 통계 바 — 왼쪽 통계, 오른쪽 구독/공개 ===== */
+  .stats-bar {
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #f5f5f4;
+  }
+  .stats-bar-left { display: flex; align-items: center; gap: 14px; }
+  .stat-item {
+    font-size: 12px; color: #78716c;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .stat-item strong { font-weight: 700; color: #44403c; }
+  .stat-item .material-symbols-outlined { font-size: 14px; }
+
+
+
+  /* ===== Tags ===== */
+  .tags-section {
+    padding: 10px 20px; display: flex; gap: 6px; flex-wrap: wrap;
+    border-bottom: 1px solid #f5f5f4;
+  }
+  .tag {
+    padding: 4px 10px; border-radius: 9999px;
+    font-size: 11px; color: #78716c;
+    background: rgba(255,255,255,0.3);
+    border: 1px solid var(--color-border);
+  }
+
+  /* ===== Places ===== */
+  .add-place-btn {
+    margin: 12px 20px 0;
+    padding: 10px; border-radius: 10px;
+    border: 1.5px dashed #d6d3d1; background: transparent;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: #78716c;
+    cursor: pointer; width: calc(100% - 40px);
+  }
+  .add-place-btn .material-symbols-outlined { font-size: 18px; }
+  .places-header {
+    padding: 14px 20px 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .places-title { font-size: 13px; font-weight: 600; color: #44403c; }
+  .places-count { font-size: 12px; color: #a8a29e; }
+  .place-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .place-card { padding: 12px; cursor: pointer; }
+  .place-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;
+  }
+  .place-name {
+    font-size: 14px; font-weight: 500; color: #44403c;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+  .place-badges { display: flex; gap: 4px; align-items: center; margin-left: 8px; }
+  .place-badge-24h {
+    font-size: 10px; padding: 1px 6px; border-radius: 9999px; font-weight: 500;
+    background: var(--color-primary-light); color: var(--color-primary);
+  }
+  .bookmark-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 2px;
+  }
+  .bookmark-btn .material-symbols-outlined { font-size: 18px; }
+  .bookmark-btn.saved .material-symbols-outlined {
+    color: var(--color-primary); font-variation-settings: 'FILL' 1;
+  }
+  .bookmark-btn.unsaved .material-symbols-outlined {
+    color: #d6d3d1; font-variation-settings: 'FILL' 0;
+  }
+  .place-address { font-size: 11px; color: #a8a29e; margin-bottom: 6px; }
+  .facility-chips { display: flex; gap: 4px; flex-wrap: nowrap; overflow: hidden; }
+  .facility-chip {
+    padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 500;
+    background: rgba(255,255,255,0.3); border: 1px solid var(--color-border);
+    color: #78716c; white-space: nowrap;
+    display: flex; align-items: center; gap: 2px;
+  }
+  .facility-chip .material-symbols-outlined { font-size: 12px; }
+  .place-memo {
+    display: flex; align-items: flex-start; gap: 4px; margin-top: 6px;
+    cursor: pointer; padding: 2px 4px; border-radius: 6px;
+  }
+  .place-memo:hover { background: #fafaf9; }
+  .memo-bar { color: #d6d3d1; font-size: 14px; line-height: 1; margin-top: 1px; }
+  .memo-text { font-size: 12px; color: #57534e; line-height: 1.5; font-style: italic; flex: 1; }
+  .memo-edit-icon .material-symbols-outlined { font-size: 14px; color: #d6d3d1; }
+  .place-remove {
+    display: flex; justify-content: flex-end; margin-top: 4px;
+  }
+  .place-remove-btn {
+    padding: 3px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 500; color: #a8a29e;
+    border: none; cursor: pointer; background: none;
+    display: flex; align-items: center; gap: 2px;
+  }
+  .place-remove-btn:hover { color: #ef4444; }
+  .place-remove-btn .material-symbols-outlined { font-size: 12px; }
+  .label-note {
+    display: block; text-align: center; font-size: 10px;
+    color: #d6d3d1; padding: 16px; font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== VISITOR VIEW ==================== -->
+<div>
+  <div class="variant-label">Visitor View v2</div>
+  <div class="phone">
+    <div class="screen">
+
+      <div class="cover-header" style="background:#ea580c">
+        <!-- 네비 (pt-8 = 32px 위치) -->
+        <div class="cover-nav">
+          <div class="cover-nav-left">
+            <button class="cover-nav-btn">
+              <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+          </div>
+          <div class="cover-nav-right">
+            <button class="nav-sub-pill unsub">구독하기</button>
+            <button class="cover-nav-btn">
+              <span class="material-symbols-outlined">share</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 하단 콘텐츠 (항상 하단 고정) -->
+        <div class="cover-bottom">
+          <div class="cover-emoji">🔥</div>
+          <div class="cover-title">노천탕 있는 사우나</div>
+          <div class="cover-desc">서울 근교 노천탕이 있는 사우나 모음. 겨울에 특히 추천하는 노천탕!</div>
+        </div>
+      </div>
+
+      <!-- 통계 -->
+      <div class="stats-bar">
+        <div class="stats-bar-left">
+          <div class="stat-item">
+            <span class="material-symbols-outlined">onsen</span>
+            <strong>5</strong>곳
+          </div>
+          <div class="stat-item">
+            <span class="material-symbols-outlined">group</span>
+            구독자 <strong>12</strong>명
+          </div>
+        </div>
+      </div>
+
+      <!-- 크리에이터 -->
+      <div class="creator-bar">
+        <div class="creator-bar-left">
+          <div class="creator-bar-avatar" style="background:#fed7aa">🧖</div>
+          <span class="creator-bar-name">SAUNALOVER</span>
+          <div class="creator-bar-socials">
+            <button class="social-btn-sm" title="Instagram">
+              <svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+            </button>
+            <button class="social-btn-sm" title="Naver Blog">
+              <svg viewBox="0 0 24 24"><path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 태그 -->
+      <div class="tags-section">
+        <span class="tag">#노천탕</span>
+        <span class="tag">#서울</span>
+        <span class="tag">#겨울추천</span>
+      </div>
+
+      <div class="place-list" style="padding-top:12px">
+        <div class="place-card glass-card-light">
+          <div class="place-top">
+            <span class="place-name">스파랜드 해운대</span>
+            <div class="place-badges">
+              <span class="place-badge-24h">24H</span>
+              <button class="bookmark-btn unsaved"><span class="material-symbols-outlined">bookmark_heart</span></button>
+            </div>
+          </div>
+          <div class="place-address">부산 해운대구 중동</div>
+          <div class="facility-chips">
+            <span class="facility-chip"><span class="material-symbols-outlined">water</span>노천탕</span>
+            <span class="facility-chip"><span class="material-symbols-outlined">ac_unit</span>냉탕</span>
+          </div>
+          <div class="place-memo">
+            <span class="memo-bar">┃</span>
+            <span class="memo-text">"화요일 아침이 한산해요. 노천탕 뷰가 최고!"</span>
+          </div>
+        </div>
+
+        <div class="place-card glass-card-light">
+          <div class="place-top">
+            <span class="place-name">용산 드래곤힐스파</span>
+            <div class="place-badges">
+              <button class="bookmark-btn saved"><span class="material-symbols-outlined">bookmark_heart</span></button>
+            </div>
+          </div>
+          <div class="place-address">서울 용산구 한강로3가</div>
+          <div class="place-memo">
+            <span class="memo-bar">┃</span>
+            <span class="memo-text">"옥상 노천탕이 진짜 좋아요"</span>
+          </div>
+        </div>
+      </div>
+
+      <span class="label-note">SA-LIST Detail v2 — Visitor</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== OWNER VIEW ==================== -->
+<div>
+  <div class="variant-label">Owner View v2</div>
+  <div class="phone">
+    <div class="screen">
+
+      <div class="cover-header" style="background:#ea580c">
+        <div class="cover-nav">
+          <div class="cover-nav-left">
+            <button class="cover-nav-btn">
+              <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+          </div>
+          <div class="cover-nav-right">
+            <div class="nav-visibility">
+              <span class="material-symbols-outlined">public</span>
+              공개
+              <span class="material-symbols-outlined" style="font-size:14px">expand_more</span>
+            </div>
+            <button class="cover-nav-btn">
+              <span class="material-symbols-outlined">share</span>
+            </button>
+            <button class="cover-nav-btn">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cover-bottom">
+          <div class="cover-emoji">🔥</div>
+          <div class="cover-title">노천탕 있는 사우나</div>
+          <div class="cover-desc">서울 근교 노천탕이 있는 사우나 모음. 겨울에 특히 추천하는 노천탕!</div>
+        </div>
+      </div>
+
+      <!-- 통계 -->
+      <div class="stats-bar">
+        <div class="stats-bar-left">
+          <div class="stat-item">
+            <span class="material-symbols-outlined">onsen</span>
+            <strong>5</strong>곳
+          </div>
+          <div class="stat-item">
+            <span class="material-symbols-outlined">group</span>
+            구독자 <strong>12</strong>명
+          </div>
+        </div>
+      </div>
+
+      <!-- 크리에이터 -->
+      <div class="creator-bar">
+        <div class="creator-bar-left">
+          <div class="creator-bar-avatar" style="background:#fed7aa">🧖</div>
+          <span class="creator-bar-name">SAUNALOVER</span>
+          <div class="creator-bar-socials">
+            <button class="social-btn-sm" title="Instagram">
+              <svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 태그 -->
+      <div class="tags-section">
+        <span class="tag">#노천탕</span>
+        <span class="tag">#서울</span>
+        <span class="tag">#겨울추천</span>
+      </div>
+
+      <!-- 장소 추가 -->
+      <button class="add-place-btn">
+        <span class="material-symbols-outlined">add_location</span>
+        장소 추가
+      </button>
+
+      <div class="place-list" style="padding-top:12px">
+        <div class="place-card glass-card-light">
+          <div class="place-top">
+            <span class="place-name">스파랜드 해운대</span>
+            <div class="place-badges">
+              <span class="place-badge-24h">24H</span>
+            </div>
+          </div>
+          <div class="place-address">부산 해운대구 중동</div>
+          <div class="facility-chips">
+            <span class="facility-chip"><span class="material-symbols-outlined">water</span>노천탕</span>
+          </div>
+          <div class="place-memo">
+            <span class="memo-bar">┃</span>
+            <span class="memo-text">"화요일 아침이 한산해요"</span>
+            <span class="memo-edit-icon"><span class="material-symbols-outlined">edit</span></span>
+          </div>
+          <div class="place-remove">
+            <button class="place-remove-btn">
+              <span class="material-symbols-outlined">close</span>제거
+            </button>
+          </div>
+        </div>
+
+        <div class="place-card glass-card-light">
+          <div class="place-top">
+            <span class="place-name">아쿠아필드 하남</span>
+          </div>
+          <div class="place-address">경기 하남시 미사대로</div>
+          <div class="place-memo">
+            <span class="memo-bar">┃</span>
+            <span class="memo-text" style="color:#a8a29e;font-style:normal">메모 추가</span>
+            <span class="memo-edit-icon"><span class="material-symbols-outlined">edit</span></span>
+          </div>
+          <div class="place-remove">
+            <button class="place-remove-btn">
+              <span class="material-symbols-outlined">close</span>제거
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <span class="label-note">SA-LIST Detail v2 — Owner</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

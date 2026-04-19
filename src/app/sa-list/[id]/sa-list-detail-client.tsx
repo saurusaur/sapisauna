@@ -166,15 +166,27 @@ export default function SaListDetailClient() {
 
       {/* ── 커버 헤더 ── */}
       <header
-        className="relative flex flex-col justify-end min-h-[250px] px-5 pt-12 pb-6"
+        className="relative flex flex-col justify-end min-h-[220px] px-5 pt-12 pb-5"
         style={{ backgroundColor: list.cover_color || '#78716c' }}
       >
-        {/* 네비 — 흰 아이콘, 배경 없음 */}
-        <div className="absolute top-12 left-4 right-4 flex justify-between z-10">
+        {/* 네비 — 좌: 뒤로 / 우: 공개 pill(owner) · share · star(admin) · more(owner) */}
+        <div className="absolute top-12 left-4 right-4 flex justify-between items-center z-10">
           <button onClick={() => router.back()} className="p-1">
             <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>arrow_back</span>
           </button>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
+            {isMine && !isDefault && (
+              <button
+                onClick={() => setShowManageSheet(true)}
+                className="h-7 px-2.5 rounded-full bg-white/90 text-stone-600 text-[11px] font-medium inline-flex items-center gap-0.5"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#57534e' }}>
+                  {list.visibility === 'public' ? 'public' : list.visibility === 'unlisted' ? 'link' : 'lock'}
+                </span>
+                {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
+                <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#a8a29e' }}>expand_more</span>
+              </button>
+            )}
             {list.visibility !== 'private' && (
               <button onClick={handleShare} className="p-1">
                 <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>share</span>
@@ -197,7 +209,7 @@ export default function SaListDetailClient() {
         </div>
 
         {/* 커버 콘텐츠 */}
-        <div className="relative z-[1]">
+        <div className="relative z-[1] flex flex-col">
           <span className="text-5xl mb-3 block" aria-hidden>
             {isDefault ? '♨️' : (list.cover_emoji || '🧖')}
           </span>
@@ -207,79 +219,9 @@ export default function SaListDetailClient() {
           {list.description && (
             <p className="text-[13px] text-white/85 leading-relaxed">{list.description}</p>
           )}
-        </div>
-      </header>
 
-      {/* ── 크리에이터 섹션 ── */}
-      <section className="px-5 py-4 border-b border-stone-100">
-        <div className="flex items-center gap-2.5 mb-3">
-          {/* 아바타 — 둥근 사각형 */}
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center text-lg flex-shrink-0"
-            style={{ backgroundColor: list.owner_profile_color || '#e7e5e4' }}
-          >
-            {list.owner_profile_emoji || '🧖'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-stone-800 uppercase tracking-wide truncate">
-              {list.owner_nickname || 'USER'}
-            </p>
-          </div>
-
-          {/* 소셜 아이콘 버튼 — Visitor/Owner 공통 */}
-          {list.creator_links && Object.keys(list.creator_links).length > 0 && (
-            <div className="flex gap-1.5">
-              {Object.entries(list.creator_links).map(([platform, username]) => {
-                const Icon = SOCIAL_ICON_MAP[platform]
-                const prefix = CREATOR_LINK_PREFIXES[platform]
-                if (!Icon || !prefix || !username) return null
-                return (
-                  <button
-                    key={platform}
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); window.open(`${prefix}${username}`, '_blank') }}
-                    className="w-[30px] h-[30px] rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition-colors"
-                  >
-                    <Icon size={16} />
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Owner: 공개상태 배지 — 소셜 아이콘 아래 */}
-        {isMine && !isDefault && (
-          <button
-            onClick={() => setShowManageSheet(true)}
-            className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-xs font-medium text-stone-500 mb-1 self-start"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
-              {list.visibility === 'public' ? 'public' : list.visibility === 'unlisted' ? 'link' : 'lock'}
-            </span>
-            {list.visibility === 'public' ? '공개' : list.visibility === 'unlisted' ? '링크 공유' : '비공개'}
-            <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#a8a29e' }}>expand_more</span>
-          </button>
-        )}
-
-        {/* 통계 */}
-        <div className="flex items-center gap-4 mb-3">
-          <span className="text-xs text-stone-500 flex items-center gap-1">
-            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>onsen</span>
-            <strong className="font-bold text-stone-700">{list.place_count}</strong>곳
-          </span>
-          <span className="text-xs text-stone-500 flex items-center gap-1">
-            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-            구독자 <strong className="font-bold text-stone-700">{list.subscriber_count}</strong>명
-          </span>
-        </div>
-
-        {/* Visitor: 구독 버튼 (풀너비) */}
-        {!isMine && (
-          <>
-            {list.subscriber_count === 0 && (
-              <p className="text-center text-[11px] text-stone-400 mb-2">구독하고 내 사-리스트에서 언제든 확인해보세요!</p>
-            )}
+          {/* Visitor: 커버 내부 outline 구독 pill */}
+          {!isMine && !isDefault && (
             <button
               onClick={async () => {
                 const result = await toggleSubscribe()
@@ -291,19 +233,65 @@ export default function SaListDetailClient() {
                 }
               }}
               disabled={subscribing}
-              className={`w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 ${
-                subscribed ? 'bg-stone-200 text-stone-600' : 'text-white'
+              className={`mt-3 self-start h-8 px-3.5 rounded-full text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition-all disabled:opacity-50 backdrop-blur-sm border-[1.5px] ${
+                subscribed
+                  ? 'bg-white text-[color:var(--color-primary)] border-white'
+                  : 'bg-white/20 text-white border-white/80'
               }`}
-              style={!subscribed ? { backgroundColor: 'var(--color-primary)' } : {}}
             >
               {subscribed ? (
-                <><span className="material-symbols-outlined" style={{ fontSize: '18px', fontVariationSettings: "'FILL' 1" }}>check</span>구독중</>
+                <><span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'inherit', fontVariationSettings: "'FILL' 1" }}>check</span>구독중</>
               ) : (
-                <><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>구독하기</>
+                <><span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'inherit' }}>bookmark_add</span>리스트 구독</>
               )}
             </button>
-          </>
-        )}
+          )}
+        </div>
+      </header>
+
+      {/* ── 크리에이터 + 통계 한 줄 ── */}
+      <section className="px-5 py-2.5 flex items-center gap-2 border-b border-stone-100">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div
+            className="w-6 h-6 rounded-md flex items-center justify-center text-[12px] flex-shrink-0"
+            style={{ backgroundColor: list.owner_profile_color || '#e7e5e4' }}
+          >
+            {list.owner_profile_emoji || '🧖'}
+          </div>
+          <span className="text-[10px] text-stone-400 flex-shrink-0">by</span>
+          <span className="text-[11px] font-semibold text-stone-600 uppercase tracking-wide truncate">
+            {list.owner_nickname || 'USER'}
+          </span>
+          {list.creator_links && Object.keys(list.creator_links).length > 0 && (
+            <div className="flex gap-1 flex-shrink-0">
+              {Object.entries(list.creator_links).map(([platform, username]) => {
+                const Icon = SOCIAL_ICON_MAP[platform]
+                const prefix = CREATOR_LINK_PREFIXES[platform]
+                if (!Icon || !prefix || !username) return null
+                return (
+                  <button
+                    key={platform}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); window.open(`${prefix}${username}`, '_blank') }}
+                    className="w-[22px] h-[22px] rounded-md bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition-colors"
+                  >
+                    <Icon size={12} />
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <span className="text-[12px] text-stone-500 flex items-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>onsen</span>
+            <strong className="font-bold text-stone-700">{list.place_count}</strong>
+          </span>
+          <span className="text-[12px] text-stone-500 flex items-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
+            <strong className="font-bold text-stone-700">{list.subscriber_count}</strong>
+          </span>
+        </div>
       </section>
 
       {/* ── 태그 섹션 ── */}
@@ -323,13 +311,19 @@ export default function SaListDetailClient() {
       {/* 장소 리스트 */}
       <main className="p-4">
         {isMine && (
-          <button
-            onClick={() => setShowAddSheet(true)}
-            className="w-full mb-3 py-2.5 flex items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-dashed border-stone-300 text-[13px] font-medium text-stone-500 hover:text-stone-700 hover:border-stone-400 transition-colors"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_location</span>
-            장소 추가
-          </button>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="text-[13px]">
+              <span className="font-semibold text-stone-700">장소</span>
+              <span className="text-stone-400 ml-1">· {items.length}</span>
+            </div>
+            <button
+              onClick={() => setShowAddSheet(true)}
+              className="h-7 px-2.5 rounded-lg border-[1.5px] border-dashed border-stone-300 text-stone-500 text-[11px] font-medium inline-flex items-center gap-1 hover:text-stone-700 hover:border-stone-400 transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>add_location</span>
+              장소 추가
+            </button>
+          </div>
         )}
 
         <DataState
@@ -385,19 +379,12 @@ export default function SaListDetailClient() {
                     </div>
                   )}
 
-                  {/* Owner: 메모수정 + 제거 버튼 */}
+                  {/* Owner: 제거 버튼만 (메모 수정은 PlaceCard 내 편집 클릭으로 통합) */}
                   {isMine && editingMemoId !== item.place_id && (
-                    <div className="flex items-center gap-1 mt-1.5">
-                      <button
-                        onClick={() => { setMemoText(item.memo ?? ''); setEditingMemoId(item.place_id) }}
-                        className="flex items-center gap-0.5 px-2 py-1 rounded-md bg-stone-100 text-[10px] font-medium text-stone-500"
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>{item.memo ? 'edit' : 'add'}</span>
-                        {item.memo ? '메모 수정' : '메모 추가'}
-                      </button>
+                    <div className="flex items-center justify-end mt-1.5">
                       <button
                         onClick={() => handleRemoveFromList(item.place!.id)}
-                        className="flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-medium text-stone-400 ml-auto"
+                        className="flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-medium text-stone-400"
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>close</span>
                         제거
