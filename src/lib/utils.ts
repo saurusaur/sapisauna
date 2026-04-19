@@ -151,10 +151,10 @@ export function coverHex(hue: number): string {
   return hslToHex(hue, COVER_TONE.s, COVER_TONE.l)
 }
 
-/** 사-리스트 커버 색상 톤 — 쨍한 원색 */
-export const LIST_COVER_TONE = { s: 75, l: 50 } as const
+/** 사-리스트 커버 색상 톤 — 마카롱+선명 (맑고 밝게, 눈부심 완화) */
+export const LIST_COVER_TONE = { s: 62, l: 56 } as const
 
-/** hue → 리스트 커버 색상 Hex (쨍한 원색) */
+/** hue → 리스트 커버 색상 Hex (마카롱+선명) */
 export function listCoverHex(hue: number): string {
   return hslToHex(hue, LIST_COVER_TONE.s, LIST_COVER_TONE.l)
 }

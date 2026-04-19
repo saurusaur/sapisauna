@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SA-LIST 커버 컬러 톤 비교</title>
+<style>
+  :root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: #fafaf9;
+    color: #1c1917;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  p.note {
+    font-size: 12px;
+    color: #78716c;
+    margin: 0 0 24px;
+    line-height: 1.55;
+  }
+  h2 {
+    font-size: 14px;
+    margin: 28px 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  h2 .formula {
+    font-size: 11px;
+    font-weight: 500;
+    color: #a8a29e;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  .tone-desc {
+    font-size: 12px;
+    color: #57534e;
+    margin: 0 0 12px;
+    line-height: 1.5;
+  }
+  .hue-strip {
+    display: block;
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  .card {
+    aspect-ratio: 1 / 1;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      0 2px 8px -2px rgba(0,0,0,0.08),
+      0 1px 2px rgba(0,0,0,0.04),
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 -2px 8px rgba(0,0,0,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .card .emoji {
+    font-size: 34px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+  }
+  .card .bottom {
+    margin-top: auto;
+  }
+  .card .title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card .desc {
+    color: rgba(255,255,255,0.92);
+    font-size: 11px;
+    line-height: 1.4;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8em;
+  }
+  .card .meta {
+    color: rgba(255,255,255,0.85);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  /* ── 텍스트 가독성 strategies ── */
+  /* strategy A: 기본 drop-shadow */
+  .txt-shadow-a .title,
+  .txt-shadow-a .desc,
+  .txt-shadow-a .meta {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.22);
+  }
+  /* strategy B: 강한 drop-shadow */
+  .txt-shadow-b .title,
+  .txt-shadow-b .desc,
+  .txt-shadow-b .meta {
+    text-shadow: 0 1px 1px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
+  }
+  /* strategy C: 하단 살짝 dim (맑음 유지) */
+  .dim-soft::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 55%;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.14));
+    pointer-events: none;
+  }
+  .dim-soft .bottom { position: relative; z-index: 1; }
+  /* strategy D: 같은 hue 어두운 글자 (맑음 완전 유지) */
+  .ink-dark .title { color: rgba(0,0,0,0.82); }
+  .ink-dark .desc { color: rgba(0,0,0,0.65); }
+  .ink-dark .meta { color: rgba(0,0,0,0.55); }
+
+  .legend {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: #78716c;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .legend span b { color: #44403c; font-weight: 600; }
+  .current-tag {
+    display: inline-block;
+    font-size: 10px;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .rec-tag {
+    display: inline-block;
+    font-size: 10px;
+    background: #dcfce7;
+    color: #15803d;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid #e7e5e4;
+    margin: 28px 0 0;
+  }
+  .mini-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin: 6px 0 0;
+  }
+  .mini-row .chip {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+
+<h1>SA-LIST 커버 컬러 톤 비교</h1>
+<p class="note">
+  피처카드 어둡게 하지 않고 <b>맑은 색감 유지</b>하는 방향.<br/>
+  동일 4개 hue (0° 빨강 · 90° 라임 · 180° 시안 · 280° 보라)로 톤·가독성 전략 비교.
+</p>
+
+<!-- ───────── 현재 ───────── -->
+<h2>현재 <span class="current-tag">적용중</span><span class="formula">HSL  s:75  l:50 · white+shadow</span></h2>
+<p class="tone-desc">쨍한 원색. 노랑/시안은 너무 밝아 눈부심 + white 텍스트 가독 저하.</p>
+<span class="hue-strip" style="background:linear-gradient(to right,
+  hsl(0,75%,50%), hsl(60,75%,50%), hsl(120,75%,50%), hsl(180,75%,50%),
+  hsl(240,75%,50%), hsl(300,75%,50%), hsl(360,75%,50%));"></span>
+<div class="cards" data-tone="current">
+  <div class="card txt-shadow-a" style="background:hsl(0,75%,50%)">
+    <span class="emoji">🔥</span>
+    <div class="bottom">
+      <div class="title">불맛 사우나 BEST</div>
+      <div class="desc">서울 북부 고온건식 사우나 모음</div>
+      <div class="meta">SAUNAWEAVER · 12곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(90,75%,50%)">
+    <span class="emoji">🌿</span>
+    <div class="bottom">
+      <div class="title">숲속 힐링탕</div>
+      <div class="desc">자연 친화 노천탕 큐레이션</div>
+      <div class="meta">MOSSBATH · 8곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(180,75%,50%)">
+    <span class="emoji">💧</span>
+    <div class="bottom">
+      <div class="title">쿨다운 냉탕맛집</div>
+      <div class="desc">14도 이하 냉탕 보유 시설</div>
+      <div class="meta">ICECORE · 15곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(280,75%,50%)">
+    <span class="emoji">🌙</span>
+    <div class="bottom">
+      <div class="title">심야 24시</div>
+      <div class="desc">밤에도 열리는 찜질방 리스트</div>
+      <div class="meta">NIGHTBATHER · 20곳</div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <span><b>문제</b> 노랑/시안에서 white 텍스트 대비 1.3~1.8 (WCAG fail)</span>
+</div>
+
+<hr/>
+
+<!-- ───────── B안 마카롱+선명 ───────── -->
+<h2>옵션 B. 마카롱+선명 <span class="rec-tag">추천</span><span class="formula">HSL  s:62  l:56 · white+shadow(A)</span></h2>
+<p class="tone-desc">채도만 살짝 낮추고 밝기는 오히려 +6 올림. 크림 섞인 원색 — 맑고 밝은 느낌 유지, 시각적 통일감↑.</p>
+<span class="hue-strip" style="background:linear-gradient(to right,
+  hsl(0,62%,56%), hsl(60,62%,56%), hsl(120,62%,56%), hsl(180,62%,56%),
+  hsl(240,62%,56%), hsl(300,62%,56%), hsl(360,62%,56%));"></span>
+<div class="cards">
+  <div class="card txt-shadow-a" style="background:hsl(0,62%,56%)">
+    <span class="emoji">🔥</span>
+    <div class="bottom">
+      <div class="title">불맛 사우나 BEST</div>
+      <div class="desc">서울 북부 고온건식 사우나 모음</div>
+      <div class="meta">SAUNAWEAVER · 12곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(90,62%,56%)">
+    <span class="emoji">🌿</span>
+    <div class="bottom">
+      <div class="title">숲속 힐링탕</div>
+      <div class="desc">자연 친화 노천탕 큐레이션</div>
+      <div class="meta">MOSSBATH · 8곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(180,62%,56%)">
+    <span class="emoji">💧</span>
+    <div class="bottom">
+      <div class="title">쿨다운 냉탕맛집</div>
+      <div class="desc">14도 이하 냉탕 보유 시설</div>
+      <div class="meta">ICECORE · 15곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-a" style="background:hsl(280,62%,56%)">
+    <span class="emoji">🌙</span>
+    <div class="bottom">
+      <div class="title">심야 24시</div>
+      <div class="desc">밤에도 열리는 찜질방 리스트</div>
+      <div class="meta">NIGHTBATHER · 20곳</div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <span><b>장</b> 맑음 유지 · 눈부심 완화 · 색상 편차 줄어듦</span>
+  <span><b>단</b> 노랑/라임은 여전히 white 대비 약함 → shadow로 보완</span>
+</div>
+
+<hr/>
+
+<!-- ───────── C안 네온 완화 ───────── -->
+<h2>옵션 C. 네온 완화<span class="formula">HSL  s:68  l:50 · white+shadow(B 강)</span></h2>
+<p class="tone-desc">현재(s:75,l:50)에서 채도만 -7. 최소 변경, 현재 쨍함 거의 유지하되 자극만 살짝 낮춤.</p>
+<span class="hue-strip" style="background:linear-gradient(to right,
+  hsl(0,68%,50%), hsl(60,68%,50%), hsl(120,68%,50%), hsl(180,68%,50%),
+  hsl(240,68%,50%), hsl(300,68%,50%), hsl(360,68%,50%));"></span>
+<div class="cards">
+  <div class="card txt-shadow-b" style="background:hsl(0,68%,50%)">
+    <span class="emoji">🔥</span>
+    <div class="bottom">
+      <div class="title">불맛 사우나 BEST</div>
+      <div class="desc">서울 북부 고온건식 사우나 모음</div>
+      <div class="meta">SAUNAWEAVER · 12곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(90,68%,50%)">
+    <span class="emoji">🌿</span>
+    <div class="bottom">
+      <div class="title">숲속 힐링탕</div>
+      <div class="desc">자연 친화 노천탕 큐레이션</div>
+      <div class="meta">MOSSBATH · 8곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(180,68%,50%)">
+    <span class="emoji">💧</span>
+    <div class="bottom">
+      <div class="title">쿨다운 냉탕맛집</div>
+      <div class="desc">14도 이하 냉탕 보유 시설</div>
+      <div class="meta">ICECORE · 15곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(280,68%,50%)">
+    <span class="emoji">🌙</span>
+    <div class="bottom">
+      <div class="title">심야 24시</div>
+      <div class="desc">밤에도 열리는 찜질방 리스트</div>
+      <div class="meta">NIGHTBATHER · 20곳</div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <span><b>장</b> 현재 톤 유지 · 최소 변경</span>
+  <span><b>단</b> 노랑/시안은 여전히 눈부심 남음</span>
+</div>
+
+<hr/>
+
+<!-- ───────── D안 크레용 ───────── -->
+<h2>옵션 D. 크레용톤<span class="formula">HSL  s:58  l:60 · white+shadow(B 강)</span></h2>
+<p class="tone-desc">더 밝고 더 부드럽게. 어린이 크레용처럼 맑고 통일된 밝기 — 가장 덜 자극적.</p>
+<span class="hue-strip" style="background:linear-gradient(to right,
+  hsl(0,58%,60%), hsl(60,58%,60%), hsl(120,58%,60%), hsl(180,58%,60%),
+  hsl(240,58%,60%), hsl(300,58%,60%), hsl(360,58%,60%));"></span>
+<div class="cards">
+  <div class="card txt-shadow-b" style="background:hsl(0,58%,60%)">
+    <span class="emoji">🔥</span>
+    <div class="bottom">
+      <div class="title">불맛 사우나 BEST</div>
+      <div class="desc">서울 북부 고온건식 사우나 모음</div>
+      <div class="meta">SAUNAWEAVER · 12곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(90,58%,60%)">
+    <span class="emoji">🌿</span>
+    <div class="bottom">
+      <div class="title">숲속 힐링탕</div>
+      <div class="desc">자연 친화 노천탕 큐레이션</div>
+      <div class="meta">MOSSBATH · 8곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(180,58%,60%)">
+    <span class="emoji">💧</span>
+    <div class="bottom">
+      <div class="title">쿨다운 냉탕맛집</div>
+      <div class="desc">14도 이하 냉탕 보유 시설</div>
+      <div class="meta">ICECORE · 15곳</div>
+    </div>
+  </div>
+  <div class="card txt-shadow-b" style="background:hsl(280,58%,60%)">
+    <span class="emoji">🌙</span>
+    <div class="bottom">
+      <div class="title">심야 24시</div>
+      <div class="desc">밤에도 열리는 찜질방 리스트</div>
+      <div class="meta">NIGHTBATHER · 20곳</div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <span><b>장</b> 가장 맑고 눈 편함 · 색상 편차 최소</span>
+  <span><b>단</b> 쨍함은 확실히 줄어듦 (너무 연하다 느낄 수 있음)</span>
+</div>
+
+<hr/>
+
+<!-- ───────── 참고: hue 12단계 팔레트 비교 ───────── -->
+<h2>참고 — 12 hue 팔레트 한눈에</h2>
+<p class="tone-desc">0·30·60·90·120·150·180·210·240·270·300·330°</p>
+
+<div style="font-size:11px;color:#57534e;margin-top:10px;">현재 (s75,l50)</div>
+<div class="mini-row">
+  <span class="chip" style="background:hsl(0,75%,50%)"></span>
+  <span class="chip" style="background:hsl(30,75%,50%)"></span>
+  <span class="chip" style="background:hsl(60,75%,50%)"></span>
+  <span class="chip" style="background:hsl(90,75%,50%)"></span>
+  <span class="chip" style="background:hsl(120,75%,50%)"></span>
+  <span class="chip" style="background:hsl(150,75%,50%)"></span>
+  <span class="chip" style="background:hsl(180,75%,50%)"></span>
+  <span class="chip" style="background:hsl(210,75%,50%)"></span>
+  <span class="chip" style="background:hsl(240,75%,50%)"></span>
+  <span class="chip" style="background:hsl(270,75%,50%)"></span>
+  <span class="chip" style="background:hsl(300,75%,50%)"></span>
+  <span class="chip" style="background:hsl(330,75%,50%)"></span>
+</div>
+
+<div style="font-size:11px;color:#57534e;margin-top:14px;">B. 마카롱+선명 (s62,l56)</div>
+<div class="mini-row">
+  <span class="chip" style="background:hsl(0,62%,56%)"></span>
+  <span class="chip" style="background:hsl(30,62%,56%)"></span>
+  <span class="chip" style="background:hsl(60,62%,56%)"></span>
+  <span class="chip" style="background:hsl(90,62%,56%)"></span>
+  <span class="chip" style="background:hsl(120,62%,56%)"></span>
+  <span class="chip" style="background:hsl(150,62%,56%)"></span>
+  <span class="chip" style="background:hsl(180,62%,56%)"></span>
+  <span class="chip" style="background:hsl(210,62%,56%)"></span>
+  <span class="chip" style="background:hsl(240,62%,56%)"></span>
+  <span class="chip" style="background:hsl(270,62%,56%)"></span>
+  <span class="chip" style="background:hsl(300,62%,56%)"></span>
+  <span class="chip" style="background:hsl(330,62%,56%)"></span>
+</div>
+
+<div style="font-size:11px;color:#57534e;margin-top:14px;">C. 네온 완화 (s68,l50)</div>
+<div class="mini-row">
+  <span class="chip" style="background:hsl(0,68%,50%)"></span>
+  <span class="chip" style="background:hsl(30,68%,50%)"></span>
+  <span class="chip" style="background:hsl(60,68%,50%)"></span>
+  <span class="chip" style="background:hsl(90,68%,50%)"></span>
+  <span class="chip" style="background:hsl(120,68%,50%)"></span>
+  <span class="chip" style="background:hsl(150,68%,50%)"></span>
+  <span class="chip" style="background:hsl(180,68%,50%)"></span>
+  <span class="chip" style="background:hsl(210,68%,50%)"></span>
+  <span class="chip" style="background:hsl(240,68%,50%)"></span>
+  <span class="chip" style="background:hsl(270,68%,50%)"></span>
+  <span class="chip" style="background:hsl(300,68%,50%)"></span>
+  <span class="chip" style="background:hsl(330,68%,50%)"></span>
+</div>
+
+<div style="font-size:11px;color:#57534e;margin-top:14px;">D. 크레용톤 (s58,l60)</div>
+<div class="mini-row">
+  <span class="chip" style="background:hsl(0,58%,60%)"></span>
+  <span class="chip" style="background:hsl(30,58%,60%)"></span>
+  <span class="chip" style="background:hsl(60,58%,60%)"></span>
+  <span class="chip" style="background:hsl(90,58%,60%)"></span>
+  <span class="chip" style="background:hsl(120,58%,60%)"></span>
+  <span class="chip" style="background:hsl(150,58%,60%)"></span>
+  <span class="chip" style="background:hsl(180,58%,60%)"></span>
+  <span class="chip" style="background:hsl(210,58%,60%)"></span>
+  <span class="chip" style="background:hsl(240,58%,60%)"></span>
+  <span class="chip" style="background:hsl(270,58%,60%)"></span>
+  <span class="chip" style="background:hsl(300,58%,60%)"></span>
+  <span class="chip" style="background:hsl(330,58%,60%)"></span>
+</div>
+
+</body>
+</html>

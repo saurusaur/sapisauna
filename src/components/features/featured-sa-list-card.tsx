@@ -76,7 +76,7 @@ export default function FeaturedSaListCard({
           <p className="text-white font-bold text-base leading-tight truncate drop-shadow-sm">
             {list.title}
           </p>
-          <p className="text-white/90 text-xs mt-0.5 line-clamp-2 leading-relaxed drop-shadow-sm min-h-[2lh]">
+          <p className="text-white/90 text-[13px] mt-0.5 line-clamp-2 leading-relaxed drop-shadow-sm min-h-[2lh]">
             {list.description || '\u00A0'}
           </p>
           <p className="text-white/85 text-[11px] mt-1 uppercase tracking-wide">

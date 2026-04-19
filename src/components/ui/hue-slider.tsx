@@ -3,7 +3,7 @@
 /**
  * HueSlider — Hue 슬라이더 + 색 미리보기
  * variant="profile": 맑은 파스텔 (채도 45%, 밝기 78%)
- * variant="list": 쨍한 원색 (채도 75%, 밝기 50%)
+ * variant="list": 마카롱+선명 (채도 62%, 밝기 56%)
  */
 
 import { coverHex, listCoverHex, COVER_TONE, LIST_COVER_TONE } from '@/lib/utils'
