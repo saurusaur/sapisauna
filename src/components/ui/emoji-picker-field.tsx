@@ -21,8 +21,8 @@ const CATEGORY_TABS = [
   { icon: '🐾', label: '동물과 자연' },
   { icon: '🍽️', label: '음식 및 음료' },
   { icon: '🌍', label: '여행 및 장소' },
-  { icon: '🎉', label: '액티비티' },
-  { icon: '💧', label: '사물' },
+  { icon: '🎊', label: '액티비티' },
+  { icon: '🫧', label: '사물' },
 ]
 
 // 커스텀 컴포넌트: 카테고리 헤더 → 구분선 + 스크롤 타겟
