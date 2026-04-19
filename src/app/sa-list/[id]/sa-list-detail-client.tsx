@@ -166,11 +166,11 @@ export default function SaListDetailClient() {
 
       {/* ── 커버 헤더 ── */}
       <header
-        className="relative flex flex-col justify-end min-h-[220px] px-5 pt-12 pb-5"
+        className="relative flex flex-col justify-end min-h-[220px] px-5 pt-8 pb-5"
         style={{ backgroundColor: list.cover_color || '#78716c' }}
       >
         {/* 네비 — 좌: 뒤로 / 우: 공개 pill(owner) · share · star(admin) · more(owner) */}
-        <div className="absolute top-12 left-4 right-4 flex justify-between items-center z-10">
+        <div className="absolute top-8 left-4 right-4 flex justify-between items-center z-10">
           <button onClick={() => router.back()} className="p-1">
             <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>arrow_back</span>
           </button>
