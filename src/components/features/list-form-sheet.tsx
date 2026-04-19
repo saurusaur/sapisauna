@@ -11,7 +11,7 @@ import TagEditor from '@/components/features/tag-editor'
 import HueSlider from '@/components/ui/hue-slider'
 import EmojiPickerField from '@/components/ui/emoji-picker-field'
 import { CREATOR_LINK_PLATFORMS } from '@/constants/content'
-import { coverHex, hexToHue } from '@/lib/utils'
+import { listCoverHex, hexToHue } from '@/lib/utils'
 
 export interface SelectedPlace {
   id: string
@@ -85,7 +85,7 @@ export default function ListFormSheet({
   const [desc, setDesc] = useState(initialData?.description || '')
   const initialHex = effectiveInitialCoverColor(initialData?.cover_color)
   const [hue, setHue] = useState(() => hexToHue(initialHex))
-  const coverColor = coverHex(hue)
+  const coverColor = listCoverHex(hue)
   const baselineEmoji = mode === 'edit' ? (initialData?.cover_emoji ?? null) : null
   const [coverEmoji, setCoverEmoji] = useState<string | null>(() => baselineEmoji)
   const [submitting, setSubmitting] = useState(false)
@@ -198,7 +198,7 @@ export default function ListFormSheet({
       {/* 2. 커버 색 */}
       <div>
         <label className="text-xs text-stone-500 mb-1.5 block">커버 색</label>
-        <HueSlider hue={hue} onChange={setHue} />
+        <HueSlider hue={hue} onChange={setHue} variant="list" />
       </div>
 
       {/* 2b. 커버 이모지 (선택) — default 리스트는 ♨️ 고정이므로 숨김 */}

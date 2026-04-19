@@ -143,12 +143,20 @@ export const STORAGE_KEYS = {
 // HSL ↔ Hex 변환 (Hue 슬라이더용)
 // ============================================
 
-/** 프로필 아이콘 색상 톤 — 맑은 파스텔 (사-리스트 쨍한 원색과 구분) */
+/** 프로필 아이콘 색상 톤 — 맑은 파스텔 */
 export const COVER_TONE = { s: 45, l: 78 } as const
 
-/** hue → 커버 색상 Hex (COVER_TONE 적용) */
+/** hue → 프로필 커버 색상 Hex (파스텔) */
 export function coverHex(hue: number): string {
   return hslToHex(hue, COVER_TONE.s, COVER_TONE.l)
+}
+
+/** 사-리스트 커버 색상 톤 — 쨍한 원색 */
+export const LIST_COVER_TONE = { s: 75, l: 50 } as const
+
+/** hue → 리스트 커버 색상 Hex (쨍한 원색) */
+export function listCoverHex(hue: number): string {
+  return hslToHex(hue, LIST_COVER_TONE.s, LIST_COVER_TONE.l)
 }
 
 export function hslToHex(h: number, s: number, l: number): string {
