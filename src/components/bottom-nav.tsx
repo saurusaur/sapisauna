@@ -8,8 +8,8 @@ import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 // 2 + center raised + 2 구성 (논리적 그룹핑)
 const LEFT_TABS = [
-  { label: NAV.HISTORY, icon: ICONS.HISTORY, path: '/history' },
   { label: NAV.EXPLORE, icon: ICONS.EXPLORE, path: '/explore' },
+  { label: NAV.HISTORY, icon: ICONS.HISTORY, path: '/history' },
 ] as const
 
 const RIGHT_TABS = [
