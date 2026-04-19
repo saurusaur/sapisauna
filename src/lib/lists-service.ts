@@ -123,11 +123,7 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
     if (error.code === 'PGRST116') return null
     throw error
   }
-  return {
-    ...data,
-    owner_nickname: (data.owner as Record<string, unknown>)?.nickname as string | undefined,
-    owner: undefined,
-  }
+  return mapListWithOwner(data as Record<string, unknown>)
 }
 
 // 리스트 생성
