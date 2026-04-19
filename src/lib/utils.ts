@@ -147,7 +147,7 @@ export const STORAGE_KEYS = {
 import { formatHex, clampChroma } from 'culori'
 
 /** 프로필 아이콘 색상 톤 — 맑은 파스텔 (HSL) */
-export const COVER_TONE = { s: 45, l: 78 } as const
+export const COVER_TONE = { s: 38, l: 82 } as const
 
 /** hue → 프로필 커버 색상 Hex (파스텔) */
 export function coverHex(hue: number): string {
@@ -159,7 +159,7 @@ export function coverHex(hue: number): string {
  * HSL 대비 모든 hue에서 체감 밝기 균일 (라임/시안 눈부심 해결).
  * l: lightness (0~1), c: chroma (0~0.4)
  */
-export const LIST_COVER_TONE = { l: 0.72, c: 0.13 } as const
+export const LIST_COVER_TONE = { l: 0.70, c: 0.15 } as const
 
 /** hue → 리스트 커버 색상 Hex (OKLCH). sRGB gamut 밖이면 chroma 클램핑. */
 export function listCoverHex(hue: number): string {

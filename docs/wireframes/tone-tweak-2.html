@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>프로필 파스텔 / 리스트 쨍함 — 조정 비교</title>
+<style>
+  :root { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 64px; background: #fafaf9; color: #1c1917; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  .note { font-size: 12px; color: #78716c; margin: 0 0 24px; line-height: 1.55; }
+  h2 { font-size: 14px; margin: 26px 0 6px; display: flex; align-items: baseline; gap: 8px; }
+  h2 .formula {
+    font-size: 11px; font-weight: 500; color: #a8a29e;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  .desc { font-size: 12px; color: #57534e; margin: 0 0 10px; }
+  .current-tag { display:inline-block; font-size:10px; background:#fee2e2; color:#b91c1c; padding:1px 6px; border-radius:999px; font-weight:600; margin-left:4px; }
+  .option-tag { display:inline-block; font-size:10px; background:#f5f5f4; color:#44403c; padding:1px 6px; border-radius:999px; font-weight:600; margin-left:4px; }
+  hr { border: 0; border-top: 1px solid #e7e5e4; margin: 30px 0 0; }
+
+  /* 12 hue 팔레트 (avatar 크기) */
+  .avatar-row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  .avatar {
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #1c1917;
+  }
+  .chip-row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px; margin: 6px 0 0;
+  }
+  .chip {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+  }
+
+  /* 프로필 상세 뷰 (3개 아바타 실물 크기) */
+  .avatar-preview {
+    display: flex; gap: 12px; margin-top: 10px;
+    align-items: center;
+  }
+  .avatar-preview .item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .avatar-preview .big {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .avatar-preview .label {
+    font-size: 10px; color: #78716c;
+    font-family: 'SF Mono', monospace;
+  }
+
+  /* 사-리스트 커버 카드 */
+  .card-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+  @media (max-width: 560px) {
+    .card-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  .card {
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    padding: 12px;
+    display: flex; flex-direction: column;
+    box-shadow:
+      0 2px 8px -2px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 -2px 8px rgba(0,0,0,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .card .emoji { font-size: 28px; line-height: 1; }
+  .card .title {
+    color: #fff; font-weight: 700; font-size: 13px;
+    margin-top: auto;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.22);
+  }
+  .card .meta {
+    color: rgba(255,255,255,0.88);
+    font-size: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.22);
+  }
+</style>
+</head>
+<body>
+
+<h1>톤 조정 — 프로필 파스텔↑ / 리스트 쨍함↑</h1>
+<p class="note">
+  프로필은 더 부드러운 파스텔, 사-리스트는 살짝 더 선명한 톤으로 조정 옵션.<br/>
+  팔레트 12 hue + 실물 크기 미리보기.
+</p>
+
+<!-- ═══════════════════ 프로필 아이콘 ═══════════════════ -->
+<h2>프로필 — 현재 <span class="current-tag">적용중</span><span class="formula">HSL {s:45, l:78}</span></h2>
+<div class="avatar-row">
+  <div class="avatar" style="background:hsl(0,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(30,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(60,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(90,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(120,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(150,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(180,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(210,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(240,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(270,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(300,45%,78%)">🧖</div>
+  <div class="avatar" style="background:hsl(330,45%,78%)">🧖</div>
+</div>
+
+<h2>프로필 — 옵션 A <span class="option-tag">추천</span><span class="formula">HSL {s:38, l:82}</span></h2>
+<p class="desc">채도 -7, 밝기 +4. 기존 파스텔 방향 유지하며 한 톤 더 연하게.</p>
+<div class="avatar-row">
+  <div class="avatar" style="background:hsl(0,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(30,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(60,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(90,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(120,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(150,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(180,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(210,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(240,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(270,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(300,38%,82%)">🧖</div>
+  <div class="avatar" style="background:hsl(330,38%,82%)">🧖</div>
+</div>
+<div class="avatar-preview">
+  <div class="item"><div class="big" style="background:hsl(0,38%,82%)">🧖</div><span class="label">hue 0</span></div>
+  <div class="item"><div class="big" style="background:hsl(120,38%,82%)">🧖</div><span class="label">hue 120</span></div>
+  <div class="item"><div class="big" style="background:hsl(210,38%,82%)">🧖</div><span class="label">hue 210</span></div>
+  <div class="item"><div class="big" style="background:hsl(300,38%,82%)">🧖</div><span class="label">hue 300</span></div>
+</div>
+
+<h2>프로필 — 옵션 B<span class="formula">HSL {s:32, l:86}</span></h2>
+<p class="desc">더 연하고 솜사탕 같은 느낌. 거의 흰색에 가까움.</p>
+<div class="avatar-row">
+  <div class="avatar" style="background:hsl(0,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(30,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(60,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(90,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(120,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(150,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(180,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(210,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(240,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(270,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(300,32%,86%)">🧖</div>
+  <div class="avatar" style="background:hsl(330,32%,86%)">🧖</div>
+</div>
+
+<hr/>
+
+<!-- ═══════════════════ SA-리스트 ═══════════════════ -->
+<h2>사-리스트 — 현재 <span class="current-tag">적용중</span><span class="formula">OKLCH {l:0.72, c:0.13}</span></h2>
+<div class="chip-row">
+  <span class="chip" style="background:oklch(72% 0.13 0)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 30)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 60)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 90)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 120)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 150)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 180)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 210)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 240)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 270)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 300)"></span>
+  <span class="chip" style="background:oklch(72% 0.13 330)"></span>
+</div>
+<div class="card-row">
+  <div class="card" style="background:oklch(72% 0.13 25)"><span class="emoji">🔥</span><div><div class="title">불맛 사우나</div><div class="meta">12곳</div></div></div>
+  <div class="card" style="background:oklch(72% 0.13 135)"><span class="emoji">🌿</span><div><div class="title">숲속 힐링</div><div class="meta">8곳</div></div></div>
+  <div class="card" style="background:oklch(72% 0.13 230)"><span class="emoji">💧</span><div><div class="title">쿨다운</div><div class="meta">15곳</div></div></div>
+  <div class="card" style="background:oklch(72% 0.13 320)"><span class="emoji">🌙</span><div><div class="title">심야</div><div class="meta">20곳</div></div></div>
+</div>
+
+<h2>사-리스트 — 옵션 A <span class="option-tag">추천</span><span class="formula">OKLCH {l:0.70, c:0.15}</span></h2>
+<p class="desc">chroma +0.02, lightness -0.02. 살짝 진하고 선명. sRGB gamut 대부분 안전.</p>
+<div class="chip-row">
+  <span class="chip" style="background:oklch(70% 0.15 0)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 30)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 60)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 90)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 120)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 150)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 180)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 210)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 240)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 270)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 300)"></span>
+  <span class="chip" style="background:oklch(70% 0.15 330)"></span>
+</div>
+<div class="card-row">
+  <div class="card" style="background:oklch(70% 0.15 25)"><span class="emoji">🔥</span><div><div class="title">불맛 사우나</div><div class="meta">12곳</div></div></div>
+  <div class="card" style="background:oklch(70% 0.15 135)"><span class="emoji">🌿</span><div><div class="title">숲속 힐링</div><div class="meta">8곳</div></div></div>
+  <div class="card" style="background:oklch(70% 0.15 230)"><span class="emoji">💧</span><div><div class="title">쿨다운</div><div class="meta">15곳</div></div></div>
+  <div class="card" style="background:oklch(70% 0.15 320)"><span class="emoji">🌙</span><div><div class="title">심야</div><div class="meta">20곳</div></div></div>
+</div>
+
+<h2>사-리스트 — 옵션 B<span class="formula">OKLCH {l:0.68, c:0.17}</span></h2>
+<p class="desc">chroma +0.04, lightness -0.04. 확실히 쨍하고 진한 톤. 일부 hue(파랑 계열)는 sRGB 밖 → 자동 클램핑.</p>
+<div class="chip-row">
+  <span class="chip" style="background:oklch(68% 0.17 0)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 30)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 60)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 90)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 120)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 150)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 180)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 210)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 240)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 270)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 300)"></span>
+  <span class="chip" style="background:oklch(68% 0.17 330)"></span>
+</div>
+<div class="card-row">
+  <div class="card" style="background:oklch(68% 0.17 25)"><span class="emoji">🔥</span><div><div class="title">불맛 사우나</div><div class="meta">12곳</div></div></div>
+  <div class="card" style="background:oklch(68% 0.17 135)"><span class="emoji">🌿</span><div><div class="title">숲속 힐링</div><div class="meta">8곳</div></div></div>
+  <div class="card" style="background:oklch(68% 0.17 230)"><span class="emoji">💧</span><div><div class="title">쿨다운</div><div class="meta">15곳</div></div></div>
+  <div class="card" style="background:oklch(68% 0.17 320)"><span class="emoji">🌙</span><div><div class="title">심야</div><div class="meta">20곳</div></div></div>
+</div>
+
+</body>
+</html>
