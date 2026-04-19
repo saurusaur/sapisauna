@@ -8,11 +8,11 @@
 import { useState, useCallback, useMemo } from 'react'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useRouter } from 'next/navigation'
-import { useMyLists } from '@/hooks/use-lists'
 import { useSubscribedLists, useSubscription } from '@/hooks/use-subscriptions'
 import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
+import { useSavePlace } from '@/contexts/save-place-context'
 import * as listsService from '@/lib/lists-service'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
@@ -41,7 +41,7 @@ export default function SaListMyPage() {
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
   const [tab, setTab] = useState<TabId>('all')
 
-  const { data: myLists, loading: myLoading, refresh: refreshMyLists } = useMyLists()
+  const { myLists, loading: myLoading, refreshMyLists } = useSavePlace()
   const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
 
   const [manageList, setManageList] = useState<SaList | null>(null)

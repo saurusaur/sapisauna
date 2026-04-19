@@ -93,6 +93,7 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
         ...prev,
         [placeId]: (prev[placeId] || []).filter((id) => id !== defaultListId),
       }))
+      loadMyLists()
       return false
     } else {
       await listsService.addPlaceToList(defaultListId, placeId)
@@ -100,9 +101,10 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
         ...prev,
         [placeId]: [...(prev[placeId] || []), defaultListId],
       }))
+      loadMyLists()
       return true
     }
-  }, [user, defaultListId, savedMap])
+  }, [user, defaultListId, savedMap, loadMyLists])
 
   const toggleListSave = useCallback(async (placeId: string, listId: string): Promise<boolean> => {
     if (!user) return false
@@ -115,6 +117,7 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
         ...prev,
         [placeId]: (prev[placeId] || []).filter((id) => id !== listId),
       }))
+      loadMyLists()
       return false
     } else {
       await listsService.addPlaceToList(listId, placeId)
@@ -122,9 +125,10 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
         ...prev,
         [placeId]: [...(prev[placeId] || []), listId],
       }))
+      loadMyLists()
       return true
     }
-  }, [user, savedMap])
+  }, [user, savedMap, loadMyLists])
 
   const getListsForPlace = useCallback((placeId: string): SaList[] => {
     const listIds = savedMap[placeId] || []
@@ -142,7 +146,8 @@ export function SavePlaceProvider({ children }: { children: ReactNode }) {
       await listsService.removePlaceFromList(listId, placeId)
     }
     setSavedMap((prev) => ({ ...prev, [placeId]: [] }))
-  }, [savedMap])
+    loadMyLists()
+  }, [savedMap, loadMyLists])
 
   return (
     <SavePlaceContext.Provider value={{

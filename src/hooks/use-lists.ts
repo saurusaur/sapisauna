@@ -10,28 +10,6 @@ import * as listsService from '@/lib/lists-service'
 import type { PublicListSort } from '@/lib/lists-service'
 import type { SaList, ListItem, UseDataState } from '@/types'
 
-// 내 리스트 목록 (기본 저장 포함)
-export function useMyLists(): UseDataState<SaList[]> & { refresh: () => void } {
-  const { user } = useAuth()
-  const [data, setData] = useState<SaList[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const refetch = useCallback(() => {
-    if (!user) { setLoading(false); return }
-    setLoading(true)
-
-    listsService.getMyLists(user.id)
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [user])
-
-  useEffect(() => { refetch() }, [refetch])
-
-  return { data, loading, error, refresh: refetch }
-}
-
 // 공개 리스트 피드 — sort: popular | recent, search: 제목/태그 검색
 export function usePublicLists(
   limit = 20,

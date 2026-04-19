@@ -8,11 +8,12 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useMyLists, usePublicLists, useFeaturedPublicLists, usePopularTags } from '@/hooks/use-lists'
+import { usePublicLists, useFeaturedPublicLists, usePopularTags } from '@/hooks/use-lists'
 import { useSubscribedLists, useSubscription } from '@/hooks/use-subscriptions'
 import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
+import { useSavePlace } from '@/contexts/save-place-context'
 import * as listsService from '@/lib/lists-service'
 import type { PublicListSort } from '@/lib/lists-service'
 import BottomNav from '@/components/bottom-nav'
@@ -37,8 +38,8 @@ export default function SaListPage() {
   const { showError, showNotice } = useToast()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
-  // 데이터 훅
-  const { data: myLists, loading: myLoading, refresh: refreshMyLists } = useMyLists()
+  // 데이터 훅 — myLists는 SavePlaceContext SSOT (저장/해제 시 자동 refresh)
+  const { myLists, loading: myLoading, refreshMyLists } = useSavePlace()
   const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
   const { data: featuredLists } = useFeaturedPublicLists()
   const { data: popularTags } = usePopularTags()
@@ -98,8 +99,10 @@ export default function SaListPage() {
     return result
   }, [myLists, subscribedLists])
 
-  // 피드에서 featured 제외
-  const feedLists = publicLists.filter((l) => !l.is_featured)
+  // 피드에서 featured 제외 (검색/태그 모드에서는 featured도 포함 — 태그가 featured에만 있을 때 대응)
+  const feedLists = feedSearch
+    ? publicLists
+    : publicLists.filter((l) => !l.is_featured)
 
   const handleCloseCreateSheet = useCallback(() => {
     if (createDirty) {
