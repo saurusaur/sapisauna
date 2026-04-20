@@ -178,7 +178,7 @@ export default function SaListPage() {
           <section>
             <div className="px-5 pt-2 pb-2">
               <h2 className="text-sm font-bold text-stone-600">SA-PI FEATURED</h2>
-              <p className="text-[10.5px] text-stone-400 font-normal mt-0.5">사-피 추천 리스트!</p>
+              <p className="text-[11px] text-stone-400 font-normal mt-0.5">사-피 추천 리스트</p>
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 px-5">
               {featuredLists.map((list) => (
@@ -211,7 +211,7 @@ export default function SaListPage() {
         <section>
           <div className="px-5 pt-5 pb-2">
             <h2 className="text-sm font-bold text-stone-600">TRIBE PICKS</h2>
-            <p className="text-[10.5px] text-stone-400 font-normal mt-0.5">실시간 업데이트 트라이브별 베스트 픽!</p>
+            <p className="text-[11px] text-stone-400 font-normal mt-0.5">실시간 업데이트 트라이브별 베스트 픽</p>
           </div>
           <div className="px-5 pb-1 grid grid-cols-3 gap-2">
             {Object.values(TRIBES).map((tribe) => (
@@ -455,7 +455,7 @@ function MyCardItem({
   const title = isDefault ? 'MY SA-LIST' : list.title
 
   const visibilityBadge = isSubscribed
-    ? { label: '구독 중', cls: 'bg-stone-200 text-stone-500' }
+    ? { label: '구독 중', cls: 'bg-red-500/10 text-red-600' }
     : {
         label: VISIBILITY_LABEL[list.visibility],
         cls: list.visibility === 'public'
