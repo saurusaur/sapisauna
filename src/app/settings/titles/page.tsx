@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
+import { getMilestoneCondition } from '@/constants/rewards'
 import type { UserTitle } from '@/types'
 
 export default function TitlesPage() {
@@ -56,14 +57,15 @@ export default function TitlesPage() {
     }
   }
 
-  const sourceLabel = (source: string) => {
-    switch (source) {
-      case 'milestone': return '마일스톤'
-      case 'welcome': return '환영'
-      case 'beta': return '베타'
-      case 'random': return '레벨업'
-      default: return source
+  // 칭호 획득 사유 — milestone은 base_title 기반 구체 사유, 그 외는 일반 라벨
+  const sourceLabel = (t: UserTitle) => {
+    if (t.source === 'random') return '레벨업'
+    if (t.source === 'welcome') return '환영'
+    if (t.source === 'beta') return '베타'
+    if (t.source === 'milestone' && t.base_title) {
+      return getMilestoneCondition(t.base_title) ?? '마일스톤'
     }
+    return t.source
   }
 
   return (
@@ -132,7 +134,7 @@ export default function TitlesPage() {
                       {t.title}
                     </p>
                     <p className="text-[10px] text-stone-400 mt-0.5">
-                      {sourceLabel(t.source)} · {new Date(t.granted_at).toLocaleDateString('ko-KR')}
+                      {sourceLabel(t)} · {new Date(t.granted_at).toLocaleDateString('ko-KR')}
                     </p>
                   </div>
                   {isActive ? (

@@ -5,6 +5,7 @@
 import { supabase } from './supabase'
 import { nanoid } from 'nanoid'
 import { toPlace } from './places-service'
+import { grantReward, checkPlaceInListMilestone, checkSubscriberMilestones } from './reward-service'
 import type { SaList, ListItem, ListType, ListVisibility } from '@/types'
 
 // 공개 리스트용 짧은 slug 생성 (8자리)
@@ -24,7 +25,12 @@ export async function getMyLists(userId: string): Promise<SaList[]> {
     .order('updated_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  const lists = data || []
+
+  // 구독자 마일스톤 lazy 체크 (안내자/촌장/사플루언서) — 실패는 무시
+  checkSubscriberMilestones(userId, lists).catch(() => {})
+
+  return lists
 }
 
 // 내 기본 저장 리스트 조회 (좋아요 역할)
@@ -171,6 +177,12 @@ export async function createList(params: {
     if (error.code === '23505') throw new Error('이미 같은 이름의 리스트가 있어요')
     throw error
   }
+
+  // user-type 리스트 생성 시만 XP/마일스톤 (default 자동생성 제외)
+  if ((params.type || 'user') === 'user') {
+    grantReward('list_created').catch(() => {})
+  }
+
   return data
 }
 
@@ -243,10 +255,20 @@ export async function addPlaceToList(listId: string, placeId: string, memo?: str
   if (error) throw error
 
   // place_count + updated_at 업데이트
+  const newCount = await countPlaces(listId)
   await supabase
     .from('lists')
-    .update({ place_count: await countPlaces(listId), updated_at: new Date().toISOString() })
+    .update({ place_count: newCount, updated_at: new Date().toISOString() })
     .eq('id', listId)
+
+  // 백과사전 마일스톤 — owner 본인이 추가한 경우만
+  if (newCount >= 30) {
+    const { data: list } = await supabase.from('lists').select('owner_id').eq('id', listId).single()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (list?.owner_id && authUser?.id === list.owner_id) {
+      checkPlaceInListMilestone(list.owner_id, newCount).catch(() => {})
+    }
+  }
 
   return data
 }

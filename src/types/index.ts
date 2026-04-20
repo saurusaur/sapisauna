@@ -191,6 +191,7 @@ export interface UserTitle {
   user_id: string
   title: string
   source: 'milestone' | 'random' | 'welcome' | 'beta'
+  base_title: string | null   // 마일스톤 원본명 (랜덤은 null) — 사유 라벨/중복방지용
   granted_at: string
 }
 

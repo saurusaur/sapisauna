@@ -5,9 +5,9 @@
 
 import { supabase } from './supabase'
 import { captureError } from './error-logger'
-import { XP_VALUES, type XpAction, TRIBE_LOG_MILESTONES, ACTIVITY_MILESTONES } from '@/constants/rewards'
+import { XP_VALUES, type XpAction, TRIBE_LOG_MILESTONES, ACTIVITY_MILESTONES, LIST_MILESTONES } from '@/constants/rewards'
 import { levelFromXp, generateRandomTitle, addAdjectivePrefix } from './reward-engine'
-import type { TribeId, RewardResult } from '@/types'
+import type { TribeId, RewardResult, SaList } from '@/types'
 
 /**
  * XP 지급 + 레벨업 체크 + 칭호 드롭
@@ -160,7 +160,88 @@ async function checkMilestones(
     }
   }
 
+  // 사-리스트 생성 마일스톤 — 큐레이터(1) / 컬렉터(5)
+  if (action === 'list_created') {
+    const { count } = await supabase
+      .from('lists')
+      .select('id', { count: 'exact', head: true })
+      .eq('owner_id', userId)
+      .eq('type', 'user')
+
+    const listCount = count ?? 0
+
+    if (listCount >= 1) {
+      const base = LIST_MILESTONES.first_list.title
+      const title = addAdjectivePrefix(base)
+      const inserted = await insertTitle(userId, title, 'milestone', base)
+      if (inserted) titles.push(title)
+    }
+    if (listCount >= 5) {
+      const base = LIST_MILESTONES.lists_5.title
+      const title = addAdjectivePrefix(base)
+      const inserted = await insertTitle(userId, title, 'milestone', base)
+      if (inserted) titles.push(title)
+    }
+  }
+
   return titles
+}
+
+// ============================================
+// 사-리스트 마일스톤 헬퍼 — XP 없이 칭호만 부여
+// ============================================
+
+/**
+ * 백과사전 마일스톤 — addPlaceToList 직후 호출
+ * 그 리스트의 place_count >= 30 이면 부여 (중복은 base_title로 dedup)
+ */
+export async function checkPlaceInListMilestone(
+  userId: string,
+  newPlaceCount: number
+): Promise<void> {
+  if (newPlaceCount < 30) return
+  const base = LIST_MILESTONES.places_in_list_30.title
+  const title = addAdjectivePrefix(base)
+  await insertTitle(userId, title, 'milestone', base)
+  await ensureActiveTitle(userId, title)
+}
+
+/**
+ * 구독자 마일스톤 lazy 체크 — getMyLists 후 호출
+ * 본인 리스트 중 가장 큰 subscriber_count 기준으로 1/10/50 단계 부여
+ */
+export async function checkSubscriberMilestones(
+  userId: string,
+  lists: SaList[]
+): Promise<void> {
+  const owned = lists.filter((l) => l.owner_id === userId)
+  if (owned.length === 0) return
+  const maxSubs = owned.reduce((m, l) => Math.max(m, l.subscriber_count ?? 0), 0)
+
+  const tiers: Array<{ threshold: number; base: string }> = [
+    { threshold: 1,  base: LIST_MILESTONES.subscribers_1.title },
+    { threshold: 10, base: LIST_MILESTONES.subscribers_10.title },
+    { threshold: 50, base: LIST_MILESTONES.subscribers_50.title },
+  ]
+
+  for (const t of tiers) {
+    if (maxSubs < t.threshold) continue
+    const title = addAdjectivePrefix(t.base)
+    const inserted = await insertTitle(userId, title, 'milestone', t.base)
+    if (inserted) await ensureActiveTitle(userId, title)
+  }
+}
+
+// 첫 칭호면 active_title로 자동 설정
+async function ensureActiveTitle(userId: string, title: string): Promise<void> {
+  const { data } = await supabase
+    .from('users')
+    .select('active_title')
+    .eq('id', userId)
+    .single()
+  if (!data?.active_title) {
+    await supabase.from('users').update({ active_title: title }).eq('id', userId)
+  }
 }
 
 // ============================================

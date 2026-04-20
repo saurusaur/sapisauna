@@ -16,6 +16,7 @@ export const XP_VALUES = {
   deep_log: 30,       // 딥로그 INSERT (독립 지급)
   place_created: 50,  // 장소 신규등록
   place_merged: 20,   // 장소 merge
+  list_created: 30,   // 사-리스트 생성 (default 제외, user-type만)
 } as const
 
 export type XpAction = keyof typeof XP_VALUES
@@ -73,3 +74,44 @@ export const ACTIVITY_MILESTONES = {
   places_10: { condition: '장소 10개', title: '탐험가' },
   places_30: { condition: '장소 30개', title: '지도제작자' },
 } as const
+
+// 사-리스트 마일스톤 (조건 판별은 reward-service에서)
+// 큐레이터/컬렉터: createList 직후, 백과사전: addPlaceToList 직후, 구독자 시리즈: getMyLists lazy
+export const LIST_MILESTONES = {
+  first_list:       { condition: '첫 리스트 생성',     title: '큐레이터' },
+  lists_5:          { condition: '리스트 5개 생성',    title: '컬렉터' },
+  places_in_list_30:{ condition: '리스트에 장소 30개', title: '백과사전' },
+  subscribers_1:    { condition: '첫 구독자 달성',     title: '안내자' },
+  subscribers_10:   { condition: '구독자 10명 달성',   title: '촌장' },
+  subscribers_50:   { condition: '구독자 50명 달성',   title: '사플루언서' },
+} as const
+
+// ============================================
+// base_title → 사유 매핑 (titles 페이지용)
+// ============================================
+const TRIBE_LABELS: Record<TribeId, string> = {
+  saunner: '사우나',
+  bather: '목욕',
+  jimi: '찜질',
+}
+
+/** 마일스톤 칭호의 획득 사유를 반환. 매칭 안 되면 null */
+export function getMilestoneCondition(baseTitle: string): string | null {
+  for (const m of Object.values(BASE_MILESTONES)) {
+    if (m.title === baseTitle) return m.condition
+  }
+  for (const m of Object.values(ACTIVITY_MILESTONES)) {
+    if (m.title === baseTitle) return m.condition
+  }
+  for (const m of Object.values(LIST_MILESTONES)) {
+    if (m.title === baseTitle) return m.condition
+  }
+  for (const [tribeId, milestones] of Object.entries(TRIBE_LOG_MILESTONES) as [TribeId, { count: number; title: string }[]][]) {
+    for (const m of milestones) {
+      if (m.title === baseTitle) {
+        return `${TRIBE_LABELS[tribeId]} ${m.count === 1 ? '첫 기록' : `${m.count}회 기록`}`
+      }
+    }
+  }
+  return null
+}
