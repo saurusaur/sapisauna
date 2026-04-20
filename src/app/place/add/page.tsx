@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY } from '@/constants/content'
+import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY, isInputVisibleOption } from '@/constants/content'
 import ChipSelect from '@/components/ui/chip-select'
 import SelectButton from '@/components/ui/select-button'
 import ToggleSwitch from '@/components/ui/toggle-switch'
@@ -535,7 +535,7 @@ export default function AddPlace() {
                   {PLACE_SPECS[key].label}
                 </label>
                 <ChipSelect
-                  options={PLACE_SPECS[key].options}
+                  options={PLACE_SPECS[key].options.filter(isInputVisibleOption)}
                   selected={
                     // tattoo-cover 선택 시 tattoo-friendly 칩도 활성화 표시
                     selectedFacilities.includes('tattoo-cover')

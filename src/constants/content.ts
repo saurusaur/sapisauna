@@ -537,6 +537,14 @@ export const PLACE_SPECS = {
         category: "amenities",
       },
       {
+        // 시스템 자동 부여용 (JP 모달에서만 설정) — 입력 폼에선 숨기고 조회에만 노출
+        id: "tattoo-cover",
+        label: "타투 가능(커버)",
+        icon: "brush",
+        category: "amenities",
+        hiddenInInput: true,
+      },
+      {
         id: "workspace",
         label: "작업 공간",
         icon: "laptop",
@@ -960,7 +968,6 @@ export const FACILITY_LABEL_MAP: Record<string, string> = (() => {
   for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.label;
   }
-  map["tattoo-cover"] = "타투 가능(커버)";
   for (const opt of PLACE_BATH_POLICY) {
     map[opt.id] = opt.label;
   }
@@ -985,12 +992,15 @@ export const FACILITY_ICON_MAP: Record<string, string> = (() => {
   for (const opt of PLACE_VENUE_TYPE) {
     map[opt.id] = opt.icon;
   }
-  map["tattoo-cover"] = "brush";
   for (const opt of PLACE_BATH_POLICY) {
     map[opt.id] = opt.icon;
   }
   return map;
 })();
+
+/** 입력 폼에 노출 가능한 옵션 필터 — hiddenInInput=true는 조회/자동 부여 전용 */
+export const isInputVisibleOption = (o: object): boolean =>
+  !(o as { hiddenInInput?: boolean }).hiddenInInput;
 
 // ============================================
 // 크리에이터 소셜 링크
