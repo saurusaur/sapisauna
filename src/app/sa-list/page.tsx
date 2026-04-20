@@ -44,7 +44,7 @@ export default function SaListPage() {
   const { myLists, loading: myLoading, refreshMyLists } = useSavePlace()
   const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
   const { data: featuredLists } = useFeaturedPublicLists()
-  const { data: popularTags } = usePopularTags()
+  const { data: popularTags } = usePopularTags(5)
 
   // 검색 + 태그 필터
   const [showSearch, setShowSearch] = useState(false)

@@ -166,15 +166,15 @@ export default function SaListDetailClient() {
       <DataState loading={listLoading} error={listError} isEmpty={!list}>
         {list && (<>
 
-      {/* ── 커버 헤더 ── */}
+      {/* ── 커버 헤더 ── (default 리스트는 흰색 배경 + 어두운 텍스트) */}
       <header
         className="relative flex flex-col justify-end min-h-[220px] px-5 pt-8 pb-5"
-        style={{ backgroundColor: listBgColor(list.cover_hue) }}
+        style={{ backgroundColor: isDefault ? '#ffffff' : listBgColor(list.cover_hue) }}
       >
         {/* 네비 — 좌: 뒤로 / 우: 공개 pill(owner) · share · star(admin) · more(owner) */}
         <div className="absolute top-8 left-4 right-4 flex justify-between items-center z-10">
           <button onClick={() => router.back()} className="p-1">
-            <span className="material-symbols-outlined text-white/90" style={{ fontSize: '22px' }}>arrow_back</span>
+            <span className={`material-symbols-outlined ${isDefault ? 'text-stone-500' : 'text-white/90'}`} style={{ fontSize: '22px' }}>arrow_back</span>
           </button>
           <div className="flex gap-1 items-center">
             {isMine && !isDefault && (
@@ -215,11 +215,11 @@ export default function SaListDetailClient() {
           <span className="text-5xl mb-3 block" aria-hidden>
             {isDefault ? '♨️' : (list.cover_emoji || '🧖')}
           </span>
-          <h1 className="text-[22px] font-bold text-white leading-tight mb-1.5">
+          <h1 className={`text-[22px] font-bold leading-tight mb-1.5 ${isDefault ? 'text-stone-800' : 'text-white'}`}>
             {isDefault ? 'MY SA-LIST' : list.title}
           </h1>
           {list.description && (
-            <p className="text-[13px] text-white/85 leading-relaxed">{list.description}</p>
+            <p className={`text-[13px] leading-relaxed ${isDefault ? 'text-stone-500' : 'text-white/85'}`}>{list.description}</p>
           )}
 
           {/* Visitor: 커버 내부 outline 구독 pill */}
@@ -383,7 +383,7 @@ export default function SaListDetailClient() {
 
                   {/* Owner: 제거 버튼만 (메모 수정은 PlaceCard 내 편집 클릭으로 통합) */}
                   {isMine && editingMemoId !== item.place_id && (
-                    <div className="flex items-center justify-end mt-1.5">
+                    <div className="flex items-center justify-end -mt-0.5">
                       <button
                         onClick={() => handleRemoveFromList(item.place!.id)}
                         className="flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-medium text-stone-400"
