@@ -93,6 +93,16 @@ export async function getPopularTags(limitCount = 10): Promise<{ tag: string; co
   return (data || []) as { tag: string; count: number }[]
 }
 
+/**
+ * 어드민 전용: 리스트 추천(is_featured) 토글.
+ * RLS가 owner-only이므로 toggle_featured RPC (SECURITY DEFINER) 경유.
+ * 서버측에서 auth.uid() 어드민 체크 → 권한 없으면 RPC에서 exception throw.
+ */
+export async function toggleAdminFeatured(listId: string): Promise<void> {
+  const { error } = await supabase.rpc('toggle_featured', { target_list_id: listId })
+  if (error) throw error
+}
+
 /** 큐레이션 캐러셀 전용 — is_featured 공개 리스트만 */
 export async function getFeaturedPublicLists(): Promise<SaList[]> {
   const { data, error } = await supabase
@@ -165,9 +175,10 @@ export async function createList(params: {
 }
 
 // 리스트 수정 (visibility 전환 시 slug 자동 생성)
+// ⚠️ is_featured는 owner-only RLS에 막히므로 toggleAdminFeatured() RPC로 처리
 export async function updateList(
   id: string,
-  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'is_featured' | 'cover_hue' | 'cover_emoji' | 'tags' | 'creator_links'>>
+  updates: Partial<Pick<SaList, 'title' | 'description' | 'visibility' | 'is_pinned' | 'cover_hue' | 'cover_emoji' | 'tags' | 'creator_links'>>
 ): Promise<SaList> {
   const updatePayload: Record<string, unknown> = {
     ...updates,

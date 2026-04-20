@@ -148,11 +148,11 @@ export default function SaListDetailClient() {
     if (result !== true) showError(result)
   }, [list, showError])
 
-  // 어드민: 추천 등록/해제
+  // 어드민: 추천 등록/해제 — RLS owner-only 우회용 toggle_featured RPC 사용
   const handleToggleFeatured = useCallback(async () => {
     if (!list) return
     try {
-      await listsService.updateList(list.id, { is_featured: !list.is_featured })
+      await listsService.toggleAdminFeatured(list.id)
       refreshList()
     } catch {
       showError('추천 상태 변경에 실패했어요')
