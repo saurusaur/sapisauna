@@ -27,9 +27,9 @@
 
 ### 1. DB 마이그레이션
 
-**`supabase/021_place_city.sql`**
+**`supabase/022_place_city.sql`**
 ```sql
--- 021: places 테이블에 city 컬럼 추가 (Geocoding 마이그레이션 일환)
+-- 022: places 테이블에 city 컬럼 추가 (Geocoding 마이그레이션 일환)
 -- 기존 country_code 컬럼 재사용 (오염값은 마이그레이션 스크립트로 교정)
 
 ALTER TABLE places ADD COLUMN IF NOT EXISTS city TEXT;
@@ -178,7 +178,9 @@ export const COUNTRY_NAMES: Record<string, string> = {
 - `country_code || 'KR'` fallback 제거 → `country_code || ''`
 - `toPlace` 매핑에 `city` 필드 추가
 - `generateShortAddress` 호출부를 새 함수로 교체 (아래)
-- 신규 export: `getShortAddress(city, country_code)` = `${city}, ${COUNTRY_NAMES[cc] ?? cc}`
+- 신규 `getShortAddress(place)` 로직:
+  - `primary source`가 naver → 기존 generateShortAddress(address, 'KR') 유지 → `"서울 강남구"` 스타일
+  - 그 외 (Google/Manual) → `${place.city}, ${COUNTRY_NAMES[cc] ?? cc}` → `"Tokyo, Japan"` 스타일
 
 **`src/lib/logs-service.ts`**
 - `place_country_code: ... || 'KR'` fallback 제거
@@ -194,21 +196,30 @@ export const COUNTRY_NAMES: Record<string, string> = {
 ### 5. 기존 데이터 교정 스크립트
 
 **`scripts/migrate-existing-addresses.ts`**
-- Supabase admin client로 `places` 전수 조회
-- 각 row: lat/lng 있으면 `reverseGeocode(lat, lng, name)` 호출
-- 결과로 `places.country_code`, `places.city` UPDATE + `place_sources.address_original` UPDATE
-- 멱등성: 이미 올바른 country_code (`!= 'KR'` 또는 GeoNames로 교차검증) 있으면 skip 옵션
-- `--dry-run` 지원
-- API 호출 rate limit 고려 (queries-per-second ~50 안전)
+- Supabase admin client로 `places` 전수 조회 (place_sources JOIN)
+- 각 place의 source 조합에 따라 분기 처리:
+
+| Source 조합 | 처리 |
+|---|---|
+| **Naver only** | Geocoding 호출 → `places.country_code`, `places.city` 업데이트 / `place_sources.address_original`는 **미변경** (국문 주소 보존) |
+| **Naver + Google** | Geocoding 호출 (google 소스 lat/lng로) → `places.country_code`, `places.city` 업데이트 + **Google source의 address_original만 정제된 값으로** / Naver source는 미변경 |
+| **Google only** | Geocoding 호출 → `places.country_code`, `places.city` 업데이트 + Google source의 `address_original` 정제 |
+| **Manual only** | Geocoding 호출 → `places.country_code`, `places.city` 업데이트 + Manual source의 `address_original`이 reversed order 포함 등 정제 필요 시 업데이트 / 원본이 이미 깔끔하면 보존 |
+
+- lat/lng 없는 row: Geocoding 불가 → 로그 남기고 skip
+- Geocoding 에러/빈 응답: `console.error` + 배열에 축적 → 실행 끝에 "수동 검토 필요 place_id 리스트" 출력
+- `--dry-run` 지원 (실제 UPDATE 없이 어떤 변경이 발생할지 리포트만)
+- API 호출 간 250ms 간격 (Geocoding legacy 50 QPS 제한 대비 여유)
+- 멱등성: 스크립트 재실행해도 동일 결과 (같은 입력 → 같은 출력)
 
 ## 실행 순서
 
 ```
-Phase 1: 기반 준비 (GCP + SQL)
-  a. GCP 콘솔: Geocoding API 활성화
-  b. GOOGLE_PLACES_API_KEY에 Geocoding API 추가 (제한 설정)
-  c. Cloud Billing 예산 알림 $1 설정 (안전장치)
-  d. 021_place_city.sql 적용 (Supabase)
+Phase 1: 기반 준비 (GCP + SQL) — GCP는 이미 enable됨 확인
+  a. ✅ Geocoding API 활성화 (완료)
+  b. ✅ API 키 restriction 내 Geocoding 포함 (완료)
+  c. (선택) Cloud Billing 예산 알림 $1 설정
+  d. 022_place_city.sql 적용 (Supabase — 유저 수동)
 
 Phase 2: 코드 구현
   a. src/lib/geo/{address-builder,reverse-geocode}.ts 신규
