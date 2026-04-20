@@ -13,6 +13,8 @@
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
+- [ ] [UX] 홈 SA-PI FEATURED 섹션 가로 alignment 어긋남 — 홈 `<main className="p-4">`(16px) + 공용 컴포넌트 내부 `px-5`(20px) = 36px 들여쓰기로 ProfileCard·커뮤니티 피드(16px)와 가로 정렬 안 맞음. 수정안: compact 모드일 때 내부 `px-4` 적용 + 홈 호출부 `<div className="-mx-4">` 래퍼로 main padding 상쇄 → 16px 통일. 또는 홈 main padding을 `p-5`로 통일하는 방향도 검토 | priority: P1 | added: 2026-04-20
+- [ ] [UX] 트라이브 선택 버튼 디자인 통일 — 온보딩(w-24) + 비로그인 홈 TribePicksCard(w-20)를 사-리스트 TRIBE PICKS 스타일로 통일. 정사각 컬러 풀필 + 이모지+persona+name 박스 안 배치(공간 절약). 설계: `docs/handoff/handoff_20260420_session.md` | priority: P1 | added: 2026-04-20
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
