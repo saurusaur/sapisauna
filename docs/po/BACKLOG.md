@@ -22,7 +22,6 @@
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
-- [ ] [UX] 트라이브 픽 → 사-리스트 이동 — 홈 "추천 사우나" 트라이브 픽 섹션을 사-리스트 탭으로 이동 (추천 로직이 리스트 기반) | priority: P2 | added: 2026-04-18
 - [ ] [기능] 탐색 탭 → 지도 뷰 전환 — 탐색을 "주변 사우나 찾기 + 장소 정보" 지도 중심으로 변경. 지도 API 선정(Naver/Mapbox) 필요 | priority: P2 | added: 2026-04-18
 - [ ] [UX] 장소 상세보기 SA-LIST 섹션 — 해당 장소가 포함된 공개 리스트 수 + 인기순 리스트 목록 표시 | priority: P2 | added: 2026-04-13
 - [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
@@ -43,6 +42,8 @@
 ## Done
 
 ### 2026-04-20
+- [x] [UX] TRIBE PICKS 탐색탭→사-리스트 홈 이동 + SA-PI FEATURED 리네이밍 — URL 이동(/explore/type/[t] → /sa-list/tribe/[t]), 탐색 섹션 제거, 3카드 Variant A(컬러 풀필+그림자), 서브설명 추가. 탐색탭은 향후 지도뷰 전환 대비 (2b4a1fb) | done: 2026-04-20
+- [x] [UX] 장소 상세 사우너 메트릭에 급냉탕 평균 추가 (f0b5637) | done: 2026-04-20
 - [x] [기능] 급냉탕 온도 필드 추가 — deep_logs.has_ice_bath/ice_bath_temp (0~20°C), 탕 온도 섹션 4번째 슬라이더, 히스토리 상세 표시, autoTags 'ice-bath' 연동. 마이그레이션 021 (53b516f) | done: 2026-04-20
 - [x] [UX] 공개 pill 클릭 시 공개 설정 뷰 바로 오픈 — ListManageSheet initialView prop 추가, 3-dot과 분기 (6bd5420) | done: 2026-04-20
 - [x] [UX] 사-리스트 상세 헤더 상단 여백 통일 pt-12→pt-8 — 네비-이모지 호흡 확보 (cc48f8a) | done: 2026-04-20
