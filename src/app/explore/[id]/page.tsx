@@ -263,9 +263,7 @@ export default function PlaceDetailPage() {
 
   const googleMapUrl = googleSource?.external_id
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${googleSource.external_id}`
-    : place.latitude
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
 
   // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {

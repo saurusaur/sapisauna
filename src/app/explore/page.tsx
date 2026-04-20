@@ -186,12 +186,19 @@ export default function ExplorePage() {
               {isSearchOrFilterActive && (
                 <div>
                   {filteredPlaces.length === 0 ? (
-                    <div className="text-center py-16">
-                      <span className="material-symbols-outlined text-4xl text-stone-300 mb-2 block">
-                        search_off
-                      </span>
+                    <button
+                      onClick={() => router.push('/place/add')}
+                      className="w-full flex flex-col items-center justify-center gap-1 pt-10 pb-6 transition-colors hover:opacity-70"
+                    >
+                      <span className="material-symbols-outlined text-4xl text-stone-300 mb-2">search_off</span>
                       <p className="text-stone-400 text-sm">{EXPLORE.NO_RESULTS}</p>
-                    </div>
+                      <span
+                        className="text-xs font-medium underline underline-offset-2 mt-1"
+                        style={{ color: 'var(--color-primary)' }}
+                      >
+                        직접 장소 추가
+                      </span>
+                    </button>
                   ) : (
                     <div className="space-y-3">
                       {filteredPlaces.map((place) => (
