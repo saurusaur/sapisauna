@@ -36,6 +36,8 @@ export interface UserProfile {
 export interface Place {
   id: string
   country_code: string
+  /** Google Geocoding에서 추출한 도시 (locality/postal_town). NULL이면 미해결 상태 */
+  city: string | null
   latitude: number | null
   longitude: number | null
   facilities: string[]

@@ -32,7 +32,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     user_id: row.user_id as string,
     place_id: row.place_id as string,
     place_name: placeName,
-    place_country_code: (place?.country_code as string) || 'KR',
+    place_country_code: (place?.country_code as string) || '',
     address,
     user_nickname: userNickname,
     user_title: userTitle,

@@ -4,6 +4,7 @@
 
 import { supabase } from './supabase'
 import { generateShortAddress } from './utils'
+import { countryName } from '@/constants/country-names'
 import type { Place, PlaceSource, FacilityType, BathPolicy } from '@/types'
 
 // DB 행 → Place 변환 (place_sources 조인 포함)
@@ -16,10 +17,26 @@ export function toPlace(row: Record<string, unknown>): Place {
 
   const name = preferred?.name_original || '이름 없음'
   const address = preferred?.address_original || ''
+  const country_code = (row.country_code as string) || ''
+  const city = (row.city as string | null) ?? null
+
+  // short_address 로직:
+  //   · primary source가 naver → "서울 강남구" 스타일 (기존)
+  //   · 그 외 + city 있음 → "Tokyo, Japan" 스타일
+  //   · 둘 다 아니면 address 전체로 fallback
+  let short_address = ''
+  if (preferred?.source === 'naver') {
+    short_address = generateShortAddress(address, 'KR')
+  } else if (city) {
+    short_address = `${city}, ${countryName(country_code)}`.replace(/,\s*$/, '')
+  } else {
+    short_address = address
+  }
 
   return {
     id: row.id as string,
-    country_code: (row.country_code as string) || 'KR',
+    country_code,
+    city,
     latitude: row.latitude as number | null,
     longitude: row.longitude as number | null,
     facilities: Array.from(new Set(((row.facilities as string[]) || []).map(f => f.replace(/"/g, '')))),
@@ -34,7 +51,7 @@ export function toPlace(row: Record<string, unknown>): Place {
     updated_at: row.updated_at as string,
     name,
     address,
-    short_address: generateShortAddress(address, (row.country_code as string) || 'KR'),
+    short_address,
     sources,
   }
 }
@@ -178,6 +195,7 @@ export async function createNewPlace(params: {
   facility_type?: FacilityType
   bath_policy?: BathPolicy
   country_code?: string
+  city?: string | null
   source?: 'naver' | 'google' | 'manual'
   external_id?: string
   plus_code?: string
@@ -185,7 +203,8 @@ export async function createNewPlace(params: {
   const {
     name, address, latitude, longitude,
     facilities, is_24h, facility_type, bath_policy,
-    country_code = 'KR',
+    country_code = '',
+    city = null,
     source = 'manual', external_id, plus_code,
   } = params
 
@@ -196,6 +215,7 @@ export async function createNewPlace(params: {
     .from('places')
     .insert({
       country_code,
+      city,
       latitude: latitude || null,
       longitude: longitude || null,
       facilities,

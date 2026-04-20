@@ -23,49 +23,19 @@ interface PlaceResult {
 }
 
 /**
- * Google formatted_address에서 ISO 국가코드 추출
- * 주소 마지막 항목(콤마 기준)에서 나라 이름을 파싱
- * 예: "123 Main St, Shinjuku, Tokyo, Japan" → 'JP'
+ * 짧은 주소 생성 — Naver 전용 (국내)
+ * 예: "서울특별시 강남구 신사동 ..." → "서울 강남구"
+ *
+ * Google 결과는 여기서 shortAddress를 만들지 않음. 선택 시점에
+ * /api/places/reverse-geocode 호출로 city/country_code 구조화 획득 후
+ * `${city}, ${country_name}` 형태로 구성.
  */
-const COUNTRY_NAME_TO_ISO: Record<string, string> = {
-  'japan': 'JP',
-  'hong kong': 'HK',
-  'taiwan': 'TW',
-  'south korea': 'KR',
-  'korea': 'KR',
-  'republic of korea': 'KR',
-  'china': 'CN',
-  'thailand': 'TH',
-  'singapore': 'SG',
-  'united states': 'US',
-  'usa': 'US',
-}
-
-function extractCountryCode(formattedAddress: string): string {
-  const lastPart = formattedAddress.split(',').pop()?.trim().toLowerCase() ?? ''
-  return COUNTRY_NAME_TO_ISO[lastPart] ?? 'KR' // 알 수 없으면 기본값 KR
-}
-
-/**
- * 짧은 주소 생성
- * - 국내 (Naver): "서울특별시 강남구 신사동 ..." → "서울 강남구"
- * - 해외 (Google): "123 Main St, Shinjuku, Tokyo, Japan" → "Tokyo, Japan"
- */
-function generateShortAddress(address: string, source: 'naver' | 'google'): string {
-  if (source === 'naver') {
-    const parts = address.split(' ')
-    // 시/도 이름에서 "특별시/광역시" 등 접미사 제거
-    const city = (parts[0] || '').replace(/특별시|광역시|특별자치시|특별자치도/, '')
-    const district = parts[1] || ''
-    return `${city} ${district}`.trim()
-  } else {
-    // 해외: 콤마 기준 뒤에서 2개 (도시, 나라)
-    const parts = address.split(',').map((s) => s.trim())
-    if (parts.length >= 2) {
-      return parts.slice(-2).join(', ')
-    }
-    return address
-  }
+function generateNaverShortAddress(address: string): string {
+  const parts = address.split(' ')
+  // 시/도 이름에서 "특별시/광역시" 등 접미사 제거
+  const city = (parts[0] || '').replace(/특별시|광역시|특별자치시|특별자치도/, '')
+  const district = parts[1] || ''
+  return `${city} ${district}`.trim()
 }
 
 // Naver 검색 API 응답 타입
@@ -162,7 +132,7 @@ async function searchNaver(query: string): Promise<PlaceResult[]> {
     return {
       name: stripHtml(item.title),
       address: fullAddress,
-      shortAddress: generateShortAddress(fullAddress, 'naver'),
+      shortAddress: generateNaverShortAddress(fullAddress),
       countryCode: 'KR', // Naver API = 국내 전용
       latitude: coords.lat,
       longitude: coords.lng,
@@ -201,11 +171,13 @@ async function searchGoogle(query: string): Promise<PlaceResult[]> {
 
   const results: GooglePlace[] = data.results || []
 
+  // Google 결과는 이 시점에 country_code/shortAddress를 확정하지 않음.
+  // 유저 선택 시점에 /api/places/reverse-geocode로 lat/lng → 구조화 획득.
   return results.map((item) => ({
     name: item.name,
     address: item.formatted_address,
-    shortAddress: generateShortAddress(item.formatted_address, 'google'),
-    countryCode: extractCountryCode(item.formatted_address), // 나라명 → ISO 코드
+    shortAddress: item.formatted_address, // 검색 결과 목록 표시용 (원본 그대로)
+    countryCode: '',
     latitude: item.geometry?.location?.lat || null,
     longitude: item.geometry?.location?.lng || null,
     source: 'google' as const,

@@ -45,6 +45,10 @@ export default function AddPlace() {
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
 
+  // Google reverse-geocode 결과 (country_code/city). Naver는 'KR'/null로 간주
+  const [resolvedCountryCode, setResolvedCountryCode] = useState<string>('')
+  const [resolvedCity, setResolvedCity] = useState<string | null>(null)
+
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   const [is24h, setIs24h] = useState(false)
@@ -108,16 +112,43 @@ export default function AddPlace() {
   }, [searchQuery, source, executeSearch])
 
   // 검색 결과 선택
-  const handleSelectResult = (result: SearchResult) => {
+  const handleSelectResult = async (result: SearchResult) => {
     setSelectedPlace(result)
     setName(result.name)
-    setAddress(result.address)
     setManualMode(false)
     setHasSearched(false)
-
     // 검색 결과 닫기
     setSearchResults([])
     setSearchQuery('')
+
+    // Naver 결과는 'KR'/네이버 주소 그대로
+    if (result.source === 'naver') {
+      setAddress(result.address)
+      setResolvedCountryCode('KR')
+      setResolvedCity(null)
+      return
+    }
+
+    // Google 결과 — reverse-geocode로 country_code/city/정제된 주소 획득
+    setAddress(result.address) // fallback으로 원본 먼저 보여주기
+    setResolvedCountryCode('')
+    setResolvedCity(null)
+
+    if (result.latitude && result.longitude) {
+      try {
+        const resp = await fetch(
+          `/api/places/reverse-geocode?lat=${result.latitude}&lng=${result.longitude}&name=${encodeURIComponent(result.name)}`
+        )
+        if (resp.ok) {
+          const data: { country_code: string; city: string | null; address: string } = await resp.json()
+          if (data.address) setAddress(data.address)
+          if (data.country_code) setResolvedCountryCode(data.country_code)
+          setResolvedCity(data.city)
+        }
+      } catch {
+        // 네트워크 실패 → 원본 주소/빈 country_code 유지 (유저가 수동 저장 가능)
+      }
+    }
   }
 
   // 저장 완료 후 공통 처리
@@ -137,7 +168,8 @@ export default function AddPlace() {
     is_24h: is24h,
     facility_type: venueType,
     bath_policy: bathPolicy,
-    country_code: selectedPlace?.countryCode || (source === 'naver' ? 'KR' : undefined),
+    country_code: resolvedCountryCode || (source === 'naver' ? 'KR' : undefined),
+    city: resolvedCity,
     source: (selectedPlace ? selectedPlace.source : 'manual') as 'naver' | 'google' | 'manual',
     external_id: selectedPlace?.external_id,
   })
@@ -517,7 +549,7 @@ export default function AddPlace() {
                         setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
                       } else {
                         // 일본(JP)만 커버 모달, 그 외는 바로 tattoo-friendly
-                        const cc = selectedPlace?.countryCode || (source === 'naver' ? 'KR' : '')
+                        const cc = resolvedCountryCode || (source === 'naver' ? 'KR' : '')
                         if (cc === 'JP') {
                           setShowTattooModal(true)
                         } else {
