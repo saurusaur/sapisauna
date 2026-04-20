@@ -16,7 +16,6 @@
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
-- [ ] [버그] Google 주소 포맷팅 + country_code — formatted_address 파싱 실패 시 기본값 KR → 일본 장소에 네이버 지도 표시, 타투 모달 미트리거. address_components에서 country 직접 추출 필요. 핸드오프: `docs/handoff/handoff_20260418_bugfix_and_features.md` | priority: P1 | added: 2026-04-18
 - [ ] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 검색 결과 0건일 때 "이 장소를 직접 추가하기" CTA로 장소 등록 플로우 연결 | priority: P1 | added: 2026-04-14
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
@@ -42,6 +41,7 @@
 ## Done
 
 ### 2026-04-20
+- [x] [리팩토링] Geocoding 마이그레이션 — Text Search formatted_address 파싱 제거 → Google Geocoding API reverse(10K/월 무료) + address_components 재조립. places.city 컬럼 추가(022), country_code 오염 교정 246건, JP 블록 번지 복원(premise+sublocality_level_3/4/5), POI 필터(숫자 0+4자+) 적용. lat/lng 누락 2건 forward Geocoding으로 보강. 플랜: archive/PLAN_geocoding_migration.md | done: 2026-04-20
 - [x] [UX] TRIBE PICKS 탐색탭→사-리스트 홈 이동 + SA-PI FEATURED 리네이밍 — URL 이동(/explore/type/[t] → /sa-list/tribe/[t]), 탐색 섹션 제거, 3카드 Variant A(컬러 풀필+그림자), 서브설명 추가. 탐색탭은 향후 지도뷰 전환 대비 (2b4a1fb) | done: 2026-04-20
 - [x] [UX] 장소 상세 사우너 메트릭에 급냉탕 평균 추가 (f0b5637) | done: 2026-04-20
 - [x] [기능] 급냉탕 온도 필드 추가 — deep_logs.has_ice_bath/ice_bath_temp (0~20°C), 탕 온도 섹션 4번째 슬라이더, 히스토리 상세 표시, autoTags 'ice-bath' 연동. 마이그레이션 021 (53b516f) | done: 2026-04-20
