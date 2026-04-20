@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
 import { useSavePlace } from '@/contexts/save-place-context'
+import { TRIBES } from '@/constants/content'
 import * as listsService from '@/lib/lists-service'
 import type { PublicListSort } from '@/lib/lists-service'
 import { listBgColor } from '@/lib/utils'
@@ -172,11 +173,12 @@ export default function SaListPage() {
           </div>
         )}
 
-        {/* ── Featured 캐러셀 ── */}
+        {/* ── SA-PI FEATURED 캐러셀 ── */}
         {featuredLists.length > 0 && (
           <section>
             <div className="px-5 pt-2 pb-2">
-              <h2 className="text-sm font-bold text-stone-600">사-피 픽</h2>
+              <h2 className="text-sm font-bold text-stone-600">SA-PI FEATURED</h2>
+              <p className="text-[10.5px] text-stone-400 font-normal mt-0.5">사-피 추천 리스트!</p>
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 px-5">
               {featuredLists.map((list) => (
@@ -204,6 +206,28 @@ export default function SaListPage() {
             </div>
           </section>
         )}
+
+        {/* ── TRIBE PICKS — 트라이브별 실시간 추천 ── */}
+        <section>
+          <div className="px-5 pt-5 pb-2">
+            <h2 className="text-sm font-bold text-stone-600">TRIBE PICKS</h2>
+            <p className="text-[10.5px] text-stone-400 font-normal mt-0.5">실시간 업데이트 트라이브별 베스트 픽!</p>
+          </div>
+          <div className="px-5 pb-1 grid grid-cols-3 gap-2">
+            {Object.values(TRIBES).map((tribe) => (
+              <button
+                key={tribe.id}
+                type="button"
+                onClick={() => router.push(`/sa-list/tribe/${tribe.id}`)}
+                className="aspect-[1.2/1] rounded-[14px] flex flex-col items-center justify-center gap-1.5 active:scale-[0.96] transition-transform shadow-sm"
+                style={{ backgroundColor: tribe.color }}
+              >
+                <span className="text-[30px] leading-none" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' }}>{tribe.emoji}</span>
+                <span className="text-[12px] font-bold font-heading tracking-wide text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.18)' }}>{tribe.persona}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
         {/* ── 내 리스트 가로 카드 ── */}
         {user && (

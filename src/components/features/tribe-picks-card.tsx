@@ -3,7 +3,7 @@
 /**
  * TribePicksCard — 비로그인 홈에서 트라이브 선택 유도
  * 3초 오토 스크롤로 각 트라이브 하이라이트 + 설명 표시
- * 카드 클릭 → /explore/type/{tribe} 이동
+ * 카드 클릭 → /sa-list/tribe/{tribe} 이동
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -44,7 +44,7 @@ export default function TribePicksCard() {
 
   const handleClick = (index: number) => {
     if (intervalRef.current) clearInterval(intervalRef.current)
-    router.push(`/explore/type/${TRIBE_LIST[index].id}`)
+    router.push(`/sa-list/tribe/${TRIBE_LIST[index].id}`)
   }
 
   const displayTribe = TRIBE_LIST[displayIndex]
@@ -104,7 +104,7 @@ export default function TribePicksCard() {
           &ldquo;{displayTribe.description}&rdquo;
         </p>
         <button
-          onClick={() => router.push(`/explore/type/${displayTribe.id}`)}
+          onClick={() => router.push(`/sa-list/tribe/${displayTribe.id}`)}
           className="mt-2 text-[11px] font-medium flex items-center gap-0.5 hover:opacity-70"
           style={{ color: displayTribe.color }}
         >

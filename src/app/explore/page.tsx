@@ -2,48 +2,31 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  ICONS, EXPLORE, EXPLORE_FILTERS,
-  TRIBE_EMOJI_MAP, TRIBE_COLORS, TRIBE_IDS,
-} from '@/constants/content'
+import { ICONS, EXPLORE, EXPLORE_FILTERS } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
 import { useSavePlace } from '@/hooks/use-save-place'
 import { getPlaceSaveCounts } from '@/lib/lists-service'
-import type { Place } from '@/types'
 import BottomNav from '@/components/bottom-nav'
-import TypeTab from '@/components/ui/type-tab'
 import DataState from '@/components/ui/data-state'
-import { useUser } from '@/contexts/user-context'
 import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 import { SaveFlow } from '@/components/features/save-flow'
 
 
-
-// 추천 탭 라벨 매핑
-const recTabLabel: Record<string, string> = {
-  saunner: `${TRIBE_EMOJI_MAP['saunner']} SAUNNER`,
-  bather: `${TRIBE_EMOJI_MAP['bather']} BATHER`,
-  jimi: `${TRIBE_EMOJI_MAP['jimi']} JIMI`,
-}
-
 export default function ExplorePage() {
   const router = useRouter()
   const searchRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const {
-    showFilters, setShowFilters, toggleFiltersPanel,
+    showFilters, toggleFiltersPanel,
     selectedFilters, toggleFilter,
     is24hOnly, setIs24hOnly,
     sortType, setSortType,
-    filterCount, hasActiveFilters, resetFilters,
+    resetFilters,
   } = useExploreFilters()
   const { isSaved } = useSavePlace()
-  const { primaryTribe } = useUser()
-  const [activeTab, setActiveTab] = useState<string>('')
-  const [showRecommendations, setShowRecommendations] = useState(true)
   const [visibleCount, setVisibleCount] = useState(3)
   const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
 
@@ -61,67 +44,6 @@ export default function ExplorePage() {
     getPlaceSaveCounts(ids).then(setSaveCounts).catch(() => {})
   }, [places])
 
-
-  // 추천 섹션 데이터 (기본 조건: 평균 revisit_score ≥ 3.5, sortType에 따라 정렬)
-  const recommendations = useMemo(() => {
-    const typeKeys = TRIBE_IDS
-    const result: Record<string, Place[]> = {}
-
-    for (const type of typeKeys) {
-      // 해당 타입의 모든 로그 집계
-      const typeLogs = logs.filter((log) => log.tribe_id === type)
-      const placeStats: Record<string, { count: number; sum: number; highScoreCount: number }> = {}
-      for (const log of typeLogs) {
-        const key = log.place_id
-        if (!placeStats[key]) placeStats[key] = { count: 0, sum: 0, highScoreCount: 0 }
-        placeStats[key].count++
-        placeStats[key].sum += log.revisit_score
-        if (log.revisit_score >= 4) placeStats[key].highScoreCount++
-      }
-
-      // 기본 조건: 평균 revisit_score ≥ 3.5인 장소만 필터
-      const qualified = places.filter((place) => {
-        const stats = placeStats[place.id]
-        return stats && (stats.sum / stats.count) >= 3.5
-      })
-
-      // sortType에 따라 정렬
-      result[type] = qualified.sort((a, b) => {
-        const sa = placeStats[a.id]
-        const sb = placeStats[b.id]
-
-        if (sortType === 'recommended') {
-          // 추천순: 4점 이상 로그 수 ↓ → 평균 점수 ↓
-          if (sb.highScoreCount !== sa.highScoreCount) return sb.highScoreCount - sa.highScoreCount
-          return (sb.sum / sb.count) - (sa.sum / sa.count)
-        }
-
-        if (sortType === 'popular') {
-          // 인기순: 로그 수 ↓ → 평균 점수 ↓ (TODO: DB save_count로 교체)
-          if (sb.count !== sa.count) return sb.count - sa.count
-          return (sb.sum / sb.count) - (sa.sum / sa.count)
-        }
-
-        return 0
-      })
-    }
-
-    return result
-  }, [places, logs, sortType])
-
-  // 유저 타입 기준 추천 섹션 순서 (추천 장소 없는 타입은 숨김)
-  const recommendationOrder = useMemo(() => {
-    const types = [...TRIBE_IDS]
-    const sorted = [primaryTribe, ...types.filter((t) => t !== primaryTribe)]
-    return sorted.filter((t) => recommendations[t]?.length > 0)
-  }, [primaryTribe, recommendations])
-
-  // activeTab 초기화: 추천 탭 순서가 결정되면 첫 번째 탭 선택
-  useEffect(() => {
-    if (recommendationOrder.length > 0 && !activeTab) {
-      setActiveTab(recommendationOrder[0])
-    }
-  }, [recommendationOrder, activeTab])
 
   // 장소별 통계 (로그 기반 계산)
   const placeStatsMap = useMemo(() => {
@@ -260,67 +182,6 @@ export default function ExplorePage() {
 
             {/* 데이터 로딩/에러 상태 */}
             <DataState loading={loading} error={error} isEmpty={false}>
-              {/* 추천 섹션: 탭 기반 컴팩트 프리뷰 (검색/필터 미활성 시) */}
-              {!isSearchOrFilterActive && recommendationOrder.length > 0 && (
-                <div className="mb-6">
-                  {/* 섹션 헤더 + 접기/펼치기 */}
-                  <button
-                    onClick={() => setShowRecommendations((prev) => !prev)}
-                    className="flex items-center gap-1.5 mb-3"
-                  >
-                    <h2 className="text-sm font-semibold text-stone-500">
-                      TRIBE PICKS {recommendationOrder.map((type) => TRIBE_EMOJI_MAP[type]).join('')}
-                    </h2>
-                    <span className="material-symbols-outlined text-base" style={{ color: 'var(--color-primary)' }}>
-                      {showRecommendations ? 'expand_less' : 'expand_more'}
-                    </span>
-                  </button>
-
-                  {showRecommendations && (
-                    <>
-                      {/* 탭 버튼 (타입별 컬러) */}
-                      <div className="flex gap-1.5 pb-3">
-                        {recommendationOrder.map((type) => (
-                          <TypeTab
-                            key={type}
-                            label={recTabLabel[type]}
-                            active={activeTab === type}
-                            onClick={() => setActiveTab(type)}
-                            color={TRIBE_COLORS[type]}
-                          />
-                        ))}
-                      </div>
-
-                      {/* 선택된 탭의 추천 장소 세로 리스트 (상위 3개) */}
-                      {activeTab && recommendations[activeTab] && (
-                        <div className="glass-card-light rounded-xl overflow-hidden">
-                          {recommendations[activeTab].slice(0, 3).map((place, idx) => (
-                            <div key={place.id} className={idx < Math.min(recommendations[activeTab].length, 3) - 1 ? 'border-b border-dashed border-stone-200' : ''}>
-                              <PlaceCard
-                                place={place}
-                                isSaved={isSaved(place.id)}
-                                onToggleSave={() => handleToggleSave(place.id)}
-                                onClick={() => router.push(`/explore/${place.id}`)}
-                                variant="minimal"
-                              />
-                            </div>
-                          ))}
-
-                          {/* 전체 보기 버튼 */}
-                          <button
-                            onClick={() => router.push(`/explore/type/${activeTab}`)}
-                            className="w-full py-3 text-center text-sm font-medium text-stone-500 hover:text-stone-700 border-t border-stone-100 transition-colors flex items-center justify-center gap-1"
-                          >
-                            {EXPLORE.VIEW_ALL}
-                            <span className="material-symbols-outlined text-base">{ICONS.CHEVRON_RIGHT}</span>
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
               {/* 장소 카드 리스트 (검색/필터 적용 시) */}
               {isSearchOrFilterActive && (
                 <div>
