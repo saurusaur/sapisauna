@@ -30,6 +30,7 @@
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
 - [ ] [디자인] UI 최종 검증 — Phase 11 | priority: P2 | added: 2026-02-28
 - [ ] [리팩토링] safeParse 패턴 재검토 — 상세: `REVIEW_safeParse_errors.md` | priority: P2 | added: 2026-03-04
+- [ ] [버그] Google 지도 URL 폴백 dead code — `explore/[id]/page.tsx:266-268`에서 `place.latitude` 삼항 분기 true/false가 동일 결과. 좌표 있을 때 `query=<lat>,<lng>` 로 핀 정확도 개선 필요 | priority: P2 | added: 2026-04-20
 
 <!-- P3 — 장기 -->
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
