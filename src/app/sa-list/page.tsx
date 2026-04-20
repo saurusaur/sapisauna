@@ -23,7 +23,7 @@ import DataState from '@/components/ui/data-state'
 import ListFormSheet from '@/components/features/list-form-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
-import FeaturedSaListCard from '@/components/features/featured-sa-list-card'
+import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
@@ -65,6 +65,8 @@ export default function SaListPage() {
 
   // 검색어 또는 태그 → 피드 필터
   const feedSearch = activeTag || debouncedSearch || undefined
+  // 검색/필터 중이면 상단 큐레이션 섹션을 숨겨 결과에 집중
+  const isSearching = !!feedSearch
 
   // 피드 정렬
   const [feedSort, setFeedSort] = useState<PublicListSort>('popular')
@@ -174,40 +176,29 @@ export default function SaListPage() {
         )}
 
         {/* ── SA-PI FEATURED 캐러셀 ── */}
-        {featuredLists.length > 0 && (
-          <section>
-            <div className="px-5 pt-2 pb-2">
-              <h2 className="text-sm font-bold text-stone-600">SA-PI FEATURED</h2>
-              <p className="text-[11px] text-stone-400 font-normal mt-0.5">사-피 추천 리스트</p>
-            </div>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 px-5">
-              {featuredLists.map((list) => (
-                <FeaturedSaListCard
-                  key={list.id}
-                  list={list}
-                  onClick={() => router.push(`/sa-list/${list.id}`)}
-                  subscribed={user ? subscribedIds.has(list.id) : undefined}
-                  onSubscribe={async () => {
-                    if (!requireAuth() || !user) return
-                    const wasSub = subscribedIds.has(list.id)
-                    await listsService.toggleSubscription(user.id, list.id)
-                    refreshSubscribed()
-                    if (wasSub) {
-                      showNotice(`${list.title} 구독해지`, async () => {
-                        await listsService.toggleSubscription(user.id, list.id)
-                        refreshSubscribed()
-                      })
-                    } else {
-                      showNotice(`${list.title} 구독완료!`)
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </section>
+        {!isSearching && (
+          <FeaturedSaListCarousel
+            lists={featuredLists}
+            subscribedIds={user ? subscribedIds : undefined}
+            onSubscribe={async (list) => {
+              if (!requireAuth() || !user) return
+              const wasSub = subscribedIds.has(list.id)
+              await listsService.toggleSubscription(user.id, list.id)
+              refreshSubscribed()
+              if (wasSub) {
+                showNotice(`${list.title} 구독해지`, async () => {
+                  await listsService.toggleSubscription(user.id, list.id)
+                  refreshSubscribed()
+                })
+              } else {
+                showNotice(`${list.title} 구독완료!`)
+              }
+            }}
+          />
         )}
 
         {/* ── TRIBE PICKS — 트라이브별 실시간 추천 ── */}
+        {!isSearching && (
         <section>
           <div className="px-5 pt-5 pb-2">
             <h2 className="text-sm font-bold text-stone-600">TRIBE PICKS</h2>
@@ -228,9 +219,10 @@ export default function SaListPage() {
             ))}
           </div>
         </section>
+        )}
 
         {/* ── 내 리스트 가로 카드 ── */}
-        {user && (
+        {!isSearching && user && (
           <section>
             <div className="px-5 pt-5 pb-2 flex items-center justify-between">
               <h2 className="text-sm font-bold text-stone-600">내 사-리스트</h2>
@@ -303,10 +295,12 @@ export default function SaListPage() {
           </section>
         )}
 
-        {/* ── 인기/최신 피드 ── */}
+        {/* ── 인기/최신 피드 (검색/태그 활성 시 결과 섹션으로 전환) ── */}
         <section>
           <div className="px-5 pt-5 pb-1">
-            <h2 className="text-sm font-bold text-stone-600">인기 사-리스트</h2>
+            <h2 className="text-sm font-bold text-stone-600">
+              {isSearching ? '검색 결과' : '인기 사-리스트'}
+            </h2>
           </div>
           <div className="px-5 pt-1 pb-2 flex gap-3">
             <button

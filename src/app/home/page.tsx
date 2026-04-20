@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation'
 import { MESSAGES } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
 import { useUserLogs, useCommunityFeed } from '@/hooks/use-logs'
-import { useHomeRecommendations } from '@/hooks/use-home-recommendations'
+import { useFeaturedPublicLists } from '@/hooks/use-lists'
 import { useUser } from '@/contexts/user-context'
 import { useAuth } from '@/contexts/auth-context'
 import RecordCard from '@/components/features/record-card'
-import PlaceCard from '@/components/features/place-card'
 import UserLogCard from '@/components/features/user-log-card'
 import DataState from '@/components/ui/data-state'
 import ProfileCard from '@/components/features/profile-card'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import TribePicksCard from '@/components/features/tribe-picks-card'
+import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
 
 function getTodayKey(): string {
   const now = new Date()
@@ -28,7 +28,7 @@ export default function Home() {
   const { user: authUser } = useAuth()
   const { data: userLogs, loading, error } = useUserLogs()
   const { data: communityLogs, loading: communityLoading } = useCommunityFeed(10)
-  const { data: recommendations, loading: recsLoading } = useHomeRecommendations(5)
+  const { data: featuredLists } = useFeaturedPublicLists()
 
   const todayKey = getTodayKey()
 
@@ -120,44 +120,20 @@ export default function Home() {
         {/* TRIBE PICKS — 비로그인 전용 */}
         {!authUser && <TribePicksCard />}
 
-        {/* 다음엔 여기 어때요? */}
-        {!recsLoading && recommendations.length === 0 ? null : (
-          <div>
-            <h2 className="text-sm font-semibold text-stone-500 mb-2">{MESSAGES.HOME.RECOMMEND_HEADING}</h2>
-            {recsLoading ? (
-              <div className="flex gap-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] max-w-[300px] h-[100px] glass-card-light animate-pulse flex-shrink-0" />
-                ))}
-              </div>
-            ) : recommendations.length === 0 ? (
-              <div className="glass-card-light p-6 text-center">
-                <p className="text-stone-300 text-xs">{MESSAGES.HOME.RECOMMEND_EMPTY}</p>
-              </div>
-            ) : (
-              <div
-                className="flex gap-3 snap-x snap-mandatory"
-                style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
-              >
-                {recommendations.map((place) => (
-                  <div key={place.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
-                    <PlaceCard
-                      place={place}
-                      onClick={() => router.push(`/explore/${place.id}`)}
-                    />
-                  </div>
-                ))}
-                {/* 더 찾아보기 카드 */}
-                <button
-                  onClick={() => router.push('/explore')}
-                  className="min-w-[70px] snap-start flex-shrink-0 px-3 flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-opacity"
-                >
-                  <span className="text-[11px] text-stone-400 leading-tight text-center whitespace-nowrap">더 보기</span>
-                  <span className="material-symbols-outlined text-red-400" style={{ fontSize: '16px' }}>chevron_right</span>
-                </button>
-              </div>
-            )}
-          </div>
+        {/* SA-PI FEATURED — 로그인 컴팩트 캐러셀 + '더 보러가기' 링크 */}
+        {authUser && <FeaturedSaListCarousel lists={featuredLists} compact showSubtitle={false} />}
+
+        {/* 비로그인 — TribePicks 아래 '더 보러가기' 링크만 */}
+        {!authUser && (
+          <button
+            type="button"
+            onClick={() => router.push('/sa-list')}
+            className="mx-auto flex items-center gap-0.5 px-4 py-1.5 text-[12px] font-medium"
+            style={{ color: 'var(--color-primary)' }}
+          >
+            사-피엔스 추천 사우나 리스트 더 보러가기
+            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-primary)' }}>chevron_right</span>
+          </button>
         )}
 
         {/* 사-피엔스의 흔적 */}

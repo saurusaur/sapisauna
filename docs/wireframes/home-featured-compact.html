@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home + Compact FEATURED — Wireframe</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #cc1a1a;
+    --color-bather: #3B82F6;
+    --color-saunner: #F97316;
+    --color-jimi: #22C55E;
+    --bg: #fafaf9;
+    --text: #292524;
+    --text-mid: #44403c;
+    --text-sub: #78716c;
+    --text-faint: #a8a29e;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #e7e5e4;
+    padding: 24px;
+    display: flex; flex-wrap: wrap; gap: 32px; justify-content: center;
+    min-height: 100vh;
+  }
+  .lab-title {
+    width: 100%; text-align: center; margin-bottom: 4px;
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic;
+    font-size: 24px; color: #292524;
+  }
+  .lab-note {
+    width: 100%; text-align: center; margin-bottom: 16px;
+    font-size: 12px; color: #78716c; line-height: 1.6;
+  }
+  .phone-col {
+    display: flex; flex-direction: column; gap: 12px; align-items: center;
+  }
+  .phone-label {
+    font-family: 'Oswald', sans-serif; font-weight: 700;
+    font-size: 14px; color: #292524; letter-spacing: 0.5px;
+  }
+  .phone-caption {
+    font-size: 11px; color: #78716c; text-align: center; max-width: 360px;
+    line-height: 1.5;
+  }
+  .phone {
+    width: 375px; background: var(--bg);
+    border-radius: 36px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 6px solid #1c1917;
+  }
+  .screen { overflow: hidden; }
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px; color: var(--text-sub);
+  }
+
+  /* ===== Header ===== */
+  .header {
+    padding: 32px 20px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 30px; font-weight: 800; font-style: italic; color: var(--text);
+  }
+
+  /* ===== Profile card ===== */
+  .profile {
+    margin: 4px 20px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(255,255,255,0.65);
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .profile .ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--color-saunner);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .profile .meta { flex: 1; }
+  .profile .meta .nick { font-size: 14px; font-weight: 700; color: var(--text); }
+  .profile .meta .sub { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+  /* CTA */
+  .cta {
+    margin: 12px 20px 4px;
+    width: calc(100% - 40px);
+    padding: 14px; border-radius: 12px; border: none;
+    background: var(--color-primary); color: white;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ===== Section header ===== */
+  .section-header {
+    padding: 20px 20px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .section-title { font-size: 14px; font-weight: 700; color: var(--text-mid); }
+  .section-desc { font-size: 11px; color: var(--text-faint); font-weight: 400; }
+  .section-link { font-size: 11px; color: var(--color-primary); font-weight: 500; text-decoration: none; }
+
+  /* ===== FEATURED 원본 (sa-list 홈 사용 중) ===== */
+  .featured-scroll-full {
+    display: flex; gap: 12px; padding: 4px 20px; overflow-x: auto;
+  }
+  .featured-scroll-full::-webkit-scrollbar { display: none; }
+  .featured-card-full {
+    flex: 0 0 240px; aspect-ratio: 5/4;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    padding: 14px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .featured-card-full.p { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .featured-card-full.b { background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); }
+  .featured-emoji-full { font-size: 36px; }
+  .featured-title-full { font-size: 16px; font-weight: 700; line-height: 1.25; }
+  .featured-desc-full { font-size: 11px; line-height: 1.5; opacity: 0.9; min-height: 33px; margin-top: 4px; }
+
+  /* ===== FEATURED Compact V1 — 세로 작은 카드 (180x135, 3~4개 노출) ===== */
+  .featured-compact-v1 {
+    display: flex; gap: 10px; padding: 4px 20px; overflow-x: auto;
+  }
+  .featured-compact-v1::-webkit-scrollbar { display: none; }
+  .featured-compact-v1 .card {
+    flex: 0 0 170px;
+    aspect-ratio: 1.35/1;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    padding: 12px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .featured-compact-v1 .card.p { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .featured-compact-v1 .card.b { background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); }
+  .featured-compact-v1 .card.r { background: linear-gradient(135deg, #be123c 0%, #e11d48 100%); }
+  .featured-compact-v1 .card .e { font-size: 26px; }
+  .featured-compact-v1 .card .t { font-size: 13px; font-weight: 700; line-height: 1.25; }
+  .featured-compact-v1 .card .s { font-size: 10px; line-height: 1.4; opacity: 0.9; margin-top: 2px; }
+
+  /* ===== FEATURED Compact V2 — 와이드 납작 (240x80, 2.5개 노출) ===== */
+  .featured-compact-v2 {
+    display: flex; gap: 10px; padding: 4px 20px; overflow-x: auto;
+  }
+  .featured-compact-v2::-webkit-scrollbar { display: none; }
+  .featured-compact-v2 .card {
+    flex: 0 0 240px; height: 80px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    padding: 12px;
+    display: flex; align-items: center; gap: 10px;
+    color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .featured-compact-v2 .card.p { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .featured-compact-v2 .card.b { background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); }
+  .featured-compact-v2 .card.r { background: linear-gradient(135deg, #be123c 0%, #e11d48 100%); }
+  .featured-compact-v2 .card .e { font-size: 28px; flex-shrink: 0; }
+  .featured-compact-v2 .card .info { flex: 1; min-width: 0; }
+  .featured-compact-v2 .card .t { font-size: 13px; font-weight: 700; line-height: 1.25; }
+  .featured-compact-v2 .card .s { font-size: 10px; line-height: 1.4; opacity: 0.9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ===== '더 보러가기' 링크 ===== */
+  .more-link {
+    margin: 8px 20px 0;
+    display: flex; justify-content: center; align-items: center; gap: 2px;
+    padding: 6px 0;
+    font-size: 12px; font-weight: 500; color: var(--color-primary);
+    cursor: pointer;
+  }
+  .more-link .material-symbols-outlined {
+    font-size: 14px; color: var(--color-primary);
+  }
+
+  /* ===== Tribe Picks (비로그인 전용) ===== */
+  .tribe-picks {
+    margin: 16px 20px 0;
+    padding: 18px 16px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(255,255,255,0.65);
+  }
+  .tribe-picks .h {
+    font-family: 'Oswald', sans-serif; font-style: italic;
+    font-size: 15px; font-weight: 800; margin-bottom: 14px; color: var(--text);
+  }
+  .tribe-picks .row {
+    display: flex; justify-content: space-around; align-items: flex-end;
+  }
+  .tribe-picks .tile {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .tribe-picks .tile .box {
+    width: 64px; height: 64px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .tribe-picks .tile.b .box { background: var(--color-bather); }
+  .tribe-picks .tile.s .box { background: var(--color-saunner); transform: scale(1.05); }
+  .tribe-picks .tile.j .box { background: var(--color-jimi); }
+  .tribe-picks .tile .lab {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px; font-weight: 600; color: var(--text-sub);
+  }
+
+  /* ===== Community feed placeholder ===== */
+  .feed-section { padding: 0 20px; margin-top: 12px; }
+  .feed-section h2 { font-size: 14px; font-weight: 700; color: var(--text-mid); margin-bottom: 10px; }
+  .feed-row {
+    padding: 12px; border-radius: 14px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(255,255,255,0.65);
+    display: flex; gap: 10px; align-items: center;
+  }
+  .feed-row .av { width: 36px; height: 36px; border-radius: 50%; background: #a8a29e; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; }
+  .feed-row .info { flex: 1; }
+  .feed-row .t { font-size: 12px; font-weight: 600; color: var(--text); }
+  .feed-row .m { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+  /* diff highlight 박스 */
+  .highlight-box {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: 16px; padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .highlight-box h2 {
+    font-family: 'Oswald', sans-serif; font-style: italic;
+    font-size: 17px; margin-bottom: 14px; color: var(--text);
+  }
+  .highlight-box ul { list-style: none; font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+  .highlight-box li { padding: 6px 0; border-bottom: 1px dashed #e7e5e4; }
+  .highlight-box li:last-child { border-bottom: none; }
+  .highlight-box code { background: #fafaf9; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--color-primary); }
+  .highlight-box .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-right: 6px; }
+  .tag-new { background: #dcfce7; color: #16a34a; }
+  .tag-del { background: #fee2e2; color: #dc2626; }
+  .tag-keep { background: #f5f5f4; color: #78716c; }
+</style>
+</head>
+<body>
+
+<div class="lab-title">HOME · Compact FEATURED + Discovery Link</div>
+<div class="lab-note">
+  기존 "다음은 여기 어때요?" 섹션 제거 · SA-PI FEATURED 컴팩트 버전 + /sa-list 랜딩 유도 링크<br>
+  컴팩트 Variant 2종 비교 (V1 세로 소형 / V2 와이드 납작)
+</div>
+
+<!-- ============ [로그인] V1 — 세로 소형 컴팩트 ============ -->
+<div class="phone-col">
+  <div class="phone-label">[로그인] V1 · 세로 컴팩트</div>
+  <div class="phone-caption">170x126 정사각 가까운 비율 · 3.5개 노출 · 기존 /sa-list와 톤 유사</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="header"><h1>HELLO <span style="color:var(--color-saunner)">사우나러버</span></h1></div>
+      <div class="profile">
+        <div class="ic">🔥</div>
+        <div class="meta">
+          <div class="nick">사우나러버</div>
+          <div class="sub">Level 7 · 사우너</div>
+        </div>
+      </div>
+
+      <div class="feed-section" style="margin-top:12px; padding: 0 20px;">
+        <div style="font-size:11px; color:#a8a29e; margin-bottom:6px;">오늘의 기록</div>
+        <div style="background:rgba(255,255,255,0.5); border-radius:12px; padding:20px; text-align:center;">
+          <p style="font-size:12px; color:#a8a29e;">아직 오늘 기록이 없어요</p>
+        </div>
+      </div>
+
+      <button class="cta">오늘의 사우나 기록하기</button>
+
+      <!-- SA-PI FEATURED Compact V1 -->
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">SA-PI FEATURED</div>
+          <div class="section-desc">사-피 추천 리스트</div>
+        </div>
+      </div>
+      <div class="featured-compact-v1">
+        <div class="card">
+          <div class="e">🌿</div>
+          <div>
+            <div class="t">노천탕 환상 BEST</div>
+            <div class="s">바깥공기와 함께</div>
+          </div>
+        </div>
+        <div class="card p">
+          <div class="e">🌙</div>
+          <div>
+            <div class="t">24시간 사우나</div>
+            <div class="s">언제든 갈 수 있는</div>
+          </div>
+        </div>
+        <div class="card b">
+          <div class="e">💆</div>
+          <div>
+            <div class="t">세신 명소</div>
+            <div class="s">마사지까지</div>
+          </div>
+        </div>
+        <div class="card r">
+          <div class="e">🗼</div>
+          <div>
+            <div class="t">도쿄 숨은 곳</div>
+            <div class="s">현지인만 아는</div>
+          </div>
+        </div>
+      </div>
+      <a class="more-link">사-리스트 더 보러가기 <span class="material-symbols-outlined">chevron_right</span></a>
+
+      <div class="feed-section">
+        <h2>커뮤니티 피드</h2>
+        <div class="feed-row">
+          <div class="av">🧖</div>
+          <div class="info">
+            <div class="t">@saunalife · 플래티넘 사우나</div>
+            <div class="m">2시간 전 · 토토노 5/5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ [로그인] V2 — 와이드 납작 컴팩트 ============ -->
+<div class="phone-col">
+  <div class="phone-label">[로그인] V2 · 와이드 납작</div>
+  <div class="phone-caption">240x80 가로형 · 2.5개 노출 · 이모지+텍스트 가로 레이아웃 · 세로 공간 절약</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="header"><h1>HELLO <span style="color:var(--color-saunner)">사우나러버</span></h1></div>
+      <div class="profile">
+        <div class="ic">🔥</div>
+        <div class="meta">
+          <div class="nick">사우나러버</div>
+          <div class="sub">Level 7 · 사우너</div>
+        </div>
+      </div>
+
+      <div class="feed-section" style="margin-top:12px; padding: 0 20px;">
+        <div style="font-size:11px; color:#a8a29e; margin-bottom:6px;">오늘의 기록</div>
+        <div style="background:rgba(255,255,255,0.5); border-radius:12px; padding:20px; text-align:center;">
+          <p style="font-size:12px; color:#a8a29e;">아직 오늘 기록이 없어요</p>
+        </div>
+      </div>
+
+      <button class="cta">오늘의 사우나 기록하기</button>
+
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">SA-PI FEATURED</div>
+          <div class="section-desc">사-피 추천 리스트</div>
+        </div>
+      </div>
+      <div class="featured-compact-v2">
+        <div class="card">
+          <div class="e">🌿</div>
+          <div class="info">
+            <div class="t">노천탕 환상 BEST</div>
+            <div class="s">바깥공기와 함께 즐기는</div>
+          </div>
+        </div>
+        <div class="card p">
+          <div class="e">🌙</div>
+          <div class="info">
+            <div class="t">24시간 사우나</div>
+            <div class="s">언제든 갈 수 있는 시설</div>
+          </div>
+        </div>
+        <div class="card b">
+          <div class="e">💆</div>
+          <div class="info">
+            <div class="t">세신 명소</div>
+            <div class="s">마사지까지 즐겨보세요</div>
+          </div>
+        </div>
+      </div>
+      <a class="more-link">사-리스트 더 보러가기 <span class="material-symbols-outlined">chevron_right</span></a>
+
+      <div class="feed-section">
+        <h2>커뮤니티 피드</h2>
+        <div class="feed-row">
+          <div class="av">🧖</div>
+          <div class="info">
+            <div class="t">@saunalife · 플래티넘 사우나</div>
+            <div class="m">2시간 전 · 토토노 5/5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ [비로그인] TribePicks + 링크만 ============ -->
+<div class="phone-col">
+  <div class="phone-label">[비로그인] TribePicks + 링크</div>
+  <div class="phone-caption">FEATURED 캐러셀 없음 · TribePicks 아래 링크 한 줄 · 스크롤 피로 최소화</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="header"><h1>HELLO <span style="color:var(--text-faint)">SA-PIEN</span></h1></div>
+      <div class="profile">
+        <div class="ic" style="background: var(--text-light, #d6d3d1);">🧖</div>
+        <div class="meta">
+          <div class="nick">예비 사-피엔스</div>
+          <div class="sub">로그인하고 여정을 시작해 보세요</div>
+        </div>
+      </div>
+
+      <button class="cta">오늘 사우나 기록하기</button>
+
+      <!-- TribePicks card -->
+      <div class="tribe-picks">
+        <div class="h">PICK YOUR TRIBE</div>
+        <div class="row">
+          <div class="tile b">
+            <div class="box">🛁</div>
+            <div class="lab">BATHER</div>
+          </div>
+          <div class="tile s">
+            <div class="box">🔥</div>
+            <div class="lab">SAUNNER</div>
+          </div>
+          <div class="tile j">
+            <div class="box">🥚</div>
+            <div class="lab">JIMI</div>
+          </div>
+        </div>
+      </div>
+
+      <a class="more-link" style="margin-top: 12px;">사-피 추천 사우나 리스트 더 보러가기 <span class="material-symbols-outlined">chevron_right</span></a>
+
+      <div class="feed-section">
+        <h2>커뮤니티 피드</h2>
+        <div class="feed-row">
+          <div class="av">🧖</div>
+          <div class="info">
+            <div class="t">@saunalife · 플래티넘 사우나</div>
+            <div class="m">2시간 전 · 토토노 5/5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 변경 요약 ============ -->
+<div class="highlight-box">
+  <h2>변경 스코프</h2>
+  <ul>
+    <li><span class="tag tag-del">DEL</span> <code>src/hooks/use-home-recommendations.ts</code> — 추천 로직이 "내가 좋아하는 곳 반복 노출"이라 가치 없음</li>
+    <li><span class="tag tag-del">DEL</span> <code>home/page.tsx</code>의 "다음은 여기 어때요?" 섹션 + 관련 import/state</li>
+    <li><span class="tag tag-del">DEL</span> <code>MESSAGES.HOME.RECOMMEND_*</code> 상수 (HEADING, EMPTY)</li>
+    <li><span class="tag tag-new">NEW</span> <code>components/features/featured-sa-list-carousel.tsx</code> 공용 컴포넌트 — <code>compact?: boolean</code> prop</li>
+    <li><span class="tag tag-new">NEW</span> <code>components/features/sa-list-discovery-link.tsx</code> — "사-리스트 더 보러가기" 텍스트 링크 (재사용)</li>
+    <li><span class="tag tag-keep">REFACTOR</span> <code>sa-list/page.tsx</code> 기존 Featured JSX → 신규 공용 컴포넌트로 교체 (non-compact 모드)</li>
+    <li><span class="tag tag-new">NEW</span> <code>home/page.tsx</code>에 조건부 삽입 — 로그인: Compact Carousel + 링크 / 비로그인: 링크만</li>
+  </ul>
+</div>
+
+</body>
+</html>
