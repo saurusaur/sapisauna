@@ -125,7 +125,7 @@ export default function PlaceCard({
             onClick={onEditMemo ? (e) => { e.stopPropagation(); onEditMemo(collectionMemo || '') } : undefined}
         >
             <span className="text-stone-300 text-base leading-none mt-0.5">┃</span>
-            <span className="flex-1 line-clamp-2">
+            <span className={`flex-1 line-clamp-2 ${!collectionMemo ? 'text-stone-300' : ''}`}>
                 {collectionMemo || (isMine ? '메모 추가' : '')}
             </span>
             {isMine && (
