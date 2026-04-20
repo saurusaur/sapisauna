@@ -45,27 +45,29 @@ export function resolveAddress(
     parts.push(s)
   }
 
-  // 1. Street level — 번지 + 도로명을 공백으로 결합
+  // 1. Street level
   const num = getLong('street_number')
   const route = getLong('route')
   if (num || route) {
+    // US/EU 스타일: 번지 + 도로명
     add([num, route].filter(Boolean).join(' '))
   } else {
-    // JP-style: premise 중 POI 이름이 아닌 것만
+    // JP/KR 스타일 — 블록 번지: premise + sublocality_level_3/4/5 복원.
+    // Google이 "18-9" 같은 블록을 여러 컴포넌트로 쪼개 반환하므로 다시 '-'로 결합.
+    const deepSubs = ['sublocality_level_3', 'sublocality_level_4', 'sublocality_level_5']
+      .map(t => getLong(t))
+      .filter((v): v is string => !!v)
     const premises = components
       .filter(c => c.types.includes('premise'))
       .map(c => c.long_name)
       .filter(n => !isLikelyPOIName(n, placeName))
-    if (premises.length > 0) add(premises.join(' '))
+    const blockStr = [...deepSubs, ...premises].join('-')
+    if (blockStr) add(blockStr)
   }
 
-  // 2. Sublocality (most specific → broad)
-  for (const t of [
-    'sublocality_level_2',
-    'sublocality_level_1',
-    'sublocality',
-    'neighborhood',
-  ]) {
+  // 2. Sublocality — 명시적 level_2, level_1, neighborhood만.
+  // base 'sublocality' 타입을 types 배열에 포함한 level_3/4/5와 겹치므로 제외.
+  for (const t of ['sublocality_level_2', 'sublocality_level_1', 'neighborhood']) {
     add(getLong(t))
   }
 
@@ -86,9 +88,18 @@ export function resolveAddress(
   }
 }
 
+/**
+ * premise 값이 POI 이름일 가능성 판정.
+ * - placeName과 매칭되면 POI
+ * - 숫자가 하나도 없고 4자 이상이면 POI (예: "サウナアルプス", "Sky Building")
+ * - 주소 번지는 거의 항상 숫자 포함 → 번지는 걸러지지 않음
+ */
 function isLikelyPOIName(value: string, placeName?: string): boolean {
-  if (!placeName) return false
-  const v = value.toLowerCase()
-  const n = placeName.toLowerCase()
-  return v === n || v.includes(n) || n.includes(v)
+  if (!value) return false
+  if (placeName) {
+    const v = value.toLowerCase()
+    const n = placeName.toLowerCase()
+    if (v === n || v.includes(n) || n.includes(v)) return true
+  }
+  return !/\d/.test(value) && value.length >= 4
 }

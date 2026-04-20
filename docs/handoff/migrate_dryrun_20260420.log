@@ -1,0 +1,316 @@
+
+=== addresses 교정 마이그레이션 (DRY RUN) ===
+
+  d0eac388 [naver-only] KR · (no city)
+  c8774a4a [naver-only] KR · (no city)
+  5dc18d60 [google-or-mixed] JP · Toyama
+    → source google (f207db67) address 정제
+  06dd629e [google-or-mixed] JP · Kyoto
+    → source google (c7df5ffe) address 정제
+  87702ab3 [naver-only] KR · (no city)
+  ae8fbc09 [naver-only] KR · Changwon-si
+  0130e29a [google-or-mixed] JP · Hiroshima
+    → source google (6998a981) address 정제
+  ec2c5821 [naver-only] KR · Suwon
+  f73d775a [naver-only] KR · (no city)
+  8ec5199d [google-or-mixed] US · (no city)
+    → source google (f2ca6338) address 정제
+  bffe68b0 [google-or-mixed] JP · Kyonan
+    → source google (1332774c) address 정제
+  f3f922b3 [google-or-mixed] JP · Yamanakako
+    → source google (8b2c33ae) address 정제
+  9ac220df [google-or-mixed] EE · Tallinn
+    → source google (d99cc3b5) address 정제
+  a666495a [google-or-mixed] DE · Baden-Baden
+    → source google (6eab499e) address 정제
+  13d9f01a [google-or-mixed] JP · Adachi City
+    → source google (a631fba3) address 정제
+  07da6b4f [google-or-mixed] JP · Minato City
+    → source google (39721408) address 정제
+  75e65305 [google-or-mixed] EE · Tallinn
+    → source google (74082cd3) address 정제
+  7e41a924 [google-or-mixed] FI · Vanda
+    → source google (168fc1d2) address 정제
+  210ab5eb [google-or-mixed] FI · Tampere
+    → source google (93d9afd0) address 정제
+  273d4c33 [google-or-mixed] FI · Helsinki
+    → source google (97554e1a) address 정제
+  eb0daeb3 [naver-only] KR · (no city)
+  b8211df0 [google-or-mixed] JP · Tokorozawa
+    → source google (5f44a44d) address 정제
+  b6aaadfd [google-or-mixed] US · New York
+    → source google (d66cde52) address 정제
+  22c04b88 [google-or-mixed] FI · Tampere
+    → source google (9e35cb42) address 정제
+  94b7a83a [google-or-mixed] JP · Futtsu
+    → source google (224421be) address 정제
+  af4ed227 [google-or-mixed] JP · Shinjuku City
+    → source google (26778471) address 정제
+  0eca346f [google-or-mixed] JP · Nagoya
+    → source google (fa10d63d) address 정제
+  0c80856e [google-or-mixed] JP · Fukuoka
+    → source google (2b3cd4b6) address 정제
+  9fa63f79 [google-or-mixed] ES · Barcelona
+    → source google (2c014d9f) address 정제
+  82cc6aa1 [naver-only] KR · (no city)
+  0e03904b [google-or-mixed] DE · Erding
+    → source google (4a64dd22) address 정제
+  6ed6bb25 [google-or-mixed] JP · Shinagawa City
+    → source google (e8ac2035) address 정제
+  95a65323 [google-or-mixed] JP · Misawa
+    → source google (5ec617f4) address 정제
+  6e6c9999 [naver-only] KR · Cheongju
+  c0bd8983 [google-or-mixed] JP · Shiriuchi
+    → source google (1a4f12aa) address 정제
+  ca118a6e [google-or-mixed] JP · Nagoya
+    → source google (9dbbaa22) address 정제
+  3b2f385c [google-or-mixed] JP · Kumamoto
+    → source google (3254763d) address 정제
+  49bcf998 [google-or-mixed] JP · Minato City
+    → source google (2a55d6aa) address 정제
+  0194d562 [google-or-mixed] JP · Motobu
+    → source google (eff35bbc) address 정제
+  908c8ab7 [google-or-mixed] JP · Shibuya
+    → source google (a565da2b) address 정제
+  75501e34 [naver-only] KR · Osan
+  a5414757 [google-or-mixed] JP · Yokohama
+    → source google (806be39e) address 정제
+  346d8006 [google-or-mixed] JP · Minato City
+    → source google (17900839) address 정제
+  5b79400d [google-or-mixed] JP · Shinano
+    → source google (782bb330) address 정제
+  5051b444 [google-or-mixed] JP · Osaka
+    → source google (2bd4a164) address 정제
+  122eb42f [naver-only] KR · Yesan-gun
+  71419a5e [google-or-mixed] JP · Shari
+    → source google (19eea1d7) address 정제
+  b25808c0 [google-or-mixed] JP · Noboribetsu
+    → source google (e3d06e68) address 정제
+  676e4785 [naver-only] KR · (no city)
+  9f22876a [google-or-mixed] JP · Okayama
+    → source google (82290897) address 정제
+  44cb9251 [google-or-mixed] JP · Sendai
+    → source google (1b3d199f) address 정제
+  5cf44bec [google-or-mixed] JP · Takeo
+    → source google (fdcef481) address 정제
+  35c8b2bc [google-or-mixed] JP · Izu
+    → source google (66ac6ee2) address 정제
+  c0490635 [google-or-mixed] JP · Kyotango
+    → source google (a83974cb) address 정제
+  7125e831 [google-or-mixed] JP · Minakami
+    → source google (998ce3bc) address 정제
+  2a0571a3 [google-or-mixed] JP · Kokonoe
+    → source google (3fcd4622) address 정제
+  df8ce37c [google-or-mixed] JP · Nakashibetsu
+    → source google (d193c15e) address 정제
+  b90b9470 [naver-only] KR · Cheonan
+  58b4bb93 [naver-only] KR · Cheju
+  3bb75020 [naver-only] KR · (no city)
+  32920bd6 [naver-only] KR · Gangneung
+  1c8ecb4a [naver-only] KR · (no city)
+  15a8b840 [naver-only] KR · Cheju
+  4926fac9 [naver-only] KR · (no city)
+  fa8ca9dc [naver-only] KR · (no city)
+  69786b8a [naver-only] KR · (no city)
+  4ea45563 [naver-only] KR · (no city)
+  11c6e15b [google-or-mixed] JP · Osaka
+    → source google (dae9d41d) address 정제
+  e48b7d91 [google-or-mixed] JP · Omihachiman
+    → source google (b3c91ed0) address 정제
+  aaaab99f [google-or-mixed] JP · Sanuki
+    → source google (84766a7a) address 정제
+  58de0934 [google-or-mixed] JP · Kobe
+    → source google (63d6c537) address 정제
+  505b93a1 [naver-only] KR · (no city)
+  b1879d2d [naver-only] KR · (no city)
+  d42dba7f [naver-only] KR · (no city)
+  c9666cf7 [naver-only] KR · (no city)
+  39104a83 [naver-only] KR · (no city)
+  f5525324 [naver-only] KR · (no city)
+  a887626e [google-or-mixed] JP · Osaka
+    → source google (d5f7baf2) address 정제
+  1c7c7122 [naver-only] KR · Cheongdo
+  5bed4463 [naver-only] KR · (no city)
+  29be5f74 [naver-only] KR · (no city)
+  c709861a [naver-only] KR · Gwangju-si
+  1a0d1987 [naver-only] KR · (no city)
+  aa929b86 [naver-only] KR · (no city)
+  8181ca98 [naver-only] KR · Cheju
+  78d91d1c [naver-only] KR · (no city)
+  9141a630 [naver-only] KR · (no city)
+  2fddb961 [naver-only] KR · Cheongju
+  25d28906 [naver-only] KR · (no city)
+  11c8d769 [naver-only] KR · (no city)
+  313d1211 [naver-only] KR · (no city)
+  54736d75 [naver-only] KR · (no city)
+  55a14cf6 [naver-only] KR · (no city)
+  c9ed70b6 [naver-only] KR · Andong
+  a41aac90 [naver-only] KR · (no city)
+  2cffdfdf [naver-only] KR · (no city)
+  b72b4e90 [naver-only] KR · (no city)
+  e10a54f2 [naver-only] KR · (no city)
+  4da4073a [naver-only] KR · (no city)
+  7fde88ea [naver-only] KR · (no city)
+  558503e4 [naver-only] KR · (no city)
+  bd79fa67 [naver-only] KR · Yeosu
+  a219e9b4 [naver-only] KR · Euijeongbu
+  f4bd04a9 [naver-only] KR · (no city)
+  9a65005f [naver-only] KR · (no city)
+  0be3cf82 [google-or-mixed] JP · Sumida City
+    → source google (7d64d721) address 정제
+  b4e22611 [naver-only] KR · Cheongju
+  d55bca86 [naver-only] KR · (no city)
+  f2f77663 [google-or-mixed] JP · Kawasaki
+    → source google (2a0e2f22) address 정제
+  a4ffb01e [naver-only] KR · Suwon
+  25ca7ae4 [naver-only] KR · (no city)
+  eda15ebd [naver-only] KR · Goyang-si
+  8df154b1 [naver-only] KR · (no city)
+  9e2b9559 [naver-only] KR · Cheongsong
+  e803c330 [naver-only] KR · (no city)
+  6d05bd50 [naver-only] KR · (no city)
+  437f289a [naver-only] KR · Uljin
+  1139001e [naver-only] KR · (no city)
+  38ba9867 [naver-only] KR · Namyangju-si
+  f8308e42 [naver-only] KR · Yangpyeong
+  da7666e6 [naver-only] KR · (no city)
+  0236da96 [naver-only] KR · (no city)
+  9fb780af [naver-only] KR · Wanju-gun
+  72dba5ca [naver-only] KR · (no city)
+  7e519017 [naver-only] KR · (no city)
+  7319c949 [naver-only] KR · (no city)
+  39871b48 [naver-only] KR · (no city)
+  f06195fa [naver-only] KR · (no city)
+  d7a00239 [naver-only] KR · (no city)
+  2da65848 [naver-only] KR · Seongnam-si
+  1d12baf4 [naver-only] KR · Yangyang
+  37fe3b33 [naver-only] KR · Gwangmyeong-si
+  84535bd6 [naver-only] KR · (no city)
+  7c59f5ab [naver-only] KR · (no city)
+  87791b43 [google-or-mixed] JP · Date
+    → source google (a7de2689) address 정제
+  210be980 [naver-only] KR · Jeongeup
+  7273b6ab [naver-only] KR · (no city)
+  bf69f204 [naver-only] KR · (no city)
+  5027bb58 [naver-only] KR · (no city)
+  1bf78094 [naver-only] KR · Cheonan
+  7a76b1ea [naver-only] KR · Yangyang
+  76249854 [naver-only] KR · (no city)
+  43469200 [naver-only] KR · (no city)
+  d6c19557 [naver-only] KR · (no city)
+  905b3fdb [naver-only] KR · (no city)
+  282fb281 [naver-only] KR · (no city)
+  1891a8c5 [naver-only] KR · (no city)
+  8f816080 [naver-only] KR · Cheju
+  299bc843 [naver-only] KR · Gyeongju
+  0a53b809 [naver-only] KR · Kochang
+  f4b8a112 [naver-only] KR · (no city)
+  317665c5 [naver-only] KR · Cheongsong
+  c1dc05fb [naver-only] KR · (no city)
+  d0e7b437 [naver-only] KR · Anseong-si
+  5da18c55 [naver-only] KR · Hanam-si
+  5e62bc5c [naver-only] KR · Jangheung
+  abc2ccfc [naver-only] KR · Andong
+  03a3e237 [naver-only] KR · Yangsan
+  bb9f34e7 [naver-only] KR · Euijeongbu
+  60c460aa [naver-only] KR · Seogwipo
+  bfb6580b [naver-only] KR · (no city)
+  5d9f65bb [naver-only] KR · (no city)
+  df5d08f4 [naver-only] KR · (no city)
+  76436113 [naver-only] KR · (no city)
+  572dc7ce [naver-only] KR · Gyeongju
+  56f2246b [naver-only] KR · (no city)
+  78998a61 [naver-only] KR · Pocheon-si
+  ca45c735 [naver-only] KR · Goyang-si
+  6915d330 [naver-only] KR · Yeosu
+  d96c2dc1 [naver-only] KR · Seogwipo
+  6ce525c1 [naver-only] KR · Asan-si
+  f254e4d9 [naver-only] KR · Cheonan
+  704495e7 [naver-only] KR · (no city)
+  0c7bd022 [naver-only] KR · Cheju
+  1dcd598e [naver-only] KR · Jincheon
+  d029b609 [naver-only] KR · (no city)
+  77333149 [naver-only] KR · (no city)
+  0cd62b6d [naver-only] KR · (no city)
+  dee6dbaa [naver-only] KR · (no city)
+  976f42ab [naver-only] KR · Seongnam-si
+  43c80382 [naver-only] KR · Hwaseong-si
+  092e97d7 [naver-only] KR · (no city)
+  8c6cd963 [naver-only] KR · (no city)
+  74337566 [naver-only] KR · (no city)
+  c8178237 [naver-only] KR · Hwaseong-si
+  d97f24a0 [naver-only] KR · (no city)
+  3c2ceb88 [naver-only] KR · Icheon
+  658e982d [naver-only] KR · Cheongju
+  a8f1f26a [naver-only] KR · Paju-si
+  8ffe2725 [naver-only] KR · (no city)
+  aba7646f [naver-only] KR · (no city)
+  0b839c2c [naver-only] KR · Yeosu
+  51aa7ebd [naver-only] KR · (no city)
+  42c1cf9a [naver-only] KR · (no city)
+  6e8342fe [naver-only] KR · Sokcho-si
+  bfb91c7d [naver-only] KR · Cheju
+  4482da09 [naver-only] KR · (no city)
+  4467c03d [naver-only] KR · (no city)
+  dfd3dbba [naver-only] KR · Yangju-si
+  4d0cad9e [naver-only] KR · (no city)
+  5b6a9a8c [naver-only] KR · (no city)
+  f541d6a8 [naver-only] KR · Anseong-si
+  35af5049 [naver-only] KR · (no city)
+  6302208e [naver-only] KR · Gyeongju
+  0a2ca23c [naver-only] KR · (no city)
+  19303c83 [naver-only] KR · (no city)
+  d18a5bf4 [naver-only] KR · Yangsan
+  3e337352 [naver-only] KR · Gangneung
+  004a435b [naver-only] KR · (no city)
+  7843748f [naver-only] KR · Jeongseon
+  df948f6a [naver-only] KR · (no city)
+  0563f6c6 [naver-only] KR · (no city)
+  ccb05800 [naver-only] KR · Seongnam-si
+  63e858c2 [naver-only] KR · (no city)
+  2893c8cb [naver-only] KR · Yangju-si
+  73b89671 [naver-only] KR · Hanam-si
+  f782dc13 [naver-only] KR · Gyeongju
+  3e5c5182 [naver-only] KR · (no city)
+  924e2423 [naver-only] KR · (no city)
+  6a46975e [naver-only] KR · Inje
+  7c0d4d19 [naver-only] KR · (no city)
+  6d985d61 [naver-only] KR · Paju-si
+  0422e887 [naver-only] KR · Yangju-si
+  87b98972 [naver-only] KR · (no city)
+  0eac2c4e [naver-only] KR · (no city)
+  12b5bf28 [naver-only] KR · Gangneung
+  f628ea0e [naver-only] KR · (no city)
+  681bc0a1 [naver-only] KR · (no city)
+  48cd5f1b [naver-only] KR · (no city)
+  04a4e31b [naver-only] KR · Yongin-si
+  b53ef065 [naver-only] KR · Asan-si
+  8722bf99 [naver-only] KR · (no city)
+  17875739 [naver-only] KR · Pocheon-si
+  f8fd35dd [naver-only] KR · Gyeongju
+  ce21515f [naver-only] KR · (no city)
+  3cb4d74b [naver-only] KR · (no city)
+  88b0fba8 [naver-only] KR · (no city)
+  696e7291 [naver-only] KR · Yangju-si
+  a39ef875 [naver-only] KR · (no city)
+  59598b27 [naver-only] KR · Pocheon-si
+  d7a40701 [naver-only] KR · Chuncheon
+  f329d84c [google-or-mixed] US · New York
+    → source google (eb46fb42) address 정제
+  272c8e5e [naver-only] KR · (no city)
+  bc17f4cb [naver-only] KR · Paju-si
+  ee2b63df [naver-only] KR · (no city)
+  9588f7cc [naver-only] KR · (no city)
+
+=== 완료 ===
+  처리: 246 / 전체 248
+  places 업데이트: 246
+  place_sources 업데이트: 54
+  skip: 0
+  errors: 2
+
+수동 검토 필요:
+  - dc98375b-d9f0-4f3c-9256-6df1bfb90b45: no lat/lng
+  - 40046f1e-fa31-4b9d-8e63-dc9dc5ed9adf: no lat/lng
+
+(dry-run — DB 미반영)
