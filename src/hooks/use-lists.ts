@@ -94,6 +94,29 @@ export function useFeaturedPublicLists(enabled = true): UseDataState<SaList[]> {
   return { data, loading, error }
 }
 
+/** 특정 장소가 포함된 공개 리스트 (구독자수 desc) */
+export function usePublicListsContainingPlace(placeId: string, limit = 10): UseDataState<SaList[]> {
+  const [data, setData] = useState<SaList[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!placeId) { setLoading(false); return }
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    listsService.getPublicListsContainingPlace(placeId, limit)
+      .then((lists) => { if (!cancelled) setData(lists) })
+      .catch((e) => { if (!cancelled) setError(e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+
+    return () => { cancelled = true }
+  }, [placeId, limit])
+
+  return { data, loading, error }
+}
+
 // 단일 리스트 상세
 export function useList(id: string): UseDataState<SaList | null> & { refresh: () => void } {
   const [data, setData] = useState<SaList | null>(null)

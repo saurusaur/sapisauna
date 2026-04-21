@@ -328,6 +328,21 @@ export async function getListsContainingPlace(userId: string, placeId: string): 
   return (data || []).map((row) => row.list_id)
 }
 
+// 특정 장소가 포함된 공개 리스트 (구독자수 desc, owner 정보 포함)
+export async function getPublicListsContainingPlace(placeId: string, limit = 10): Promise<SaList[]> {
+  const { data, error } = await supabase
+    .from('list_items')
+    .select('list:lists!inner(*, owner:users!owner_id(nickname, profile_emoji, profile_hue))')
+    .eq('place_id', placeId)
+    .eq('lists.visibility', 'public')
+    .order('subscriber_count', { foreignTable: 'lists', ascending: false })
+    .order('updated_at', { foreignTable: 'lists', ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return (data || []).map((row) => mapListWithOwner((row.list as unknown) as Record<string, unknown>))
+}
+
 // 여러 장소가 들어있는 내 리스트 ID 목록 (배치)
 export async function getListsContainingPlaces(userId: string, placeIds: string[]): Promise<Record<string, string[]>> {
   if (placeIds.length === 0) return {}

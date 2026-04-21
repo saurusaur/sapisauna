@@ -16,13 +16,11 @@
 - [ ] [UX] 홈 SA-PI FEATURED 섹션 가로 alignment 어긋남 — 홈 `<main className="p-4">`(16px) + 공용 컴포넌트 내부 `px-5`(20px) = 36px 들여쓰기로 ProfileCard·커뮤니티 피드(16px)와 가로 정렬 안 맞음. 수정안: compact 모드일 때 내부 `px-4` 적용 + 홈 호출부 `<div className="-mx-4">` 래퍼로 main padding 상쇄 → 16px 통일. 또는 홈 main padding을 `p-5`로 통일하는 방향도 검토 | priority: P1 | added: 2026-04-20
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
-- [ ] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 검색 결과 0건일 때 "이 장소를 직접 추가하기" CTA로 장소 등록 플로우 연결 | priority: P1 | added: 2026-04-14
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
 - [ ] [기능] 탐색 탭 → 지도 뷰 전환 — 탐색을 "주변 사우나 찾기 + 장소 정보" 지도 중심으로 변경. 지도 API 선정(Naver/Mapbox) 필요 | priority: P2 | added: 2026-04-18
-- [ ] [UX] 장소 상세보기 SA-LIST 섹션 — 해당 장소가 포함된 공개 리스트 수 + 인기순 리스트 목록 표시 | priority: P2 | added: 2026-04-13
 - [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
 - [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
@@ -41,6 +39,8 @@
 ## Done
 
 ### 2026-04-21
+- [x] [UX] 장소 상세보기 SA-LIST 섹션 — 사-피 리포트와 사-피엔스의 흔적 사이에 "담긴 사-리스트" 섹션 추가. 공개 리스트만 subscriber_count desc, 상위 3개 + 더보기 인라인 확장(최대 10), 0건이면 섹션 hide. SaListFeedRow 재사용으로 사-리스트 피드와 일관 | priority: P2 | added: 2026-04-13 | done: 2026-04-21
+- [x] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 0건 UI에 search_off 아이콘 + "직접 장소 추가" CTA 링크로 /place/add 연결 (c046e9b, 4/20 구현 — 백로그 정리 누락분) | priority: P1 | added: 2026-04-14 | done: 2026-04-21
 - [x] [기능] SA-LIST 리워드 — XP list_created(30) 즉시 부여 + 마일스톤 6종(큐레이터/컬렉터/백과사전/안내자/촌장/사플루언서). 즉시 트리거(생성·장소추가) + lazy 트리거(getMyLists 시 구독자 수 체크). 칭호 사유 라벨을 base_title 기반 구체 사유로 개선 (38e34b9) | priority: P1 | added: 2026-03-23 | done: 2026-04-21
 - [x] [UX] 트라이브 선택 버튼 디자인 통일 — 온보딩+비로그인 홈을 사-리스트 TRIBE PICKS 스타일(컬러 풀필 + 박스 안 이모지/영문)로 통일 (224b4d5) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
 - [x] [인프라] 로컬 빌드 SSL 에러 — build 스크립트도 NODE_EXTRA_CA_CERTS 적용해 dev와 일관 (08585ce) | done: 2026-04-21

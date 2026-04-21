@@ -11,6 +11,8 @@ import UserLogCard from '@/components/features/user-log-card'
 import { usePlace, usePlaceStats } from '@/hooks/use-places'
 import { useLogsByPlace } from '@/hooks/use-logs'
 import { useSavePlace } from '@/hooks/use-save-place'
+import { usePublicListsContainingPlace } from '@/hooks/use-lists'
+import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import Badge24h from '@/components/ui/badge-24h'
 import Chip from '@/components/ui/chip'
 import DataState from '@/components/ui/data-state'
@@ -31,6 +33,8 @@ export default function PlaceDetailPage() {
   const { stats } = usePlaceStats(placeId)
   const { isSaved } = useSavePlace()
   const { user: authUser } = useAuth()
+  const { data: containingLists } = usePublicListsContainingPlace(placeId, 10)
+  const [showAllLists, setShowAllLists] = useState(false)
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
   const [tribeSortId, setTribeSortId] = useState<string>('')
@@ -531,6 +535,34 @@ export default function PlaceDetailPage() {
               </div>
               )}
 
+            </div>
+          </div>
+        )}
+
+        {/* D5. 이 장소가 담긴 사-리스트 (공개만) — 0건이면 hide */}
+        {containingLists.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-stone-500">담긴 사-리스트</h3>
+              <span className="text-xs text-stone-400">{containingLists.length}개</span>
+            </div>
+            <div className="space-y-2">
+              {(showAllLists ? containingLists : containingLists.slice(0, 3)).map((list) => (
+                <SaListFeedRow
+                  key={list.id}
+                  list={list}
+                  onClick={() => router.push(`/sa-list/${list.id}`)}
+                />
+              ))}
+              {!showAllLists && containingLists.length > 3 && (
+                <button
+                  onClick={() => setShowAllLists(true)}
+                  className="w-full pt-2 pb-1 text-center text-xs font-medium underline underline-offset-2 transition-colors"
+                  style={{ color: 'var(--color-primary)' }}
+                >
+                  더 보기 ({containingLists.length - 3}개 더)
+                </button>
+              )}
             </div>
           </div>
         )}
