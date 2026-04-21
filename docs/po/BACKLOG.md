@@ -40,7 +40,10 @@
 ### 2026-04-21
 - [x] [UX] 로딩 UI 전체 통일 — 공용 `<ContentLoader>` 프리미티브 생성(size=small/default), Z3 게이트(헤더·네비 유지, main만 스피너) 패턴 적용. 홈/사-리스트홈 초기 로딩 게이트화, 섹션별 "로딩 중..." 텍스트 제거(story/page, page, settings/titles, save-bottom-sheet, user-context). DataState 내부도 ContentLoader 재사용. MESSAGES.HOME.LOADING 상수 삭제 | priority: P1 | added: 2026-04-21 | done: 2026-04-21
 - [x] [UX] 홈 SA-PI FEATURED 섹션 alignment + 헤딩 + 폰트 보정 — main p-4(16) + 내부 px-5(20)=36 이중 들여쓰기 해소(compact 모드 px-4 + 호출부 -mx-4 래퍼), "SA-PI FEATURED" → "이런 사우나는 어때요?" (title prop 신설), 이모지 26→32px·제목 13→15px·설명 10→11px·섹션 헤더 text-sm→text-base (520717d) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
-- [x] [UX] 장소 상세보기 SA-LIST 섹션 — 사-피 리포트와 사-피엔스의 흔적 사이에 "담긴 사-리스트" 섹션 추가. 공개 리스트만 subscriber_count desc, 상위 3개 + 더보기 인라인 확장(최대 10), 0건이면 섹션 hide. SaListFeedRow 재사용으로 사-리스트 피드와 일관 | priority: P2 | added: 2026-04-13 | done: 2026-04-21
+- [x] [UX] 장소 상세 '연관 사-리스트' 섹션 + 시각 분리 — 사-피 리포트와 사-피엔스의 흔적 사이에 신설. 공개 리스트만 subscriber_count desc, 카드 2개 + 더보기 인라인 확장(최대 10). 사-피엔스 흔적 섹션과 시각 구분 위해 primary 5% alpha rounded 배경 패치(옵션 C). 0건이면 섹션 hide (839e342, 2caa460, 44973a8) | priority: P2 | added: 2026-04-13 | done: 2026-04-21
+- [x] [UX] 비로그인 홈에 큐레이션 캐러셀 노출 + 트라이브 활성 칩 살짝 키움 — 기존엔 '더 보러가기' 텍스트 링크만 떠서 트라이브 픽 다음이 뜬금없음. FeaturedSaListCarousel(compact)을 비로그인에도 노출, 활성 칩 scale-105→110 (66f46ac) | priority: P1 | added: 2026-04-21 | done: 2026-04-21
+- [x] [UX] 인기 사-리스트 피드에 featured 리스트 포함 — 기존엔 캐러셀 중복 회피 목적으로 is_featured 제외했으나, featured와 인기는 별개 발견 경로라 양쪽 노출이 자연스러움. 비로그인/로그인 동일 (cdf7e48) | priority: P1 | added: 2026-04-21 | done: 2026-04-21
+- [x] [UX] 탐색 BEYOND 필터에 '세신' + '찜질방' 추가 — EXPLORE_FILTERS.BEYOND가 PLACE_SPECS와 동기화 누락. 찜질파/세신 유저 필터링 편의 (94b3286, 2caa460) | priority: P2 | added: 2026-04-21 | done: 2026-04-21
 - [x] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 0건 UI에 search_off 아이콘 + "직접 장소 추가" CTA 링크로 /place/add 연결 (c046e9b, 4/20 구현 — 백로그 정리 누락분) | priority: P1 | added: 2026-04-14 | done: 2026-04-21
 - [x] [기능] SA-LIST 리워드 — XP list_created(30) 즉시 부여 + 마일스톤 6종(큐레이터/컬렉터/백과사전/안내자/촌장/사플루언서). 즉시 트리거(생성·장소추가) + lazy 트리거(getMyLists 시 구독자 수 체크). 칭호 사유 라벨을 base_title 기반 구체 사유로 개선 (38e34b9) | priority: P1 | added: 2026-03-23 | done: 2026-04-21
 - [x] [UX] 트라이브 선택 버튼 디자인 통일 — 온보딩+비로그인 홈을 사-리스트 TRIBE PICKS 스타일(컬러 풀필 + 박스 안 이모지/영문)로 통일 (224b4d5) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
