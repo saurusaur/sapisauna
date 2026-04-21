@@ -120,31 +120,16 @@ export default function Home() {
         {/* TRIBE PICKS — 비로그인 전용 */}
         {!authUser && <TribePicksCard />}
 
-        {/* SA-PI FEATURED — 로그인 컴팩트 캐러셀 + '더 보러가기' 링크
+        {/* SA-PI FEATURED — 로그인/비로그인 공통 컴팩트 캐러셀
             -mx-4: main padding(p-4=16px) 상쇄 → 컴포넌트 내부 px-4가 다른 섹션과 정렬 일치 */}
-        {authUser && (
-          <div className="-mx-4">
-            <FeaturedSaListCarousel
-              lists={featuredLists}
-              compact
-              showSubtitle={false}
-              title="이런 사우나는 어때요?"
-            />
-          </div>
-        )}
-
-        {/* 비로그인 — TribePicks 아래 '더 보러가기' 링크만 */}
-        {!authUser && (
-          <button
-            type="button"
-            onClick={() => router.push('/sa-list')}
-            className="mx-auto flex items-center gap-0.5 px-4 py-1.5 text-[12px] font-medium"
-            style={{ color: 'var(--color-primary)' }}
-          >
-            사-피엔스 추천 사우나 리스트 더 보러가기
-            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-primary)' }}>chevron_right</span>
-          </button>
-        )}
+        <div className="-mx-4">
+          <FeaturedSaListCarousel
+            lists={featuredLists}
+            compact
+            showSubtitle={false}
+            title="이런 사우나는 어때요?"
+          />
+        </div>
 
         {/* 사-피엔스의 흔적 */}
         {!communityLoading && communityLogs.length === 0 ? null : (

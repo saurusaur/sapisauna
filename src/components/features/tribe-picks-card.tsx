@@ -67,7 +67,7 @@ export default function TribePicksCard() {
               className={`
                 w-20 h-20 rounded-xl flex flex-col items-center justify-center gap-1
                 transition-all duration-300 cursor-pointer shadow-sm
-                ${isActive ? 'scale-105 shadow-md' : 'opacity-85'}
+                ${isActive ? 'scale-110 shadow-md' : 'opacity-85'}
               `}
               style={{ backgroundColor: tribe.color }}
             >
