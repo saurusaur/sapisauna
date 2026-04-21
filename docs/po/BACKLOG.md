@@ -38,6 +38,7 @@
 ## Done
 
 ### 2026-04-21
+- [x] [UX] 섹션 헤더 스타일 전체 통일 — 페이지별 4가지 혼재(text-sm semibold 500 / text-sm bold 600 / text-[11px] bold 500 / text-base bold 600) → 단일 규칙. 섹션 헤더 `text-sm font-bold text-stone-600`, 카드 서브 라벨(KpiRow/RoutineCard) `text-xs font-bold text-stone-500`. 8 파일 정리 (4c65f45) | priority: P1 | added: 2026-04-21 | done: 2026-04-21
 - [x] [UX] 로딩 UI 전체 통일 — 공용 `<ContentLoader>` 프리미티브 생성(size=small/default), Z3 게이트(헤더·네비 유지, main만 스피너) 패턴 적용. 홈/사-리스트홈 초기 로딩 게이트화, 섹션별 "로딩 중..." 텍스트 제거(story/page, page, settings/titles, save-bottom-sheet, user-context). DataState 내부도 ContentLoader 재사용. MESSAGES.HOME.LOADING 상수 삭제 | priority: P1 | added: 2026-04-21 | done: 2026-04-21
 - [x] [UX] 홈 SA-PI FEATURED 섹션 alignment + 헤딩 + 폰트 보정 — main p-4(16) + 내부 px-5(20)=36 이중 들여쓰기 해소(compact 모드 px-4 + 호출부 -mx-4 래퍼), "SA-PI FEATURED" → "이런 사우나는 어때요?" (title prop 신설), 이모지 26→32px·제목 13→15px·설명 10→11px·섹션 헤더 text-sm→text-base (520717d) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
 - [x] [UX] 장소 상세 '연관 사-리스트' 섹션 + 시각 분리 — 사-피 리포트와 사-피엔스의 흔적 사이에 신설. 공개 리스트만 subscriber_count desc, 카드 2개 + 더보기 인라인 확장(최대 10). 사-피엔스 흔적 섹션과 시각 구분 위해 primary 5% alpha rounded 배경 패치(옵션 C). 0건이면 섹션 hide (839e342, 2caa460, 44973a8) | priority: P2 | added: 2026-04-13 | done: 2026-04-21
