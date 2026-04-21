@@ -543,7 +543,7 @@ export default function PlaceDetailPage() {
         {containingLists.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-stone-500">담긴 사-리스트</h3>
+              <h3 className="text-sm font-semibold text-stone-500">연관 사-리스트</h3>
               <span className="text-xs text-stone-400">{containingLists.length}개</span>
             </div>
             <div className="space-y-2">
