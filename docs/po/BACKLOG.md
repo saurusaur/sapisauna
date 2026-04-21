@@ -14,10 +14,8 @@
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [UX] 홈 SA-PI FEATURED 섹션 가로 alignment 어긋남 — 홈 `<main className="p-4">`(16px) + 공용 컴포넌트 내부 `px-5`(20px) = 36px 들여쓰기로 ProfileCard·커뮤니티 피드(16px)와 가로 정렬 안 맞음. 수정안: compact 모드일 때 내부 `px-4` 적용 + 홈 호출부 `<div className="-mx-4">` 래퍼로 main padding 상쇄 → 16px 통일. 또는 홈 main padding을 `p-5`로 통일하는 방향도 검토 | priority: P1 | added: 2026-04-20
-- [ ] [UX] 트라이브 선택 버튼 디자인 통일 — 온보딩(w-24) + 비로그인 홈 TribePicksCard(w-20)를 사-리스트 TRIBE PICKS 스타일로 통일. 정사각 컬러 풀필 + 이모지+persona+name 박스 안 배치(공간 절약). 설계: `docs/handoff/handoff_20260420_session.md` | priority: P1 | added: 2026-04-20
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
-- [ ] [기능] SA-LIST 리워드 — XP: list_created(30), list_shared(10), first_subscriber(30). 마일스톤 칭호: 큐레이터(첫 리스트), 컬렉터(5개), 인플루언서(구독자10), 백과사전(장소30개 추가). rewards.ts + reward-service.ts 확장 | priority: P1 | added: 2026-03-23
 - [ ] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 검색 결과 0건일 때 "이 장소를 직접 추가하기" CTA로 장소 등록 플로우 연결 | priority: P1 | added: 2026-04-14
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
@@ -41,6 +39,11 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-04-21
+- [x] [기능] SA-LIST 리워드 — XP list_created(30) 즉시 부여 + 마일스톤 6종(큐레이터/컬렉터/백과사전/안내자/촌장/사플루언서). 즉시 트리거(생성·장소추가) + lazy 트리거(getMyLists 시 구독자 수 체크). 칭호 사유 라벨을 base_title 기반 구체 사유로 개선 (38e34b9) | priority: P1 | added: 2026-03-23 | done: 2026-04-21
+- [x] [UX] 트라이브 선택 버튼 디자인 통일 — 온보딩+비로그인 홈을 사-리스트 TRIBE PICKS 스타일(컬러 풀필 + 박스 안 이모지/영문)로 통일 (224b4d5) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
+- [x] [인프라] 로컬 빌드 SSL 에러 — build 스크립트도 NODE_EXTRA_CA_CERTS 적용해 dev와 일관 (08585ce) | done: 2026-04-21
 
 ### 2026-04-20
 - [x] [리팩토링] Geocoding 마이그레이션 — Text Search formatted_address 파싱 제거 → Google Geocoding API reverse(10K/월 무료) + address_components 재조립. places.city 컬럼 추가(022), country_code 오염 교정 246건, JP 블록 번지 복원(premise+sublocality_level_3/4/5), POI 필터(숫자 0+4자+) 적용. lat/lng 누락 2건 forward Geocoding으로 보강. 플랜: archive/PLAN_geocoding_migration.md | done: 2026-04-20
