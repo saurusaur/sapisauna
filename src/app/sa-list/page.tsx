@@ -103,10 +103,8 @@ export default function SaListPage() {
     return result
   }, [myLists, subscribedLists])
 
-  // 피드에서 featured 제외 (검색/태그 모드에서는 featured도 포함 — 태그가 featured에만 있을 때 대응)
-  const feedLists = feedSearch
-    ? publicLists
-    : publicLists.filter((l) => !l.is_featured)
+  // 피드는 featured 포함 — 캐러셀과 중복되더라도 인기/최신순 발견 경로 유지
+  const feedLists = publicLists
 
   const handleCloseCreateSheet = useCallback(() => {
     if (createDirty) {
