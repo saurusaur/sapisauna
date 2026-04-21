@@ -46,7 +46,7 @@ export default function FeaturedSaListCarousel({
   return (
     <section>
       <div className={`${px} pt-2 pb-2`}>
-        <h2 className={`${compact ? 'text-base' : 'text-sm'} font-bold text-stone-600`}>{title}</h2>
+        <h2 className="text-sm font-bold text-stone-600">{title}</h2>
         {showSubtitle && (
           <p className="text-[11px] text-stone-400 font-normal mt-0.5">사-피 추천 리스트</p>
         )}

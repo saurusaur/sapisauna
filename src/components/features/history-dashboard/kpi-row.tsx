@@ -23,8 +23,8 @@ export default function KpiRow({
     <div className="space-y-2">
       {/* 헤더: 이번 달 요약 (2칸 위) + 총 기록 카운트 (3번째 칸 위) */}
       <div className="grid grid-cols-3 gap-2">
-        <p className="col-span-2 text-[11px] font-bold text-stone-500 px-1">이번 달 요약</p>
-        <p className="text-[11px] font-bold text-stone-500 px-1">총 기록 카운트</p>
+        <p className="col-span-2 text-xs font-bold text-stone-500 px-1">이번 달 요약</p>
+        <p className="text-xs font-bold text-stone-500 px-1">총 기록 카운트</p>
       </div>
 
       {/* KPI 3칸 */}

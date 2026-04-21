@@ -218,7 +218,7 @@ export default function ExplorePage() {
               {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
               {!isSearchOrFilterActive && (
                 <div>
-                  <h2 className="text-sm font-semibold text-stone-500 mb-3">전체 장소</h2>
+                  <h2 className="text-sm font-bold text-stone-600 mb-3">전체 장소</h2>
                   {places.length === 0 ? (
                     <div className="text-center py-8">
                       <span className="material-symbols-outlined text-3xl text-stone-300 mb-2 block">location_off</span>

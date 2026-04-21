@@ -258,7 +258,7 @@ export default function History() {
             <DataState loading={loading} error={error} isEmpty={Object.keys(groupedLogs).length === 0} emptyIcon="search_off" emptyMessage={searchQuery ? `'${searchQuery}'에 대한 기록이 없습니다` : '기록이 없습니다'}>
               {Object.entries(groupedLogs).map(([month, logs]) => (
                 <div key={month} className="mb-6">
-                  <h2 className="text-sm font-semibold text-stone-500 mb-3">
+                  <h2 className="text-sm font-bold text-stone-600 mb-3">
                     {month} <span className="text-stone-400 font-normal">(총 {logs.length}회)</span>
                   </h2>
                   <div className="space-y-3">
@@ -322,7 +322,7 @@ export default function History() {
 
             {/* 최근 기록 */}
             <div className="mt-1">
-              <p className="text-[11px] font-bold text-stone-500 px-1 mb-2">
+              <p className="text-sm font-bold text-stone-600 px-1 mb-2">
                 {selectedDateLogs.length > 0
                   ? `${new Date(selectedDate + 'T00:00:00').getMonth() + 1}월 ${new Date(selectedDate + 'T00:00:00').getDate()}일 기록`
                   : '최근 기록'

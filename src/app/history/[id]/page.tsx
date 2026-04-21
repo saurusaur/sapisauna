@@ -451,7 +451,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
         {samePlaceLogs.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-stone-500">이 장소의 다른 기록</h3>
+              <h3 className="text-sm font-bold text-stone-600">이 장소의 다른 기록</h3>
               <button
                 onClick={() => router.push(`/explore/${log.place_id}`)}
                 className="text-xs font-medium transition-colors hover:opacity-70"

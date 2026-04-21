@@ -67,7 +67,7 @@ export default function Home() {
             {/* 오늘의 기록 */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-sm font-semibold text-stone-500">{MESSAGES.HOME.TODAY_HEADING}</h2>
+                <h2 className="text-sm font-bold text-stone-600">{MESSAGES.HOME.TODAY_HEADING}</h2>
                 {authUser && (
                   <button
                     onClick={() => router.push('/history')}
@@ -138,7 +138,7 @@ export default function Home() {
             {/* 사-피엔스의 흔적 */}
             {communityLogs.length === 0 ? null : (
               <div>
-                <h2 className="text-sm font-semibold text-stone-500 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
+                <h2 className="text-sm font-bold text-stone-600 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
                 <div
                   className="flex gap-3 snap-x snap-mandatory"
                   style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}

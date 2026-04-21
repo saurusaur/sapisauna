@@ -390,7 +390,7 @@ export default function PlaceDetailPage() {
         {/* C. 시설 정보 — glass-card-light */}
         {facilityGroups.length > 0 && (
           <div>
-          <h3 className="text-sm font-semibold text-stone-500 mb-3">시설 정보</h3>
+          <h3 className="text-sm font-bold text-stone-600 mb-3">시설 정보</h3>
           <div className="glass-card-light p-4">
             <div className="space-y-3">
               {facilityGroups.map((group) => (
@@ -413,7 +413,7 @@ export default function PlaceDetailPage() {
           <div>
             {/* 헤더 + 트라이브 바 한줄 */}
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-stone-500">사-피 리포트</h3>
+              <h3 className="text-sm font-bold text-stone-600">사-피 리포트</h3>
               <div className="flex items-center gap-1.5">
                 {totalCount > 0 && <span className="text-xs text-stone-400">{totalCount}건</span>}
                 {tribeDistribution.map(({ tribeId, count }) => (
@@ -547,7 +547,7 @@ export default function PlaceDetailPage() {
             style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 5%, transparent)' }}
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-stone-500">연관 사-리스트</h3>
+              <h3 className="text-sm font-bold text-stone-600">연관 사-리스트</h3>
               <span className="text-xs text-stone-400">{containingLists.length}개</span>
             </div>
             <div className="space-y-2">
@@ -574,7 +574,7 @@ export default function PlaceDetailPage() {
         {/* E. 사-피엔스의 흔적 — 통합 로그 카드 */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-stone-500">{PLACE_DETAIL.LOGS_TITLE}</h3>
+            <h3 className="text-sm font-bold text-stone-600">{PLACE_DETAIL.LOGS_TITLE}</h3>
             <div className="flex items-center gap-1">
               {([
                 { key: 'latest' as const, label: '최신' },
