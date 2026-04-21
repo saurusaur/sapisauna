@@ -934,7 +934,7 @@ export const EXPLORE_FILTERS = {
   },
   BEYOND: {
     label: PLACE_SPECS.BEYOND.label,
-    options: ["open-air-bath", "aufguss", "self-loyly", "massage"],
+    options: ["open-air-bath", "aufguss", "self-loyly", "scrub", "massage"],
   },
   AMENITIES: {
     label: PLACE_SPECS.AMENITIES.label,
