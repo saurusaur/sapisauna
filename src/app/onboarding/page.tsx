@@ -323,7 +323,7 @@ export default function Onboarding() {
 
           <p className="text-sm text-stone-400 mb-8">{ONBOARDING.TYPE.SUBTITLE}</p>
 
-          {/* 트라이브 카드 */}
+          {/* 트라이브 카드 — 컬러 풀필 + 박스 안 이모지·영문 / 박스 밖 한글 */}
           <div className="flex gap-4 mb-6">
             {Object.values(TRIBES).map((type) => {
               const rank = getSelectionRank(type.id)
@@ -334,16 +334,24 @@ export default function Onboarding() {
                   <button
                     onClick={() => handleTypeClick(type.id)}
                     className={`
-                      relative w-24 h-24 rounded-xl flex items-center justify-center text-4xl
-                      transition-all duration-200 cursor-pointer
-                      ${isSelected
-                        ? 'shadow-md scale-105'
-                        : 'glass-card-light text-stone-500 hover:shadow-sm'
-                      }
+                      relative w-24 h-24 rounded-xl flex flex-col items-center justify-center gap-1
+                      transition-all duration-200 cursor-pointer shadow-sm
+                      ${isSelected ? 'shadow-md scale-105' : 'opacity-40 hover:opacity-70'}
                     `}
-                    style={isSelected ? { backgroundColor: type.color } : {}}
+                    style={{ backgroundColor: type.color }}
                   >
-                    {type.emoji}
+                    <span
+                      className="text-[32px] leading-none"
+                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' }}
+                    >
+                      {type.emoji}
+                    </span>
+                    <span
+                      className="text-[12px] font-extrabold italic font-heading tracking-wide text-white"
+                      style={{ textShadow: '0 1px 2px rgba(0,0,0,0.18)' }}
+                    >
+                      {type.persona.toUpperCase()}
+                    </span>
 
                     {isSelected && (
                       <span
@@ -356,21 +364,13 @@ export default function Onboarding() {
                     )}
                   </button>
 
-                  {/* 메인 라벨: 영문 (볼드 헤딩 폰트) + 서브: 한글 */}
-                  <div className="text-center">
-                    <span
-                      className={`text-sm font-extrabold italic block transition-all duration-200 font-heading ${isSelected ? '' : 'text-stone-400'}`}
-                      style={{ color: isSelected ? type.color : undefined }}
-                    >
-                      {type.persona.toUpperCase()}
-                    </span>
-                    <span
-                      className={`text-[11px] transition-all duration-200 ${isSelected ? 'font-medium' : 'text-stone-400'}`}
-                      style={isSelected ? { color: type.color } : {}}
-                    >
-                      {type.name}
-                    </span>
-                  </div>
+                  {/* 박스 밖 한글 name만 */}
+                  <span
+                    className={`text-[11px] transition-all duration-200 ${isSelected ? 'font-medium' : 'text-stone-400'}`}
+                    style={isSelected ? { color: type.color } : {}}
+                  >
+                    {type.name}
+                  </span>
                 </div>
               )
             })}

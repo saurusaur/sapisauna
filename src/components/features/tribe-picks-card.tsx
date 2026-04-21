@@ -56,41 +56,34 @@ export default function TribePicksCard() {
         PICK YOUR TRIBE
       </h3>
 
-      {/* 트라이브 카드 3개 */}
+      {/* 트라이브 카드 3개 — 컬러 풀필 + 박스 안 이모지·영문 persona */}
       <div className="flex justify-center gap-4 mb-4">
         {TRIBE_LIST.map((tribe, i) => {
           const isActive = activeIndex === i
           return (
-            <div key={tribe.id} className="flex flex-col items-center gap-1.5">
-              <button
-                onClick={() => handleClick(i)}
-                className={`
-                  w-20 h-20 rounded-xl flex items-center justify-center text-3xl
-                  transition-all duration-300 cursor-pointer
-                  ${isActive
-                    ? 'shadow-md scale-105'
-                    : 'glass-card-light text-stone-400 hover:shadow-sm'
-                  }
-                `}
-                style={isActive ? { backgroundColor: tribe.color } : {}}
+            <button
+              key={tribe.id}
+              onClick={() => handleClick(i)}
+              className={`
+                w-20 h-20 rounded-xl flex flex-col items-center justify-center gap-1
+                transition-all duration-300 cursor-pointer shadow-sm
+                ${isActive ? 'scale-105 shadow-md' : 'opacity-85'}
+              `}
+              style={{ backgroundColor: tribe.color }}
+            >
+              <span
+                className="text-[24px] leading-none"
+                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' }}
               >
                 {tribe.emoji}
-              </button>
-              <div className="text-center">
-                <span
-                  className={`text-xs font-extrabold italic block font-heading transition-colors duration-300 ${isActive ? '' : 'text-stone-400'}`}
-                  style={isActive ? { color: tribe.color } : {}}
-                >
-                  {tribe.persona}
-                </span>
-                <span
-                  className={`text-[10px] transition-colors duration-300 ${isActive ? 'font-medium' : 'text-stone-400'}`}
-                  style={isActive ? { color: tribe.color } : {}}
-                >
-                  {tribe.name}
-                </span>
-              </div>
-            </div>
+              </span>
+              <span
+                className="text-[11px] font-extrabold italic font-heading tracking-wide text-white"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.18)' }}
+              >
+                {tribe.persona}
+              </span>
+            </button>
           )
         })}
       </div>
