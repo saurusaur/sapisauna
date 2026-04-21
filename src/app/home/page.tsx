@@ -120,8 +120,18 @@ export default function Home() {
         {/* TRIBE PICKS — 비로그인 전용 */}
         {!authUser && <TribePicksCard />}
 
-        {/* SA-PI FEATURED — 로그인 컴팩트 캐러셀 + '더 보러가기' 링크 */}
-        {authUser && <FeaturedSaListCarousel lists={featuredLists} compact showSubtitle={false} />}
+        {/* SA-PI FEATURED — 로그인 컴팩트 캐러셀 + '더 보러가기' 링크
+            -mx-4: main padding(p-4=16px) 상쇄 → 컴포넌트 내부 px-4가 다른 섹션과 정렬 일치 */}
+        {authUser && (
+          <div className="-mx-4">
+            <FeaturedSaListCarousel
+              lists={featuredLists}
+              compact
+              showSubtitle={false}
+              title="이런 사우나는 어때요?"
+            />
+          </div>
+        )}
 
         {/* 비로그인 — TribePicks 아래 '더 보러가기' 링크만 */}
         {!authUser && (
