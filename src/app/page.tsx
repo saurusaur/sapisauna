@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
+import ContentLoader from '@/components/ui/content-loader'
 
 // 루트: 인증·프로필 상태에 따라 분기
 export default function RootPage() {
@@ -28,7 +29,7 @@ export default function RootPage() {
 
   return (
     <div className="flex items-center justify-center min-h-dvh bath-tile-bg">
-      <div className="text-stone-400 text-sm">로딩 중...</div>
+      <ContentLoader />
     </div>
   )
 }

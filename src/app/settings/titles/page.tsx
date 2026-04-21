@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase'
 import { useUser } from '@/contexts/user-context'
 import { getMilestoneCondition } from '@/constants/rewards'
 import type { UserTitle } from '@/types'
+import ContentLoader from '@/components/ui/content-loader'
 
 export default function TitlesPage() {
   const router = useRouter()
@@ -106,9 +107,7 @@ export default function TitlesPage() {
 
         {/* 칭호 목록 */}
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-stone-400 text-sm">로딩 중...</p>
-          </div>
+          <ContentLoader />
         ) : titles.length === 0 ? (
           <div className="text-center py-12">
             <span className="material-symbols-outlined text-stone-300 text-3xl mb-2 block">

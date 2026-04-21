@@ -3,6 +3,7 @@
  */
 
 import { captureError } from '@/lib/error-logger'
+import ContentLoader from './content-loader'
 
 interface DataStateProps {
   loading: boolean
@@ -23,13 +24,7 @@ export default function DataState({
 }: DataStateProps) {
   // Loading
   if (loading) {
-    return (
-      <div className="flex justify-center py-16">
-        <span className="material-symbols-outlined text-3xl text-stone-300 animate-spin">
-          progress_activity
-        </span>
-      </div>
-    )
+    return <ContentLoader />
   }
 
   // Error

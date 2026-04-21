@@ -771,7 +771,6 @@ export const MESSAGES = {
     CTA_BUTTON: "기록하기",
     COMMUNITY_HEADING: "사-피엔스 라이브",
     COMMUNITY_EMPTY: "아직 조용하네요..",
-    LOADING: "로딩 중...",
   },
   LOG: {
     SELECT_PLACE: "장소 선택",

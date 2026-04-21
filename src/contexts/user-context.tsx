@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { captureError } from '@/lib/error-logger'
 import { FALLBACK_TRIBE } from '@/constants/content'
 import type { TribeId } from '@/types'
+import ContentLoader from '@/components/ui/content-loader'
 
 // 유저 데이터 타입 (DB users 테이블과 동일 구조)
 export interface UserData {
@@ -119,7 +120,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
-        <div className="text-stone-400 text-sm">로딩 중...</div>
+        <ContentLoader />
       </div>
     )
   }

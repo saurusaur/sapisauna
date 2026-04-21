@@ -12,6 +12,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
+import ContentLoader from '@/components/ui/content-loader'
 import { useSavePlace } from '@/hooks/use-save-place'
 import { useAuth } from '@/contexts/auth-context'
 import * as listsService from '@/lib/lists-service'
@@ -176,7 +177,7 @@ export function SaveBottomSheet({
   return (
     <BottomSheet open={open} onClose={handleClose} title="">
       {loading ? (
-        <div className="py-6 text-center text-stone-400 text-sm">로딩 중...</div>
+        <ContentLoader size="small" />
       ) : (
         <div className="space-y-0 relative">
           {/* 상단: MY SA-LIST (기본 리스트) */}

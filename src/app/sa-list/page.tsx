@@ -20,6 +20,7 @@ import type { PublicListSort } from '@/lib/lists-service'
 import { listBgColor } from '@/lib/utils'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
+import ContentLoader from '@/components/ui/content-loader'
 import ListFormSheet from '@/components/features/list-form-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
@@ -43,8 +44,11 @@ export default function SaListPage() {
   // 데이터 훅 — myLists는 SavePlaceContext SSOT (저장/해제 시 자동 refresh)
   const { myLists, loading: myLoading, refreshMyLists } = useSavePlace()
   const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
-  const { data: featuredLists } = useFeaturedPublicLists()
+  const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
   const { data: popularTags } = usePopularTags(5)
+
+  // Z3: 상단 섹션들 초기 로딩 게이트 (피드 재쿼리는 섹션 내부 DataState가 처리)
+  const initialLoading = myLoading || subLoading || featuredLoading
 
   // 검색 + 태그 필터
   const [showSearch, setShowSearch] = useState(false)
@@ -173,6 +177,10 @@ export default function SaListPage() {
           </div>
         )}
 
+        {/* Z3: 초기 로딩은 단일 스피너 (검색/피드 재쿼리는 섹션별 처리) */}
+        {!isSearching && initialLoading ? (
+          <ContentLoader />
+        ) : (<>
         {/* ── SA-PI FEATURED 캐러셀 ── */}
         {!isSearching && (
           <FeaturedSaListCarousel
@@ -228,32 +236,28 @@ export default function SaListPage() {
                 전체보기
               </Link>
             </div>
-            {myLoading || subLoading ? (
-              <div className="px-5 py-4 text-xs text-stone-400">불러오는 중...</div>
-            ) : (
-              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-5 pb-1">
-                {myCardItems.map(({ list, kind }) => (
-                  <MyCardItem
-                    key={list.id}
-                    list={list}
-                    kind={kind}
-                    onClick={() => router.push(`/sa-list/${list.id}`)}
-                  />
-                ))}
-                {/* 새 리스트 카드 */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!requireAuth()) return
-                    setShowCreateSheet(true)
-                  }}
-                  className="flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
-                >
-                  <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>add</span>
-                  <span className="text-[11px] text-stone-400 font-medium">새 리스트</span>
-                </button>
-              </div>
-            )}
+            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-5 pb-1">
+              {myCardItems.map(({ list, kind }) => (
+                <MyCardItem
+                  key={list.id}
+                  list={list}
+                  kind={kind}
+                  onClick={() => router.push(`/sa-list/${list.id}`)}
+                />
+              ))}
+              {/* 새 리스트 카드 */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (!requireAuth()) return
+                  setShowCreateSheet(true)
+                }}
+                className="flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
+              >
+                <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>add</span>
+                <span className="text-[11px] text-stone-400 font-medium">새 리스트</span>
+              </button>
+            </div>
           </section>
         )}
 
@@ -358,6 +362,7 @@ export default function SaListPage() {
             </DataState>
           </div>
         </section>
+        </>)}
       </main>
 
       {/* 나가기 확인 모달 */}

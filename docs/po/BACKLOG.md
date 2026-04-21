@@ -13,7 +13,6 @@
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
-- [ ] [UX] 홈 SA-PI FEATURED 섹션 가로 alignment 어긋남 — 홈 `<main className="p-4">`(16px) + 공용 컴포넌트 내부 `px-5`(20px) = 36px 들여쓰기로 ProfileCard·커뮤니티 피드(16px)와 가로 정렬 안 맞음. 수정안: compact 모드일 때 내부 `px-4` 적용 + 홈 호출부 `<div className="-mx-4">` 래퍼로 main padding 상쇄 → 16px 통일. 또는 홈 main padding을 `p-5`로 통일하는 방향도 검토 | priority: P1 | added: 2026-04-20
 - [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
@@ -39,6 +38,8 @@
 ## Done
 
 ### 2026-04-21
+- [x] [UX] 로딩 UI 전체 통일 — 공용 `<ContentLoader>` 프리미티브 생성(size=small/default), Z3 게이트(헤더·네비 유지, main만 스피너) 패턴 적용. 홈/사-리스트홈 초기 로딩 게이트화, 섹션별 "로딩 중..." 텍스트 제거(story/page, page, settings/titles, save-bottom-sheet, user-context). DataState 내부도 ContentLoader 재사용. MESSAGES.HOME.LOADING 상수 삭제 | priority: P1 | added: 2026-04-21 | done: 2026-04-21
+- [x] [UX] 홈 SA-PI FEATURED 섹션 alignment + 헤딩 + 폰트 보정 — main p-4(16) + 내부 px-5(20)=36 이중 들여쓰기 해소(compact 모드 px-4 + 호출부 -mx-4 래퍼), "SA-PI FEATURED" → "이런 사우나는 어때요?" (title prop 신설), 이모지 26→32px·제목 13→15px·설명 10→11px·섹션 헤더 text-sm→text-base (520717d) | priority: P1 | added: 2026-04-20 | done: 2026-04-21
 - [x] [UX] 장소 상세보기 SA-LIST 섹션 — 사-피 리포트와 사-피엔스의 흔적 사이에 "담긴 사-리스트" 섹션 추가. 공개 리스트만 subscriber_count desc, 상위 3개 + 더보기 인라인 확장(최대 10), 0건이면 섹션 hide. SaListFeedRow 재사용으로 사-리스트 피드와 일관 | priority: P2 | added: 2026-04-13 | done: 2026-04-21
 - [x] [UX] 탐색 검색 결과 없음 → 장소 추가 유도 — 0건 UI에 search_off 아이콘 + "직접 장소 추가" CTA 링크로 /place/add 연결 (c046e9b, 4/20 구현 — 백로그 정리 누락분) | priority: P1 | added: 2026-04-14 | done: 2026-04-21
 - [x] [기능] SA-LIST 리워드 — XP list_created(30) 즉시 부여 + 마일스톤 6종(큐레이터/컬렉터/백과사전/안내자/촌장/사플루언서). 즉시 트리거(생성·장소추가) + lazy 트리거(getMyLists 시 구독자 수 체크). 칭호 사유 라벨을 base_title 기반 구체 사유로 개선 (38e34b9) | priority: P1 | added: 2026-03-23 | done: 2026-04-21

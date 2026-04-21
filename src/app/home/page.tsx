@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/auth-context'
 import RecordCard from '@/components/features/record-card'
 import UserLogCard from '@/components/features/user-log-card'
 import DataState from '@/components/ui/data-state'
+import ContentLoader from '@/components/ui/content-loader'
 import ProfileCard from '@/components/features/profile-card'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
@@ -28,7 +29,10 @@ export default function Home() {
   const { user: authUser } = useAuth()
   const { data: userLogs, loading, error } = useUserLogs()
   const { data: communityLogs, loading: communityLoading } = useCommunityFeed(10)
-  const { data: featuredLists } = useFeaturedPublicLists()
+  const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
+
+  // Z3: 페이지 로딩 게이트 — 헤더·네비는 유지하고 main 영역만 스피너
+  const allLoading = loading || communityLoading || featuredLoading
 
   const todayKey = getTodayKey()
 
@@ -53,116 +57,106 @@ export default function Home() {
       </header>
 
       <main className="p-4 space-y-6">
-        {/* 프로필 카드 */}
-        <ProfileCard />
+        {allLoading ? (
+          <ContentLoader />
+        ) : (
+          <>
+            {/* 프로필 카드 */}
+            <ProfileCard />
 
-        {/* 오늘의 기록 */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-stone-500">{MESSAGES.HOME.TODAY_HEADING}</h2>
-            {authUser && (
-              <button
-                onClick={() => router.push('/history')}
-                className="text-xs font-medium hover:opacity-70 transition-colors flex items-center gap-0.5"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                {MESSAGES.HOME.VIEW_ALL}
-                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
-              </button>
-            )}
-          </div>
+            {/* 오늘의 기록 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-sm font-semibold text-stone-500">{MESSAGES.HOME.TODAY_HEADING}</h2>
+                {authUser && (
+                  <button
+                    onClick={() => router.push('/history')}
+                    className="text-xs font-medium hover:opacity-70 transition-colors flex items-center gap-0.5"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    {MESSAGES.HOME.VIEW_ALL}
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
+                  </button>
+                )}
+              </div>
 
-          {!authUser ? null : loading ? (
-            <div className="h-[104px] glass-card-light flex items-center justify-center">
-              <span className="text-stone-300 text-sm">{MESSAGES.HOME.LOADING}</span>
-            </div>
-          ) : todayLogs.length === 0 ? (
-            <div className="rounded-xl py-6 flex flex-col items-center justify-center text-center">
-              <p className="text-stone-400 text-sm">{emptyMessage}</p>
-            </div>
-          ) : todayLogs.length === 1 ? (
-            <RecordCard
-              log={todayLogs[0]}
-              onClick={() => router.push(`/history/${todayLogs[0].id}`)}
-            />
-          ) : (
-            <div
-              className="flex gap-3 snap-x snap-mandatory"
-              style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
-            >
-              {todayLogs.map((log) => (
-                <div key={log.id} className="min-w-[85%] snap-start flex-shrink-0">
-                  <RecordCard
-                    log={log}
-                    onClick={() => router.push(`/history/${log.id}`)}
-                  />
+              {!authUser ? null : todayLogs.length === 0 ? (
+                <div className="rounded-xl py-6 flex flex-col items-center justify-center text-center">
+                  <p className="text-stone-400 text-sm">{emptyMessage}</p>
                 </div>
-              ))}
+              ) : todayLogs.length === 1 ? (
+                <RecordCard
+                  log={todayLogs[0]}
+                  onClick={() => router.push(`/history/${todayLogs[0].id}`)}
+                />
+              ) : (
+                <div
+                  className="flex gap-3 snap-x snap-mandatory"
+                  style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
+                >
+                  {todayLogs.map((log) => (
+                    <div key={log.id} className="min-w-[85%] snap-start flex-shrink-0">
+                      <RecordCard
+                        log={log}
+                        onClick={() => router.push(`/history/${log.id}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* 기록하기 CTA */}
-        <button
-          onClick={() => {
-            if (!authUser) {
-              requireAuth()
-              return
-            }
-            localStorage.setItem('selectedRecordDate', todayKey)
-            router.push('/place')
-          }}
-          className="btn-primary"
-        >
-          {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 기록하기'}
-        </button>
+            {/* 기록하기 CTA */}
+            <button
+              onClick={() => {
+                if (!authUser) {
+                  requireAuth()
+                  return
+                }
+                localStorage.setItem('selectedRecordDate', todayKey)
+                router.push('/place')
+              }}
+              className="btn-primary"
+            >
+              {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 기록하기'}
+            </button>
 
-        {/* TRIBE PICKS — 비로그인 전용 */}
-        {!authUser && <TribePicksCard />}
+            {/* TRIBE PICKS — 비로그인 전용 */}
+            {!authUser && <TribePicksCard />}
 
-        {/* SA-PI FEATURED — 로그인/비로그인 공통 컴팩트 캐러셀
-            -mx-4: main padding(p-4=16px) 상쇄 → 컴포넌트 내부 px-4가 다른 섹션과 정렬 일치 */}
-        <div className="-mx-4">
-          <FeaturedSaListCarousel
-            lists={featuredLists}
-            compact
-            showSubtitle={false}
-            title="이런 사우나는 어때요?"
-          />
-        </div>
+            {/* SA-PI FEATURED — 로그인/비로그인 공통 컴팩트 캐러셀
+                -mx-4: main padding(p-4=16px) 상쇄 → 컴포넌트 내부 px-4가 다른 섹션과 정렬 일치 */}
+            <div className="-mx-4">
+              <FeaturedSaListCarousel
+                lists={featuredLists}
+                compact
+                showSubtitle={false}
+                title="이런 사우나는 어때요?"
+              />
+            </div>
 
-        {/* 사-피엔스의 흔적 */}
-        {!communityLoading && communityLogs.length === 0 ? null : (
-          <div>
-            <h2 className="text-sm font-semibold text-stone-500 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
-            {communityLoading ? (
-              <div className="flex gap-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="min-w-[260px] max-w-[300px] h-[124px] glass-card-light animate-pulse flex-shrink-0" />
-                ))}
-              </div>
-            ) : communityLogs.length === 0 ? (
-              <div className="glass-card-light p-6 text-center">
-                <p className="text-stone-300 text-xs">{MESSAGES.HOME.COMMUNITY_EMPTY}</p>
-              </div>
-            ) : (
-              <div
-                className="flex gap-3 snap-x snap-mandatory"
-                style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
-              >
-                {communityLogs.map((log) => (
-                  <div key={log.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
-                    <UserLogCard
-                      log={log}
-                      showPlace
-                      compact
-                      onClick={() => router.push(`/explore/${log.place_id}`)}
-                    />
-                  </div>
-                ))}
+            {/* 사-피엔스의 흔적 */}
+            {communityLogs.length === 0 ? null : (
+              <div>
+                <h2 className="text-sm font-semibold text-stone-500 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
+                <div
+                  className="flex gap-3 snap-x snap-mandatory"
+                  style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
+                >
+                  {communityLogs.map((log) => (
+                    <div key={log.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
+                      <UserLogCard
+                        log={log}
+                        showPlace
+                        compact
+                        onClick={() => router.push(`/explore/${log.place_id}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </main>
 

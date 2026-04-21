@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { STORY_COLORS, type StoryTribeId } from '@/constants/story-colors'
 import type { LogWithPlace } from '@/types'
 import { getMyLogById } from '@/lib/logs-service'
+import ContentLoader from '@/components/ui/content-loader'
 import { renderCard, shareImage, downloadImage } from '@/lib/image-export'
 import { processPhoto } from '@/lib/process-photo'
 import { captureError } from '@/lib/error-logger'
@@ -270,7 +271,7 @@ export default function Story() {
   if (isLoading || !log) {
     return (
       <div className="min-h-dvh bath-tile-bg flex items-center justify-center">
-        <p className="text-stone-400">로딩 중...</p>
+        <ContentLoader />
       </div>
     )
   }
