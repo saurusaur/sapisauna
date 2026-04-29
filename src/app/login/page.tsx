@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { APP, LOGIN } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
 
@@ -31,9 +32,11 @@ export default function LoginPage() {
     <div className="relative flex flex-col items-center min-h-dvh p-6 bath-tile-bg">
       {/* 상단 영역 — 로고 + 태그라인 */}
       <div className="flex flex-col items-center justify-center" style={{ minHeight: '55vh' }}>
-        <img
+        <Image
           src="/icons/icon-192.png"
           alt="사피 로고"
+          width={160}
+          height={160}
           onLoad={() => setReady(true)}
           className={`rounded-3xl transition-none ${ready ? 'animate-intro-up-slow' : 'opacity-0'}`}
           style={{ width: 'min(36vw, 160px)', height: 'min(36vw, 160px)', mixBlendMode: 'multiply' }}

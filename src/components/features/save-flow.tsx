@@ -84,7 +84,7 @@ export function SaveFlow({ children }: SaveFlowProps) {
         setSheetOpen(true)
       }
     }
-  }, [requireAuth, isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length, showNotice])
+  }, [requireAuth, isSaved, toggleDefaultSave, getSavedListIds, defaultListId, userCollections.length, showNotice])
 
   // 스낵바 핸들러
   const handleSnackbarToggle = useCallback(async (listId: string) => {

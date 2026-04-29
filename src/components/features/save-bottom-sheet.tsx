@@ -166,7 +166,7 @@ export function SaveBottomSheet({
     } finally {
       setCreating(false)
     }
-  }, [newTitle, user, myLists.length, placeId, refreshMyLists, showToast])
+  }, [newTitle, user, myLists.length, placeId, refreshMyLists, showToast, toggleListSave])
 
   // 시트 닫기
   const handleClose = useCallback(() => {

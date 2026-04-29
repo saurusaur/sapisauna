@@ -99,7 +99,7 @@ export default function TypeListPage() {
         setSheetOpen(true)
       }
     }
-  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, removeFromAll, userCollections.length])
+  }, [isSaved, toggleDefaultSave, getSavedListIds, defaultListId, userCollections.length])
 
   const handleSnackbarToggle = useCallback(async (listId: string) => {
     if (!snackbarPlaceId) return

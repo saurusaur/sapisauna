@@ -62,7 +62,7 @@ Sentry를 쓰면:
 
 ```
 프로젝트 루트/
-├── sentry.client.config.ts   ← 브라우저 SDK 설정
+├── instrumentation-client.ts ← 브라우저 SDK 설정
 ├── sentry.server.config.ts   ← 서버 SDK 설정
 ├── sentry.edge.config.ts     ← Middleware SDK 설정
 ├── next.config.js             ← withSentryConfig() 래핑
@@ -294,7 +294,7 @@ captureError(err, { extra: { source: 'naver' } })
 
 ### 한도 초과 방지
 
-`sentry.client.config.ts`의 `ignoreErrors`에 무의미한 에러 패턴이 등록되어 있어서, ResizeObserver나 ChunkLoadError 같은 노이즈는 카운트 안 됨.
+`instrumentation-client.ts`의 `ignoreErrors`에 무의미한 에러 패턴이 등록되어 있어서, ResizeObserver나 ChunkLoadError 같은 노이즈는 카운트 안 됨.
 
 ---
 

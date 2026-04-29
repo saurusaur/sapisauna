@@ -147,7 +147,7 @@ export default function ListFormSheet({
     } finally {
       setSubmitting(false)
     }
-  }, [title, tags, desc, hue, coverEmoji, selectedPlaces, mode, onSubmit])
+  }, [title, tags, desc, hue, coverEmoji, activePlatforms, linkUsernames, selectedPlaces, mode, onSubmit])
 
   // Dynamic submit label
   const getButtonLabel = () => {
@@ -338,4 +338,3 @@ export default function ListFormSheet({
     </div>
   )
 }
-

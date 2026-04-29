@@ -155,7 +155,7 @@ export default function QuickLog() {
       if (log.sweat_quality) setSweatQuality(log.sweat_quality)
       if (log.rest_quality) setRestQuality(log.rest_quality)
     }
-  }, [])
+  }, [router])
 
   // 피커 바깥 클릭 닫기
   useEffect(() => {

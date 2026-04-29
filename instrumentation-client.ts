@@ -45,6 +45,8 @@ Sentry.init({
   },
 })
 
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
+
 /** UUID와 이메일 패턴을 [REDACTED]로 치환 */
 function scrubPii(text: string): string {
   return text
