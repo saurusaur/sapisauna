@@ -25,6 +25,7 @@
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
 - [ ] [디자인] UI 최종 검증 — Phase 11 | priority: P2 | added: 2026-02-28
 - [ ] [리팩토링] safeParse 패턴 재검토 — 상세: `REVIEW_safeParse_errors.md` | priority: P2 | added: 2026-03-04
+- [ ] [리팩토링] 폼 플로우 일관성 감사·모듈화 — short-log/deep-log/place add/place edit의 save/cancel/edit/dirty/error/CTA 흐름을 비교해 기능 손실 없이 공통화. 우선 후보: 공용 `PlaceFacilityEditor`(시설유형·탕구분·시설칩·타투 커버·24h), unsaved-change confirm 헬퍼, save error/spinner CTA 패턴, history→log edit session builder. 날짜/시간 선택·currentLog handoff·merge flow·story navigation은 동작 보존 최우선, 제거 후보는 사용처 확인 후만. | priority: P2 | added: 2026-04-30
 - [ ] [버그] Google 지도 URL 폴백 dead code — `explore/[id]/page.tsx:266-268`에서 `place.latitude` 삼항 분기 true/false가 동일 결과. 좌표 있을 때 `query=<lat>,<lng>` 로 핀 정확도 개선 필요 | priority: P2 | added: 2026-04-20
 
 <!-- P3 — 장기 -->
@@ -36,6 +37,9 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-04-30
+- [x] [버그] 비로그인 랜딩·SA-리스트 구독 카운트·공개 owner 프로필 수정 — 루트(`/`) 비로그인 진입을 `/home`으로 변경, 구독 토글을 `toggle_list_subscription` RPC(023)로 이동해 `subscriber_count`를 RLS에 막히지 않게 동기화, 피드/상세에서 로그인·비로그인 구독 상태 처리 및 카운트 즉시 반영. 리스트 owner 정보는 `users` 직접 조인 대신 `public_profiles` 조회+병합으로 전환해 비로그인에서도 닉네임/프로필 이모지/색상 표시. SA-PI 공개 프로필 값 확인(nickname `SA-PI`, emoji `♨️`, hue `0`) 및 fallback 유지 (25977cd) | priority: P1 | added: 2026-04-30 | done: 2026-04-30
 
 ### 2026-04-21
 - [x] [UX] 섹션 헤더 스타일 전체 통일 — 페이지별 4가지 혼재(text-sm semibold 500 / text-sm bold 600 / text-[11px] bold 500 / text-base bold 600) → 단일 규칙. 섹션 헤더 `text-sm font-bold text-stone-600`, 카드 서브 라벨(KpiRow/RoutineCard) `text-xs font-bold text-stone-500`. 8 파일 정리 (4c65f45) | priority: P1 | added: 2026-04-21 | done: 2026-04-21
