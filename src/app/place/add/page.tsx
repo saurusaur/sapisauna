@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY, isInputVisibleOption } from '@/constants/content'
-import ChipSelect from '@/components/ui/chip-select'
-import SelectButton from '@/components/ui/select-button'
-import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import PlaceMergeModal from '@/components/ui/place-merge-modal'
+import PlaceFacilityEditor from '@/components/features/place-facility-editor'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
 import { grantReward } from '@/lib/reward-service'
 import { supabase } from '@/lib/supabase'
+import { useConfirmableExit } from '@/hooks/use-confirmable-exit'
 import type { Place, FacilityType, BathPolicy } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
@@ -55,19 +53,19 @@ export default function AddPlace() {
   const [venueType, setVenueType] = useState<FacilityType>('public-bath')
   const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
 
-  // 타투 모달
-  const [showTattooModal, setShowTattooModal] = useState(false)
-
   // 저장 상태
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [showBackConfirm, setShowBackConfirm] = useState(false)
   const [mergeCandidates, setMergeCandidates] = useState<Place[] | null>(null)
 
   // 입력이 시작되었는지 (워닝 표시 기준)
   const hasInput = Boolean(name || selectedPlace || manualMode || selectedFacilities.length > 0)
 
   const canSave = name && address && selectedFacilities.length >= 2 && !isSaving
+  const exitConfirm = useConfirmableExit({
+    shouldConfirm: hasInput || Boolean(canSave),
+    onExit: () => router.back(),
+  })
 
   // 검색 실행 (debounce)
   const executeSearch = useCallback(async (query: string, searchSource: 'naver' | 'google') => {
@@ -278,7 +276,7 @@ export default function AddPlace() {
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => (hasInput || canSave) ? setShowBackConfirm(true) : router.back()}
+            onClick={exitConfirm.requestExit}
             className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
@@ -491,91 +489,17 @@ export default function AddPlace() {
             <span className="w-full h-px bg-stone-200"></span>
           </h2>
 
-          <div className="glass-card-light rounded-xl p-4 space-y-5">
-            {/* 시설 유형 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                시설 유형
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {PLACE_VENUE_TYPE.map((option) => (
-                  <SelectButton
-                    key={option.id}
-                    label={option.label}
-                    icon={option.icon}
-                    selected={venueType === option.id}
-                    onClick={() => setVenueType(option.id as FacilityType)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* 탕 구분 */}
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                탕 구분
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {PLACE_BATH_POLICY.map((option) => (
-                  <SelectButton
-                    key={option.id}
-                    label={option.label}
-                    icon={option.icon}
-                    selected={bathPolicy === option.id}
-                    onClick={() => setBathPolicy(option.id as BathPolicy)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* 5개 섹션: HEAT → ICE → PAUSE → BEYOND → AMENITIES */}
-            {(['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const).map((key) => (
-              <div key={key}>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
-                  {PLACE_SPECS[key].label}
-                </label>
-                <ChipSelect
-                  options={PLACE_SPECS[key].options.filter(isInputVisibleOption)}
-                  selected={
-                    // tattoo-cover 선택 시 tattoo-friendly 칩도 활성화 표시
-                    selectedFacilities.includes('tattoo-cover')
-                      ? [...selectedFacilities, 'tattoo-friendly']
-                      : selectedFacilities
-                  }
-                  onSelect={(id) => {
-                    if (id === 'tattoo-friendly') {
-                      // 이미 tattoo 태그가 있으면 해제
-                      if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
-                        setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
-                      } else {
-                        // 일본(JP)만 커버 모달, 그 외는 바로 tattoo-friendly
-                        const cc = resolvedCountryCode || (source === 'naver' ? 'KR' : '')
-                        if (cc === 'JP') {
-                          setShowTattooModal(true)
-                        } else {
-                          setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
-                        }
-                      }
-                      return
-                    }
-                    setSelectedFacilities(prev =>
-                      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                    )
-                  }}
-                  multiple
-                />
-              </div>
-            ))}
-
-            {/* 24시 영업 토글 */}
-            <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-              <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">schedule</span>
-                24시 영업
-              </label>
-              <ToggleSwitch checked={is24h} onChange={setIs24h} />
-            </div>
-          </div>
+          <PlaceFacilityEditor
+            selectedFacilities={selectedFacilities}
+            onFacilitiesChange={setSelectedFacilities}
+            is24h={is24h}
+            onIs24hChange={setIs24h}
+            venueType={venueType}
+            onVenueTypeChange={setVenueType}
+            bathPolicy={bathPolicy}
+            onBathPolicyChange={setBathPolicy}
+            countryCode={resolvedCountryCode || (source === 'naver' ? 'KR' : '')}
+          />
         </div>
       </main>
 
@@ -587,29 +511,13 @@ export default function AddPlace() {
         )}
       </BottomCTA>
 
-      {showTattooModal && (
-        <ConfirmModal
-          message="타투 커버가 필요한가요?"
-          confirmLabel="예, 커버 필요"
-          cancelLabel="아니오"
-          onConfirm={() => {
-            setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
-            setShowTattooModal(false)
-          }}
-          onCancel={() => {
-            setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
-            setShowTattooModal(false)
-          }}
-        />
-      )}
-
-      {showBackConfirm && (
+      {exitConfirm.confirmOpen && (
         <ConfirmModal
           message={"입력한 내용이 저장되지 않습니다.\n나가시겠습니까?"}
           confirmLabel="나가기"
           cancelLabel="계속 입력"
-          onConfirm={() => router.back()}
-          onCancel={() => setShowBackConfirm(false)}
+          onConfirm={exitConfirm.confirmExit}
+          onCancel={exitConfirm.cancelExit}
         />
       )}
 
