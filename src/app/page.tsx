@@ -16,8 +16,8 @@ export default function RootPage() {
     if (authLoading) return
 
     if (!authUser) {
-      // 미인증 → 로그인
-      router.replace('/login')
+      // 미인증 → 게스트 홈
+      router.replace('/home')
     } else if (!profile) {
       // 인증됨 + 프로필 없음 → 온보딩
       router.replace('/onboarding')

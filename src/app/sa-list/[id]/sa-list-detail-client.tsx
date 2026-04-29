@@ -50,6 +50,7 @@ export default function SaListDetailClient() {
   const isMine = list?.owner_id === user?.id
   const isDefault = list?.type === 'default'
   const isAdmin = user?.id === ADMIN_USER_ID
+  const [subscriberCount, setSubscriberCount] = useState(0)
 
   // ListManageSheet (3-dot 메뉴 → 편집/공개설정/삭제, 공개 pill → visibility 뷰)
   const [showManageSheet, setShowManageSheet] = useState(false)
@@ -67,6 +68,11 @@ export default function SaListDetailClient() {
     debounceRef.current = setTimeout(() => search(searchQuery), 300)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [searchQuery, showAddSheet, search])
+
+  useEffect(() => {
+    if (!list) return
+    setSubscriberCount(list.subscriber_count)
+  }, [list])
 
   // 메모 편집
   const [editingMemoId, setEditingMemoId] = useState<string | null>(null)
@@ -97,21 +103,6 @@ export default function SaListDetailClient() {
     }
   }, [resolvedListId, listId, refreshItems, refreshList, showError])
 
-  // 장소 제거 (isMine 북마크)
-  const handleRemoveFromList = useCallback((placeId: string) => {
-    // 다른 리스트에도 저장되어 있는지 확인
-    const savedListIds = getSavedListIds(placeId)
-    const otherLists = savedListIds.filter(id => id !== resolvedListId && id !== listId)
-
-    if (otherLists.length > 0) {
-      // 다중 리스트에 포함 → 확인 모달
-      setRemoveConfirmPlaceId(placeId)
-    } else {
-      // 이 리스트에서만 제거
-      handleRemovePlace(placeId)
-    }
-  }, [getSavedListIds, resolvedListId, listId])
-
   // 장소 제거 실행
   const handleRemovePlace = useCallback(async (placeId: string) => {
     try {
@@ -127,6 +118,21 @@ export default function SaListDetailClient() {
       showError('제거에 실패했어요')
     }
   }, [resolvedListId, listId, refreshItems, refreshList, showError, showNotice])
+
+  // 장소 제거 (isMine 북마크)
+  const handleRemoveFromList = useCallback((placeId: string) => {
+    // 다른 리스트에도 저장되어 있는지 확인
+    const savedListIds = getSavedListIds(placeId)
+    const otherLists = savedListIds.filter(id => id !== resolvedListId && id !== listId)
+
+    if (otherLists.length > 0) {
+      // 다중 리스트에 포함 → 확인 모달
+      setRemoveConfirmPlaceId(placeId)
+    } else {
+      // 이 리스트에서만 제거
+      handleRemovePlace(placeId)
+    }
+  }, [getSavedListIds, resolvedListId, listId, handleRemovePlace])
 
   // 메모 저장
   const handleSaveMemo = useCallback(async (placeId: string) => {
@@ -158,6 +164,30 @@ export default function SaListDetailClient() {
       showError('추천 상태 변경에 실패했어요')
     }
   }, [list, refreshList, showError])
+
+  const handleToggleSubscribe = useCallback(async () => {
+    if (!list) return
+    const result = await toggleSubscribe()
+    if (result === 'need_auth') {
+      requireAuth()
+      return
+    }
+
+    setSubscriberCount((count) => Math.max(0, count + (result ? 1 : -1)))
+    refreshList()
+
+    if (!result) {
+      showNotice(`${list.title} 구독해지`, async () => {
+        const undoResult = await toggleSubscribe()
+        if (undoResult !== 'need_auth') {
+          setSubscriberCount((count) => Math.max(0, count + (undoResult ? 1 : -1)))
+          refreshList()
+        }
+      })
+    } else {
+      showNotice(`${list.title} 구독완료!`)
+    }
+  }, [list, toggleSubscribe, requireAuth, refreshList, showNotice])
 
   return (
     <SaveFlow>
@@ -225,15 +255,7 @@ export default function SaListDetailClient() {
           {/* Visitor: 커버 내부 outline 구독 pill */}
           {!isMine && !isDefault && (
             <button
-              onClick={async () => {
-                const result = await toggleSubscribe()
-                if (result === 'need_auth') { requireAuth(); return }
-                if (!result) {
-                  showNotice(`${list.title} 구독해지`, async () => { await toggleSubscribe() })
-                } else {
-                  showNotice(`${list.title} 구독완료!`)
-                }
-              }}
+              onClick={handleToggleSubscribe}
               disabled={subscribing}
               className={`mt-3 self-start h-8 px-3.5 rounded-full text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition-all disabled:opacity-50 backdrop-blur-sm border-[1.5px] ${
                 subscribed
@@ -291,7 +313,7 @@ export default function SaListDetailClient() {
           </span>
           <span className="text-[12px] text-stone-500 flex items-center gap-1">
             <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>group</span>
-            <strong className="font-bold text-stone-700">{list.subscriber_count}</strong>
+            <strong className="font-bold text-stone-700">{subscriberCount}</strong>
           </span>
         </div>
       </section>

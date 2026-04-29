@@ -8,6 +8,8 @@ import { toPlace } from './places-service'
 import { grantReward, checkPlaceInListMilestone, checkSubscriberMilestones } from './reward-service'
 import type { SaList, ListItem, ListType, ListVisibility } from '@/types'
 
+const SA_PI_OWNER_ID = '23c431c3-9b23-4779-bb27-13472e58090a'
+
 // 공개 리스트용 짧은 slug 생성 (8자리)
 function generateSlug(): string {
   return nanoid(8)
@@ -51,15 +53,41 @@ export async function getDefaultList(userId: string): Promise<SaList | null> {
 
 export type PublicListSort = 'popular' | 'recent'
 
-function mapListWithOwner(row: Record<string, unknown>): SaList {
+type PublicProfile = {
+  id: string
+  nickname: string | null
+  profile_emoji: string | null
+  profile_hue: number | null
+}
+
+function mapListWithOwner(row: Record<string, unknown>, profile?: PublicProfile): SaList {
   const owner = row.owner as Record<string, unknown> | null
+  const isSaPiList = row.owner_id === SA_PI_OWNER_ID
   return {
     ...row,
-    owner_nickname: owner?.nickname as string | undefined,
-    owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
-    owner_profile_hue: owner?.profile_hue as number | null | undefined,
+    owner_nickname: profile?.nickname || (owner?.nickname as string | undefined) || (isSaPiList ? 'SA-PI' : undefined),
+    owner_profile_emoji: profile?.profile_emoji ?? (owner?.profile_emoji as string | null | undefined) ?? (isSaPiList ? '♨️' : undefined),
+    owner_profile_hue: profile?.profile_hue ?? (owner?.profile_hue as number | null | undefined),
     owner: undefined,
   } as unknown as SaList
+}
+
+async function hydrateListOwners(rows: Record<string, unknown>[]): Promise<SaList[]> {
+  const ownerIds = Array.from(new Set(rows.map((row) => row.owner_id as string).filter(Boolean)))
+  if (ownerIds.length === 0) return rows.map((row) => mapListWithOwner(row))
+
+  const { data, error } = await supabase
+    .from('public_profiles')
+    .select('id, nickname, profile_emoji, profile_hue')
+    .in('id', ownerIds)
+
+  if (error) throw error
+
+  const profiles = new Map<string, PublicProfile>(
+    ((data || []) as PublicProfile[]).map((profile) => [profile.id, profile])
+  )
+
+  return rows.map((row) => mapListWithOwner(row, profiles.get(row.owner_id as string)))
 }
 
 // 공개 리스트 피드 — popular: 구독순, recent: 최근 수정순, search: 제목/태그 검색
@@ -71,7 +99,7 @@ export async function getPublicLists(
 ): Promise<SaList[]> {
   let q = supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
+    .select('*')
     .eq('visibility', 'public')
 
   if (search && search.trim().length >= 2) {
@@ -89,7 +117,7 @@ export async function getPublicLists(
   const { data, error } = await q.range(offset, offset + limit - 1)
 
   if (error) throw error
-  return (data || []).map((row) => mapListWithOwner(row as Record<string, unknown>))
+  return hydrateListOwners((data || []) as Record<string, unknown>[])
 }
 
 // 인기 태그 조회 (RPC)
@@ -113,14 +141,14 @@ export async function toggleAdminFeatured(listId: string): Promise<void> {
 export async function getFeaturedPublicLists(): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
+    .select('*')
     .eq('visibility', 'public')
     .eq('is_featured', true)
     .order('subscriber_count', { ascending: false })
     .order('updated_at', { ascending: false })
 
   if (error) throw error
-  return (data || []).map((row) => mapListWithOwner(row as Record<string, unknown>))
+  return hydrateListOwners((data || []) as Record<string, unknown>[])
 }
 
 // 리스트 단일 조회 (+ owner 정보) — UUID 또는 slug로 조회
@@ -131,7 +159,7 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
 
   const { data, error } = await supabase
     .from('lists')
-    .select('*, owner:users!owner_id(nickname, profile_emoji, profile_hue)')
+    .select('*')
     .eq(column, idOrSlug)
     .single()
 
@@ -139,7 +167,8 @@ export async function getListById(idOrSlug: string): Promise<SaList | null> {
     if (error.code === 'PGRST116') return null
     throw error
   }
-  return mapListWithOwner(data as Record<string, unknown>)
+  const [list] = await hydrateListOwners([data as Record<string, unknown>])
+  return list
 }
 
 // 리스트 생성
@@ -332,7 +361,7 @@ export async function getListsContainingPlace(userId: string, placeId: string): 
 export async function getPublicListsContainingPlace(placeId: string, limit = 10): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('list_items')
-    .select('list:lists!inner(*, owner:users!owner_id(nickname, profile_emoji, profile_hue))')
+    .select('list:lists!inner(*)')
     .eq('place_id', placeId)
     .eq('lists.visibility', 'public')
     .order('subscriber_count', { foreignTable: 'lists', ascending: false })
@@ -340,7 +369,8 @@ export async function getPublicListsContainingPlace(placeId: string, limit = 10)
     .limit(limit)
 
   if (error) throw error
-  return (data || []).map((row) => mapListWithOwner((row.list as unknown) as Record<string, unknown>))
+  const rows = (data || []).map((row) => (row.list as unknown) as Record<string, unknown>)
+  return hydrateListOwners(rows)
 }
 
 // 여러 장소가 들어있는 내 리스트 ID 목록 (배치)
@@ -366,63 +396,26 @@ export async function getListsContainingPlaces(userId: string, placeIds: string[
 // ─── 구독 ───
 
 // 리스트 구독 토글
-export async function toggleSubscription(userId: string, listId: string): Promise<boolean> {
-  // 이미 구독중인지 확인
-  const { data: existing } = await supabase
-    .from('list_subscriptions')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('list_id', listId)
-    .single()
+export async function toggleSubscription(_userId: string, listId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('toggle_list_subscription', {
+    target_list_id: listId,
+  })
 
-  if (existing) {
-    // 구독 해제 + subscriber_count 업데이트
-    await supabase.from('list_subscriptions').delete().eq('id', existing.id)
-    await updateSubscriberCount(listId)
-    return false
-  } else {
-    // 구독 + subscriber_count 업데이트
-    const { error } = await supabase
-      .from('list_subscriptions')
-      .insert({ user_id: userId, list_id: listId })
-    if (error) throw error
-    await updateSubscriberCount(listId)
-    return true
-  }
-}
-
-// 구독자 수 조회 (정확한 COUNT)
-async function updateSubscriberCount(listId: string): Promise<void> {
-  const { count } = await supabase
-    .from('list_subscriptions')
-    .select('*', { count: 'exact', head: true })
-    .eq('list_id', listId)
-  await supabase
-    .from('lists')
-    .update({ subscriber_count: count ?? 0 })
-    .eq('id', listId)
+  if (error) throw error
+  return Boolean(data)
 }
 
 // 내가 구독한 리스트 목록
 export async function getSubscribedLists(userId: string): Promise<SaList[]> {
   const { data, error } = await supabase
     .from('list_subscriptions')
-    .select('list:lists!list_id(*, owner:users!owner_id(nickname, profile_emoji, profile_hue))')
+    .select('list:lists!list_id(*)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return (data || []).map((row) => {
-    const list = row.list as unknown as Record<string, unknown>
-    const owner = list.owner as Record<string, unknown> | null
-    return {
-      ...list,
-      owner_nickname: owner?.nickname as string | undefined,
-      owner_profile_emoji: owner?.profile_emoji as string | null | undefined,
-      owner_profile_hue: owner?.profile_hue as number | null | undefined,
-      owner: undefined,
-    } as unknown as SaList
-  })
+  const rows = (data || []).map((row) => row.list as unknown as Record<string, unknown>)
+  return hydrateListOwners(rows)
 }
 
 // 특정 리스트 구독 여부 확인

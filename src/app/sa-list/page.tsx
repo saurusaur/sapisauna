@@ -355,6 +355,7 @@ export default function SaListPage() {
                       list={list}
                       onClick={() => router.push(`/sa-list/${list.id}`)}
                       showNotice={showNotice}
+                      requireAuth={requireAuth}
                     />
                   )
                 )}
@@ -505,26 +506,46 @@ function SubscribedFeedRow({
   list,
   onClick,
   showNotice,
+  requireAuth,
 }: {
   list: SaList
   onClick: () => void
   showNotice: (msg: string, undo?: () => Promise<void>) => void
+  requireAuth: () => boolean
 }) {
   const { subscribed, toggling, toggle } = useSubscription(list.id)
+  const [subscriberCount, setSubscriberCount] = useState(list.subscriber_count)
+
+  useEffect(() => {
+    setSubscriberCount(list.subscriber_count)
+  }, [list.subscriber_count])
 
   const handleSubscribe = useCallback(async () => {
+    if (!requireAuth()) return
     const wasSubscribed = subscribed
-    await toggle()
+    const result = await toggle()
+    if (result === 'need_auth') return
+    setSubscriberCount((count) => Math.max(0, count + (result ? 1 : -1)))
     if (wasSubscribed) {
-      showNotice(`${list.title} 구독해지`, async () => { await toggle() })
+      showNotice(`${list.title} 구독해지`, async () => {
+        const undoResult = await toggle()
+        if (undoResult !== 'need_auth') {
+          setSubscriberCount((count) => Math.max(0, count + (undoResult ? 1 : -1)))
+        }
+      })
     } else {
       showNotice(`${list.title} 구독완료!`)
     }
-  }, [subscribed, toggle, list.title, showNotice])
+  }, [requireAuth, subscribed, toggle, list.title, showNotice])
+
+  const displayList = useMemo(
+    () => ({ ...list, subscriber_count: subscriberCount }),
+    [list, subscriberCount]
+  )
 
   return (
     <SaListFeedRow
-      list={list}
+      list={displayList}
       onClick={onClick}
       showSubscribe
       subscribed={subscribed}
