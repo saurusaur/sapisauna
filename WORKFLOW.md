@@ -7,6 +7,33 @@
 
 ---
 
+## ⚠️ 핵심 원칙 — 검증 권한은 사용자에게
+
+**main 머지 = 라이브 배포**. 머지 결정은 **반드시 사용자가** 합니다 (콘텐츠 종류, 위험도 무관).
+
+| 단계 | 누가 | 비고 |
+|------|------|------|
+| feature 작업 + push | Claude | 자동 실행 OK |
+| preview 머지 + push | Claude | 자동 실행 OK |
+| **PR 생성** (`preview → main`) | Claude | **여기서 멈춤** |
+| **preview URL 검증** | **사용자** | 브라우저에서 직접 확인 |
+| **PR 머지** (라이브 반영) | **사용자** | GitHub 머지 버튼 또는 "머지해줘" 명시 |
+| feature 브랜치 정리 | Claude | 머지 후 |
+
+### Claude의 기본 동작
+
+작업 마무리 단계에서 Claude는:
+1. PR 생성까지 진행
+2. **"PR #N 생성 완료. preview URL에서 검증 후 머지 부탁드립니다."** 보고하고 멈춤
+3. 사용자가 직접 GitHub에서 머지하거나, **"머지해줘"** 명시하면 그때 `gh pr merge` 실행
+
+### 우회 (자동 머지 원할 때)
+
+- "**바로 머지해줘**" / "**이번엔 그냥 가**" / "**검증 안 해도 돼**" 같은 명시 → Claude가 PR 머지까지 자동 진행
+- 응급 hotfix, docs 단순 정리 등 검증 의미 없을 때만 사용
+
+---
+
 ## 🔖 즐겨찾기
 
 | 환경 | URL |
@@ -75,11 +102,10 @@ git push
 | `git merge feature/오늘작업` | feature 작업을 preview에 합치기. 충돌 시 해결 후 다시 commit |
 | `git push` | preview에 푸시 → **preview URL 자동 갱신** → 브라우저에서 검증 |
 
-### 5. 검증 OK → main에 PR 머지 (라이브 배포)
+### 5. PR 생성 (Claude가 여기까지)
 
 ```bash
 gh pr create --base main --head preview --title "이번 묶음 요약" --body "변경 내용"
-gh pr merge --squash
 ```
 
 | 명령 | 의미 |
@@ -87,10 +113,29 @@ gh pr merge --squash
 | `gh pr create` | GitHub CLI로 Pull Request 생성 |
 | `--base main --head preview` | preview의 변경을 main으로 머지하는 PR |
 | `--title / --body` | PR 제목·본문 |
-| `gh pr merge --squash` | 머지 실행. `--squash`는 preview의 여러 commit을 하나로 압축해서 main에 넣음 (히스토리 깔끔) |
+
+→ Claude는 여기서 멈추고 보고: **"PR #N 생성. preview URL 검증 후 머지 부탁."**
+
+### 6. 검증 → 머지 (사용자가 결정)
+
+**검증**: 브라우저에서 https://sapisauna-git-preview-saunabum.vercel.app 접속해서 변경사항 동작 확인.
+
+**머지 (둘 중 하나)**:
+
+```bash
+# A) GitHub 웹에서 직접
+# → PR 페이지의 "Squash and merge" 버튼 클릭
+
+# B) Claude에게 "머지해줘" 명시 → Claude가 실행
+gh pr merge --squash
+```
+
+| 명령 | 의미 |
+|------|------|
+| `gh pr merge --squash` | preview의 여러 commit을 하나로 압축해서 main에 머지. 히스토리 깔끔 |
 | (자동) Vercel | main 푸시 감지 → 프로덕션 자동 배포 |
 
-### 6. feature 브랜치 정리
+### 7. feature 브랜치 정리 (머지 후)
 
 ```bash
 git checkout main && git pull
