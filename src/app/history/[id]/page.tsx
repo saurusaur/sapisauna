@@ -144,7 +144,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 ...(log.deep_log && { deep_log: log.deep_log }),
               }
               localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
+              localStorage.setItem('selectedPlace', JSON.stringify({
+                id: log.place_id,
+                name: log.place_name,
+                countryCode: log.place_country_code,
+                facilityType: log.place_facility_type,
+                bathPolicy: log.place_bath_policy,
+              }))
               router.push('/log')
             }}
             className="p-2 transition-colors hover:opacity-70"
@@ -316,7 +322,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   rest_quality: log.rest_quality,
                 }
                 localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-                localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
+                localStorage.setItem('selectedPlace', JSON.stringify({
+                  id: log.place_id,
+                  name: log.place_name,
+                  countryCode: log.place_country_code,
+                  facilityType: log.place_facility_type,
+                  bathPolicy: log.place_bath_policy,
+                }))
                 router.push('/log/deep')
               }}
               className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"

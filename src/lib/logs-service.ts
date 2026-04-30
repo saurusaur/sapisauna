@@ -4,7 +4,7 @@
 
 import { supabase } from './supabase'
 import { ADMIN_USER_ID } from '@/constants/content'
-import type { LogWithPlace, BathGender } from '@/types'
+import type { LogWithPlace, BathGender, FacilityType, BathPolicy } from '@/types'
 
 // DB 행 → LogWithPlace 변환
 function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
@@ -33,6 +33,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     place_id: row.place_id as string,
     place_name: placeName,
     place_country_code: (place?.country_code as string) || '',
+    place_facility_type: place?.facility_type as FacilityType | undefined,
+    place_bath_policy: place?.bath_policy as BathPolicy | undefined,
     address,
     user_nickname: userNickname,
     user_title: userTitle,

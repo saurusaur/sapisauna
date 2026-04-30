@@ -143,6 +143,8 @@ export interface LogWithPlace {
   place_id: string
   place_name: string
   place_country_code: string
+  place_facility_type?: FacilityType
+  place_bath_policy?: BathPolicy
   address: string
   date: string          // 유저 지정 방문 날짜·시간 (record_date, 로컬 시간)
   tribe_id: TribeId
