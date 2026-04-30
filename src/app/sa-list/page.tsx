@@ -21,17 +21,14 @@ import { listBgColor } from '@/lib/utils'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
 import ContentLoader from '@/components/ui/content-loader'
-import ListFormSheet from '@/components/features/list-form-sheet'
+import CreateListSheet from '@/components/features/create-list-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
-import { BottomSheet } from '@/components/ui/bottom-sheet'
 import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
-import ConfirmModal from '@/components/ui/confirm-modal'
 
-const MAX_LISTS = 15
 const MY_CARD_LIMIT = 5
 
 export default function SaListPage() {
@@ -79,8 +76,6 @@ export default function SaListPage() {
   // 시트 상태
   const [manageList, setManageList] = useState<SaList | null>(null)
   const [showCreateSheet, setShowCreateSheet] = useState(false)
-  const [createDirty, setCreateDirty] = useState(false)
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
   const viewerNick = profile?.nickname ?? null
 
@@ -109,14 +104,6 @@ export default function SaListPage() {
 
   // 피드는 featured 포함 — 캐러셀과 중복되더라도 인기/최신순 발견 경로 유지
   const feedLists = publicLists
-
-  const handleCloseCreateSheet = useCallback(() => {
-    if (createDirty) {
-      setShowCloseConfirm(true)
-      return
-    }
-    setShowCreateSheet(false)
-  }, [createDirty])
 
   const refreshMine = useCallback(() => {
     refreshMyLists()
@@ -366,58 +353,17 @@ export default function SaListPage() {
         </>)}
       </main>
 
-      {/* 나가기 확인 모달 */}
-      {showCloseConfirm && (
-        <ConfirmModal
-          message="작성 중인 내용이 사라집니다. 나가시겠어요?"
-          confirmLabel="나가기"
-          cancelLabel="계속 작성"
-          onConfirm={() => { setShowCloseConfirm(false); setShowCreateSheet(false) }}
-          onCancel={() => setShowCloseConfirm(false)}
-        />
-      )}
-
       {/* 시트들 */}
-      <BottomSheet
+      <CreateListSheet
         open={showCreateSheet}
-        onClose={handleCloseCreateSheet}
-        title="새 리스트 만들기"
+        onClose={() => setShowCreateSheet(false)}
+        onCreated={refreshMine}
+        requireAuth={requireAuth}
+        userId={user?.id}
+        listCount={myLists.length}
+        showError={showError}
         fullScreen
-      >
-        <ListFormSheet
-          mode="create"
-          onSubmit={async (data) => {
-            if (!requireAuth()) return
-            if (!user) return
-            if (myLists.length >= MAX_LISTS) {
-              showError(`리스트는 최대 ${MAX_LISTS}개까지 만들 수 있어요`)
-              return
-            }
-            const list = await listsService.createList({
-              owner_id: user.id,
-              title: data.title,
-              type: 'user',
-              tags: data.tags.length > 0 ? data.tags : undefined,
-              description: data.description || undefined,
-              cover_hue: data.cover_hue,
-              cover_emoji: data.cover_emoji,
-              creator_links: data.creator_links,
-            })
-            if (data.places) {
-              for (const place of data.places) {
-                await listsService.addPlaceToList(list.id, place.id)
-                if (place.memo?.trim()) {
-                  await listsService.updateListItemMemo(list.id, place.id, place.memo.trim())
-                }
-              }
-            }
-            setShowCreateSheet(false)
-            refreshMine()
-          }}
-          onDirtyChange={setCreateDirty}
-          submitLabel="만들기"
-        />
-      </BottomSheet>
+      />
 
       {manageList && (
         <ListManageSheet
