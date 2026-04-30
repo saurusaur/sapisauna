@@ -13,6 +13,7 @@ import { safeParse } from '@/lib/utils'
 import { captureError } from '@/lib/error-logger'
 import type { TribeId } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
+import ErrorBanner from '@/components/ui/error-banner'
 
 export default function QuickLog() {
   const router = useRouter()
@@ -686,9 +687,7 @@ export default function QuickLog() {
             {editId ? '수정 확인! 이대로 저장할까요?\n상세 정보도 수정 가능해요!' : '멋져요! 바로 카드로 만들어볼까요?\n오늘에 대해 더 알려주셔도 좋아요!'}
           </p>
 
-          {saveError && (
-            <p className="text-xs text-center mb-4" style={{ color: 'var(--color-accent)' }}>{saveError}</p>
-          )}
+          {saveError && <ErrorBanner message={saveError} variant="inline" />}
 
           <div className="space-y-3">
             <button

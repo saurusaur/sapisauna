@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import PlaceFacilityEditor from '@/components/features/place-facility-editor'
+import ErrorBanner from '@/components/ui/error-banner'
 import { getPlaceById, updatePlace } from '@/lib/places-service'
 import { useConfirmableExit } from '@/hooks/use-confirmable-exit'
 import type { FacilityType, BathPolicy } from '@/types'
@@ -117,12 +118,7 @@ export default function EditPlace() {
       </header>
 
       <main className="p-4">
-        {saveError && (
-          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-sm">error</span>
-            {saveError}
-          </div>
-        )}
+        {saveError && <ErrorBanner message={saveError} className="mb-4" />}
 
         <PlaceFacilityEditor
           selectedFacilities={selectedFacilities}

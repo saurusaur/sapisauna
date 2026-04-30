@@ -7,6 +7,7 @@ import countryToCurrency from 'country-to-currency'
 import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import ErrorBanner from '@/components/ui/error-banner'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
 import { formatCostInput, safeParse } from '@/lib/utils'
@@ -251,11 +252,7 @@ export default function DeepLog() {
       </header>
 
       <main className="px-5 space-y-5">
-        {saveError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-xl">
-            {saveError}
-          </div>
-        )}
+        {saveError && <ErrorBanner message={saveError} />}
 
         {/* 동행자 */}
         <div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import PlaceMergeModal from '@/components/ui/place-merge-modal'
 import PlaceFacilityEditor from '@/components/features/place-facility-editor'
+import ErrorBanner from '@/components/ui/error-banner'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
 import { grantReward } from '@/lib/reward-service'
 import { supabase } from '@/lib/supabase'
@@ -292,12 +293,7 @@ export default function AddPlace() {
 
       <main className="p-4 space-y-4">
         {/* 저장 에러 */}
-        {saveError && (
-          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm">error</span>
-            {saveError}
-          </div>
-        )}
+        {saveError && <ErrorBanner message={saveError} />}
 
         {/* 검색 엔진 선택 */}
         <div className="glass-card-light rounded-xl p-4">
