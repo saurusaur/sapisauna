@@ -8,6 +8,7 @@ import PlaceFacilityEditor from '@/components/features/place-facility-editor'
 import ErrorBanner from '@/components/ui/error-banner'
 import { findNearbyPlaces, mergeWithPlace, createNewPlace } from '@/lib/places-service'
 import { grantReward } from '@/lib/reward-service'
+import { captureError } from '@/lib/error-logger'
 import { supabase } from '@/lib/supabase'
 import { useConfirmableExit } from '@/hooks/use-confirmable-exit'
 import type { Place, FacilityType, BathPolicy } from '@/types'
@@ -47,6 +48,14 @@ export default function AddPlace() {
   // Google reverse-geocode 결과 (country_code/city). Naver는 'KR'/null로 간주
   const [resolvedCountryCode, setResolvedCountryCode] = useState<string>('')
   const [resolvedCity, setResolvedCity] = useState<string | null>(null)
+
+  // Manual 입력의 forward-geocode 결과 (handleSave 시 1회 fetch, 모달 분기에서도 재사용)
+  const [manualGeocode, setManualGeocode] = useState<{
+    country_code: string
+    city: string | null
+    latitude: number | null
+    longitude: number | null
+  } | null>(null)
 
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
@@ -158,17 +167,19 @@ export default function AddPlace() {
   }
 
   // 현재 입력값으로 공통 파라미터 생성
+  // 우선순위: 검색 결과의 reverse-geocode (resolvedCountryCode) > manual forward-geocode > Naver 결과 폴백.
+  // Naver 폴백은 selectedPlace.source === 'naver'일 때만 적용 (검색엔진 토글 state만으로는 manual 입력을 KR로 잘못 라벨함).
   const buildParams = () => ({
     name,
     address,
-    latitude: selectedPlace?.latitude || null,
-    longitude: selectedPlace?.longitude || null,
+    latitude: selectedPlace?.latitude ?? manualGeocode?.latitude ?? null,
+    longitude: selectedPlace?.longitude ?? manualGeocode?.longitude ?? null,
     facilities: selectedFacilities,
     is_24h: is24h,
     facility_type: venueType,
     bath_policy: bathPolicy,
-    country_code: resolvedCountryCode || (source === 'naver' ? 'KR' : undefined),
-    city: resolvedCity,
+    country_code: resolvedCountryCode || manualGeocode?.country_code || (selectedPlace?.source === 'naver' ? 'KR' : undefined),
+    city: resolvedCity ?? manualGeocode?.city ?? null,
     source: (selectedPlace ? selectedPlace.source : 'manual') as 'naver' | 'google' | 'manual',
     external_id: selectedPlace?.external_id,
   })
@@ -183,6 +194,23 @@ export default function AddPlace() {
     try {
       const currentSource = selectedPlace ? selectedPlace.source : 'manual'
       const externalId = selectedPlace?.external_id
+
+      // Stage 0: manual 입력은 forward-geocode로 country/city/lat/lng 보강 (실패해도 저장 진행)
+      let geocode = manualGeocode
+      if (!selectedPlace && !geocode && address.trim()) {
+        try {
+          const resp = await fetch(`/api/places/forward-geocode?address=${encodeURIComponent(address)}&name=${encodeURIComponent(name)}`)
+          if (resp.ok) {
+            const data: { country_code: string; city: string | null; latitude: number | null; longitude: number | null } = await resp.json()
+            if (data.country_code) {
+              geocode = data
+              setManualGeocode(data)
+            }
+          }
+        } catch (e) {
+          captureError(e, { label: 'forward-geocode call', extra: { address } })
+        }
+      }
 
       // Stage 1: source + external_id 정확 매칭
       if (externalId) {
@@ -204,9 +232,9 @@ export default function AddPlace() {
         }
       }
 
-      // Stage 2: 좌표 기반 근처 장소 검색
-      const lat = selectedPlace?.latitude
-      const lng = selectedPlace?.longitude
+      // Stage 2: 좌표 기반 근처 장소 검색 (manual forward-geocode 결과도 사용)
+      const lat = selectedPlace?.latitude ?? geocode?.latitude ?? undefined
+      const lng = selectedPlace?.longitude ?? geocode?.longitude ?? undefined
       if (lat && lng) {
         try {
           const nearby = await findNearbyPlaces(lat, lng)
