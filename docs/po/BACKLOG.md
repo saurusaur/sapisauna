@@ -30,6 +30,7 @@
 - [ ] [버그] Google 지도 URL 폴백 dead code — `explore/[id]/page.tsx:266-268`에서 `place.latitude` 삼항 분기 true/false가 동일 결과. 좌표 있을 때 `query=<lat>,<lng>` 로 핀 정확도 개선 필요 | priority: P2 | added: 2026-04-20
 
 <!-- P3 — 장기 -->
+- [ ] [기능] 사우나 펫(Sauna Pet) — 사용자의 기록/연속 방문/트라이브 활동에 따라 성장하는 companion 기능 기획 및 구현. MVP 범위, 성장/기분 루프, 프로필·홈 노출, XP/칭호 시스템 관계, DB/상태 계산 초안 정리 완료. 상세 플랜: `docs/plans/PLAN_sauna_pet.md` | priority: P3 | added: 2026-05-18
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
 - [ ] [기능] API 카테고리→시설유형 자동매핑 — 유저 인풋 보조. 상세: `PLAN_venue_type_auto_mapping.md` | priority: P3 | added: 2026-03-20
 - [ ] [데이터] 시설 태그 잔여 보강 — 4건(유림탕/유진/주신/필례) 유저 기여로 보완 | priority: P3 | added: 2026-03-21
