@@ -156,7 +156,7 @@ export async function mergeWithPlace(
   if (!existing) throw new Error('병합 대상 장소를 찾을 수 없습니다')
 
   // 소스 추가
-  await supabase.from('place_sources').insert({
+  const { error: srcErr } = await supabase.from('place_sources').insert({
     place_id: placeId,
     source: sourceInfo.source,
     external_id: sourceInfo.external_id || null,
@@ -166,10 +166,11 @@ export async function mergeWithPlace(
     longitude: sourceInfo.longitude || null,
     plus_code: sourceInfo.plus_code || null,
   })
+  if (srcErr) throw srcErr
 
   // 시설 정보 병합 + merged 플래그
   const mergedFacilities = Array.from(new Set([...existing.facilities, ...facilities]))
-  await supabase
+  const { error: updErr } = await supabase
     .from('places')
     .update({
       facilities: mergedFacilities,
@@ -179,6 +180,7 @@ export async function mergeWithPlace(
       bath_policy: bath_policy || 'gender-bath',
     })
     .eq('id', placeId)
+  if (updErr) throw updErr
 
   const updated = await getPlaceById(placeId)
   return updated!
@@ -230,7 +232,8 @@ export async function createNewPlace(params: {
 
   if (placeError) throw placeError
 
-  await supabase.from('place_sources').insert({
+  // place_sources 실패 시 orphan places row가 남지 않도록 compensating delete
+  const { error: srcError } = await supabase.from('place_sources').insert({
     place_id: newPlace.id,
     source,
     external_id: external_id || null,
@@ -240,6 +243,11 @@ export async function createNewPlace(params: {
     longitude: longitude || null,
     plus_code: plus_code || null,
   })
+
+  if (srcError) {
+    await supabase.from('places').delete().eq('id', newPlace.id)
+    throw srcError
+  }
 
   const result = await getPlaceById(newPlace.id)
   return result!
