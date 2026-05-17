@@ -1,7 +1,16 @@
 # Form Flow Consistency Refactor Plan
 
 Date: 2026-04-30
-Status: Draft / handoff plan
+Status: Archived 2026-05-18 — Passes 1–3 shipped, Pass 4 split out to `PLAN_log_edit_session_helper.md`
+
+## Shipped Commits
+
+- Pass 1 (`PlaceFacilityEditor`) + Pass 2 (`useConfirmableExit`): `6b39d2c refactor place form flow components`
+- Pass 3 (`ErrorBanner`): `b4989bf refactor shared error banner`
+- Bonus (sa-list create sheet reuse of `useConfirmableExit`): `a4ec206 refactor sa-list create sheet`
+- Pass 4 decision-point fix (place policy restore on history edit): `4defe93 fix history edit place policy restore`
+
+Pass 4 helper extraction itself was deferred and tracked separately.
 
 ## Goal
 
