@@ -9,6 +9,7 @@ import type { BathGender, BathPolicy } from '@/types'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { insertLog, updateLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
+import { readEditSession, clearLogSessionAfterSave } from '@/lib/log-edit-session'
 import { safeParse } from '@/lib/utils'
 import { captureError } from '@/lib/error-logger'
 import type { TribeId } from '@/types'
@@ -103,27 +104,22 @@ export default function QuickLog() {
       localStorage.removeItem('selectedRecordDate')
     }
 
-    // 장소 정보 복원 — 없으면 장소 선택 페이지로 redirect
-    const placeData = localStorage.getItem('selectedPlace')
-    if (placeData) {
-      const place = safeParse<{ name?: string; id?: string; countryCode?: string; facilityType?: string; bathPolicy?: string } | null>(placeData, null)
-      if (!place) return
+    // 장소 정보 + 이전 입력 복원
+    const { currentLog: log, selectedPlace: place } = readEditSession()
+
+    if (place) {
       setPlaceName(place.name || '')
       if (place.id) setPlaceId(place.id)
       setPlaceCountryCode(place.countryCode)
       if (place.facilityType) setFacilityType(place.facilityType)
       if (place.bathPolicy) setBathPolicy(place.bathPolicy)
-    } else if (!localStorage.getItem('currentLog')) {
+    } else if (!log) {
       // 편집 모드(currentLog 있음)가 아닌데 장소도 없으면 → 장소 선택으로
       router.replace('/place')
       return
     }
 
-    // 이전 입력 복원 (스토리에서 뒤로가기 또는 편집 모드 진입 시)
-    const savedLog = localStorage.getItem('currentLog')
-    if (savedLog) {
-      const log = safeParse(savedLog, null)
-      if (!log) return
+    if (log) {
       // 편집 모드: 기존 값 보존
       if (log._editId) {
         setEditId(log._editId)
@@ -248,9 +244,7 @@ export default function QuickLog() {
       // 저장 성공 → 정리 후 스토리로
       localStorage.setItem('savedLogId', logId)
       localStorage.setItem('isNewLog', 'true')
-      localStorage.removeItem('currentLog')
-      localStorage.removeItem('selectedPlace')
-      localStorage.removeItem('selectedRecordDate')
+      clearLogSessionAfterSave()
       router.push('/story')
     } catch (err) {
       captureError(err, { label: '로그 저장 실패' })

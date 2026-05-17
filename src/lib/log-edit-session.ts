@@ -1,23 +1,28 @@
 /**
  * Log edit session — typed contract for the localStorage payload used when
- * entering an edit flow from history.
+ * entering an edit flow from history (and as an in-flight scratch on the
+ * log/log-deep pages).
  *
- * Storage keys are intentionally preserved: `currentLog` and `selectedPlace`.
- * Reader sites use safeParse with a fallback, so writers MUST keep field
- * names and shapes stable across this module.
+ * Storage keys are intentionally preserved: `currentLog`, `selectedPlace`,
+ * and `selectedRecordDate` (cleared together post-save).
+ *
+ * All fields on the read side are optional — readers must tolerate partial
+ * or legacy payloads. Writers fill in what they know; structural typing
+ * still validates the writer outputs.
  */
 
+import { safeParse } from './utils'
 import type { LogWithPlace, TribeId, FacilityType, BathPolicy } from '@/types'
 
 export interface CurrentLogPayload {
-  _editId: string
+  _editId?: string
   _deepOnly?: boolean
-  place_id: string
-  place_name: string
-  place_country_code: string
-  tribe_id: TribeId
-  record_date: string
-  revisit_score: number
+  place_id?: string
+  place_name?: string
+  place_country_code?: string
+  tribe_id?: TribeId
+  record_date?: string
+  revisit_score?: number
   repeat?: number
   heat_time?: number
   ice_time?: number
@@ -27,6 +32,7 @@ export interface CurrentLogPayload {
   totono_score?: number
   hot_bath_temp?: number
   water_quality?: number
+  sweat_quality?: number
   jjim_temp?: number
   rest_quality?: number
   deep_log?: LogWithPlace['deep_log']
@@ -103,4 +109,28 @@ export function saveEditSession(payload: {
 }): void {
   localStorage.setItem('currentLog', JSON.stringify(payload.currentLog))
   localStorage.setItem('selectedPlace', JSON.stringify(payload.selectedPlace))
+}
+
+/** Read edit session payloads. Returns null for keys that are absent or
+ * malformed. Readers should check fields individually before use — types
+ * are optional to reflect that legacy/partial payloads exist in the wild. */
+export function readEditSession(): {
+  currentLog: CurrentLogPayload | null
+  selectedPlace: SelectedPlacePayload | null
+} {
+  const rawLog = localStorage.getItem('currentLog')
+  const rawPlace = localStorage.getItem('selectedPlace')
+  return {
+    currentLog: rawLog ? safeParse<CurrentLogPayload | null>(rawLog, null) : null,
+    selectedPlace: rawPlace ? safeParse<SelectedPlacePayload | null>(rawPlace, null) : null,
+  }
+}
+
+/** Post-save cleanup. Removes all three keys that participate in the log
+ * entry/edit flow — including `selectedRecordDate` which is set by the
+ * home page calendar and history calendar to preset the log date. */
+export function clearLogSessionAfterSave(): void {
+  localStorage.removeItem('currentLog')
+  localStorage.removeItem('selectedPlace')
+  localStorage.removeItem('selectedRecordDate')
 }

@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/ui/confirm-modal'
 import ErrorBanner from '@/components/ui/error-banner'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
+import { readEditSession, clearLogSessionAfterSave } from '@/lib/log-edit-session'
 import { formatCostInput, safeParse } from '@/lib/utils'
 import { captureError } from '@/lib/error-logger'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -80,67 +81,61 @@ export default function DeepLog() {
 
   // 이전 입력 복원 (편집 모드 또는 뒤로가기 시)
   useEffect(() => {
-    // currentLog에서 편집 모드 확인 + deep_log 복원 (편집 모드일 때만)
-    const currentLog = localStorage.getItem('currentLog')
-    if (currentLog) {
-      const parsed = safeParse(currentLog, null)
-      if (!parsed) return
-      const isEdit = Boolean(parsed._editId)
-      if (isEdit) {
-        setIsEditMode(true)
-        setEditId(parsed._editId as string)
-      }
+    const { currentLog: parsed } = readEditSession()
+    if (!parsed) return
 
-      // 장소명 + tribe 복원
-      if (parsed.place_name) setPlaceName(parsed.place_name as string)
-      if (parsed.tribe_id) setTribeId(parsed.tribe_id as string)
-
-      // 장소 countryCode 기반 기본 통화 설정
-      const countryCode = parsed.place_country_code as string | undefined
-      if (countryCode) {
-        const mapped = (countryToCurrency as Record<string, string>)[countryCode]
-        if (mapped) setCurrency(mapped)
-      }
-
-      // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
-      const dl = parsed.deep_log ?? null
-      if (dl) {
-        if (dl.companion) setCompanion(dl.companion)
-        if (dl.cost) setCost(dl.cost.toLocaleString())
-        if (dl.currency) setCurrency(dl.currency)
-        if (dl.crowd) setCrowd(dl.crowd)
-        if (dl.memo) setMemo(dl.memo)
-        if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
-        // 사우나 온도 복원
-        const hasSaunaData = dl.has_wet_sauna || (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner')
-        if (hasSaunaData) {
-          setHasSaunaTemps(true)
-          if (dl.has_wet_sauna) setWetSaunaTemp(dl.wet_sauna_temp as number)
-          if (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner') setDrySaunaTemp(parsed.sauna_temp as number)
-        }
-        // 탕 온도 복원
-        const hasAnyBathTemp = dl.has_very_hot_bath || dl.has_ice_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
-        if (hasAnyBathTemp) {
-          setHasBathTemps(true)
-          if (dl.has_very_hot_bath) setVeryHotBathTemp(dl.very_hot_bath_temp as number)
-          if (dl.has_ice_bath) setIceBathTemp(dl.ice_bath_temp as number)
-          if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp as number)
-          if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp as number)
-        }
-        if (dl.has_scrub) {
-          setHasScrub(true)
-          if (dl.scrub_types?.length) setScrubTypes(dl.scrub_types)
-          if (dl.scrub_cost) setScrubCost(dl.scrub_cost.toLocaleString())
-          if (dl.scrub_satisfaction != null) { setScrubSatisfaction(dl.scrub_satisfaction); setScrubSatisfactionActive(true) }
-        }
-        if (dl.has_store) {
-          setHasStore(true)
-          if (dl.store_score != null) { setStoreScore(dl.store_score); setStoreScoreActive(true) }
-          setStoreMemo(dl.store_memo || '')
-        }
-      }
+    if (parsed._editId) {
+      setIsEditMode(true)
+      setEditId(parsed._editId)
     }
 
+    // 장소명 + tribe 복원
+    if (parsed.place_name) setPlaceName(parsed.place_name)
+    if (parsed.tribe_id) setTribeId(parsed.tribe_id)
+
+    // 장소 countryCode 기반 기본 통화 설정
+    if (parsed.place_country_code) {
+      const mapped = (countryToCurrency as Record<string, string>)[parsed.place_country_code]
+      if (mapped) setCurrency(mapped)
+    }
+
+    // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
+    const dl = parsed.deep_log ?? null
+    if (dl) {
+      if (dl.companion) setCompanion(dl.companion)
+      if (dl.cost) setCost(dl.cost.toLocaleString())
+      if (dl.currency) setCurrency(dl.currency)
+      if (dl.crowd) setCrowd(dl.crowd)
+      if (dl.memo) setMemo(dl.memo)
+      if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
+      // 사우나 온도 복원
+      const hasSaunaData = dl.has_wet_sauna || (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner')
+      if (hasSaunaData) {
+        setHasSaunaTemps(true)
+        if (dl.has_wet_sauna && dl.wet_sauna_temp != null) setWetSaunaTemp(dl.wet_sauna_temp)
+        if (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner') setDrySaunaTemp(parsed.sauna_temp)
+      }
+      // 탕 온도 복원
+      const hasAnyBathTemp = dl.has_very_hot_bath || dl.has_ice_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
+      if (hasAnyBathTemp) {
+        setHasBathTemps(true)
+        if (dl.has_very_hot_bath && dl.very_hot_bath_temp != null) setVeryHotBathTemp(dl.very_hot_bath_temp)
+        if (dl.has_ice_bath && dl.ice_bath_temp != null) setIceBathTemp(dl.ice_bath_temp)
+        if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp)
+        if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp)
+      }
+      if (dl.has_scrub) {
+        setHasScrub(true)
+        if (dl.scrub_types?.length) setScrubTypes(dl.scrub_types)
+        if (dl.scrub_cost) setScrubCost(dl.scrub_cost.toLocaleString())
+        if (dl.scrub_satisfaction != null) { setScrubSatisfaction(dl.scrub_satisfaction); setScrubSatisfactionActive(true) }
+      }
+      if (dl.has_store) {
+        setHasStore(true)
+        if (dl.store_score != null) { setStoreScore(dl.store_score); setStoreScoreActive(true) }
+        setStoreMemo(dl.store_memo || '')
+      }
+    }
   }, [])
 
   // 통화 피커 바깥 클릭 닫기
@@ -220,9 +215,7 @@ export default function DeepLog() {
       // 저장 성공 → 정리 후 스토리로
       localStorage.setItem('savedLogId', logId)
       localStorage.setItem('isNewLog', 'true')
-      localStorage.removeItem('currentLog')
-      localStorage.removeItem('selectedPlace')
-      localStorage.removeItem('selectedRecordDate')
+      clearLogSessionAfterSave()
       router.push('/story')
     } catch (err) {
       captureError(err, { label: '딥로그 저장 실패' })
