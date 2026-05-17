@@ -7,6 +7,7 @@ import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
 import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
+import { buildQuickEditSession, buildDeepEntrySession, saveEditSession } from '@/lib/log-edit-session'
 import { captureError } from '@/lib/error-logger'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
@@ -122,35 +123,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <div className="flex gap-2 ml-auto">
           <button
             onClick={() => {
-              const logAsCurrentLog = {
-                _editId: log.id,
-                place_id: log.place_id,
-                place_name: log.place_name,
-                place_country_code: log.place_country_code,
-                tribe_id: log.tribe_id,
-                record_date: log.date,
-                revisit_score: log.revisit_score,
-                repeat: log.repeat,
-                heat_time: log.heat_time,
-                ice_time: log.ice_time,
-                pause_time: log.pause_time,
-                sauna_temp: log.sauna_temp,
-                cold_bath_temp: log.cold_bath_temp,
-                totono_score: log.totono_score,
-                hot_bath_temp: log.hot_bath_temp,
-                water_quality: log.water_quality,
-                jjim_temp: log.jjim_temp,
-                rest_quality: log.rest_quality,
-                ...(log.deep_log && { deep_log: log.deep_log }),
-              }
-              localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({
-                id: log.place_id,
-                name: log.place_name,
-                countryCode: log.place_country_code,
-                facilityType: log.place_facility_type,
-                bathPolicy: log.place_bath_policy,
-              }))
+              saveEditSession(buildQuickEditSession(log))
               router.push('/log')
             }}
             className="p-2 transition-colors hover:opacity-70"
@@ -300,35 +273,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <div>
             <button
               onClick={() => {
-                const logAsCurrentLog = {
-                  _editId: log.id,
-                  _deepOnly: true,
-                  place_id: log.place_id,
-                  place_name: log.place_name,
-                  place_country_code: log.place_country_code,
-                  tribe_id: log.tribe_id,
-                  record_date: log.date,
-                  revisit_score: log.revisit_score,
-                  repeat: log.repeat,
-                  heat_time: log.heat_time,
-                  ice_time: log.ice_time,
-                  pause_time: log.pause_time,
-                  sauna_temp: log.sauna_temp,
-                  cold_bath_temp: log.cold_bath_temp,
-                  totono_score: log.totono_score,
-                  hot_bath_temp: log.hot_bath_temp,
-                  water_quality: log.water_quality,
-                  jjim_temp: log.jjim_temp,
-                  rest_quality: log.rest_quality,
-                }
-                localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-                localStorage.setItem('selectedPlace', JSON.stringify({
-                  id: log.place_id,
-                  name: log.place_name,
-                  countryCode: log.place_country_code,
-                  facilityType: log.place_facility_type,
-                  bathPolicy: log.place_bath_policy,
-                }))
+                saveEditSession(buildDeepEntrySession(log))
                 router.push('/log/deep')
               }}
               className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
