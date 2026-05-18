@@ -322,35 +322,32 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     if (error) throw error
   }
 
-  // 탕/사우나 온도: 딥로그에서 입력받아 logs 테이블에 저장 (퀵로그 미입력 필드 보강)
+  // 탕/사우나 온도: 딥로그에서 입력받아 logs 테이블에 저장
+  // ── key-presence semantics ──
+  // deepData에 키가 있으면 deep page가 해당 필드의 편집 권한이 있고 의도적으로 값 설정
+  //  → null이면 클리어, number/문자열이면 업데이트
+  // 키 자체가 없으면 quick log 소유 영역이라 절대 안 건드림 (quick에서 입력한 값 보존)
   const logsUpdate: Record<string, unknown> = {}
-  if (deepData.has_hot_bath && deepData.hot_bath_temp != null) {
-    logsUpdate.hot_bath_temp = deepData.hot_bath_temp
+  const setIfPresent = (key: keyof typeof deepData) => {
+    if (key in deepData) logsUpdate[key as string] = deepData[key] ?? null
   }
-  if (deepData.cold_bath_temp != null) {
-    logsUpdate.cold_bath_temp = deepData.cold_bath_temp
-  }
-  if (deepData.sauna_temp != null) {
-    logsUpdate.sauna_temp = deepData.sauna_temp
-  }
-  if (deepData.steam_sauna_temp != null) {
-    logsUpdate.steam_sauna_temp = deepData.steam_sauna_temp
-  }
-  if (deepData.primary_sauna_kind != null) {
-    logsUpdate.primary_sauna_kind = deepData.primary_sauna_kind
-  }
+  setIfPresent('hot_bath_temp')
+  setIfPresent('cold_bath_temp')
+  setIfPresent('sauna_temp')
+  setIfPresent('steam_sauna_temp')
+  setIfPresent('primary_sauna_kind')
   if (Object.keys(logsUpdate).length > 0) {
     await supabase.from('logs').update(logsUpdate).eq('id', logId)
   }
 
-  // 시설 자동태그
+  // 시설 자동태그 (deep page가 해당 필드 편집 권한이 있고 값을 입력한 경우에만)
   const autoTags: string[] = []
   if (deepData.sauna_temp != null) autoTags.push('dry-sauna')
   if (deepData.steam_sauna_temp != null) autoTags.push('steam-sauna')
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
   if (deepData.has_ice_bath) autoTags.push('ice-bath')
   if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')
-  if (deepData.has_hot_bath) autoTags.push('hot-bath')
+  if (deepData.hot_bath_temp != null) autoTags.push('hot-bath')
   if (deepData.has_scrub) {
     const types = (deepData.scrub_types as string[]) || []
     if (types.includes('scrub')) autoTags.push('scrub')
