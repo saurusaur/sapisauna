@@ -603,10 +603,10 @@ export default function QuickLog() {
                       {label}
                       <span
                         onClick={(e) => { e.stopPropagation(); clearKind(kind) }}
-                        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-stone-300 text-white text-[9px] font-bold leading-none cursor-pointer hover:bg-red-500 transition-colors"
+                        className="inline-flex items-center text-stone-400 hover:text-stone-600 cursor-pointer transition-colors leading-none"
                         style={{ visibility: has ? 'visible' : 'hidden' }}
                       >
-                        ×
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>close</span>
                       </span>
                     </button>
                   )
@@ -622,7 +622,18 @@ export default function QuickLog() {
                       </div>
                       {bothEntered && (
                         <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
-                          {QUICK_LOG.SAUNER.PRIMARY_PROMPT}
+                          {(() => {
+                            const text = QUICK_LOG.SAUNER.PRIMARY_PROMPT
+                            const idx = text.indexOf('선택')
+                            if (idx < 0) return text
+                            return (
+                              <>
+                                {text.slice(0, idx)}
+                                <span className="font-bold">✓ </span>
+                                {text.slice(idx)}
+                              </>
+                            )
+                          })()}
                         </span>
                       )}
                     </div>
