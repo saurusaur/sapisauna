@@ -223,6 +223,11 @@ export default function QuickLog() {
 
   // 완료 버튼 → 분기 모달 열기
   const handleComplete = () => {
+    // 사우너: 사우나(건식 또는 습식) 최소 하나 필수
+    if (logType === 'saunner' && saunaTemp == null && steamSaunaTemp == null) {
+      setSaveError('사우나(건식 또는 습식) 중 하나는 입력해주세요.')
+      return
+    }
     const logData = buildLogData()
     // 기존 deep_log 보존 (편집 모드에서 히스토리가 넣어준 deep_log가 유실되지 않도록)
     const existing = safeParse<Record<string, unknown>>(localStorage.getItem('currentLog') || '{}', {})
@@ -764,7 +769,14 @@ export default function QuickLog() {
         </div>
       </main>
 
-      <BottomCTA onClick={handleComplete}>다음</BottomCTA>
+      <BottomCTA
+        onClick={handleComplete}
+        disabled={logType === 'saunner' && saunaTemp == null && steamSaunaTemp == null}
+      >
+        {logType === 'saunner' && saunaTemp == null && steamSaunaTemp == null
+          ? '사우나 입력 필요'
+          : '다음'}
+      </BottomCTA>
 
       {/* 뒤로가기 확인 모달 */}
       {showBackConfirm && (

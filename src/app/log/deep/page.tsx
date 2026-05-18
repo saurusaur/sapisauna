@@ -102,6 +102,13 @@ export default function DeepLog() {
       if (mapped) setCurrency(mapped)
     }
 
+    // 퀵로그 입력 상태 트래킹 — deep_log 유무와 무관, parsed 자체에서 결정
+    // (새 로그라서 deep_log가 아직 없어도, quick log에서 입력한 사우나는 항상 반영되어야 함)
+    const qHasDry = parsed.sauna_temp != null
+    const qHasSteam = parsed.steam_sauna_temp != null
+    setQuickHasDry(qHasDry)
+    setQuickHasSteam(qHasSteam)
+
     // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
     const dl = parsed.deep_log ?? null
     if (dl) {
@@ -111,11 +118,6 @@ export default function DeepLog() {
       if (dl.crowd) setCrowd(dl.crowd)
       if (dl.memo) setMemo(dl.memo)
       if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
-      // 퀵로그 입력 상태 트래킹 (saunner는 quick에 dry/steam 둘 다 가능)
-      const qHasDry = parsed.sauna_temp != null
-      const qHasSteam = parsed.steam_sauna_temp != null
-      setQuickHasDry(qHasDry)
-      setQuickHasSteam(qHasSteam)
 
       // 사우나 온도 복원:
       //  - saunner: 퀵로그에 없는 종류만 deep log에서 입력 가능 → 그 값 복원
