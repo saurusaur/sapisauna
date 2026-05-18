@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stats — 건식/습식 ΔT 토글 비교</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    background: #f5f5f4;
+    color: #1c1917;
+    padding: 24px 16px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #78716c; font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .option-block {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .option-block h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .option-block .desc {
+    font-size: 12px;
+    color: #78716c;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  /* phone frame */
+  .phone {
+    background: #fafaf9;
+    border-radius: 16px;
+    padding: 16px 14px;
+    border: 1px solid #e7e5e4;
+    max-width: 380px;
+  }
+
+  /* glass card replica */
+  .glass-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
+    padding: 16px;
+  }
+
+  /* insight card layout */
+  .insight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .ring-area {
+    width: 130px;
+    min-height: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#a8a29e 0deg 220deg, #e7e5e4 220deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .ring::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background: #fafaf9;
+    border-radius: 50%;
+  }
+  .ring-num {
+    font-family: "SF Pro Display", -apple-system, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #44403c;
+    z-index: 1;
+  }
+  .ring-caption {
+    font-size: 8px;
+    color: #a8a29e;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .metrics {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  .metric-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #78716c;
+    letter-spacing: 0.05em;
+  }
+  .metric-value {
+    font-family: "SF Pro Display", -apple-system, sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #292524;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  .metric-value.totono { color: #f97316; }
+  .metric-sub {
+    font-size: 10px;
+    color: #a8a29e;
+    margin-top: 2px;
+  }
+
+  /* OPTION A: inline mini toggle (next to label) */
+  .label-row-a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .mini-toggle-a {
+    display: inline-flex;
+    background: #e7e5e4;
+    border-radius: 6px;
+    padding: 1px;
+  }
+  .mini-toggle-a button {
+    background: transparent;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #78716c;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.03em;
+  }
+  .mini-toggle-a button.active {
+    background: white;
+    color: #1c1917;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  }
+  .mini-toggle-a button:disabled {
+    color: #d6d3d1;
+    cursor: not-allowed;
+  }
+
+  /* OPTION B: segmented tab above metric */
+  .seg-tab-b {
+    display: flex;
+    background: #e7e5e4;
+    border-radius: 6px;
+    padding: 2px;
+    margin-bottom: 4px;
+    width: fit-content;
+  }
+  .seg-tab-b button {
+    background: transparent;
+    border: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #78716c;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+  }
+  .seg-tab-b button.active {
+    background: white;
+    color: #1c1917;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  }
+  .seg-tab-b button:disabled {
+    color: #d6d3d1;
+    cursor: not-allowed;
+  }
+
+  /* OPTION C: pill toggle right of value */
+  .value-row-c {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .pill-toggle-c {
+    display: inline-flex;
+    background: #e7e5e4;
+    border-radius: 999px;
+    padding: 1px;
+    align-self: center;
+  }
+  .pill-toggle-c button {
+    background: transparent;
+    border: none;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #78716c;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .pill-toggle-c button.active {
+    background: white;
+    color: #1c1917;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  }
+  .pill-toggle-c button:disabled {
+    color: #d6d3d1;
+    cursor: not-allowed;
+  }
+
+  /* scenario chooser */
+  .scenario-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .scenario-bar button {
+    background: #f5f5f4;
+    border: 1px solid #e7e5e4;
+    color: #57534e;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .scenario-bar button.active {
+    background: #1c1917;
+    color: white;
+    border-color: #1c1917;
+  }
+
+  .compare-note {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: white;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #44403c;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Stats 인사이트 카드 — 건식/습식 ΔT 토글 비교</h1>
+  <div class="sub">
+    히스토리 대시보드의 사우너 인사이트 카드(좌측 링 + 우측 메트릭 2개) 안에 토글을 넣는 3가지 안.<br>
+    상단 시나리오 버튼으로 데이터 상태별 동작 확인 — 양쪽 다 있음 / 건식만 / 습식만.
+  </div>
+
+  <div class="scenario-bar">
+    <button data-s="both" class="active">양쪽 다 있음 (건식 42°C / 습식 28°C)</button>
+    <button data-s="dry">건식만 (42°C)</button>
+    <button data-s="steam">습식만 (28°C)</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- OPTION A -->
+    <div class="option-block">
+      <h2>① 라벨 옆 인라인 미니 토글</h2>
+      <div class="desc">Quick log의 미니 토글과 <strong>동일한 패턴</strong>. 라벨이 약간 길어지지만 값 영역은 그대로 큼. 비활성 데이터는 토글이 비활성(연한 회색).</div>
+
+      <div class="phone">
+        <div class="glass-card">
+          <div class="insight">
+            <div class="ring-area">
+              <div class="ring"><span class="ring-num">142</span></div>
+              <span class="ring-caption">WEEKLY HEAT<br>EXPOSURE</span>
+            </div>
+            <div class="metrics">
+              <div>
+                <div class="label-row-a">
+                  <span class="metric-label" id="lblA">평균 온도차</span>
+                  <span class="mini-toggle-a" id="togA">
+                    <button data-t="dry" class="active">건식</button>
+                    <button data-t="steam">습식</button>
+                  </span>
+                </div>
+                <div class="metric-value" id="valA">42°C</div>
+              </div>
+              <div>
+                <span class="metric-label">토토노이 점수</span>
+                <div class="metric-value totono">4.2/5</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION B -->
+    <div class="option-block">
+      <h2>② 세그먼티드 탭 (라벨 위)</h2>
+      <div class="desc">메트릭 위에 작은 탭을 별도 줄로 배치. 토글이 명확하고 클릭 영역 큼. 세로 공간 조금 차지 → 토토노이 점수와의 간격 조정 필요.</div>
+
+      <div class="phone">
+        <div class="glass-card">
+          <div class="insight">
+            <div class="ring-area">
+              <div class="ring"><span class="ring-num">142</span></div>
+              <span class="ring-caption">WEEKLY HEAT<br>EXPOSURE</span>
+            </div>
+            <div class="metrics">
+              <div>
+                <span class="seg-tab-b" id="togB">
+                  <button data-t="dry" class="active">건식</button>
+                  <button data-t="steam">습식</button>
+                </span>
+                <span class="metric-label" id="lblB">평균 온도차</span>
+                <div class="metric-value" id="valB">42°C</div>
+              </div>
+              <div>
+                <span class="metric-label">토토노이 점수</span>
+                <div class="metric-value totono">4.2/5</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION C -->
+    <div class="option-block">
+      <h2>③ 값 옆 알약(pill) 토글</h2>
+      <div class="desc">큰 숫자 옆에 작은 알약 토글. 값과 토글이 한 줄에 있어 즉시 인지. 숫자가 길거나(예: "42.5°C") 토글 너비 합치면 좁은 컬럼 wrap 위험.</div>
+
+      <div class="phone">
+        <div class="glass-card">
+          <div class="insight">
+            <div class="ring-area">
+              <div class="ring"><span class="ring-num">142</span></div>
+              <span class="ring-caption">WEEKLY HEAT<br>EXPOSURE</span>
+            </div>
+            <div class="metrics">
+              <div>
+                <span class="metric-label" id="lblC">평균 온도차</span>
+                <div class="value-row-c">
+                  <span class="metric-value" id="valC">42°C</span>
+                  <span class="pill-toggle-c" id="togC">
+                    <button data-t="dry" class="active">건</button>
+                    <button data-t="steam">습</button>
+                  </span>
+                </div>
+              </div>
+              <div>
+                <span class="metric-label">토토노이 점수</span>
+                <div class="metric-value totono">4.2/5</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="compare-note">
+    <strong>트레이드오프 요약</strong><br>
+    • <strong>①</strong> Quick log와 패턴 통일. 라벨 옆 한 줄. 토글이 작아 못 볼 수 있음.<br>
+    • <strong>②</strong> 토글 인지성 가장 높음. 세로 공간 차지 → 카드 길어질 수 있음.<br>
+    • <strong>③</strong> 값과 토글 동시 인지. 좁은 컬럼에서 wrap 위험 (값 + 단위 + 토글).<br>
+    • 모든 안 공통: 데이터 없는 쪽 토글은 <strong>비활성(연한 회색, click 불가)</strong>.<br>
+    • 라벨은 "평균 온도차" 그대로 두고 토글로 분기 (라벨 자체에 "건식/습식" 안 박음).<br>
+    • 추천: <strong>①</strong> — quick log와 일관성, 카드 크기 변동 없음.
+  </div>
+</div>
+
+<script>
+const dryData = { value: '42°C', label: '평균 온도차' };
+const steamData = { value: '28°C', label: '평균 온도차' };
+
+let scenario = 'both';
+
+function applyAll() {
+  const hasDry = scenario === 'both' || scenario === 'dry';
+  const hasSteam = scenario === 'both' || scenario === 'steam';
+
+  // Each option: ensure active is on enabled side
+  ['A', 'B', 'C'].forEach(opt => {
+    const tog = document.getElementById('tog' + opt);
+    const dryBtn = tog.querySelector('button[data-t="dry"]');
+    const steamBtn = tog.querySelector('button[data-t="steam"]');
+    dryBtn.disabled = !hasDry;
+    steamBtn.disabled = !hasSteam;
+    // if active is disabled, switch to the other
+    if (dryBtn.classList.contains('active') && !hasDry) {
+      dryBtn.classList.remove('active');
+      steamBtn.classList.add('active');
+    }
+    if (steamBtn.classList.contains('active') && !hasSteam) {
+      steamBtn.classList.remove('active');
+      dryBtn.classList.add('active');
+    }
+    renderValue(opt);
+  });
+}
+
+function renderValue(opt) {
+  const tog = document.getElementById('tog' + opt);
+  const activeBtn = tog.querySelector('button.active');
+  const kind = activeBtn ? activeBtn.dataset.t : 'dry';
+  const data = kind === 'dry' ? dryData : steamData;
+  document.getElementById('val' + opt).textContent = data.value;
+  document.getElementById('lbl' + opt).textContent = data.label;
+}
+
+// scenario buttons
+document.querySelectorAll('.scenario-bar button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.scenario-bar button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    scenario = b.dataset.s;
+    applyAll();
+  });
+});
+
+// toggle clicks for each option
+['A', 'B', 'C'].forEach(opt => {
+  const tog = document.getElementById('tog' + opt);
+  tog.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      tog.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderValue(opt);
+    });
+  });
+});
+
+applyAll();
+</script>
+</body>
+</html>

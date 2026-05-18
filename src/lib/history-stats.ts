@@ -272,24 +272,49 @@ export function computeBatherInsight(logs: LogWithPlace[], tribe: string = 'bath
 export interface SaunnerInsight {
   weeklyHeatMinutes: number
   heatTarget: number
-  avgTempDiff: number | null
+  /** 건식 ΔT 평균 (sauna_temp - cold_bath_temp). 건식 로그가 1개도 없으면 null */
+  avgDryTempDiff: number | null
+  /** 습식 ΔT 평균 (steam_sauna_temp - cold_bath_temp). 습식 로그가 1개도 없으면 null */
+  avgSteamTempDiff: number | null
+  /** Stats 토글 디폴트 — 다수결로 primary가 더 많은 쪽 */
+  defaultKind: 'dry' | 'steam'
   avgTotonoScore: number | null
 }
 
 /** Saunner 인사이트 */
 export function computeSaunnerInsight(logs: LogWithPlace[], tribe: string = 'saunner'): SaunnerInsight {
-  // 평균 온도차: sauna_temp - cold_bath_temp (둘 다 있는 로그만)
-  const tempDiffs = logs
+  const round1 = (n: number) => Math.round(n * 10) / 10
+
+  // 건식 ΔT 평균
+  const dryDiffs = logs
     .filter((l) => l.sauna_temp != null && l.cold_bath_temp != null)
     .map((l) => l.sauna_temp! - l.cold_bath_temp!)
-  const avgTempDiff = tempDiffs.length > 0
-    ? Math.round((tempDiffs.reduce((a, b) => a + b, 0) / tempDiffs.length) * 10) / 10
+  const avgDryTempDiff = dryDiffs.length > 0
+    ? round1(dryDiffs.reduce((a, b) => a + b, 0) / dryDiffs.length)
     : null
+
+  // 습식 ΔT 평균
+  const steamDiffs = logs
+    .filter((l) => l.steam_sauna_temp != null && l.cold_bath_temp != null)
+    .map((l) => l.steam_sauna_temp! - l.cold_bath_temp!)
+  const avgSteamTempDiff = steamDiffs.length > 0
+    ? round1(steamDiffs.reduce((a, b) => a + b, 0) / steamDiffs.length)
+    : null
+
+  // 토글 디폴트: primary_sauna_kind 다수결. 데이터 없는 쪽 우선 회피.
+  const dryCount = logs.filter((l) => l.primary_sauna_kind === 'dry').length
+  const steamCount = logs.filter((l) => l.primary_sauna_kind === 'steam').length
+  let defaultKind: 'dry' | 'steam' = 'dry'
+  if (avgDryTempDiff == null && avgSteamTempDiff != null) defaultKind = 'steam'
+  else if (avgSteamTempDiff == null) defaultKind = 'dry'
+  else defaultKind = steamCount > dryCount ? 'steam' : 'dry'
 
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
     heatTarget: getHeatTarget(tribe),
-    avgTempDiff,
+    avgDryTempDiff,
+    avgSteamTempDiff,
+    defaultKind,
     avgTotonoScore: safeAvg(logs.map((l) => l.totono_score)),
   }
 }

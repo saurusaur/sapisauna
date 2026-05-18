@@ -10,6 +10,7 @@
  * isEmpty: 기본 레이아웃 유지 + 흐림 + "기록을 추가해보세요!" 오버레이
  */
 
+import { useState, useEffect } from 'react'
 import HeatRing from './heat-ring'
 import type { Period } from './period-toggle'
 import type {
@@ -123,6 +124,65 @@ function EmptyOverlay({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Saunner 전용 콘텐츠 — 평균 온도차 행에 건식/습식 토글
+function SaunnerContent({
+  period, color, heatMinutes, heatTarget, weekRings, saunnerInsight,
+}: {
+  period: Period; color: string; heatMinutes: number; heatTarget: number
+  weekRings?: WeekRingData[]
+  saunnerInsight?: SaunnerInsight
+}) {
+  const dryAvail = saunnerInsight?.avgDryTempDiff != null
+  const steamAvail = saunnerInsight?.avgSteamTempDiff != null
+  const initialKind: 'dry' | 'steam' = saunnerInsight?.defaultKind ?? 'dry'
+  const [kind, setKind] = useState<'dry' | 'steam'>(initialKind)
+
+  // 데이터 새로고침 시 디폴트가 바뀌면 active도 동기화
+  useEffect(() => {
+    if (saunnerInsight?.defaultKind) setKind(saunnerInsight.defaultKind)
+  }, [saunnerInsight?.defaultKind])
+
+  const tempDiff = kind === 'dry' ? saunnerInsight?.avgDryTempDiff : saunnerInsight?.avgSteamTempDiff
+
+  const TogBtn = ({ k, label }: { k: 'dry' | 'steam'; label: string }) => {
+    const available = k === 'dry' ? dryAvail : steamAvail
+    const active = kind === k
+    return (
+      <button
+        type="button"
+        disabled={!available}
+        onClick={() => available && setKind(k)}
+        className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wide transition-colors ${
+          active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-400'
+        } ${!available ? 'opacity-40 cursor-not-allowed' : ''}`}
+      >
+        {label}
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      <RingArea period={period} color={color} heatMinutes={heatMinutes} heatTarget={heatTarget} weekRings={weekRings} />
+      <div className="flex-1 flex flex-col gap-4">
+        <div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p className="text-[9px] font-bold text-stone-500 tracking-wide">평균 온도차</p>
+            <div className="inline-flex bg-stone-200 rounded p-0.5">
+              <TogBtn k="dry" label="건식" />
+              <TogBtn k="steam" label="습식" />
+            </div>
+          </div>
+          <p className="font-heading text-2xl font-semibold" style={{ color: '#292524' }}>
+            {fmtVal(tempDiff, '°C')}
+          </p>
+        </div>
+        <MetricRow label="토토노이 점수" value={fmtVal(saunnerInsight?.avgTotonoScore, '/5')} color={color} />
+      </div>
+    </div>
+  )
+}
+
 // 링 카드 내부 콘텐츠 (전체/Saunner/Jimi 공통)
 function RingCardContent({
   period, color, heatMinutes, heatTarget, weekRings, metrics,
@@ -191,17 +251,12 @@ export default function InsightCard({
   // === Saunner ===
   if (tribe === 'saunner') {
     const si = saunnerInsight
-    const metrics = [
-      { label: '평균 온도차', value: fmtVal(si?.avgTempDiff, '°C') },
-      { label: '토토노이 점수', value: fmtVal(si?.avgTotonoScore, '/5'), color },
-    ]
     const content = (
-      <RingCardContent
+      <SaunnerContent
         period={period} color={color}
-        heatMinutes={si?.weeklyHeatMinutes ?? 0}
-        heatTarget={57}
+        heatMinutes={si?.weeklyHeatMinutes ?? 0} heatTarget={57}
         weekRings={weekRings}
-        metrics={metrics}
+        saunnerInsight={si}
       />
     )
     if (isEmpty) return <EmptyOverlay>{content}</EmptyOverlay>

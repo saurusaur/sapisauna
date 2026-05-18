@@ -51,7 +51,12 @@ export default function QuickLog() {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
 
   // --- 사우너파 ---
-  const [saunaTemp, setSaunaTemp] = useState(80)
+  // 건식·습식 둘 다 입력 가능. 둘 다 있을 때 primarySaunaKind로 주 이용 명시.
+  // 슬라이더는 단일이고 activeSaunaKind에 따라 그쪽 값을 편집.
+  const [saunaTemp, setSaunaTemp] = useState<number | null>(null)
+  const [steamSaunaTemp, setSteamSaunaTemp] = useState<number | null>(null)
+  const [primarySaunaKind, setPrimarySaunaKind] = useState<'dry' | 'steam' | null>(null)
+  const [activeSaunaKind, setActiveSaunaKind] = useState<'dry' | 'steam'>('dry')
   const [coldBathTemp, setColdBathTemp] = useState(15)
   const [totono, setTotono] = useState(3)
 
@@ -136,8 +141,13 @@ export default function QuickLog() {
       if (log.heat_time) setHeatTime(log.heat_time)
       if (log.ice_time) setIceTime(log.ice_time)
       if (log.pause_time) setPauseTime(log.pause_time)
-      // 사우너
-      if (log.sauna_temp) setSaunaTemp(log.sauna_temp)
+      // 사우너 (사우나 종류별 복원)
+      if (log.sauna_temp != null) setSaunaTemp(log.sauna_temp)
+      if (log.steam_sauna_temp != null) setSteamSaunaTemp(log.steam_sauna_temp)
+      if (log.primary_sauna_kind) {
+        setPrimarySaunaKind(log.primary_sauna_kind)
+        setActiveSaunaKind(log.primary_sauna_kind)
+      }
       if (log.cold_bath_temp && log.tribe_id === 'saunner') setColdBathTemp(log.cold_bath_temp)
       if (log.totono_score) setTotono(log.totono_score)
       // 목욕파
@@ -192,7 +202,10 @@ export default function QuickLog() {
     ...(repeat !== null && { repeat }),
     // 타입별 데이터
     ...(logType === 'saunner' && {
-      sauna_temp: saunaTemp,
+      // 입력된 사우나만 포함 (null이면 컬럼 미설정 → DB에는 NULL)
+      ...(saunaTemp != null && { sauna_temp: saunaTemp }),
+      ...(steamSaunaTemp != null && { steam_sauna_temp: steamSaunaTemp }),
+      ...(primarySaunaKind != null && { primary_sauna_kind: primarySaunaKind }),
       cold_bath_temp: coldBathTemp,
       totono_score: totono,
     }),
@@ -523,15 +536,107 @@ export default function QuickLog() {
           {/* ── 사우너파 ── */}
           {logType === 'saunner' && (
             <>
-              <Slider
-                label={QUICK_LOG.SAUNER.SAUNA_TEMP.label}
-                value={saunaTemp}
-                min={QUICK_LOG.SAUNER.SAUNA_TEMP.min}
-                max={QUICK_LOG.SAUNER.SAUNA_TEMP.max}
-                unit={QUICK_LOG.SAUNER.SAUNA_TEMP.unit}
-                steps={[...QUICK_LOG.SAUNER.SAUNA_TEMP.steps]}
-                onChange={setSaunaTemp}
-              />
+              {/* 사우나 종류 토글 (건식/습식) + 슬라이더 단일.
+                  - active 토글: 슬라이더가 어느 종류 값을 편집하는지
+                  - 입력된 쪽에 ✓ 표시 (주황=주 이용, 회색=보조)
+                  - 둘 다 입력 시 "주 이용 사우나를 선택해주세요" 메시지
+                  - × 클릭으로 그쪽 값 클리어 */}
+              {(() => {
+                const dryActive = activeSaunaKind === 'dry'
+                const activeValue = dryActive ? saunaTemp : steamSaunaTemp
+                const activeCfg = dryActive ? QUICK_LOG.SAUNER.SAUNA_TEMP : QUICK_LOG.SAUNER.STEAM_SAUNA_TEMP
+                const activeDefault = dryActive ? 80 : 55
+                const dryHas = saunaTemp != null
+                const steamHas = steamSaunaTemp != null
+                const bothEntered = dryHas && steamHas
+
+                const setActiveValue = (v: number) => {
+                  const wasEmpty = (dryActive ? saunaTemp : steamSaunaTemp) == null
+                  if (dryActive) setSaunaTemp(v)
+                  else setSteamSaunaTemp(v)
+                  if (wasEmpty && primarySaunaKind == null) {
+                    setPrimarySaunaKind(activeSaunaKind)
+                  }
+                }
+                const clearKind = (kind: 'dry' | 'steam') => {
+                  if (kind === 'dry') setSaunaTemp(null)
+                  else setSteamSaunaTemp(null)
+                  if (primarySaunaKind === kind) {
+                    const otherHas = kind === 'dry' ? steamHas : dryHas
+                    setPrimarySaunaKind(otherHas ? (kind === 'dry' ? 'steam' : 'dry') : null)
+                  }
+                }
+                const setPrimary = (kind: 'dry' | 'steam') => {
+                  const has = kind === 'dry' ? dryHas : steamHas
+                  if (!has) return
+                  setPrimarySaunaKind(kind)
+                }
+
+                const ToggleBtn = ({ kind, label }: { kind: 'dry' | 'steam'; label: string }) => {
+                  const isActive = activeSaunaKind === kind
+                  const has = kind === 'dry' ? dryHas : steamHas
+                  const isPrimary = primarySaunaKind === kind
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setActiveSaunaKind(kind)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                        isActive ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+                      }`}
+                    >
+                      <span
+                        onClick={(e) => { e.stopPropagation(); setPrimary(kind) }}
+                        className="text-[11px] leading-none font-bold transition-colors"
+                        style={{
+                          visibility: has ? 'visible' : 'hidden',
+                          color: isPrimary ? '#ea580c' : '#a8a29e',
+                          cursor: bothEntered ? 'pointer' : 'default',
+                        }}
+                      >
+                        ✓
+                      </span>
+                      {label}
+                      <span
+                        onClick={(e) => { e.stopPropagation(); clearKind(kind) }}
+                        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-stone-300 text-white text-[9px] font-bold leading-none cursor-pointer hover:bg-red-500 transition-colors"
+                        style={{ visibility: has ? 'visible' : 'hidden' }}
+                      >
+                        ×
+                      </span>
+                    </button>
+                  )
+                }
+
+                return (
+                  <div className="py-3 border-b border-stone-100">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-sm font-medium text-stone-700">사우나</span>
+                      <div className="inline-flex bg-stone-200 rounded-md p-0.5">
+                        <ToggleBtn kind="dry" label={QUICK_LOG.SAUNER.TOGGLE_DRY_LABEL} />
+                        <ToggleBtn kind="steam" label={QUICK_LOG.SAUNER.TOGGLE_STEAM_LABEL} />
+                      </div>
+                      {bothEntered && (
+                        <span className="text-[11px] font-medium" style={{ color: '#ea580c' }}>
+                          {QUICK_LOG.SAUNER.PRIMARY_PROMPT}
+                        </span>
+                      )}
+                    </div>
+                    <Slider
+                      label={activeCfg.label}
+                      value={activeValue ?? activeDefault}
+                      min={activeCfg.min}
+                      max={activeCfg.max}
+                      unit={activeCfg.unit}
+                      steps={[...activeCfg.steps]}
+                      onChange={setActiveValue}
+                      inactive={activeValue == null}
+                      onActivate={() => setActiveValue(activeDefault)}
+                      showReset={activeValue != null}
+                      onReset={() => clearKind(activeSaunaKind)}
+                    />
+                  </div>
+                )
+              })()}
               <Slider
                 label={QUICK_LOG.COMMON.COLD_BATH_TEMP.label}
                 value={coldBathTemp}

@@ -188,7 +188,7 @@ async function main() {
         if (hasTemp || hasPrice || hasMemo) {
           const { data: log } = await supabase
             .from('logs')
-            .select('id, hot_bath_temp, cold_bath_temp, sauna_temp')
+            .select('id, hot_bath_temp, cold_bath_temp, sauna_temp, steam_sauna_temp, primary_sauna_kind')
             .eq('user_id', ADMIN_ID)
             .eq('place_id', place_id)
             .single()
@@ -199,15 +199,23 @@ async function main() {
             if (finalHotBath && !log.hot_bath_temp) logUpdate.hot_bath_temp = finalHotBath
             if (coldBath && !log.cold_bath_temp) logUpdate.cold_bath_temp = coldBath
             if (dryTemp && !log.sauna_temp) logUpdate.sauna_temp = dryTemp
+            // 습식 사우나도 이제 logs 테이블 (steam_sauna_temp)
+            if (wetTemp && !log.steam_sauna_temp) {
+              logUpdate.steam_sauna_temp = wetTemp
+              // primary_sauna_kind가 없으면 dry 우선으로 결정 (dryTemp 있으면 dry, 아니면 steam)
+              if (!log.primary_sauna_kind) {
+                logUpdate.primary_sauna_kind = (dryTemp || log.sauna_temp) ? 'dry' : 'steam'
+              }
+            }
 
             if (Object.keys(logUpdate).length > 0) {
               await supabase.from('logs').update(logUpdate).eq('id', log.id)
             }
 
-            // deep_logs
+            // deep_logs (습식 사우나 컬럼 제거됨 — 위에서 logs에 처리)
             const { data: deep } = await supabase
               .from('deep_logs')
-              .select('very_hot_bath_temp, wet_sauna_temp, cost, memo')
+              .select('very_hot_bath_temp, cost, memo')
               .eq('log_id', log.id)
               .single()
 
@@ -216,10 +224,6 @@ async function main() {
               if (veryHotBath && !deep.very_hot_bath_temp) {
                 deepUpdate.very_hot_bath_temp = veryHotBath
                 deepUpdate.has_very_hot_bath = true
-              }
-              if (wetTemp && !deep.wet_sauna_temp) {
-                deepUpdate.wet_sauna_temp = wetTemp
-                deepUpdate.has_wet_sauna = true
               }
               if (hasPrice && !deep.cost) {
                 deepUpdate.cost = price

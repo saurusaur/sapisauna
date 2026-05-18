@@ -14,7 +14,6 @@
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [UX] 뉴비 유저 사우나 용어 설명 팝업 — 처음 보는 유저를 위해 사우나 용어(아우프구스/세신/토토노이/노천탕/한증막/온탕/열탕/냉탕/급냉탕/건식/습식 등) 클릭 시 설명 팝오버. 트리거 후보: 로그 폼 라벨 옆 ⓘ 아이콘 / 장소 상세 시설 칩 클릭 / 온보딩 첫 진입 시 1회 가이드. 용어 사전 단일 소스(content.ts에 GLOSSARY 상수) | priority: P1 | added: 2026-04-30
-- [ ] [기능] 사우너 숏로그 건식/습식 토글 — 숏로그에서 습식 사우나 온도 입력 가능하게. deep_logs.wet_sauna_temp 활용. 플랜: `docs/plans/PLAN_wet_sauna_quick_log.md` | priority: P1 | added: 2026-04-12
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
 - [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
@@ -39,6 +38,9 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-05-18
+- [x] [기능+리팩토링] 사우너 quick log 습식 사우나 + primary 명시 + wet→steam 전면 통일 — quick log 사우너 폼에 인라인 ✓ 토글 + × 클리어 + 슬라이더 단일(active 토글에 따라 dry/steam 편집). 둘 다 입력 시 같은 라인에 "주 이용 사우나를 선택해주세요" 안내. 첫 입력 시 그쪽 자동 주황 ✓ + primary_sauna_kind 자동, 둘 다 입력 후 ✓ 클릭으로 주 이용 전환. DB: 마이그레이션 024로 deep_logs.wet_sauna_temp→steam_sauna_temp RENAME 후 logs로 백필+이동, logs에 primary_sauna_kind 컬럼 추가, places.facilities 'wet-sauna'→'steam-sauna' array_replace. 코드 wet→steam 전면 리네임(타입/서비스/상수/시드 JSON 114건/스크립트 2종). ΔT 정책 = primary_sauna_kind 기반(둘 다 있어도 primary 쪽만 표시, 라벨 분기 "STEAM TEMP DELTA"/"습식 온도차"). Story card / History detail / Stats 인사이트 모두 primary 기반 메인 메트릭. Stats 인사이트 카드 "평균 온도차"에 건식/습식 인라인 토글 추가(디폴트 = 해당 기간 primary 다수결). Helper getPrimarySaunaTemp/getPrimaryTempDelta 신설. 플랜: `docs/plans/PLAN_steam_sauna_quick_log.md`, mocks: `docs/po/MOCK_quick_log_*.html`, `MOCK_stats_steam_toggle.html` | priority: P1 | added: 2026-04-12 | done: 2026-05-18
 
 ### 2026-04-30
 - [x] [버그] 비로그인 랜딩·SA-리스트 구독 카운트·공개 owner 프로필 수정 — 루트(`/`) 비로그인 진입을 `/home`으로 변경, 구독 토글을 `toggle_list_subscription` RPC(023)로 이동해 `subscriber_count`를 RLS에 막히지 않게 동기화, 피드/상세에서 로그인·비로그인 구독 상태 처리 및 카운트 즉시 반영. 리스트 owner 정보는 `users` 직접 조인 대신 `public_profiles` 조회+병합으로 전환해 비로그인에서도 닉네임/프로필 이모지/색상 표시. SA-PI 공개 프로필 값 확인(nickname `SA-PI`, emoji `♨️`, hue `0`) 및 fallback 유지 (25977cd) | priority: P1 | added: 2026-04-30 | done: 2026-04-30

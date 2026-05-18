@@ -22,6 +22,7 @@ import SteamCardReveal from '@/components/features/steam-card-reveal'
 import type { RewardResult } from '@/types'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
+import { getPrimaryTempDelta, getPrimarySaunaTemp } from '@/lib/sauna-temp-helpers'
 
 // 요일 약어
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
@@ -141,6 +142,8 @@ export default function Story() {
         date: log.date,
         bgPhoto,
         saunaTemp: log.sauna_temp,
+        steamSaunaTemp: log.steam_sauna_temp,
+        primarySaunaKind: log.primary_sauna_kind,
         coldBathTemp: log.cold_bath_temp,
         hotBathTemp: log.hot_bath_temp,
         jjimTemp: log.jjim_temp,
@@ -194,13 +197,14 @@ export default function Story() {
     setBgPhoto(null)
   }
 
-  // 타입별 메인 수치
+  // 타입별 메인 수치 (사우너는 primary_sauna_kind 기반)
   const getMainMetric = () => {
     if (!log) return { value: '', unit: '', label: '' }
     switch (log.tribe_id) {
       case 'saunner': {
-        const deltaT = (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
-        return { value: String(deltaT), unit: '°C', label: 'TEMP DELTA' }
+        const p = getPrimaryTempDelta(log)
+        if (p == null) return { value: '—', unit: '', label: 'TEMP DELTA' }
+        return { value: String(p.delta), unit: '°C', label: p.primary.labelEn }
       }
       case 'bather':
         return { value: String(log.hot_bath_temp || 40), unit: '°C', label: 'BATH TEMP' }
@@ -236,15 +240,18 @@ export default function Story() {
   const renderGraph = () => {
     if (!log) return null
     switch (log.tribe_id) {
-      case 'saunner':
+      case 'saunner': {
+        // primary 기반: dry/steam 중 주 이용 사우나 온도 사용
+        const primary = getPrimarySaunaTemp(log)
         return (
           <SaunnerGraph
-            saunaTemp={log.sauna_temp || 80}
+            saunaTemp={primary?.value ?? 80}
             coldBathTemp={log.cold_bath_temp || 15}
             repeat={log.repeat || 3}
             totono_score={log.totono_score || 3}
           />
         )
+      }
       case 'bather':
         return (
           <BatherGraph

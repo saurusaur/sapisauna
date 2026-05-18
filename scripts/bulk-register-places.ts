@@ -55,7 +55,7 @@ interface SeedItem {
   very_hot_bath_temp?: number
   cold_bath_temp?: number
   sauna_temp?: number
-  wet_sauna_temp?: number
+  steam_sauna_temp?: number
   review_bath_gender?: string
   community_mentions?: number
   _price_child?: number
@@ -226,7 +226,12 @@ async function createAdminLog(seed: SeedItem, placeId: string): Promise<void> {
 
   // tribe_id 추론
   let tribeId = 'bather'
-  if (seed.sauna_temp) tribeId = 'saunner'
+  if (seed.sauna_temp || seed.steam_sauna_temp) tribeId = 'saunner'
+
+  // 사우너의 primary_sauna_kind 결정 (건식 우선, 없으면 습식)
+  const primarySaunaKind = seed.sauna_temp != null
+    ? 'dry'
+    : (seed.steam_sauna_temp != null ? 'steam' : null)
 
   // logs INSERT
   const { data: log, error: logErr } = await supabase
@@ -239,6 +244,8 @@ async function createAdminLog(seed: SeedItem, placeId: string): Promise<void> {
       cold_bath_temp: seed.cold_bath_temp ?? null,
       hot_bath_temp: seed.hot_bath_temp ?? null,
       sauna_temp: seed.sauna_temp ?? null,
+      steam_sauna_temp: seed.steam_sauna_temp ?? null,
+      primary_sauna_kind: primarySaunaKind,
       bath_gender: seed.review_bath_gender ?? null,
       record_date: new Date().toISOString(),
     })
@@ -250,7 +257,7 @@ async function createAdminLog(seed: SeedItem, placeId: string): Promise<void> {
     return
   }
 
-  // deep_logs INSERT
+  // deep_logs INSERT (steam_sauna_temp은 더 이상 deep_logs에 없음 → logs에서 처리됨)
   const { error: deepErr } = await supabase
     .from('deep_logs')
     .insert({
@@ -259,8 +266,6 @@ async function createAdminLog(seed: SeedItem, placeId: string): Promise<void> {
       currency: seed.source === 'google' ? 'JPY' : 'KRW',
       very_hot_bath_temp: seed.very_hot_bath_temp ?? null,
       has_very_hot_bath: !!seed.very_hot_bath_temp,
-      wet_sauna_temp: seed.wet_sauna_temp ?? null,
-      has_wet_sauna: !!seed.wet_sauna_temp,
       has_scrub: (seed.facilities ?? []).includes('scrub'),
       has_store: (seed.facilities ?? []).includes('food'),
       memo: seed.memo ?? null,

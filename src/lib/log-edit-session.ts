@@ -28,6 +28,8 @@ export interface CurrentLogPayload {
   ice_time?: number
   pause_time?: number
   sauna_temp?: number
+  steam_sauna_temp?: number
+  primary_sauna_kind?: 'dry' | 'steam'
   cold_bath_temp?: number
   totono_score?: number
   hot_bath_temp?: number
@@ -70,6 +72,8 @@ function buildBaseCurrentLog(log: LogWithPlace): CurrentLogPayload {
     ice_time: log.ice_time,
     pause_time: log.pause_time,
     sauna_temp: log.sauna_temp,
+    steam_sauna_temp: log.steam_sauna_temp,
+    primary_sauna_kind: log.primary_sauna_kind,
     cold_bath_temp: log.cold_bath_temp,
     totono_score: log.totono_score,
     hot_bath_temp: log.hot_bath_temp,

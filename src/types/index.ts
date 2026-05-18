@@ -88,8 +88,10 @@ export interface QuickLogData {
   coldBathTemp?: number    // 0-30°C (saunner/bather 공통 — 선택)
 
   // 사우너파
-  saunaTemp?: number    // 50-130°C
-  totonoScore?: number  // 1-5, 토토노이
+  saunaTemp?: number              // 50-130°C (건식)
+  steamSaunaTemp?: number         // 40-75°C (습식)
+  primarySaunaKind?: 'dry' | 'steam'  // 주 이용 사우나 (둘 다 입력 시 필수)
+  totonoScore?: number            // 1-5, 토토노이
 
   // 찜질파
   sweatQuality?: number // 1-5, 발한 퀄리티
@@ -154,6 +156,8 @@ export interface LogWithPlace {
   pause_time?: number
   repeat?: number
   sauna_temp?: number
+  steam_sauna_temp?: number
+  primary_sauna_kind?: 'dry' | 'steam'
   cold_bath_temp?: number
   totono_score?: number
   water_quality?: number
@@ -176,8 +180,6 @@ export interface LogWithPlace {
     store_score?: number | null
     store_memo?: string | null
     cleanliness?: number | null
-    has_wet_sauna?: boolean
-    wet_sauna_temp?: number | null
     has_very_hot_bath?: boolean
     very_hot_bath_temp?: number | null
     has_ice_bath?: boolean
