@@ -1,5 +1,5 @@
 /**
- * ListFormSheet — 리스트 생성/편집 공용 폼 컴포넌트
+ * ListForm — 리스트 생성/편집 공용 폼 컴포넌트
  * 순수 폼만 렌더링 (BottomSheet 포함 안 함)
  */
 
@@ -25,7 +25,7 @@ export interface SelectedPlace {
 const DEFAULT_LIST_COVER_HUE = 0
 
 
-interface ListFormSheetProps {
+interface ListFormProps {
   mode: 'create' | 'edit'
   initialData?: {
     title: string
@@ -55,14 +55,14 @@ const MAX_TITLE_LENGTH = 20
 const MAX_MEMO_LENGTH = 100
 const MAX_DESC_LENGTH = 140
 
-export default function ListFormSheet({
+export default function ListForm({
   mode,
   initialData,
   onSubmit,
   onDirtyChange,
   submitLabel,
   isDefault = false,
-}: ListFormSheetProps) {
+}: ListFormProps) {
   const [title, setTitle] = useState(initialData?.title || '')
   const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [desc, setDesc] = useState(initialData?.description || '')

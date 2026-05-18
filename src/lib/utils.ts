@@ -298,7 +298,8 @@ export function getFacilityLabel(id: string): string {
 // 트라이브별 숏로그에 표시할 필드 순서 — shortLabel은 QUICK_LOG SSOT 참조
 const DETAIL_FIELDS: Record<string, { field: string; shortLabel: string; unit: string }[]> = {
   saunner: [
-    { field: 'sauna_temp', shortLabel: QUICK_LOG.SAUNER.SAUNA_TEMP.shortLabel, unit: '°' },
+    // 사우너의 사우나(건식/습식) 표시는 getDetailText 내부에서 primary 기반으로 처리.
+    // 여기에 sauna_temp를 두지 않음 (중복 방지).
     { field: 'cold_bath_temp', shortLabel: QUICK_LOG.COMMON.COLD_BATH_TEMP.shortLabel, unit: '°' },
     { field: 'totono_score', shortLabel: QUICK_LOG.SAUNER.TOTONO.shortLabel, unit: '/5' },
   ],
@@ -314,9 +315,19 @@ const DETAIL_FIELDS: Record<string, { field: string; shortLabel: string; unit: s
   ],
 }
 
-export function getDetailText(log: { tribe_id: string; sauna_temp?: number; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
-  const fields = DETAIL_FIELDS[log.tribe_id] || []
+export function getDetailText(log: { tribe_id: string; sauna_temp?: number; steam_sauna_temp?: number; primary_sauna_kind?: 'dry' | 'steam'; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
   const parts: string[] = []
+  // 사우너: 주 이용 사우나(건식/습식) 우선 표시
+  if (log.tribe_id === 'saunner') {
+    const isSteam = log.primary_sauna_kind === 'steam'
+      || (log.primary_sauna_kind == null && log.sauna_temp == null && log.steam_sauna_temp != null)
+    const value = isSteam ? log.steam_sauna_temp : log.sauna_temp
+    if (value != null) {
+      const label = isSteam ? '습식' : (QUICK_LOG.SAUNER.SAUNA_TEMP.shortLabel as string)
+      parts.push(`${label} ${value}°`)
+    }
+  }
+  const fields = DETAIL_FIELDS[log.tribe_id] || []
   for (const { field, shortLabel, unit } of fields) {
     const val = (log as Record<string, unknown>)[field]
     if (val != null) parts.push(`${shortLabel} ${val}${unit}`)

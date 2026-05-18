@@ -4,7 +4,7 @@
 
 import { supabase } from './supabase'
 import { ADMIN_USER_ID } from '@/constants/content'
-import type { LogWithPlace, BathGender } from '@/types'
+import type { LogWithPlace, BathGender, FacilityType, BathPolicy } from '@/types'
 
 // DB 행 → LogWithPlace 변환
 function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
@@ -33,6 +33,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     place_id: row.place_id as string,
     place_name: placeName,
     place_country_code: (place?.country_code as string) || '',
+    place_facility_type: typeof place?.facility_type === 'string' ? (place.facility_type as FacilityType) : undefined,
+    place_bath_policy: typeof place?.bath_policy === 'string' ? (place.bath_policy as BathPolicy) : undefined,
     address,
     user_nickname: userNickname,
     user_title: userTitle,
@@ -44,6 +46,8 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     pause_time: row.pause_time as number | undefined,
     repeat: row.repeat as number | undefined,
     sauna_temp: row.sauna_temp as number | undefined,
+    steam_sauna_temp: row.steam_sauna_temp as number | undefined,
+    primary_sauna_kind: row.primary_sauna_kind as ('dry' | 'steam' | undefined),
     cold_bath_temp: row.cold_bath_temp as number | undefined,
     totono_score: row.totono_score as number | undefined,
     water_quality: row.water_quality as number | undefined,
@@ -64,8 +68,6 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       store_score: dl.store_score as number | null,
       store_memo: dl.store_memo as string | null,
       cleanliness: dl.cleanliness as number | null,
-      has_wet_sauna: dl.has_wet_sauna as boolean | undefined,
-      wet_sauna_temp: dl.wet_sauna_temp as number | null,
       has_very_hot_bath: dl.has_very_hot_bath as boolean | undefined,
       very_hot_bath_temp: dl.very_hot_bath_temp as number | null,
       has_ice_bath: dl.has_ice_bath as boolean | undefined,
@@ -205,6 +207,8 @@ export async function insertLog(logData: Record<string, unknown>): Promise<strin
       pause_time: logData.pause_time ?? null,
       repeat: logData.repeat ?? null,
       sauna_temp: logData.sauna_temp ?? null,
+      steam_sauna_temp: logData.steam_sauna_temp ?? null,
+      primary_sauna_kind: logData.primary_sauna_kind ?? null,
       cold_bath_temp: logData.cold_bath_temp ?? null,
       totono_score: logData.totono_score ?? null,
       water_quality: logData.water_quality ?? null,
@@ -254,6 +258,8 @@ export async function updateLog(logId: string, logData: Record<string, unknown>)
       repeat: logData.repeat ?? null,
       // 모든 tribe 필드를 명시 — 해당 tribe가 아니면 null로 클리어
       sauna_temp: logData.sauna_temp ?? null,
+      steam_sauna_temp: logData.steam_sauna_temp ?? null,
+      primary_sauna_kind: logData.primary_sauna_kind ?? null,
       cold_bath_temp: logData.cold_bath_temp ?? null,
       totono_score: logData.totono_score ?? null,
       water_quality: logData.water_quality ?? null,
@@ -294,8 +300,6 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     store_memo: deepData.store_memo ?? null,
     food_eaten: deepData.food_eaten ?? [],
     cleanliness: deepData.cleanliness ?? null,
-    has_wet_sauna: deepData.has_wet_sauna ?? false,
-    wet_sauna_temp: deepData.wet_sauna_temp ?? null,
     has_very_hot_bath: deepData.has_very_hot_bath ?? false,
     very_hot_bath_temp: deepData.very_hot_bath_temp ?? null,
     has_ice_bath: deepData.has_ice_bath ?? false,
@@ -318,7 +322,7 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
     if (error) throw error
   }
 
-  // 탕 온도: 딥로그에서 입력받아 logs 테이블에 저장 (퀵로그 미입력 필드)
+  // 탕/사우나 온도: 딥로그에서 입력받아 logs 테이블에 저장 (퀵로그 미입력 필드 보강)
   const logsUpdate: Record<string, unknown> = {}
   if (deepData.has_hot_bath && deepData.hot_bath_temp != null) {
     logsUpdate.hot_bath_temp = deepData.hot_bath_temp
@@ -329,6 +333,12 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   if (deepData.sauna_temp != null) {
     logsUpdate.sauna_temp = deepData.sauna_temp
   }
+  if (deepData.steam_sauna_temp != null) {
+    logsUpdate.steam_sauna_temp = deepData.steam_sauna_temp
+  }
+  if (deepData.primary_sauna_kind != null) {
+    logsUpdate.primary_sauna_kind = deepData.primary_sauna_kind
+  }
   if (Object.keys(logsUpdate).length > 0) {
     await supabase.from('logs').update(logsUpdate).eq('id', logId)
   }
@@ -336,7 +346,7 @@ export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string
   // 시설 자동태그
   const autoTags: string[] = []
   if (deepData.sauna_temp != null) autoTags.push('dry-sauna')
-  if (deepData.has_wet_sauna) autoTags.push('wet-sauna')
+  if (deepData.steam_sauna_temp != null) autoTags.push('steam-sauna')
   if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
   if (deepData.has_ice_bath) autoTags.push('ice-bath')
   if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')

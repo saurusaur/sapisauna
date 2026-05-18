@@ -23,7 +23,9 @@ export interface CardRenderParams {
   placeName: string
   date: string
   bgPhoto?: string | null
-  saunaTemp?: number
+  saunaTemp?: number           // 사우너 건식 (50-130°C)
+  steamSaunaTemp?: number      // 사우너 습식 (40-75°C)
+  primarySaunaKind?: 'dry' | 'steam' | null  // 주 이용 사우나
   coldBathTemp?: number
   hotBathTemp?: number
   jjimTemp?: number
@@ -48,6 +50,13 @@ function formatDate(dateStr: string): string {
 function getMetric(p: CardRenderParams) {
   switch (p.tribeId) {
     case 'saunner': {
+      // primary 기반: 사용자가 명시한 주 이용 사우나의 ΔT
+      const isSteamPrimary = p.primarySaunaKind === 'steam'
+        || (p.primarySaunaKind == null && p.saunaTemp == null && p.steamSaunaTemp != null)
+      if (isSteamPrimary && p.steamSaunaTemp != null) {
+        const d = p.steamSaunaTemp - (p.coldBathTemp || 15)
+        return { value: String(d), unit: '°C', label: 'STEAM TEMP DELTA' }
+      }
       const d = (p.saunaTemp || 80) - (p.coldBathTemp || 15)
       return { value: String(d), unit: '°C', label: 'TEMP DELTA' }
     }
@@ -318,8 +327,12 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   // ── 그래프 (SVG → Image → drawImage, preserveAspectRatio 수동 구현) ──
   let svgStr = ''
   if (p.tribeId === 'saunner') {
+    // primary 기반: 그래프 입력도 주 이용 사우나 온도를 사용 (없으면 fallback 80)
+    const isSteamPrimary = p.primarySaunaKind === 'steam'
+      || (p.primarySaunaKind == null && p.saunaTemp == null && p.steamSaunaTemp != null)
+    const primarySaunaValue = isSteamPrimary ? (p.steamSaunaTemp ?? 55) : (p.saunaTemp ?? 80)
     svgStr = renderSaunnerSvg({
-      saunaTemp: p.saunaTemp || 80,
+      saunaTemp: primarySaunaValue,
       coldBathTemp: p.coldBathTemp || 15,
       repeat: p.repeat || 3,
       totono_score: p.totono_score || 3,

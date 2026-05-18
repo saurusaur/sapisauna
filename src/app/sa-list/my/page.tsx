@@ -6,25 +6,20 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
-import ConfirmModal from '@/components/ui/confirm-modal'
 import { useRouter } from 'next/navigation'
 import { useSubscribedLists, useSubscription } from '@/hooks/use-subscriptions'
 import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
 import { useSavePlace } from '@/contexts/save-place-context'
-import * as listsService from '@/lib/lists-service'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
-import ListFormSheet from '@/components/features/list-form-sheet'
+import CreateListSheet from '@/components/features/create-list-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
-import { BottomSheet } from '@/components/ui/bottom-sheet'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
-
-const MAX_LISTS = 15
 
 type TabId = 'all' | 'mine' | 'subscribed'
 const TABS: { id: TabId; label: string }[] = [
@@ -46,8 +41,6 @@ export default function SaListMyPage() {
 
   const [manageList, setManageList] = useState<SaList | null>(null)
   const [showCreateSheet, setShowCreateSheet] = useState(false)
-  const [createDirty, setCreateDirty] = useState(false)
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
   const viewerNick = profile?.nickname ?? null
 
@@ -55,14 +48,6 @@ export default function SaListMyPage() {
     refreshMyLists()
     refreshSubscribed()
   }, [refreshMyLists, refreshSubscribed])
-
-  const handleCloseCreateSheet = useCallback(() => {
-    if (createDirty) {
-      setShowCloseConfirm(true)
-      return
-    }
-    setShowCreateSheet(false)
-  }, [createDirty])
 
   // 탭별 카운트
   const counts = useMemo(() => ({
@@ -166,45 +151,15 @@ export default function SaListMyPage() {
       </main>
 
       {/* 시트들 */}
-      <BottomSheet
+      <CreateListSheet
         open={showCreateSheet}
-        onClose={handleCloseCreateSheet}
-        title="새 리스트 만들기"
-      >
-        <ListFormSheet
-          mode="create"
-          onSubmit={async (data) => {
-            if (!requireAuth()) return
-            if (!user) return
-            if (myLists.length >= MAX_LISTS) {
-              showError(`리스트는 최대 ${MAX_LISTS}개까지 만들 수 있어요`)
-              return
-            }
-            const list = await listsService.createList({
-              owner_id: user.id,
-              title: data.title,
-              type: 'user',
-              tags: data.tags.length > 0 ? data.tags : undefined,
-              description: data.description || undefined,
-              cover_hue: data.cover_hue,
-              cover_emoji: data.cover_emoji,
-              creator_links: data.creator_links,
-            })
-            if (data.places) {
-              for (const place of data.places) {
-                await listsService.addPlaceToList(list.id, place.id)
-                if (place.memo?.trim()) {
-                  await listsService.updateListItemMemo(list.id, place.id, place.memo.trim())
-                }
-              }
-            }
-            setShowCreateSheet(false)
-            refreshMine()
-          }}
-          onDirtyChange={setCreateDirty}
-          submitLabel="만들기"
-        />
-      </BottomSheet>
+        onClose={() => setShowCreateSheet(false)}
+        onCreated={refreshMine}
+        requireAuth={requireAuth}
+        userId={user?.id}
+        listCount={myLists.length}
+        showError={showError}
+      />
 
       {manageList && (
         <ListManageSheet
@@ -213,16 +168,6 @@ export default function SaListMyPage() {
           onClose={() => setManageList(null)}
           onUpdated={refreshMine}
           onDeleted={() => { setManageList(null); refreshMine() }}
-        />
-      )}
-
-      {showCloseConfirm && (
-        <ConfirmModal
-          message="작성 중인 내용이 사라집니다. 나가시겠어요?"
-          confirmLabel="나가기"
-          cancelLabel="계속 작성"
-          onConfirm={() => { setShowCloseConfirm(false); setShowCreateSheet(false) }}
-          onCancel={() => setShowCloseConfirm(false)}
         />
       )}
 

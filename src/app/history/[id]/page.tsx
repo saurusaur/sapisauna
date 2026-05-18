@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
+import { getPrimaryTempDelta } from '@/lib/sauna-temp-helpers'
 import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
+import { buildQuickEditSession, buildDeepEntrySession, saveEditSession } from '@/lib/log-edit-session'
 import { captureError } from '@/lib/error-logger'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
@@ -70,10 +72,12 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   }
 
   // 타입별 메인 메트릭 (스토리와 동일 로직)
+  // 사우너: primary_sauna_kind 기반 ΔT. 습식이 primary면 STEAM TEMP DELTA 라벨.
+  const saunnerPrimary = log.tribe_id === 'saunner' ? getPrimaryTempDelta(log) : null
   const getMainMetricValue = (): number | null => {
     switch (log.tribe_id) {
       case 'saunner':
-        return (log.sauna_temp || 80) - (log.cold_bath_temp || 15)
+        return saunnerPrimary ? saunnerPrimary.delta : null
       case 'bather':
         return log.hot_bath_temp || 40
       case 'jimi':
@@ -84,7 +88,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   }
 
   const mainMetricValue = getMainMetricValue()
-  const mainMetricLabel = COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || ''
+  const mainMetricLabel = log.tribe_id === 'saunner' && saunnerPrimary
+    ? saunnerPrimary.primary.labelEn
+    : (COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || '')
 
   // 루틴 뱃지 (항상 4개 표시, 미입력은 '-')
   const routineBadges = log.tribe_id === 'jimi'
@@ -122,29 +128,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <div className="flex gap-2 ml-auto">
           <button
             onClick={() => {
-              const logAsCurrentLog = {
-                _editId: log.id,
-                place_id: log.place_id,
-                place_name: log.place_name,
-                place_country_code: log.place_country_code,
-                tribe_id: log.tribe_id,
-                record_date: log.date,
-                revisit_score: log.revisit_score,
-                repeat: log.repeat,
-                heat_time: log.heat_time,
-                ice_time: log.ice_time,
-                pause_time: log.pause_time,
-                sauna_temp: log.sauna_temp,
-                cold_bath_temp: log.cold_bath_temp,
-                totono_score: log.totono_score,
-                hot_bath_temp: log.hot_bath_temp,
-                water_quality: log.water_quality,
-                jjim_temp: log.jjim_temp,
-                rest_quality: log.rest_quality,
-                ...(log.deep_log && { deep_log: log.deep_log }),
-              }
-              localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-              localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
+              saveEditSession(buildQuickEditSession(log))
               router.push('/log')
             }}
             className="p-2 transition-colors hover:opacity-70"
@@ -199,8 +183,10 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
               {log.tribe_id === 'saunner' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}</span>
-                  <span className="text-base font-bold text-stone-700 font-heading">{log.sauna_temp ?? '—'}°</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">
+                    {saunnerPrimary?.primary.kind === 'steam' ? QUICK_LOG.SAUNER.STEAM_SAUNA_TEMP.labelEn : QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}
+                  </span>
+                  <span className="text-base font-bold text-stone-700 font-heading">{saunnerPrimary?.primary.value ?? '—'}°</span>
                 </>
               )}
               {log.tribe_id === 'bather' && (
@@ -294,29 +280,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           <div>
             <button
               onClick={() => {
-                const logAsCurrentLog = {
-                  _editId: log.id,
-                  _deepOnly: true,
-                  place_id: log.place_id,
-                  place_name: log.place_name,
-                  place_country_code: log.place_country_code,
-                  tribe_id: log.tribe_id,
-                  record_date: log.date,
-                  revisit_score: log.revisit_score,
-                  repeat: log.repeat,
-                  heat_time: log.heat_time,
-                  ice_time: log.ice_time,
-                  pause_time: log.pause_time,
-                  sauna_temp: log.sauna_temp,
-                  cold_bath_temp: log.cold_bath_temp,
-                  totono_score: log.totono_score,
-                  hot_bath_temp: log.hot_bath_temp,
-                  water_quality: log.water_quality,
-                  jjim_temp: log.jjim_temp,
-                  rest_quality: log.rest_quality,
-                }
-                localStorage.setItem('currentLog', JSON.stringify(logAsCurrentLog))
-                localStorage.setItem('selectedPlace', JSON.stringify({ id: log.place_id, name: log.place_name, countryCode: log.place_country_code, facilityType: null }))
+                saveEditSession(buildDeepEntrySession(log))
                 router.push('/log/deep')
               }}
               className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
@@ -367,10 +331,17 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   </span>
                 </div>
               )}
-              {log.deep_log.has_wet_sauna && log.deep_log.wet_sauna_temp != null && (
+              {/* 사우나 디테일: 사우너는 메인 메트릭에서 primary 표시하므로 여기선 비사우너만 노출 */}
+              {log.tribe_id !== 'saunner' && log.sauna_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">건식 사우나</span>
+                  <span className="text-sm font-medium text-stone-700">{log.sauna_temp}°C</span>
+                </div>
+              )}
+              {log.tribe_id !== 'saunner' && log.steam_sauna_temp != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">습식 사우나</span>
-                  <span className="text-sm font-medium text-stone-700">{log.deep_log.wet_sauna_temp}°C</span>
+                  <span className="text-sm font-medium text-stone-700">{log.steam_sauna_temp}°C</span>
                 </div>
               )}
               {log.hot_bath_temp != null && log.tribe_id === 'saunner' && (

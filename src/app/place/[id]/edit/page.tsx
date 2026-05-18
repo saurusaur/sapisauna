@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { PLACE_SPECS, PLACE_VENUE_TYPE, PLACE_BATH_POLICY, isInputVisibleOption } from '@/constants/content'
-import ChipSelect from '@/components/ui/chip-select'
-import SelectButton from '@/components/ui/select-button'
-import ToggleSwitch from '@/components/ui/toggle-switch'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import PlaceFacilityEditor from '@/components/features/place-facility-editor'
+import ErrorBanner from '@/components/ui/error-banner'
 import { getPlaceById, updatePlace } from '@/lib/places-service'
+import { useConfirmableExit } from '@/hooks/use-confirmable-exit'
 import type { FacilityType, BathPolicy } from '@/types'
 import BottomCTA from '@/components/ui/bottom-cta'
 
@@ -21,7 +20,6 @@ export default function EditPlace() {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [showBackConfirm, setShowBackConfirm] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
 
   // 편집 대상 필드
@@ -29,10 +27,13 @@ export default function EditPlace() {
   const [is24h, setIs24h] = useState(false)
   const [venueType, setVenueType] = useState<FacilityType>('public-bath')
   const [bathPolicy, setBathPolicy] = useState<BathPolicy>('gender-bath')
-  const [showTattooModal, setShowTattooModal] = useState(false)
 
   // 원본 값 (변경 감지용)
   const [original, setOriginal] = useState<{ facilities: string[]; is24h: boolean; venueType: FacilityType; bathPolicy: BathPolicy } | null>(null)
+  const exitConfirm = useConfirmableExit({
+    shouldConfirm: isDirty,
+    onExit: () => router.back(),
+  })
 
   // 장소 데이터 로드
   useEffect(() => {
@@ -104,7 +105,7 @@ export default function EditPlace() {
       <header className="p-5 pt-8">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => isDirty ? setShowBackConfirm(true) : router.back()}
+            onClick={exitConfirm.requestExit}
             className="p-1 text-stone-500 hover:text-stone-700 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
@@ -117,94 +118,19 @@ export default function EditPlace() {
       </header>
 
       <main className="p-4">
-        {saveError && (
-          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-sm">error</span>
-            {saveError}
-          </div>
-        )}
+        {saveError && <ErrorBanner message={saveError} className="mb-4" />}
 
-        <div className="glass-card-light rounded-xl p-4 space-y-5">
-          {/* 시설 유형 */}
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">
-              시설 유형
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {PLACE_VENUE_TYPE.map((option) => (
-                <SelectButton
-                  key={option.id}
-                  label={option.label}
-                  icon={option.icon}
-                  selected={venueType === option.id}
-                  onClick={() => setVenueType(option.id as FacilityType)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* 탕 구분 */}
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">
-              탕 구분
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {PLACE_BATH_POLICY.map((option) => (
-                <SelectButton
-                  key={option.id}
-                  label={option.label}
-                  icon={option.icon}
-                  selected={bathPolicy === option.id}
-                  onClick={() => setBathPolicy(option.id as BathPolicy)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* 5개 섹션: HEAT → ICE → PAUSE → BEYOND → AMENITIES */}
-          {(['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const).map((key) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                {PLACE_SPECS[key].label}
-              </label>
-              <ChipSelect
-                options={PLACE_SPECS[key].options.filter(isInputVisibleOption)}
-                selected={
-                  selectedFacilities.includes('tattoo-cover')
-                    ? [...selectedFacilities, 'tattoo-friendly']
-                    : selectedFacilities
-                }
-                onSelect={(id) => {
-                  if (id === 'tattoo-friendly') {
-                    if (selectedFacilities.includes('tattoo-friendly') || selectedFacilities.includes('tattoo-cover')) {
-                      setSelectedFacilities(prev => prev.filter(x => x !== 'tattoo-friendly' && x !== 'tattoo-cover'))
-                    } else {
-                      if (countryCode === 'JP') {
-                        setShowTattooModal(true)
-                      } else {
-                        setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
-                      }
-                    }
-                    return
-                  }
-                  setSelectedFacilities(prev =>
-                    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                  )
-                }}
-                multiple
-              />
-            </div>
-          ))}
-
-          {/* 24시 영업 토글 */}
-          <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-            <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-              <span className="material-symbols-outlined text-base">schedule</span>
-              24시 영업
-            </label>
-            <ToggleSwitch checked={is24h} onChange={setIs24h} />
-          </div>
-        </div>
+        <PlaceFacilityEditor
+          selectedFacilities={selectedFacilities}
+          onFacilitiesChange={setSelectedFacilities}
+          is24h={is24h}
+          onIs24hChange={setIs24h}
+          venueType={venueType}
+          onVenueTypeChange={setVenueType}
+          bathPolicy={bathPolicy}
+          onBathPolicyChange={setBathPolicy}
+          countryCode={countryCode}
+        />
       </main>
 
       <BottomCTA onClick={handleSave} disabled={!isDirty || isSaving}>
@@ -215,29 +141,13 @@ export default function EditPlace() {
         )}
       </BottomCTA>
 
-      {showTattooModal && (
-        <ConfirmModal
-          message="타투 커버가 필요한가요?"
-          confirmLabel="예, 커버 필요"
-          cancelLabel="아니오"
-          onConfirm={() => {
-            setSelectedFacilities(prev => [...prev, 'tattoo-cover'])
-            setShowTattooModal(false)
-          }}
-          onCancel={() => {
-            setSelectedFacilities(prev => [...prev, 'tattoo-friendly'])
-            setShowTattooModal(false)
-          }}
-        />
-      )}
-
-      {showBackConfirm && (
+      {exitConfirm.confirmOpen && (
         <ConfirmModal
           message={"수정한 내용이 저장되지 않습니다.\n나가시겠습니까?"}
           confirmLabel="나가기"
           cancelLabel="계속 편집"
-          onConfirm={() => router.back()}
-          onCancel={() => setShowBackConfirm(false)}
+          onConfirm={exitConfirm.confirmExit}
+          onCancel={exitConfirm.cancelExit}
         />
       )}
     </div>

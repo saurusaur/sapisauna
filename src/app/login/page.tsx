@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { APP, LOGIN } from '@/constants/content'
 import { supabase } from '@/lib/supabase'
+import ErrorBanner from '@/components/ui/error-banner'
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
@@ -57,9 +58,7 @@ export default function LoginPage() {
       {/* 하단 영역 — 버튼 */}
       <div className="flex flex-col items-center w-full flex-1 justify-start">
         {(error || callbackError) && (
-          <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 text-red-500 text-sm">
-            {error || LOGIN.ERROR}
-          </div>
+          <ErrorBanner message={error || LOGIN.ERROR} className="mb-6" />
         )}
 
         <button

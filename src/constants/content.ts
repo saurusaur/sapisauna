@@ -270,7 +270,7 @@ export const QUICK_LOG = {
         { value: 30, label: "미지근" },
         { value: 35, label: "따뜻" },
         { value: 39, label: "뜨끈" },
-        { value: 41, label: "펄펄" },
+        { value: 42, label: "펄펄" },
       ],
     },
     WATER_QUALITY: {
@@ -306,6 +306,25 @@ export const QUICK_LOG = {
         { value: 120, label: "지옥" },
       ],
     },
+    STEAM_SAUNA_TEMP: {
+      label: "습식 사우나 온도",
+      shortLabel: "사우나",
+      labelEn: "STEAM SAUNA",
+      min: 40,
+      max: 75,
+      unit: "°C",
+      steps: [
+        { value: 40, label: "미지근" },
+        { value: 48, label: "따뜻" },
+        { value: 55, label: "뜨끈" },
+        { value: 62, label: "뜨겁" },
+        { value: 70, label: "찜기" },
+      ],
+    },
+    // 주 이용 사우나 안내 (둘 다 입력 시 표시)
+    PRIMARY_PROMPT: "주 이용 사우나를 선택해주세요",
+    TOGGLE_DRY_LABEL: "건식",
+    TOGGLE_STEAM_LABEL: "습식",
     TOTONO: {
       label: "토토노우",
       shortLabel: "토토노우",
@@ -409,7 +428,7 @@ export const PLACE_SPECS = {
         tempRange: [50, 130],
       },
       {
-        id: "wet-sauna",
+        id: "steam-sauna",
         label: "습식사우나",
         icon: "water_voc",
         category: "heat",
@@ -654,7 +673,7 @@ export const DEEP_LOG = {
         { value: 130, label: "극한" },
       ],
     },
-    WET: {
+    STEAM: {
       label: "습식",
       min: 40,
       max: 75,
@@ -918,7 +937,7 @@ export const EXPLORE_FILTERS = {
       "hot-bath",
       "very-hot-bath",
       "dry-sauna",
-      "wet-sauna",
+      "steam-sauna",
       "bulgama",
       "salt-sauna",
     ],

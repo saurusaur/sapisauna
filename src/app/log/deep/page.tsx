@@ -7,8 +7,10 @@ import countryToCurrency from 'country-to-currency'
 import { Slider } from '@/components/slider'
 import ChipSelect from '@/components/ui/chip-select'
 import ConfirmModal from '@/components/ui/confirm-modal'
+import ErrorBanner from '@/components/ui/error-banner'
 import { insertLog, updateLog, saveOrUpdateDeepLog } from '@/lib/logs-service'
 import { grantReward } from '@/lib/reward-service'
+import { readEditSession, clearLogSessionAfterSave } from '@/lib/log-edit-session'
 import { formatCostInput, safeParse } from '@/lib/utils'
 import { captureError } from '@/lib/error-logger'
 import BottomCTA from '@/components/ui/bottom-cta'
@@ -49,10 +51,13 @@ export default function DeepLog() {
   const [cleanliness, setCleanliness] = useState<number | null>(null)
   const [cleanlinessActive, setCleanlinessActive] = useState(false)
 
-  // 사우나 온도 통합 토글 (사우너: 습식만, 목욕파/찜질파: 건식+습식)
+  // 사우나 온도 통합 토글 (사우너: 퀵에 없는 종류만, 목욕파/찜질파: 건식+습식)
   const [hasSaunaTemps, setHasSaunaTemps] = useState(false)
   const [drySaunaTemp, setDrySaunaTemp] = useState<number | null>(null)
-  const [wetSaunaTemp, setWetSaunaTemp] = useState<number | null>(null)
+  const [steamSaunaTemp, setSteamSaunaTemp] = useState<number | null>(null)
+  // 퀵로그에서 이미 입력된 사우나 (saunner의 경우 둘 다 가능)
+  const [quickHasDry, setQuickHasDry] = useState(false)
+  const [quickHasSteam, setQuickHasSteam] = useState(false)
 
   // 탕 온도 통합 토글
   const [hasBathTemps, setHasBathTemps] = useState(false)
@@ -79,67 +84,75 @@ export default function DeepLog() {
 
   // 이전 입력 복원 (편집 모드 또는 뒤로가기 시)
   useEffect(() => {
-    // currentLog에서 편집 모드 확인 + deep_log 복원 (편집 모드일 때만)
-    const currentLog = localStorage.getItem('currentLog')
-    if (currentLog) {
-      const parsed = safeParse(currentLog, null)
-      if (!parsed) return
-      const isEdit = Boolean(parsed._editId)
-      if (isEdit) {
-        setIsEditMode(true)
-        setEditId(parsed._editId as string)
-      }
+    const { currentLog: parsed } = readEditSession()
+    if (!parsed) return
 
-      // 장소명 + tribe 복원
-      if (parsed.place_name) setPlaceName(parsed.place_name as string)
-      if (parsed.tribe_id) setTribeId(parsed.tribe_id as string)
-
-      // 장소 countryCode 기반 기본 통화 설정
-      const countryCode = parsed.place_country_code as string | undefined
-      if (countryCode) {
-        const mapped = (countryToCurrency as Record<string, string>)[countryCode]
-        if (mapped) setCurrency(mapped)
-      }
-
-      // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
-      const dl = parsed.deep_log ?? null
-      if (dl) {
-        if (dl.companion) setCompanion(dl.companion)
-        if (dl.cost) setCost(dl.cost.toLocaleString())
-        if (dl.currency) setCurrency(dl.currency)
-        if (dl.crowd) setCrowd(dl.crowd)
-        if (dl.memo) setMemo(dl.memo)
-        if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
-        // 사우나 온도 복원
-        const hasSaunaData = dl.has_wet_sauna || (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner')
-        if (hasSaunaData) {
-          setHasSaunaTemps(true)
-          if (dl.has_wet_sauna) setWetSaunaTemp(dl.wet_sauna_temp as number)
-          if (parsed.sauna_temp != null && parsed.tribe_id !== 'saunner') setDrySaunaTemp(parsed.sauna_temp as number)
-        }
-        // 탕 온도 복원
-        const hasAnyBathTemp = dl.has_very_hot_bath || dl.has_ice_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
-        if (hasAnyBathTemp) {
-          setHasBathTemps(true)
-          if (dl.has_very_hot_bath) setVeryHotBathTemp(dl.very_hot_bath_temp as number)
-          if (dl.has_ice_bath) setIceBathTemp(dl.ice_bath_temp as number)
-          if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp as number)
-          if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp as number)
-        }
-        if (dl.has_scrub) {
-          setHasScrub(true)
-          if (dl.scrub_types?.length) setScrubTypes(dl.scrub_types)
-          if (dl.scrub_cost) setScrubCost(dl.scrub_cost.toLocaleString())
-          if (dl.scrub_satisfaction != null) { setScrubSatisfaction(dl.scrub_satisfaction); setScrubSatisfactionActive(true) }
-        }
-        if (dl.has_store) {
-          setHasStore(true)
-          if (dl.store_score != null) { setStoreScore(dl.store_score); setStoreScoreActive(true) }
-          setStoreMemo(dl.store_memo || '')
-        }
-      }
+    if (parsed._editId) {
+      setIsEditMode(true)
+      setEditId(parsed._editId)
     }
 
+    // 장소명 + tribe 복원
+    if (parsed.place_name) setPlaceName(parsed.place_name)
+    if (parsed.tribe_id) setTribeId(parsed.tribe_id)
+
+    // 장소 countryCode 기반 기본 통화 설정
+    if (parsed.place_country_code) {
+      const mapped = (countryToCurrency as Record<string, string>)[parsed.place_country_code]
+      if (mapped) setCurrency(mapped)
+    }
+
+    // 퀵로그 입력 상태 트래킹 — deep_log 유무와 무관, parsed 자체에서 결정
+    // (새 로그라서 deep_log가 아직 없어도, quick log에서 입력한 사우나는 항상 반영되어야 함)
+    const qHasDry = parsed.sauna_temp != null
+    const qHasSteam = parsed.steam_sauna_temp != null
+    setQuickHasDry(qHasDry)
+    setQuickHasSteam(qHasSteam)
+
+    // 기존 딥로그 데이터 복원 (편집 모드 + 세션 내 재진입 모두)
+    const dl = parsed.deep_log ?? null
+    if (dl) {
+      if (dl.companion) setCompanion(dl.companion)
+      if (dl.cost) setCost(dl.cost.toLocaleString())
+      if (dl.currency) setCurrency(dl.currency)
+      if (dl.crowd) setCrowd(dl.crowd)
+      if (dl.memo) setMemo(dl.memo)
+      if (dl.cleanliness != null) { setCleanliness(dl.cleanliness); setCleanlinessActive(true) }
+
+      // 사우나 온도 복원:
+      //  - saunner: 퀵로그에 없는 종류만 deep log에서 입력 가능 → 그 값 복원
+      //  - bather/jimi: 퀵로그에 사우나 없음, deep log에서 입력한 값(logs 테이블 기준) 복원
+      const isSaunner = parsed.tribe_id === 'saunner'
+      const deepDryShown = !isSaunner || !qHasDry
+      const deepSteamShown = !isSaunner || !qHasSteam
+      const hasDeepDryValue = deepDryShown && qHasDry && !isSaunner  // bather/jimi가 deep에서 입력한 건식
+      const hasDeepSteamValue = deepSteamShown && qHasSteam          // saunner가 deep에서 추가한 습식이거나 bather/jimi 습식
+      if (hasDeepDryValue || hasDeepSteamValue) {
+        setHasSaunaTemps(true)
+        if (hasDeepDryValue) setDrySaunaTemp(parsed.sauna_temp ?? null)
+        if (hasDeepSteamValue) setSteamSaunaTemp(parsed.steam_sauna_temp ?? null)
+      }
+      // 탕 온도 복원
+      const hasAnyBathTemp = dl.has_very_hot_bath || dl.has_ice_bath || (parsed.hot_bath_temp != null) || (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi')
+      if (hasAnyBathTemp) {
+        setHasBathTemps(true)
+        if (dl.has_very_hot_bath && dl.very_hot_bath_temp != null) setVeryHotBathTemp(dl.very_hot_bath_temp)
+        if (dl.has_ice_bath && dl.ice_bath_temp != null) setIceBathTemp(dl.ice_bath_temp)
+        if (parsed.hot_bath_temp != null) setHotBathTemp(parsed.hot_bath_temp)
+        if (parsed.cold_bath_temp != null && parsed.tribe_id === 'jimi') setColdBathTemp(parsed.cold_bath_temp)
+      }
+      if (dl.has_scrub) {
+        setHasScrub(true)
+        if (dl.scrub_types?.length) setScrubTypes(dl.scrub_types)
+        if (dl.scrub_cost) setScrubCost(dl.scrub_cost.toLocaleString())
+        if (dl.scrub_satisfaction != null) { setScrubSatisfaction(dl.scrub_satisfaction); setScrubSatisfactionActive(true) }
+      }
+      if (dl.has_store) {
+        setHasStore(true)
+        if (dl.store_score != null) { setStoreScore(dl.store_score); setStoreScoreActive(true) }
+        setStoreMemo(dl.store_memo || '')
+      }
+    }
   }, [])
 
   // 통화 피커 바깥 클릭 닫기
@@ -167,10 +180,22 @@ export default function DeepLog() {
       crowd,
       memo,
       cleanliness: cleanlinessActive ? cleanliness : null,
-      has_wet_sauna: hasSaunaTemps && wetSaunaTemp != null,
-      wet_sauna_temp: hasSaunaTemps ? wetSaunaTemp : null,
-      // 건식 사우나 (목욕파/찜질파 딥로그 → logs.sauna_temp에 저장)
+      // 사우나 온도 (logs 테이블에 저장됨 — saveOrUpdateDeepLog에서 처리)
+      //  - saunner: 퀵에 없던 종류만 deep에서 추가 가능 (그 종류만 채워서 보냄)
+      //  - bather/jimi: 둘 다 deep에서 입력 가능
       sauna_temp: hasSaunaTemps ? drySaunaTemp : null,
+      steam_sauna_temp: hasSaunaTemps ? steamSaunaTemp : null,
+      // primary_sauna_kind: saunner는 퀵에서 이미 결정됨 (덮어쓰지 않음).
+      // bather/jimi가 deep에서 새로 사우나 추가하면 여기서 결정.
+      primary_sauna_kind: (() => {
+        if (!hasSaunaTemps) return null
+        const tid = tribeId
+        if (tid === 'saunner') return null // 퀵로그 primary 유지 (service가 null이면 update 건너뜀)
+        // bather/jimi: 입력된 쪽으로 결정. 둘 다면 dry 우선
+        if (drySaunaTemp != null) return 'dry'
+        if (steamSaunaTemp != null) return 'steam'
+        return null
+      })(),
       // 탕 온도: 토글 ON + 값 있는 것만 저장
       has_hot_bath: hasBathTemps && hotBathTemp != null,
       hot_bath_temp: hasBathTemps ? hotBathTemp : null,
@@ -219,9 +244,7 @@ export default function DeepLog() {
       // 저장 성공 → 정리 후 스토리로
       localStorage.setItem('savedLogId', logId)
       localStorage.setItem('isNewLog', 'true')
-      localStorage.removeItem('currentLog')
-      localStorage.removeItem('selectedPlace')
-      localStorage.removeItem('selectedRecordDate')
+      clearLogSessionAfterSave()
       router.push('/story')
     } catch (err) {
       captureError(err, { label: '딥로그 저장 실패' })
@@ -251,11 +274,7 @@ export default function DeepLog() {
       </header>
 
       <main className="px-5 space-y-5">
-        {saveError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-xl">
-            {saveError}
-          </div>
-        )}
+        {saveError && <ErrorBanner message={saveError} />}
 
         {/* 동행자 */}
         <div>
@@ -393,58 +412,69 @@ export default function DeepLog() {
 
         <div className="border-t border-stone-200/60" />
 
-        {/* 사우나 온도 — 사우너: 습식만 / 목욕파·찜질파: 건식+습식 */}
-        <div className="glass-card-light px-4 py-4">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-stone-700">
-              {DEEP_LOG.SAUNA_TEMPS.label}
-            </label>
-            <button
-              onClick={() => setHasSaunaTemps(!hasSaunaTemps)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                hasSaunaTemps ? 'text-white' : 'glass-chip text-stone-500'
-              }`}
-              style={hasSaunaTemps ? { backgroundColor: 'var(--color-primary)' } : undefined}
-            >
-              {hasSaunaTemps ? DEEP_LOG.SAUNA_TEMPS.toggleLabelActive : DEEP_LOG.SAUNA_TEMPS.toggleLabel}
-            </button>
-          </div>
+        {/* 사우나 온도 섹션
+            - saunner: 퀵로그에 없는 종류만 deep에서 추가 가능. 둘 다 있으면 섹션 자체 숨김.
+            - bather/jimi: 건식+습식 둘 다 deep에서 입력 가능. */}
+        {(() => {
+          const isSaunner = tribeId === 'saunner'
+          const showDry = !isSaunner || !quickHasDry
+          const showSteam = !isSaunner || !quickHasSteam
+          // saunner가 quick에 둘 다 입력했다면 섹션 통째로 숨김 (수정은 quick log로)
+          if (!showDry && !showSteam) return null
+          return (
+            <div className="glass-card-light px-4 py-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-stone-700">
+                  {DEEP_LOG.SAUNA_TEMPS.label}
+                </label>
+                <button
+                  onClick={() => setHasSaunaTemps(!hasSaunaTemps)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    hasSaunaTemps ? 'text-white' : 'glass-chip text-stone-500'
+                  }`}
+                  style={hasSaunaTemps ? { backgroundColor: 'var(--color-primary)' } : undefined}
+                >
+                  {hasSaunaTemps ? DEEP_LOG.SAUNA_TEMPS.toggleLabelActive : DEEP_LOG.SAUNA_TEMPS.toggleLabel}
+                </button>
+              </div>
 
-          {hasSaunaTemps && (
-            <div className="space-y-1 mt-2">
-              {/* 건식 — 사우너파는 퀵로그에서 이미 입력하므로 숨김 */}
-              {tribeId !== 'saunner' && (
-                <Slider
-                  label={DEEP_LOG.SAUNA_TEMPS.DRY.label}
-                  value={drySaunaTemp ?? 85}
-                  min={DEEP_LOG.SAUNA_TEMPS.DRY.min}
-                  max={DEEP_LOG.SAUNA_TEMPS.DRY.max}
-                  unit={DEEP_LOG.SAUNA_TEMPS.DRY.unit}
-                  steps={DEEP_LOG.SAUNA_TEMPS.DRY.steps}
-                  onChange={(v) => setDrySaunaTemp(v)}
-                  inactive={drySaunaTemp == null}
-                  onActivate={() => setDrySaunaTemp(85)}
-                  showReset={drySaunaTemp != null}
-                  onReset={() => setDrySaunaTemp(null)}
-                />
+              {hasSaunaTemps && (
+                <div className="space-y-1 mt-2">
+                  {showDry && (
+                    <Slider
+                      label={DEEP_LOG.SAUNA_TEMPS.DRY.label}
+                      value={drySaunaTemp ?? 85}
+                      min={DEEP_LOG.SAUNA_TEMPS.DRY.min}
+                      max={DEEP_LOG.SAUNA_TEMPS.DRY.max}
+                      unit={DEEP_LOG.SAUNA_TEMPS.DRY.unit}
+                      steps={DEEP_LOG.SAUNA_TEMPS.DRY.steps}
+                      onChange={(v) => setDrySaunaTemp(v)}
+                      inactive={drySaunaTemp == null}
+                      onActivate={() => setDrySaunaTemp(85)}
+                      showReset={drySaunaTemp != null}
+                      onReset={() => setDrySaunaTemp(null)}
+                    />
+                  )}
+                  {showSteam && (
+                    <Slider
+                      label={DEEP_LOG.SAUNA_TEMPS.STEAM.label}
+                      value={steamSaunaTemp ?? 53}
+                      min={DEEP_LOG.SAUNA_TEMPS.STEAM.min}
+                      max={DEEP_LOG.SAUNA_TEMPS.STEAM.max}
+                      unit={DEEP_LOG.SAUNA_TEMPS.STEAM.unit}
+                      steps={DEEP_LOG.SAUNA_TEMPS.STEAM.steps}
+                      onChange={(v) => setSteamSaunaTemp(v)}
+                      inactive={steamSaunaTemp == null}
+                      onActivate={() => setSteamSaunaTemp(53)}
+                      showReset={steamSaunaTemp != null}
+                      onReset={() => setSteamSaunaTemp(null)}
+                    />
+                  )}
+                </div>
               )}
-              {/* 습식 — 전원 */}
-              <Slider
-                label={DEEP_LOG.SAUNA_TEMPS.WET.label}
-                value={wetSaunaTemp ?? 53}
-                min={DEEP_LOG.SAUNA_TEMPS.WET.min}
-                max={DEEP_LOG.SAUNA_TEMPS.WET.max}
-                unit={DEEP_LOG.SAUNA_TEMPS.WET.unit}
-                steps={DEEP_LOG.SAUNA_TEMPS.WET.steps}
-                onChange={(v) => setWetSaunaTemp(v)}
-                inactive={wetSaunaTemp == null}
-                onActivate={() => setWetSaunaTemp(53)}
-                showReset={wetSaunaTemp != null}
-                onReset={() => setWetSaunaTemp(null)}
-              />
             </div>
-          )}
-        </div>
+          )
+        })()}
 
         {/* 탕 온도 통합 섹션 */}
         {(() => {

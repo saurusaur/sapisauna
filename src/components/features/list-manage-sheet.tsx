@@ -8,7 +8,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import ConfirmModal from '@/components/ui/confirm-modal'
-import ListFormSheet from '@/components/features/list-form-sheet'
+import ListForm from '@/components/features/list-form'
 import { useToast } from '@/contexts/toast-context'
 import * as listsService from '@/lib/lists-service'
 import type { SaList, ListVisibility } from '@/types'
@@ -128,7 +128,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
           </div>
         )}
 
-        {/* VIEW: Edit — ListFormSheet */}
+        {/* VIEW: Edit — ListForm */}
         {view === 'edit' && (
           <div>
             <div className="flex items-center gap-2 -mt-1 mb-3">
@@ -138,7 +138,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
               <h3 className="text-base font-semibold text-stone-800">리스트 편집</h3>
             </div>
 
-            <ListFormSheet
+            <ListForm
               key={list.id}
               mode="edit"
               isDefault={list.type === 'default'}
