@@ -29,7 +29,7 @@
 - [ ] [버그] Google 지도 URL 폴백 dead code — `explore/[id]/page.tsx:266-268`에서 `place.latitude` 삼항 분기 true/false가 동일 결과. 좌표 있을 때 `query=<lat>,<lng>` 로 핀 정확도 개선 필요 | priority: P2 | added: 2026-04-20
 
 <!-- P3 — 장기 -->
-- [ ] [기능] 사우나 펫(Sauna Pet) — 사용자의 기록/연속 방문/트라이브 활동에 따라 성장하는 companion 기능 기획 및 구현. MVP 범위, 성장/기분 루프, 프로필·홈 노출, XP/칭호 시스템 관계, DB/상태 계산 초안 정리 완료. 상세 플랜: `docs/plans/PLAN_sauna_pet.md` | priority: P3 | added: 2026-05-18
+- [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/po/SPEC_sauna_pet_v2.5.1.md` (참고용 한글본: `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md`) / v1 초안 deprecated: `docs/plans/PLAN_sauna_pet.md` | priority: P3 | added: 2026-05-18
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
 - [ ] [기능] API 카테고리→시설유형 자동매핑 — 유저 인풋 보조. 상세: `PLAN_venue_type_auto_mapping.md` | priority: P3 | added: 2026-03-20
 - [ ] [데이터] 시설 태그 잔여 보강 — 4건(유림탕/유진/주신/필례) 유저 기여로 보완 | priority: P3 | added: 2026-03-21
@@ -38,6 +38,9 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-05-19
+- [x] [데이터] jimi 트라이브 첫 로그 마일스톤 "구운달걀" → "맥반석란" 통일 — 사우나펫 v2.5.1 도입 사전 작업. `user_titles.title`+`base_title`+`users.active_title` UPDATE, `rewards.ts:64` 상수 변경. 마이그레이션 025 | priority: P2 | added: 2026-05-19 | done: 2026-05-19
 
 ### 2026-05-18
 - [x] [기능+리팩토링] 사우너 quick log 습식 사우나 + primary 명시 + wet→steam 전면 통일 — quick log 사우너 폼에 인라인 ✓ 토글 + × 클리어 + 슬라이더 단일(active 토글에 따라 dry/steam 편집). 둘 다 입력 시 같은 라인에 "주 이용 사우나를 선택해주세요" 안내. 첫 입력 시 그쪽 자동 주황 ✓ + primary_sauna_kind 자동, 둘 다 입력 후 ✓ 클릭으로 주 이용 전환. DB: 마이그레이션 024로 deep_logs.wet_sauna_temp→steam_sauna_temp RENAME 후 logs로 백필+이동, logs에 primary_sauna_kind 컬럼 추가, places.facilities 'wet-sauna'→'steam-sauna' array_replace. 코드 wet→steam 전면 리네임(타입/서비스/상수/시드 JSON 114건/스크립트 2종). ΔT 정책 = primary_sauna_kind 기반(둘 다 있어도 primary 쪽만 표시, 라벨 분기 "STEAM TEMP DELTA"/"습식 온도차"). Story card / History detail / Stats 인사이트 모두 primary 기반 메인 메트릭. Stats 인사이트 카드 "평균 온도차"에 건식/습식 인라인 토글 추가(디폴트 = 해당 기간 primary 다수결). Helper getPrimarySaunaTemp/getPrimaryTempDelta 신설. 플랜: `docs/plans/PLAN_steam_sauna_quick_log.md`, mocks: `docs/po/MOCK_quick_log_*.html`, `MOCK_stats_steam_toggle.html` | priority: P1 | added: 2026-04-12 | done: 2026-05-18

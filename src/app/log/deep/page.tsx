@@ -173,6 +173,24 @@ export default function DeepLog() {
     setIsSaving(true)
     setSaveError(null)
 
+    // ── logs 테이블 owned-field 편집 권한 (UI 가시성 룰과 동일) ──
+    // key-presence semantics: deepLogData에 키가 있으면 deep page가 의도적으로 값을 설정한 것
+    //  → service가 update (null이면 클리어). 키 없으면 quick log 소유 영역이라 절대 안 건드림.
+    const isSaunner = tribeId === 'saunner'
+    const isBather  = tribeId === 'bather'
+    const canEditDry      = !isSaunner || !quickHasDry        // saunner는 quick에 없는 종류만
+    const canEditSteam    = !isSaunner || !quickHasSteam
+    const canEditPrimary  = !isSaunner                         // saunner는 quick에서 결정
+    const canEditHotBath  = !isBather                          // bather는 quick에서 입력
+    const canEditColdBath = !isSaunner && !isBather            // jimi만 deep에서 입력 (saunner/bather는 quick)
+
+    // bather/jimi가 deep에서 사우나 추가 시 primary 결정 (둘 다면 dry 우선)
+    const computedPrimary: 'dry' | 'steam' | null =
+      !hasSaunaTemps          ? null
+      : drySaunaTemp   != null ? 'dry'
+      : steamSaunaTemp != null ? 'steam'
+      : null
+
     const deepLogData = {
       companion,
       cost: cost ? parseInt(cost.replace(/,/g, '')) : null,
@@ -180,31 +198,18 @@ export default function DeepLog() {
       crowd,
       memo,
       cleanliness: cleanlinessActive ? cleanliness : null,
-      // 사우나 온도 (logs 테이블에 저장됨 — saveOrUpdateDeepLog에서 처리)
-      //  - saunner: 퀵에 없던 종류만 deep에서 추가 가능 (그 종류만 채워서 보냄)
-      //  - bather/jimi: 둘 다 deep에서 입력 가능
-      sauna_temp: hasSaunaTemps ? drySaunaTemp : null,
-      steam_sauna_temp: hasSaunaTemps ? steamSaunaTemp : null,
-      // primary_sauna_kind: saunner는 퀵에서 이미 결정됨 (덮어쓰지 않음).
-      // bather/jimi가 deep에서 새로 사우나 추가하면 여기서 결정.
-      primary_sauna_kind: (() => {
-        if (!hasSaunaTemps) return null
-        const tid = tribeId
-        if (tid === 'saunner') return null // 퀵로그 primary 유지 (service가 null이면 update 건너뜀)
-        // bather/jimi: 입력된 쪽으로 결정. 둘 다면 dry 우선
-        if (drySaunaTemp != null) return 'dry'
-        if (steamSaunaTemp != null) return 'steam'
-        return null
-      })(),
-      // 탕 온도: 토글 ON + 값 있는 것만 저장
-      has_hot_bath: hasBathTemps && hotBathTemp != null,
-      hot_bath_temp: hasBathTemps ? hotBathTemp : null,
+      // 사우나 (logs 테이블) — 편집 권한 있는 종류만 key 포함
+      ...(canEditDry     && { sauna_temp:        hasSaunaTemps ? drySaunaTemp   : null }),
+      ...(canEditSteam   && { steam_sauna_temp:  hasSaunaTemps ? steamSaunaTemp : null }),
+      ...(canEditPrimary && { primary_sauna_kind: computedPrimary }),
+      // 탕 온도 (deep_logs 컬럼 — 항상 deep 소유)
       has_very_hot_bath: hasBathTemps && veryHotBathTemp != null,
       very_hot_bath_temp: hasBathTemps ? veryHotBathTemp : null,
       has_ice_bath: hasBathTemps && iceBathTemp != null,
       ice_bath_temp: hasBathTemps ? iceBathTemp : null,
-      // 냉탕: logs 테이블에 저장 (saveOrUpdateDeepLog에서 처리)
-      cold_bath_temp: hasBathTemps ? coldBathTemp : null,
+      // 탕 온도 (logs 테이블) — 편집 권한 있는 경우만 key 포함
+      ...(canEditHotBath  && { hot_bath_temp:  hasBathTemps ? hotBathTemp  : null }),
+      ...(canEditColdBath && { cold_bath_temp: hasBathTemps ? coldBathTemp : null }),
       has_scrub: hasScrub,
       scrub_types: hasScrub ? scrubTypes : [],
       scrub_cost: hasScrub && scrubCost ? parseInt(scrubCost.replace(/,/g, '')) : null,

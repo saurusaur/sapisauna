@@ -61,7 +61,7 @@ export const TRIBE_LOG_MILESTONES: Record<TribeId, { count: number; title: strin
     { count: 30, title: '용왕의 후예' },
   ],
   jimi: [
-    { count: 1, title: '구운달걀' },
+    { count: 1, title: '맥반석란' },
     { count: 10, title: '불가마 단골' },
     { count: 30, title: '불의 지배자' },
   ],

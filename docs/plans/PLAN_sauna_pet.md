@@ -1,7 +1,10 @@
-# Sauna Pet Functionality
+# Sauna Pet Functionality (v1 초안 — DEPRECATED)
+
+> **Superseded by** `PLAN_sauna_pet_v2.md` (2026-05-18). v2.5.1 정식 기획서 기반 작업 계획.
+> 이 v1 문서는 초기 컨셉 기록용으로만 보존.
 
 Date: 2026-05-18
-Status: Backlog
+Status: Deprecated
 
 ## Goal
 
