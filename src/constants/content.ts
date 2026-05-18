@@ -270,7 +270,7 @@ export const QUICK_LOG = {
         { value: 30, label: "미지근" },
         { value: 35, label: "따뜻" },
         { value: 39, label: "뜨끈" },
-        { value: 41, label: "펄펄" },
+        { value: 42, label: "펄펄" },
       ],
     },
     WATER_QUALITY: {
