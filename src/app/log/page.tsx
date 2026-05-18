@@ -594,7 +594,7 @@ export default function QuickLog() {
                         className="text-[11px] leading-none font-bold transition-colors"
                         style={{
                           visibility: has ? 'visible' : 'hidden',
-                          color: isPrimary ? '#ea580c' : '#a8a29e',
+                          color: isPrimary ? 'var(--color-primary)' : '#a8a29e',
                           cursor: bothEntered ? 'pointer' : 'default',
                         }}
                       >
@@ -621,7 +621,7 @@ export default function QuickLog() {
                         <ToggleBtn kind="steam" label={QUICK_LOG.SAUNER.TOGGLE_STEAM_LABEL} />
                       </div>
                       {bothEntered && (
-                        <span className="text-[11px] font-medium" style={{ color: '#ea580c' }}>
+                        <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
                           {QUICK_LOG.SAUNER.PRIMARY_PROMPT}
                         </span>
                       )}
