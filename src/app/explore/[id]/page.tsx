@@ -110,7 +110,7 @@ export default function PlaceDetailPage() {
   }
   const tempMetrics = [
     { label: '온탕', value: calcTempAvg('hot_bath_temp') },
-    { label: '사우나', value: calcTempAvg('sauna_temp') },
+    { label: '건식', value: calcTempAvg('sauna_temp') },
     { label: '냉탕', value: calcTempAvg('cold_bath_temp') },
     { label: '한증막', value: calcTempAvg('jjim_temp') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
@@ -389,25 +389,51 @@ export default function PlaceDetailPage() {
         </div>
 
         {/* C. 시설 정보 — glass-card-light */}
-        {facilityGroups.length > 0 && (
+        {(() => {
+          const totalFacilityItems = facilityGroups.reduce((sum, g) => sum + g.items.length, 0)
+          const showAddCTA = facilityGroups.length === 0 || totalFacilityItems < 4
+          return (
           <div>
-          <h3 className="text-sm font-bold text-stone-600 mb-3">시설 정보</h3>
-          <div className="glass-card-light p-4">
-            <div className="space-y-3">
-              {facilityGroups.map((group) => (
-                <div key={group.label}>
-                  <p className="text-xs text-stone-400 mb-1.5">{group.label}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.items.map((item) => (
-                      <Chip key={item.id} label={item.label} icon={item.icon} />
-                    ))}
-                  </div>
+            <h3 className="text-sm font-bold text-stone-600 mb-3">시설 정보</h3>
+            <div className="glass-card-light p-4">
+              {facilityGroups.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-3">
+                  <p className="text-sm text-stone-400">아직 시설 정보가 없어요</p>
+                  <button
+                    onClick={() => router.push(`/place/${placeId}/edit`)}
+                    className="text-xs font-medium underline underline-offset-2"
+                    style={{ color: 'var(--color-primary)' }}
+                  >
+                    시설 정보 추가하기
+                  </button>
                 </div>
-              ))}
+              ) : (
+                <div className="space-y-3">
+                  {facilityGroups.map((group) => (
+                    <div key={group.label}>
+                      <p className="text-xs text-stone-400 mb-1.5">{group.label}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.items.map((item) => (
+                          <Chip key={item.id} label={item.label} icon={item.icon} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {showAddCTA && (
+                    <button
+                      onClick={() => router.push(`/place/${placeId}/edit`)}
+                      className="w-full text-center text-xs font-medium underline underline-offset-2 transition-colors"
+                      style={{ color: 'var(--color-primary)' }}
+                    >
+                      시설 정보 추가하기
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* D. 통계 섹션 — 사-피엔스의 흔적 */}
         {placeLogs.length > 0 && (tempMetrics.length > 0 || tribeSubMetrics.length > 0 || crowdTotal > 0 || additionalMetrics.length > 0) && (
