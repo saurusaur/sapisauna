@@ -293,8 +293,8 @@ export const QUICK_LOG = {
   SAUNER: {
     SAUNA_TEMP: {
       label: "건식 사우나 온도",
-      shortLabel: "사우나",
-      labelEn: "SAUNA",
+      shortLabel: "건식",
+      labelEn: "DRY SAUNA",
       min: 50,
       max: 130,
       unit: "°C",
@@ -308,7 +308,7 @@ export const QUICK_LOG = {
     },
     STEAM_SAUNA_TEMP: {
       label: "습식 사우나 온도",
-      shortLabel: "사우나",
+      shortLabel: "습식",
       labelEn: "STEAM SAUNA",
       min: 40,
       max: 75,
