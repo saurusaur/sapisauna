@@ -16,6 +16,7 @@ import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
 import { useUserLocation } from '@/hooks/use-user-location'
+import { useUser } from '@/contexts/user-context'
 import { SaveFlow } from '@/components/features/save-flow'
 import { useToast } from '@/contexts/toast-context'
 
@@ -57,6 +58,7 @@ export default function ExplorePage() {
     requestLocation,
   } = useUserLocation()
   const { isSaved } = useSavePlace()
+  const { user } = useUser()
   const [visibleCount, setVisibleCount] = useState(3)
   const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
 
@@ -358,6 +360,7 @@ export default function ExplorePage() {
                   mapId={googleMapId}
                   places={filteredPlaces}
                   userLocation={location}
+                  profileEmoji={user?.profile_emoji ?? null}
                   distanceLabels={distanceLabelMap}
                   isSaved={isSaved}
                   onToggleSave={handleToggleSave}

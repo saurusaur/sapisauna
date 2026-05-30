@@ -23,6 +23,7 @@ interface ExploreMapViewProps {
   mapId: string
   places: Place[]
   userLocation: UserLocation | null
+  profileEmoji: string | null
   distanceLabels: Record<string, string | null>
   isSaved: (placeId: string) => boolean
   onToggleSave: (placeId: string) => void
@@ -146,37 +147,87 @@ function FitBoundsToPlaces({
   return null
 }
 
-function MarkerDot({
-  saved,
-  selected,
-}: {
-  saved: boolean
-  selected: boolean
-}) {
+// 사우나 김(스팀) 3줄 — 일반(미저장) 핀 아이콘
+function SteamWaves({ size }: { size: number }) {
   return (
-    <div
-      className={`grid place-items-center rounded-full text-white border-white shadow-[0_3px_10px_rgba(0,0,0,0.24)] ${
-        selected ? 'h-7 w-7 border-4' : 'h-[22px] w-[22px] border-[3px]'
-      }`}
-      style={{ backgroundColor: 'var(--color-primary)' }}
-    >
-      {saved ? (
-        <span
-          className="material-symbols-outlined leading-none"
-          style={{ fontSize: selected ? 15 : 12, fontVariationSettings: "'FILL' 1" }}
-        >
-          bookmark_heart
-        </span>
-      ) : null}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.4} strokeLinecap="round">
+      <path d="M7 18c2-2 2-4 0-6s-2-4 0-6" />
+      <path d="M12 19c2-2 2-4 0-6s-2-4 0-6" />
+      <path d="M17 18c2-2 2-4 0-6s-2-4 0-6" />
+    </svg>
+  )
+}
+
+// 저장(좋아요) 핀 아이콘 — 통통한 하트. viewBox 위쪽 여백(-2)으로 머리 중앙 정렬
+function HeartGlyph({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 -2 24 24" fill="#fff">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  )
+}
+
+// 사우나 마커 — 클래식 물방울 핀. 일반=김, 저장=하트, 선택 시 확대.
+// [도형(회전 teardrop) + 아이콘 오버레이] 구조로 아이콘을 둥근 머리 중앙에 정렬.
+function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
+  const size = selected ? 35 : 30
+  const borderW = selected ? 3 : 2.5
+  const bottomInset = selected ? 3 : 2
+  const iconSize = saved ? (selected ? 19 : 16) : (selected ? 22 : 17)
+  return (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50% 50% 50% 0',
+          background: 'var(--color-primary)',
+          border: `${borderW}px solid #fff`,
+          transform: 'rotate(-45deg)',
+          boxShadow: selected ? '0 4px 14px rgba(0,0,0,0.35)' : '0 2px 8px rgba(0,0,0,0.24)',
+        }}
+      />
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: bottomInset, display: 'grid', placeItems: 'center' }}>
+        {saved ? <HeartGlyph size={iconSize} /> : <SteamWaves size={iconSize} />}
+      </div>
     </div>
   )
 }
 
-function UserLocationMarker({ location }: { location: UserLocation | null }) {
+// '나' 마커 — 유저 프로필 이모지가 있으면 흰 원 배지 + 파란 링, 없으면 파란 점.
+function UserLocationMarker({
+  location,
+  profileEmoji,
+}: {
+  location: UserLocation | null
+  profileEmoji: string | null
+}) {
   if (!location) return null
+  const position = { lat: location.latitude, lng: location.longitude }
+
+  if (profileEmoji) {
+    return (
+      <AdvancedMarker position={position} zIndex={20}>
+        <div
+          className="grid place-items-center rounded-full bg-white"
+          style={{
+            height: 32,
+            width: 32,
+            fontSize: 17,
+            lineHeight: 1,
+            border: '2.5px solid var(--color-bather)',
+            boxShadow:
+              '0 0 0 6px color-mix(in srgb, var(--color-bather) 18%, transparent), 0 3px 10px rgba(0,0,0,0.24)',
+          }}
+        >
+          {profileEmoji}
+        </div>
+      </AdvancedMarker>
+    )
+  }
 
   return (
-    <AdvancedMarker position={{ lat: location.latitude, lng: location.longitude }} zIndex={20}>
+    <AdvancedMarker position={position} zIndex={20}>
       <div
         className="h-[18px] w-[18px] rounded-full border-[3px] border-white"
         style={{
@@ -277,7 +328,7 @@ function ClusteredMarkers({
           zIndex={selectedPlaceId === place.id ? 10 : 1}
           onClick={() => onSelectPlace(selectedPlaceId === place.id ? null : place.id)}
         >
-          <MarkerDot saved={isSaved(place.id)} selected={selectedPlaceId === place.id} />
+          <SaunaPin saved={isSaved(place.id)} selected={selectedPlaceId === place.id} />
         </AdvancedMarker>
       ))}
     </>
@@ -285,21 +336,23 @@ function ClusteredMarkers({
 }
 
 function createClusterElement(count: number) {
+  // 클러스터는 개별 사우나 핀과 위계가 구분되도록 링형(흰 바탕 + 빨강 링) + 숫자.
+  // 개수 많을수록 살짝 크게. (:root CSS 변수는 인라인 스타일에서도 해석됨)
+  const big = count >= 25
+  const d = big ? 46 : 38
   const el = document.createElement('div')
   el.textContent = String(count)
-  el.style.width = '34px'
-  el.style.height = '34px'
+  el.style.width = `${d}px`
+  el.style.height = `${d}px`
   el.style.borderRadius = '9999px'
-  // 클러스터는 사우나 마커 묶음이므로 마커와 동일한 브랜드 primary 사용
-  // (:root의 CSS 변수는 인라인 스타일에서도 해석됨)
-  el.style.background = 'var(--color-primary)'
-  el.style.border = '3px solid #ffffff'
-  el.style.color = '#ffffff'
+  el.style.background = '#ffffff'
+  el.style.border = '3px solid var(--color-primary)'
+  el.style.color = 'var(--color-primary)'
   el.style.display = 'grid'
   el.style.placeItems = 'center'
-  el.style.fontSize = '12px'
+  el.style.fontSize = big ? '15px' : '13px'
   el.style.fontWeight = '800'
-  el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.28)'
+  el.style.boxShadow = '0 0 0 4px rgba(204,26,26,0.18), 0 4px 12px rgba(0,0,0,0.22)'
   return el
 }
 
@@ -328,6 +381,7 @@ function ExploreMapInner({
   places,
   selectedPlace,
   userLocation,
+  profileEmoji,
   distanceLabels,
   mapId,
   isSaved,
@@ -341,6 +395,7 @@ function ExploreMapInner({
   places: Place[]
   selectedPlace: Place | null
   userLocation: UserLocation | null
+  profileEmoji: string | null
   distanceLabels: Record<string, string | null>
   mapId: string
   isSaved: (placeId: string) => boolean
@@ -395,7 +450,7 @@ function ExploreMapInner({
               isSaved={isSaved}
               onSelectPlace={onSelectPlace}
             />
-            <UserLocationMarker location={userLocation} />
+            <UserLocationMarker location={userLocation} profileEmoji={profileEmoji} />
           </Map>
           <MyLocationControl
             onRequestUserLocation={onRequestUserLocation}
@@ -425,6 +480,7 @@ export default function ExploreMapView({
   mapId,
   places,
   userLocation,
+  profileEmoji,
   distanceLabels,
   isSaved,
   onToggleSave,
@@ -454,6 +510,7 @@ export default function ExploreMapView({
             places={places}
             selectedPlace={selectedPlace}
             userLocation={userLocation}
+            profileEmoji={profileEmoji}
             distanceLabels={distanceLabels}
             mapId={mapId}
             isSaved={isSaved}
