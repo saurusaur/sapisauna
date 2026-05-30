@@ -1,24 +1,48 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { ICONS, EXPLORE, EXPLORE_FILTERS } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
 import { useSavePlace } from '@/hooks/use-save-place'
 import { getPlaceSaveCounts } from '@/lib/lists-service'
+import { distanceMeters, formatDistance } from '@/lib/geo/distance'
+import { captureError } from '@/lib/error-logger'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
 import PlaceCard from '@/components/features/place-card'
 import FilterControls from '@/components/features/filter-controls'
 import { useExploreFilters } from '@/hooks/use-explore-filters'
+import { useUserLocation } from '@/hooks/use-user-location'
 import { SaveFlow } from '@/components/features/save-flow'
+import { useToast } from '@/contexts/toast-context'
 
+
+const DISTANCE_MUTED_THRESHOLD_M = 10000
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+const googleMapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || ''
+
+const ExploreMapView = dynamic(() => import('@/components/features/explore-map-view'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[clamp(420px,calc(100dvh-220px),640px)] rounded-xl glass-card-light flex flex-col items-center justify-center gap-2 text-stone-400">
+      <span className="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+      <span className="text-sm">지도 불러오는 중...</span>
+    </div>
+  ),
+})
 
 export default function ExplorePage() {
   const router = useRouter()
+  const { showNotice } = useToast()
   const searchRef = useRef<HTMLInputElement>(null)
+  const locationNoticeShownRef = useRef(false)
+  const mapLocationNoticeShownRef = useRef(false)
+  const mapLoadErrorReportedRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   const {
     showFilters, toggleFiltersPanel,
     selectedFilters, toggleFilter,
@@ -26,6 +50,12 @@ export default function ExplorePage() {
     sortType, setSortType,
     resetFilters,
   } = useExploreFilters()
+  const {
+    location,
+    status: locationStatus,
+    permissionState,
+    requestLocation,
+  } = useUserLocation()
   const { isSaved } = useSavePlace()
   const [visibleCount, setVisibleCount] = useState(3)
   const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
@@ -36,6 +66,9 @@ export default function ExplorePage() {
 
   const loading = placesLoading || logsLoading
   const error = placesError || logsError
+  const isRequestingLocation = locationStatus === 'requesting'
+  const isNearbyPermissionDenied = permissionState === 'denied' || locationStatus === 'denied'
+  const canUseMap = Boolean(googleMapsApiKey && googleMapId)
 
   // 장소별 저장 횟수 로드 (고유 유저 기반)
   useEffect(() => {
@@ -44,6 +77,99 @@ export default function ExplorePage() {
     getPlaceSaveCounts(ids).then(setSaveCounts).catch(() => {})
   }, [places])
 
+  const distanceMap = useMemo(() => {
+    if (!location) return null
+    const map: Record<string, number | null> = {}
+    for (const place of places) {
+      map[place.id] = distanceMeters(location, place)
+    }
+    return map
+  }, [location, places])
+
+  const distanceLabelMap = useMemo(() => {
+    if (!distanceMap) return {}
+    const map: Record<string, string | null> = {}
+    for (const [placeId, meters] of Object.entries(distanceMap)) {
+      map[placeId] = formatDistance(meters)
+    }
+    return map
+  }, [distanceMap])
+
+  const handleSortChange = (nextSortType: typeof sortType) => {
+    if (nextSortType === 'nearby') {
+      if (isNearbyPermissionDenied) {
+        showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+        return
+      }
+      if (!location) requestLocation()
+    }
+    setSortType(nextSortType)
+  }
+
+  const handleRequestUserLocation = () => {
+    if (isNearbyPermissionDenied) {
+      showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+      return
+    }
+
+    if (!location) {
+      showNotice('위치 권한을 허용하면 현재 위치와 가까운 사우나를 찾아드릴게요!')
+    }
+    requestLocation()
+  }
+
+  const handleMapLoadError = () => {
+    setViewMode('list')
+    showNotice('지도를 불러올 수 없어 리스트로 전환했어요')
+    if (mapLoadErrorReportedRef.current) return
+    mapLoadErrorReportedRef.current = true
+    captureError(new Error('map.load.fail'), { label: 'map.load.fail' })
+  }
+
+  const handleAddPlace = () => {
+    if (location) {
+      router.push(`/place/add?lat=${location.latitude}&lng=${location.longitude}`)
+      return
+    }
+    router.push('/place/add')
+  }
+
+  useEffect(() => {
+    if (sortType !== 'nearby') return
+    if (locationStatus === 'granted' || locationStatus === 'requesting') return
+    if (locationStatus === 'idle') return
+    if (locationNoticeShownRef.current) return
+
+    locationNoticeShownRef.current = true
+    if (locationStatus === 'denied') {
+      showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+    } else {
+      showNotice('위치를 허용하면 가까운 순으로 볼 수 있어요')
+    }
+  }, [locationStatus, showNotice, sortType])
+
+  useEffect(() => {
+    if (viewMode !== 'map') return
+
+    if (permissionState === 'granted' && !location && locationStatus !== 'requesting') {
+      requestLocation()
+      return
+    }
+
+    if (
+      !mapLocationNoticeShownRef.current &&
+      !location &&
+      (permissionState === 'prompt' || permissionState === 'unknown')
+    ) {
+      mapLocationNoticeShownRef.current = true
+      showNotice('위치 권한을 허용하면 현재 위치와 가까운 사우나를 찾아드릴게요!')
+    }
+
+    if (!mapLocationNoticeShownRef.current && isNearbyPermissionDenied) {
+      mapLocationNoticeShownRef.current = true
+      showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+    }
+  }, [isNearbyPermissionDenied, location, locationStatus, permissionState, requestLocation, showNotice, viewMode])
 
   // 장소별 통계 (로그 기반 계산)
   const placeStatsMap = useMemo(() => {
@@ -121,11 +247,18 @@ export default function ExplorePage() {
         return statsB.avg - statsA.avg
       }
 
+      if (sortType === 'nearby') {
+        const distA = distanceMap?.[a.id] ?? Infinity
+        const distB = distanceMap?.[b.id] ?? Infinity
+        if (distA !== distB) return distA - distB
+        return statsB.avg - statsA.avg
+      }
+
       return 0
     })
 
     return filtered
-  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, saveCounts, placeStatsMap])
+  }, [places, searchQuery, selectedFilters, is24hOnly, sortType, saveCounts, placeStatsMap, distanceMap])
 
   // 검색/필터가 활성화되어 있는지
   const isSearchOrFilterActive = searchQuery || selectedFilters.length > 0 || is24hOnly
@@ -167,6 +300,38 @@ export default function ExplorePage() {
               )}
             </div>
 
+            {/* 보기 전환 */}
+            <div className="flex bg-stone-100 rounded-xl p-1 mb-4">
+              {([
+                { key: 'list' as const, label: '리스트', icon: 'view_list' },
+                { key: 'map' as const, label: '지도', icon: ICONS.MAP },
+              ]).map((mode) => {
+                const disabled = mode.key === 'map' && !canUseMap
+                return (
+                  <button
+                    key={mode.key}
+                    type="button"
+                    onClick={() => {
+                      if (disabled) {
+                        showNotice('지도 준비 중입니다')
+                        return
+                      }
+                      setViewMode(mode.key)
+                    }}
+                    aria-disabled={disabled}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                      viewMode === mode.key
+                        ? 'bg-white text-stone-700 shadow-sm'
+                        : 'text-stone-500 hover:text-stone-700'
+                    } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    <span className="material-symbols-outlined text-base">{mode.icon}</span>
+                    {mode.label}
+                  </button>
+                )
+              })}
+            </div>
+
             {/* 필터/정렬 컨트롤 */}
             <FilterControls
               showFilters={showFilters}
@@ -177,17 +342,37 @@ export default function ExplorePage() {
               is24hOnly={is24hOnly}
               onToggle24h={setIs24hOnly}
               sortType={sortType}
-              onSortChange={setSortType}
+              onSortChange={handleSortChange}
+              isNearbyPermissionDenied={isNearbyPermissionDenied}
+              isRequestingLocation={isRequestingLocation}
+              hideSort={viewMode === 'map'}
             />
 
             {/* 데이터 로딩/에러 상태 */}
             <DataState loading={loading} error={error} isEmpty={false}>
+              {viewMode === 'map' && canUseMap ? (
+                <ExploreMapView
+                  apiKey={googleMapsApiKey}
+                  mapId={googleMapId}
+                  places={filteredPlaces}
+                  userLocation={location}
+                  distanceLabels={distanceLabelMap}
+                  isSaved={isSaved}
+                  onToggleSave={handleToggleSave}
+                  onOpenPlace={(placeId) => router.push(`/explore/${placeId}`)}
+                  onAddPlace={handleAddPlace}
+                  onRequestUserLocation={handleRequestUserLocation}
+                  isRequestingLocation={isRequestingLocation}
+                  onMapLoadError={handleMapLoadError}
+                />
+              ) : (
+                <>
               {/* 장소 카드 리스트 (검색/필터 적용 시) */}
               {isSearchOrFilterActive && (
                 <div>
                   {filteredPlaces.length === 0 ? (
                     <button
-                      onClick={() => router.push('/place/add')}
+                      onClick={handleAddPlace}
                       className="w-full flex flex-col items-center justify-center gap-1 pt-10 pb-6 transition-colors hover:opacity-70"
                     >
                       <span className="material-symbols-outlined text-4xl text-stone-300 mb-2">search_off</span>
@@ -208,6 +393,8 @@ export default function ExplorePage() {
                           isSaved={isSaved(place.id)}
                           onToggleSave={() => handleToggleSave(place.id)}
                           onClick={() => router.push(`/explore/${place.id}`)}
+                          distanceLabel={distanceLabelMap[place.id]}
+                          distanceLabelMuted={(distanceMap?.[place.id] ?? 0) > DISTANCE_MUTED_THRESHOLD_M}
                         />
                       ))}
                     </div>
@@ -233,6 +420,8 @@ export default function ExplorePage() {
                           isSaved={isSaved(place.id)}
                           onToggleSave={() => handleToggleSave(place.id)}
                           onClick={() => router.push(`/explore/${place.id}`)}
+                          distanceLabel={distanceLabelMap[place.id]}
+                          distanceLabelMuted={(distanceMap?.[place.id] ?? 0) > DISTANCE_MUTED_THRESHOLD_M}
                         />
                       ))}
 
@@ -263,6 +452,8 @@ export default function ExplorePage() {
                     </div>
                   )}
                 </div>
+              )}
+                </>
               )}
             </DataState>
           </main>

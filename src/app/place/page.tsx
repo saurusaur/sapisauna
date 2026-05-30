@@ -5,15 +5,30 @@ import { useRouter } from 'next/navigation'
 import { MESSAGES, ICONS } from '@/constants/content'
 import { usePlaces } from '@/hooks/use-places'
 import { useUserLogs } from '@/hooks/use-logs'
+import { useUserLocation } from '@/hooks/use-user-location'
+import { distanceMeters, formatDistance } from '@/lib/geo/distance'
 import DataState from '@/components/ui/data-state'
 import PlaceCard from '@/components/features/place-card'
+import { useToast } from '@/contexts/toast-context'
+
+const NEARBY_RADIUS_M = 10000
+const NEARBY_LIMIT = 5
 
 export default function PlaceSelection() {
   const router = useRouter()
+  const { showNotice } = useToast()
   const [searchQuery, setSearchQuery] = useState('')
+  const {
+    location,
+    status: locationStatus,
+    permissionState,
+    requestLocation,
+  } = useUserLocation()
   // DB 데이터 로드
   const { data: places, loading, error } = usePlaces()
   const { data: userLogs } = useUserLogs()
+  const isRequestingLocation = locationStatus === 'requesting'
+  const isLocationDenied = permissionState === 'denied' || locationStatus === 'denied'
 
   // 최근 기록 장소: 유저 본인이 마지막으로 기록한 순서대로 2개
   const recentPlaces = useMemo(() => {
@@ -30,12 +45,51 @@ export default function PlaceSelection() {
     return result
   }, [userLogs, places])
 
-  // 검색 필터링 (검색 중이 아닐 때는 내 주변 3개만)
+  const recentPlaceIds = useMemo(() => new Set(recentPlaces.map((place) => place.id)), [recentPlaces])
+
+  const nearbyPlaces = useMemo(() => {
+    if (!location) return []
+    return places
+      .filter((place) => !recentPlaceIds.has(place.id))
+      .map((place) => ({
+        place,
+        distance: distanceMeters(location, place),
+      }))
+      .filter((item): item is { place: typeof places[number]; distance: number } =>
+        item.distance !== null && item.distance <= NEARBY_RADIUS_M
+      )
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, NEARBY_LIMIT)
+  }, [location, places, recentPlaceIds])
+
+  // 검색 필터링 (검색 중이 아닐 때는 위치 허용 시 내 주변, 아니면 기존 상위 3개)
   const filteredPlaces = searchQuery
     ? places.filter(place =>
         place.name.includes(searchQuery) || place.address.includes(searchQuery)
       )
-    : places.slice(0, 3)
+    : location
+      ? nearbyPlaces.map((item) => item.place)
+      : places.slice(0, 3)
+
+  const nearbyDistanceLabels = useMemo(() => {
+    const map: Record<string, string | null> = {}
+    for (const item of nearbyPlaces) {
+      map[item.place.id] = formatDistance(item.distance)
+    }
+    return map
+  }, [nearbyPlaces])
+
+  const directAddHref = location
+    ? `/place/add?lat=${encodeURIComponent(String(location.latitude))}&lng=${encodeURIComponent(String(location.longitude))}`
+    : '/place/add'
+
+  const handleRequestLocation = () => {
+    if (isLocationDenied) {
+      showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+      return
+    }
+    requestLocation()
+  }
 
   // 장소 선택
   const handlePlaceSelect = (placeId: string, placeName: string, countryCode?: string, facilityType?: string, bathPolicy?: string) => {
@@ -107,22 +161,46 @@ export default function PlaceSelection() {
           </div>
         )}
 
-        {/* 내 주변 라벨 */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-stone-500">location_on</span>
-          <span className="text-sm font-medium text-stone-500">{MESSAGES.LOG.NEARBY}</span>
-        </div>
+        {/* 내 주변 라벨 (검색 중에는 숨김) */}
+        {!searchQuery && (
+          <div className="flex items-center gap-2 mb-4">
+            <span className="material-symbols-outlined text-stone-500">location_on</span>
+            <span className="text-sm font-medium text-stone-500">{MESSAGES.LOG.NEARBY}</span>
+            {isRequestingLocation && (
+              <span className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-pulse" />
+            )}
+            {!location && !isLocationDenied && (
+              <button
+                onClick={handleRequestLocation}
+                className="ml-auto text-xs font-medium underline underline-offset-2"
+                style={{ color: 'var(--color-primary)' }}
+              >
+                위치 허용
+              </button>
+            )}
+          </div>
+        )}
+        {!searchQuery && isLocationDenied && (
+          <p className="text-xs text-stone-400 -mt-2 mb-4">브라우저 설정에서 위치 권한을 켜주세요</p>
+        )}
+        {!searchQuery && !isLocationDenied && ['unavailable', 'timeout', 'error'].includes(locationStatus) && (
+          <p className="text-xs text-stone-400 -mt-2 mb-4">위치를 가져올 수 없어요</p>
+        )}
 
         {/* 장소 목록 또는 빈 상태 + 직접 추가 */}
         {loading || error ? (
           <DataState loading={loading} error={error} isEmpty={false} />
         ) : filteredPlaces.length === 0 ? (
           <button
-            onClick={() => router.push('/place/add')}
+            onClick={() => router.push(directAddHref)}
             className="w-full flex flex-col items-center justify-center gap-1 pt-6 pb-4 transition-colors hover:opacity-70"
           >
-            <span className="material-symbols-outlined text-4xl text-stone-300 mb-2">location_off</span>
-            <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>
+            <span className="material-symbols-outlined text-4xl text-stone-300 mb-2">
+              {location && !searchQuery ? 'search_off' : 'location_off'}
+            </span>
+            <p className="text-stone-400 text-sm">
+              {location && !searchQuery ? '내 주변에 등록된 곳이 없어요' : '찾으시는 장소가 없나요?'}
+            </p>
             <span
               className="text-xs font-medium underline underline-offset-2"
               style={{ color: 'var(--color-primary)' }}
@@ -138,11 +216,12 @@ export default function PlaceSelection() {
                   key={place.id}
                   place={place}
                   onClick={() => handlePlaceSelect(place.id, place.name, place.country_code, place.facility_type, place.bath_policy)}
+                  distanceLabel={!searchQuery ? nearbyDistanceLabels[place.id] : null}
                 />
               ))}
             </div>
             <button
-              onClick={() => router.push('/place/add')}
+              onClick={() => router.push(directAddHref)}
               className="w-full flex flex-col items-center justify-center gap-1 py-4 transition-colors hover:opacity-70"
             >
               <p className="text-stone-400 text-sm">찾으시는 장소가 없나요?</p>

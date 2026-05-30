@@ -1,0 +1,449 @@
+'use client'
+
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  AdvancedMarker,
+  APIProvider,
+  APILoadingStatus,
+  Map,
+  useApiLoadingStatus,
+  useMap,
+} from '@vis.gl/react-google-maps'
+import { MarkerClusterer, type Marker } from '@googlemaps/markerclusterer'
+import type { Place } from '@/types'
+import type { UserLocation } from '@/hooks/use-user-location'
+import PlaceCard from '@/components/features/place-card'
+
+const SEOUL_CITY_HALL = { lat: 37.5666, lng: 126.9784 }
+const MIN_ZOOM = 8
+const MAX_ZOOM = 17
+
+interface ExploreMapViewProps {
+  apiKey: string
+  mapId: string
+  places: Place[]
+  userLocation: UserLocation | null
+  distanceLabels: Record<string, string | null>
+  isSaved: (placeId: string) => boolean
+  onToggleSave: (placeId: string) => void
+  onOpenPlace: (placeId: string) => void
+  onAddPlace: () => void
+  onRequestUserLocation: () => void
+  isRequestingLocation: boolean
+  onMapLoadError: () => void
+}
+
+interface MapErrorBoundaryProps {
+  children: ReactNode
+  onError: () => void
+}
+
+class MapErrorBoundary extends Component<MapErrorBoundaryProps, { hasError: boolean }> {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch() {
+    this.props.onError()
+  }
+
+  render() {
+    if (this.state.hasError) return null
+    return this.props.children
+  }
+}
+
+function MapLoadingFallback() {
+  return (
+    <div className="h-[clamp(420px,calc(100dvh-220px),640px)] rounded-xl glass-card-light flex flex-col items-center justify-center gap-2 text-stone-400">
+      <span className="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+      <span className="text-sm">지도 불러오는 중...</span>
+    </div>
+  )
+}
+
+function MapLoadGate({
+  children,
+  onMapLoadError,
+}: {
+  children: ReactNode
+  onMapLoadError: () => void
+}) {
+  const status = useApiLoadingStatus()
+  const reportedRef = useRef(false)
+
+  useEffect(() => {
+    if (
+      !reportedRef.current &&
+      (status === APILoadingStatus.FAILED || status === APILoadingStatus.AUTH_FAILURE)
+    ) {
+      reportedRef.current = true
+      onMapLoadError()
+    }
+  }, [onMapLoadError, status])
+
+  if (status === APILoadingStatus.NOT_LOADED || status === APILoadingStatus.LOADING) {
+    return <MapLoadingFallback />
+  }
+
+  if (status === APILoadingStatus.FAILED || status === APILoadingStatus.AUTH_FAILURE) {
+    return null
+  }
+
+  return <>{children}</>
+}
+
+function FitBoundsToPlaces({
+  places,
+  userLocation,
+}: {
+  places: Place[]
+  userLocation: UserLocation | null
+}) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (!map) return
+
+    const bounds = new google.maps.LatLngBounds()
+    let hasBounds = false
+
+    // 장소 마커 + 내 위치를 모두 포함하도록 bounds를 구성한다.
+    // (내 위치만 보고 panTo하면 사우나 마커가 화면 밖으로 나갈 수 있음)
+    for (const place of places) {
+      if (place.latitude === null || place.longitude === null) continue
+      bounds.extend({ lat: place.latitude, lng: place.longitude })
+      hasBounds = true
+    }
+
+    if (userLocation) {
+      bounds.extend({ lat: userLocation.latitude, lng: userLocation.longitude })
+      hasBounds = true
+    }
+
+    if (!hasBounds) {
+      map.setCenter(SEOUL_CITY_HALL)
+      map.setZoom(11)
+      return
+    }
+
+    map.fitBounds(bounds, 64)
+    const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
+      const zoom = map.getZoom()
+      if (zoom === undefined) return
+      if (zoom > MAX_ZOOM) map.setZoom(MAX_ZOOM)
+      if (zoom < MIN_ZOOM) map.setZoom(MIN_ZOOM)
+    })
+
+    return () => listener.remove()
+  }, [map, places, userLocation])
+
+  return null
+}
+
+function MarkerDot({
+  saved,
+  selected,
+}: {
+  saved: boolean
+  selected: boolean
+}) {
+  return (
+    <div
+      className={`grid place-items-center rounded-full text-white border-white shadow-[0_3px_10px_rgba(0,0,0,0.24)] ${
+        selected ? 'h-7 w-7 border-4' : 'h-[22px] w-[22px] border-[3px]'
+      }`}
+      style={{ backgroundColor: 'var(--color-primary)' }}
+    >
+      {saved ? (
+        <span
+          className="material-symbols-outlined leading-none"
+          style={{ fontSize: selected ? 15 : 12, fontVariationSettings: "'FILL' 1" }}
+        >
+          bookmark_heart
+        </span>
+      ) : null}
+    </div>
+  )
+}
+
+function UserLocationMarker({ location }: { location: UserLocation | null }) {
+  if (!location) return null
+
+  return (
+    <AdvancedMarker position={{ lat: location.latitude, lng: location.longitude }} zIndex={20}>
+      <div
+        className="h-[18px] w-[18px] rounded-full border-[3px] border-white"
+        style={{
+          backgroundColor: 'var(--color-bather)',
+          boxShadow:
+            '0 0 0 8px color-mix(in srgb, var(--color-bather) 16%, transparent), 0 4px 12px color-mix(in srgb, var(--color-bather) 24%, transparent)',
+        }}
+      />
+    </AdvancedMarker>
+  )
+}
+
+function ClusteredMarkers({
+  places,
+  selectedPlaceId,
+  isSaved,
+  onSelectPlace,
+}: {
+  places: Place[]
+  selectedPlaceId: string | null
+  isSaved: (placeId: string) => boolean
+  onSelectPlace: (placeId: string | null) => void
+}) {
+  const map = useMap()
+  const clusterer = useRef<MarkerClusterer | null>(null)
+  const [markers, setMarkers] = useState<Record<string, Marker>>({})
+
+  useEffect(() => {
+    if (!map) return
+    clusterer.current = new MarkerClusterer({
+      map,
+      renderer: {
+        render: ({ count, position }) => {
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            position,
+            content: createClusterElement(count),
+            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+          })
+          return marker
+        },
+      },
+    })
+
+    return () => {
+      clusterer.current?.clearMarkers()
+      clusterer.current?.setMap(null)
+      clusterer.current = null
+    }
+  }, [map])
+
+  useEffect(() => {
+    if (!clusterer.current) return
+    clusterer.current.clearMarkers()
+    clusterer.current.addMarkers(Object.values(markers))
+  }, [markers])
+
+  const setMarkerRef = useCallback((placeId: string, marker: google.maps.marker.AdvancedMarkerElement | null) => {
+    setMarkers((prev) => {
+      if (marker && prev[placeId] === marker) return prev
+      if (!marker && !prev[placeId]) return prev
+
+      const next = { ...prev }
+      if (marker) {
+        next[placeId] = marker
+      } else {
+        delete next[placeId]
+      }
+      return next
+    })
+  }, [])
+
+  return (
+    <>
+      {places.map((place) => (
+        <AdvancedMarker
+          key={place.id}
+          position={{ lat: place.latitude!, lng: place.longitude! }}
+          ref={(marker) => setMarkerRef(place.id, marker)}
+          zIndex={selectedPlaceId === place.id ? 10 : 1}
+          onClick={() => onSelectPlace(selectedPlaceId === place.id ? null : place.id)}
+        >
+          <MarkerDot saved={isSaved(place.id)} selected={selectedPlaceId === place.id} />
+        </AdvancedMarker>
+      ))}
+    </>
+  )
+}
+
+function createClusterElement(count: number) {
+  const el = document.createElement('div')
+  el.textContent = String(count)
+  el.style.width = '34px'
+  el.style.height = '34px'
+  el.style.borderRadius = '9999px'
+  // 클러스터는 사우나 마커 묶음이므로 마커와 동일한 브랜드 primary 사용
+  // (:root의 CSS 변수는 인라인 스타일에서도 해석됨)
+  el.style.background = 'var(--color-primary)'
+  el.style.border = '3px solid #ffffff'
+  el.style.color = '#ffffff'
+  el.style.display = 'grid'
+  el.style.placeItems = 'center'
+  el.style.fontSize = '12px'
+  el.style.fontWeight = '800'
+  el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.28)'
+  return el
+}
+
+function MyLocationControl({
+  onRequestUserLocation,
+  isRequesting,
+}: {
+  onRequestUserLocation: () => void
+  isRequesting: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onRequestUserLocation}
+      aria-label="내 위치"
+      className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-stone-600 shadow-md transition-colors hover:bg-white"
+    >
+      <span className={`material-symbols-outlined text-xl ${isRequesting ? 'animate-spin' : ''}`}>
+        {isRequesting ? 'progress_activity' : 'my_location'}
+      </span>
+    </button>
+  )
+}
+
+function ExploreMapInner({
+  places,
+  selectedPlace,
+  userLocation,
+  distanceLabels,
+  mapId,
+  isSaved,
+  isRequestingLocation,
+  onToggleSave,
+  onSelectPlace,
+  onOpenPlace,
+  onAddPlace,
+  onRequestUserLocation,
+}: {
+  places: Place[]
+  selectedPlace: Place | null
+  userLocation: UserLocation | null
+  distanceLabels: Record<string, string | null>
+  mapId: string
+  isSaved: (placeId: string) => boolean
+  isRequestingLocation: boolean
+  onToggleSave: (placeId: string) => void
+  onSelectPlace: (placeId: string | null) => void
+  onOpenPlace: (placeId: string) => void
+  onAddPlace: () => void
+  onRequestUserLocation: () => void
+}) {
+  const placesWithCoordinates = useMemo(
+    () => places.filter((place) => place.latitude !== null && place.longitude !== null),
+    [places]
+  )
+  const initialCenter = userLocation
+    ? { lat: userLocation.latitude, lng: userLocation.longitude }
+    : placesWithCoordinates[0]
+      ? { lat: placesWithCoordinates[0].latitude!, lng: placesWithCoordinates[0].longitude! }
+      : SEOUL_CITY_HALL
+
+  return (
+    <div className="relative">
+      {placesWithCoordinates.length === 0 ? (
+        <button
+          type="button"
+          onClick={onAddPlace}
+          className="h-[clamp(420px,calc(100dvh-220px),640px)] min-h-[420px] max-h-[640px] w-full rounded-xl glass-card-light flex flex-col items-center justify-center gap-2 text-stone-400"
+        >
+          <span className="material-symbols-outlined text-4xl text-stone-300">location_off</span>
+          <span className="text-sm">이 영역에는 등록된 장소가 없어요</span>
+          <span className="text-xs underline underline-offset-2" style={{ color: 'var(--color-primary)' }}>
+            직접 장소 추가
+          </span>
+        </button>
+      ) : (
+        <div className="relative h-[clamp(420px,calc(100dvh-220px),640px)] min-h-[420px] max-h-[640px] overflow-hidden rounded-xl glass-card-light">
+          <Map
+            defaultCenter={initialCenter}
+            defaultZoom={11}
+            mapId={mapId}
+            gestureHandling="greedy"
+            disableDefaultUI
+            zoomControl
+            clickableIcons={false}
+            onClick={() => onSelectPlace(null)}
+            style={{ width: '100%', height: '100%' }}
+          >
+            <FitBoundsToPlaces places={placesWithCoordinates} userLocation={userLocation} />
+            <ClusteredMarkers
+              places={placesWithCoordinates}
+              selectedPlaceId={selectedPlace?.id ?? null}
+              isSaved={isSaved}
+              onSelectPlace={onSelectPlace}
+            />
+            <UserLocationMarker location={userLocation} />
+          </Map>
+          <MyLocationControl
+            onRequestUserLocation={onRequestUserLocation}
+            isRequesting={isRequestingLocation}
+          />
+        </div>
+      )}
+
+      {selectedPlace && (
+        <div className="fixed left-3 right-3 bottom-20 z-30 max-w-md mx-auto">
+          <PlaceCard
+            variant="minimal"
+            place={selectedPlace}
+            isSaved={isSaved(selectedPlace.id)}
+            onToggleSave={() => onToggleSave(selectedPlace.id)}
+            onClick={() => onOpenPlace(selectedPlace.id)}
+            distanceLabel={distanceLabels[selectedPlace.id]}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ExploreMapView({
+  apiKey,
+  mapId,
+  places,
+  userLocation,
+  distanceLabels,
+  isSaved,
+  onToggleSave,
+  onOpenPlace,
+  onAddPlace,
+  onRequestUserLocation,
+  isRequestingLocation,
+  onMapLoadError,
+}: ExploreMapViewProps) {
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
+  const selectedPlace = useMemo(
+    () => places.find((place) => place.id === selectedPlaceId) ?? null,
+    [places, selectedPlaceId]
+  )
+
+  useEffect(() => {
+    if (selectedPlaceId && !places.some((place) => place.id === selectedPlaceId)) {
+      setSelectedPlaceId(null)
+    }
+  }, [places, selectedPlaceId])
+
+  return (
+    <MapErrorBoundary onError={onMapLoadError}>
+      <APIProvider apiKey={apiKey} libraries={['marker']} onError={onMapLoadError}>
+        <MapLoadGate onMapLoadError={onMapLoadError}>
+          <ExploreMapInner
+            places={places}
+            selectedPlace={selectedPlace}
+            userLocation={userLocation}
+            distanceLabels={distanceLabels}
+            mapId={mapId}
+            isSaved={isSaved}
+            isRequestingLocation={isRequestingLocation}
+            onToggleSave={onToggleSave}
+            onSelectPlace={setSelectedPlaceId}
+            onOpenPlace={onOpenPlace}
+            onAddPlace={onAddPlace}
+            onRequestUserLocation={onRequestUserLocation}
+          />
+        </MapLoadGate>
+      </APIProvider>
+    </MapErrorBoundary>
+  )
+}

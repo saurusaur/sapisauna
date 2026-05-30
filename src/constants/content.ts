@@ -890,6 +890,7 @@ export const EXPLORE = {
     LABEL: "정렬",
     RECOMMENDED: "추천순",
     POPULAR: "인기순",
+    NEARBY: "가까운",
   },
   TOGGLE_24H: "24시 영업",
   RECOMMENDATION: {

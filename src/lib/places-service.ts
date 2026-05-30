@@ -19,6 +19,8 @@ export function toPlace(row: Record<string, unknown>): Place {
   const address = preferred?.address_original || ''
   const country_code = (row.country_code as string) || ''
   const city = (row.city as string | null) ?? null
+  const latitude = row.latitude == null ? null : Number(row.latitude)
+  const longitude = row.longitude == null ? null : Number(row.longitude)
 
   // short_address 로직:
   //   · primary source가 naver → "서울 강남구" 스타일 (기존)
@@ -37,8 +39,8 @@ export function toPlace(row: Record<string, unknown>): Place {
     id: row.id as string,
     country_code,
     city,
-    latitude: row.latitude as number | null,
-    longitude: row.longitude as number | null,
+    latitude: Number.isFinite(latitude) ? latitude : null,
+    longitude: Number.isFinite(longitude) ? longitude : null,
     facilities: Array.from(new Set(((row.facilities as string[]) || []).map(f => f.replace(/"/g, '')))),
     is_24h: (row.is_24h as boolean) || false,
     facility_type: (row.facility_type as FacilityType) || 'public-bath',

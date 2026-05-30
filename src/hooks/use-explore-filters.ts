@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 
-export type SortType = 'recommended' | 'popular'
+export type SortType = 'recommended' | 'popular' | 'nearby'
 
 export interface UseExploreFiltersOptions {
     defaultSortType?: SortType

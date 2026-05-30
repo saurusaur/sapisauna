@@ -56,6 +56,10 @@ export default function AddPlace() {
     latitude: number | null
     longitude: number | null
   } | null>(null)
+  const [prefillLocation, setPrefillLocation] = useState<{
+    latitude: number
+    longitude: number
+  } | null>(null)
 
   // 장소 정보 등록 (5개 섹션 통합)
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
@@ -76,6 +80,16 @@ export default function AddPlace() {
     shouldConfirm: hasInput || Boolean(canSave),
     onExit: () => router.back(),
   })
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const lat = Number(params.get('lat'))
+    const lng = Number(params.get('lng'))
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+
+    setManualMode(true)
+    setPrefillLocation({ latitude: lat, longitude: lng })
+  }, [])
 
   // 검색 실행 (debounce)
   const executeSearch = useCallback(async (query: string, searchSource: 'naver' | 'google') => {
@@ -172,8 +186,8 @@ export default function AddPlace() {
   const buildParams = () => ({
     name,
     address,
-    latitude: selectedPlace?.latitude ?? manualGeocode?.latitude ?? null,
-    longitude: selectedPlace?.longitude ?? manualGeocode?.longitude ?? null,
+    latitude: selectedPlace?.latitude ?? manualGeocode?.latitude ?? prefillLocation?.latitude ?? null,
+    longitude: selectedPlace?.longitude ?? manualGeocode?.longitude ?? prefillLocation?.longitude ?? null,
     facilities: selectedFacilities,
     is_24h: is24h,
     facility_type: venueType,
@@ -233,8 +247,8 @@ export default function AddPlace() {
       }
 
       // Stage 2: 좌표 기반 근처 장소 검색 (manual forward-geocode 결과도 사용)
-      const lat = selectedPlace?.latitude ?? geocode?.latitude ?? undefined
-      const lng = selectedPlace?.longitude ?? geocode?.longitude ?? undefined
+      const lat = selectedPlace?.latitude ?? geocode?.latitude ?? prefillLocation?.latitude ?? undefined
+      const lng = selectedPlace?.longitude ?? geocode?.longitude ?? prefillLocation?.longitude ?? undefined
       if (lat && lng) {
         try {
           const nearby = await findNearbyPlaces(lat, lng)

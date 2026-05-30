@@ -19,6 +19,9 @@ interface FilterControlsProps {
     // Sort
     sortType: SortType
     onSortChange: (type: SortType) => void
+    isNearbyPermissionDenied?: boolean
+    isRequestingLocation?: boolean
+    hideSort?: boolean
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,6 +38,9 @@ export default function FilterControls({
     onToggle24h,
     sortType,
     onSortChange,
+    isNearbyPermissionDenied = false,
+    isRequestingLocation = false,
+    hideSort = false,
 }: FilterControlsProps) {
     const filterCount = selectedFilters.length + (is24hOnly ? 1 : 0)
     const hasActiveFilters = filterCount > 0
@@ -71,24 +77,28 @@ export default function FilterControls({
                 )}
 
                 {/* 정렬 토글 */}
-                <div className="flex items-center gap-1 ml-auto">
-                    {([
-                        { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
-                        { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
-                    ]).map((s) => (
-                        <button
-                            key={s.key}
-                            onClick={() => onSortChange(s.key)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
-                                ? 'text-white shadow-md'
-                                : 'glass-card-light text-stone-500 hover:text-stone-700'
-                                }`}
-                            style={sortType === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
-                        >
-                            {s.label}
-                        </button>
-                    ))}
-                </div>
+                {!hideSort && (
+                    <div className="flex items-center gap-1 ml-auto">
+                        {([
+                            { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
+                            { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
+                            { key: 'nearby' as const, label: isNearbyPermissionDenied ? '위치 권한 필요' : EXPLORE.SORT.NEARBY },
+                        ]).map((s) => (
+                            <button
+                                key={s.key}
+                                onClick={() => onSortChange(s.key)}
+                                aria-disabled={s.key === 'nearby' && isNearbyPermissionDenied}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
+                                    ? 'text-white shadow-md'
+                                    : 'glass-card-light text-stone-500 hover:text-stone-700'
+                                    } ${s.key === 'nearby' && isNearbyPermissionDenied ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                style={sortType === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
+                            >
+                                {s.key === 'nearby' && isRequestingLocation ? '확인 중' : s.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* 필터 패널 */}
