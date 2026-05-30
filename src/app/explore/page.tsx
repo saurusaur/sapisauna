@@ -120,9 +120,11 @@ export default function ExplorePage() {
 
   const handleMapLoadError = () => {
     setViewMode('list')
-    showNotice('지도를 불러올 수 없어 리스트로 전환했어요')
+    // 로드 실패 콜백(APIProvider onError · error boundary · load gate)이
+    // 여러 번 불려도 토스트/리포트는 1회만 — 토스트 누적 방지
     if (mapLoadErrorReportedRef.current) return
     mapLoadErrorReportedRef.current = true
+    showNotice('지도를 불러올 수 없어 리스트로 전환했어요')
     captureError(new Error('map.load.fail'), { label: 'map.load.fail' })
   }
 
