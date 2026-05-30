@@ -245,13 +245,32 @@ function ClusteredMarkers({
     })
   }, [])
 
+  // place별로 "안정적인" ref 콜백을 캐시한다.
+  // 인라인 `ref={(m) => setMarkerRef(id, m)}`는 매 렌더마다 함수 정체성이 바뀌어
+  // React가 detach(null)+attach(instance)를 반복 → setMarkers churn → 무한 리렌더(React #185).
+  // placeId당 콜백을 1회만 만들어 재사용하면 mount/unmount에서만 실행된다.
+  // 주의: 이 파일은 vis.gl의 `Map` 컴포넌트를 import하므로 JS `Map` 대신 plain object로 캐시한다.
+  const markerRefCallbacks = useRef<
+    Record<string, (marker: google.maps.marker.AdvancedMarkerElement | null) => void>
+  >({})
+  const getMarkerRef = useCallback(
+    (placeId: string) => {
+      const cache = markerRefCallbacks.current
+      if (!cache[placeId]) {
+        cache[placeId] = (marker) => setMarkerRef(placeId, marker)
+      }
+      return cache[placeId]
+    },
+    [setMarkerRef]
+  )
+
   return (
     <>
       {places.map((place) => (
         <AdvancedMarker
           key={place.id}
           position={{ lat: place.latitude!, lng: place.longitude! }}
-          ref={(marker) => setMarkerRef(place.id, marker)}
+          ref={getMarkerRef(place.id)}
           zIndex={selectedPlaceId === place.id ? 10 : 1}
           onClick={() => onSelectPlace(selectedPlaceId === place.id ? null : place.id)}
         >
