@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explore Map View Mock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #cc1a1a;
+      --color-primary-light: #fde8e8;
+      --color-accent: #d44040;
+      --color-male: #1d4ed8;
+      --color-male-light: #dbeafe;
+      --color-icon-inactive: #d6d3d1;
+      --glass: 0 0% 100% / .55;
+      --glass-border: 0 0% 100% / .65;
+      --radius: .75rem;
+      --font-heading: "Oswald", -apple-system, sans-serif;
+      --font-sans: "Libre Franklin", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #2a2222;
+      background: #f5f2ef;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .material-symbols-outlined {
+      font-family: "Material Symbols Outlined";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 0;
+      display: inline-block;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-feature-settings: "liga";
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      vertical-align: middle;
+    }
+
+    .app {
+      width: min(100vw, 448px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      background: linear-gradient(135deg, #f5f2ef 0%, #ede8e3 100%);
+      position: relative;
+    }
+
+    header { padding: 32px 20px 12px; }
+    h1 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+      font-style: italic;
+      letter-spacing: 0;
+    }
+    main { padding: 16px; }
+
+    .glass-card-light {
+      background: hsl(var(--glass));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: .5px solid hsl(var(--glass-border));
+      box-shadow: 0 3px 12px -3px hsl(0 10% 15% / .10),
+                  0 1px 3px -1px hsl(0 10% 15% / .06),
+                  0 0 0 .5px hsl(0 0% 100% / .3);
+      border-radius: var(--radius);
+    }
+
+    .glass-input {
+      background: hsl(0 0% 100% / .65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: .5px solid hsl(0 0% 100% / .8);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px -2px hsl(0 10% 15% / .08);
+    }
+
+    .search {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px 0 14px;
+      color: #a8a29e;
+      font-size: 14px;
+    }
+    .search .material-symbols-outlined { color: #a8a29e; }
+
+    .segmented {
+      margin-top: 14px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: rgba(231, 229, 228, .72);
+    }
+    .segment {
+      height: 34px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: #78716c;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .segment.active {
+      background: hsl(0 0% 100% / .8);
+      color: #44403c;
+      box-shadow: 0 2px 8px rgba(68, 64, 60, .08);
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .filter-button {
+      border: 0;
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: #57534e;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .filter-help {
+      margin-left: auto;
+      color: #a8a29e;
+      font-size: 11px;
+    }
+
+    .map-card {
+      height: clamp(420px, calc(100dvh - 220px), 640px);
+      min-height: 420px;
+      max-height: 640px;
+      overflow: hidden;
+      position: relative;
+      background: #e9e3dc;
+    }
+    .map-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(105deg, transparent 0 23%, rgba(255,255,255,.72) 23.4% 25%, transparent 25.4%),
+        linear-gradient(23deg, transparent 0 32%, rgba(255,255,255,.68) 32.4% 34%, transparent 34.4%),
+        linear-gradient(153deg, transparent 0 42%, rgba(255,255,255,.58) 42.3% 44%, transparent 44.3%),
+        radial-gradient(ellipse at 86% 48%, rgba(83, 126, 171, .16) 0 19%, transparent 20%),
+        radial-gradient(ellipse at 22% 18%, rgba(106, 153, 91, .14) 0 16%, transparent 17%),
+        #e7e2da;
+    }
+    .map-label {
+      position: absolute;
+      color: rgba(87, 83, 78, .34);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .map-label.a { left: 30px; top: 70px; }
+    .map-label.b { right: 44px; top: 210px; }
+    .map-label.c { left: 86px; bottom: 96px; }
+
+    .google-control {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 2px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: #5f6368;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+
+    .cluster,
+    .marker,
+    .me {
+      position: absolute;
+      transform: translate(-50%, -50%);
+    }
+    .marker {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: #111;
+      border: 3px solid #fff;
+      box-shadow: 0 3px 10px rgba(0,0,0,.24);
+    }
+    .marker.saved::after {
+      content: "♥";
+      position: absolute;
+      inset: 0;
+      color: #fff;
+      font-size: 11px;
+      line-height: 16px;
+      text-align: center;
+      font-weight: 800;
+    }
+    .marker.selected {
+      width: 28px;
+      height: 28px;
+      border-width: 4px;
+    }
+    .cluster {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #111;
+      border: 3px solid #fff;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0,0,0,.28);
+    }
+    .me {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--color-primary);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 8px rgba(204, 26, 26, .16), 0 4px 12px rgba(204, 26, 26, .24);
+    }
+
+    .m1 { left: 48%; top: 44%; }
+    .m2 { left: 30%; top: 30%; }
+    .m3 { left: 72%; top: 38%; }
+    .m4 { left: 24%; top: 64%; }
+    .c1 { left: 62%; top: 24%; }
+    .me { left: 44%; top: 56%; }
+
+    .selected-wrap {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 82px;
+      max-width: 424px;
+      margin: 0 auto;
+      z-index: 10;
+    }
+    .place-card {
+      width: 100%;
+      padding: 12px;
+      text-align: left;
+    }
+    .place-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .place-name {
+      color: #44403c;
+      font-size: 14px;
+      font-weight: 500;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .badge {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .male { color: var(--color-male); background: var(--color-male-light); }
+    .hours { color: var(--color-primary); background: var(--color-primary-light); }
+    .save {
+      margin-left: auto;
+      color: var(--color-primary);
+      font-size: 15px;
+      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+    .addr {
+      margin-top: 2px;
+      color: #a8a29e;
+      font-size: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .addr strong { color: #78716c; font-weight: 500; }
+    .score {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--color-accent);
+      font-size: 12px;
+    }
+    .score .material-symbols-outlined {
+      color: var(--color-accent);
+      font-size: 14px;
+    }
+    .score strong { font-weight: 700; }
+    .score span:last-child { color: #78716c; }
+
+    .toast {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 154px;
+      max-width: 416px;
+      margin: 0 auto;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: #292524;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 24px rgba(28,25,23,.22);
+      z-index: 12;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      max-width: 448px;
+      margin: 0 auto;
+      height: 67px;
+    }
+    .bottom-bg {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(18px);
+      background: hsl(var(--glass));
+      border-top: .5px solid hsl(var(--glass-border));
+      box-shadow: 0 -4px 16px rgba(0,0,0,.06), 0 -12px 40px rgba(0,0,0,.04);
+    }
+    .bottom-items {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 10px 0 12px;
+    }
+    .nav-item {
+      min-width: 48px;
+      color: #a8a29e;
+      font-size: 10px;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .nav-item.active { color: var(--color-primary); }
+    .nav-item .material-symbols-outlined { display: block; margin: 0 auto 2px; }
+    .home {
+      position: absolute;
+      left: 50%;
+      top: -20px;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(204,26,26,.35), 0 2px 6px rgba(0,0,0,.15);
+    }
+    .spacer { min-width: 56px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header><h1>EXPLORE</h1></header>
+    <main>
+      <div class="search glass-input">
+        <span class="material-symbols-outlined">search</span>
+        <span>장소명 또는 주소 검색 (해외 사우나는 영어로!)</span>
+      </div>
+
+      <div class="segmented" aria-label="view mode">
+        <button class="segment"><span class="material-symbols-outlined">view_list</span>리스트</button>
+        <button class="segment active"><span class="material-symbols-outlined">map</span>지도</button>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-button glass-card-light">필터</button>
+        <span class="filter-help">지도 탭에서는 정렬 숨김</span>
+      </div>
+
+      <section class="map-card glass-card-light" aria-label="map mock">
+        <div class="map-bg"></div>
+        <div class="map-label a">Jongno</div>
+        <div class="map-label b">Euljiro</div>
+        <div class="map-label c">Dongdaemun</div>
+
+        <button class="google-control" aria-label="내 위치">
+          <span class="material-symbols-outlined">my_location</span>
+        </button>
+
+        <div class="cluster c1">8</div>
+        <div class="marker m1 selected saved"></div>
+        <div class="marker m2"></div>
+        <div class="marker m3 saved"></div>
+        <div class="marker m4"></div>
+        <div class="me"></div>
+      </section>
+    </main>
+
+    <div class="selected-wrap">
+      <article class="place-card glass-card-light">
+        <div class="place-head">
+          <span class="place-name">스파렉스 동대문점</span>
+          <span class="badge male">♂</span>
+          <span class="badge hours">24H</span>
+          <span class="material-symbols-outlined save">bookmark_heart</span>
+        </div>
+        <div class="addr">서울 중구 · <strong>1.2km</strong></div>
+        <div class="score">
+          <span class="material-symbols-outlined">move</span>
+          <strong>4.3/5</strong>
+          <span>· 18건의 기록</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="toast">내 위치를 확인할게요</div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="bottom-bg"></div>
+    <div class="home"><span class="material-symbols-outlined">home</span></div>
+    <div class="bottom-items">
+      <div class="nav-item active"><span class="material-symbols-outlined">explore</span>탐색</div>
+      <div class="nav-item"><span class="material-symbols-outlined">history</span>내 기록</div>
+      <div class="spacer"></div>
+      <div class="nav-item"><span class="material-symbols-outlined">format_list_bulleted</span>사-리스트</div>
+      <div class="nav-item"><span class="material-symbols-outlined">person</span>마이</div>
+    </div>
+  </nav>
+</body>
+</html>

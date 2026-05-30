@@ -2,8 +2,8 @@
 
 Date: 2026-05-18 (created), 2026-05-19 (D1-D8 결정 반영, jimi 마이그레이션 완료)
 Status: Active — Phase 0 잔여 = 디자인 리소스 결정
-Spec source: `docs/po/SPEC_sauna_pet_v2.5.1.md` (영문 위치) / `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md` (한글 원본 사본, plans 작업 시 참고용)
-Supersedes: `docs/plans/PLAN_sauna_pet.md` (v1 초안)
+Spec source: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (영문) / `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md` (한글 원본 사본, plans 작업 시 참고용)
+Supersedes: `docs/plans/archive/PLAN_sauna_pet.md` (v1 초안)
 
 ## 0. 문서 목적
 
@@ -17,9 +17,9 @@ Supersedes: `docs/plans/PLAN_sauna_pet.md` (v1 초안)
 
 | 항목 | 상태 | 위치 |
 |---|---|---|
-| 기존 펫 v1 플랜 (가벼운 companion) | 폐기 예정 | `docs/plans/PLAN_sauna_pet.md` |
+| 기존 펫 v1 플랜 (가벼운 companion) | 폐기 (archive) | `docs/plans/archive/PLAN_sauna_pet.md` |
 | BACKLOG 등록 | P3 long-term | `docs/po/BACKLOG.md` |
-| 사사사 로드맵 위치 | 2026 Q4 "캐릭터 커스터마이징 v1" | `docs/po/SAPI_444_ROADMAP_DRAFT.md` §3-2 |
+| 사사사 로드맵 위치 | 2026 Q4 "캐릭터 커스터마이징 v1" | `docs/plans/archive/SAPI_444_ROADMAP_DRAFT.md` §3-2 (사사사 협업 보류로 archive) |
 | XP·레벨·칭호 엔진 | 가동 중 | `src/lib/reward-engine.ts`, `src/constants/rewards.ts` |
 | 베타 칭호 "첫 사-피엔스" | **이미 부여됨** | `rewards.ts:48` `BASE_MILESTONES.beta_signup` |
 | 트라이브 첫 로그 칭호 | **펫 종 이름과 동일** | `rewards.ts:52` `TRIBE_LOG_MILESTONES` |
@@ -130,7 +130,7 @@ Supersedes: `docs/plans/PLAN_sauna_pet.md` (v1 초안)
 - [x] D1·D2·D3·D4·D7 결정 (2026-05-19)
 - [x] D5·D6·D8 결정 (2026-05-19)
 - [x] jimi "구운달걀" → "맥반석란" 마이그레이션 025 실행 완료 (2026-05-19)
-- [x] v2.5.1 스펙 이관 → `docs/po/SPEC_sauna_pet_v2.5.1.md`
+- [x] v2.5.1 스펙 이관 → `docs/plans/SPEC_sauna_pet_v2.5.1.md`
 - [ ] **R1·R2 — 디자인 외주 결정** (15 캐릭터 + 19 코스튬 + 4 Lottie ≈ 37h). 외주 견적 확보 또는 직접 일정 산정. **착수 전 P0 블로커**
 - [ ] R5 코스튬 19개 최종 리스트 확정
 
