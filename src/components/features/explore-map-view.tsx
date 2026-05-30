@@ -104,22 +104,25 @@ function FitBoundsToPlaces({
 }) {
   const map = useMap()
 
+  // 내 위치가 있으면 내 위치를 중심으로 이동 (Google 지도 "내 위치" 동작).
+  // requestLocation()은 성공 시마다 새 location 객체를 만들므로, "내 위치" 버튼을
+  // 다시 눌러 좌표가 같아도 이 효과가 재실행되어 다시 센터링된다.
   useEffect(() => {
-    if (!map) return
+    if (!map || !userLocation) return
+    map.panTo({ lat: userLocation.latitude, lng: userLocation.longitude })
+    map.setZoom(14)
+  }, [map, userLocation])
+
+  // 내 위치가 없을 때만 등록된 장소 전체가 보이도록 fit (내 위치 있으면 건드리지 않음
+  // → 검색/필터로 장소가 바뀌어도 내 위치에서 튕기지 않음)
+  useEffect(() => {
+    if (!map || userLocation) return
 
     const bounds = new google.maps.LatLngBounds()
     let hasBounds = false
-
-    // 장소 마커 + 내 위치를 모두 포함하도록 bounds를 구성한다.
-    // (내 위치만 보고 panTo하면 사우나 마커가 화면 밖으로 나갈 수 있음)
     for (const place of places) {
       if (place.latitude === null || place.longitude === null) continue
       bounds.extend({ lat: place.latitude, lng: place.longitude })
-      hasBounds = true
-    }
-
-    if (userLocation) {
-      bounds.extend({ lat: userLocation.latitude, lng: userLocation.longitude })
       hasBounds = true
     }
 
