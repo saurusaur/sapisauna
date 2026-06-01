@@ -84,6 +84,41 @@ function svgToImage(svgStr: string): Promise<HTMLImageElement> {
   return loadImage(url).finally(() => URL.revokeObjectURL(url))
 }
 
+// ─── 폰트 해석 ───
+// next/font(Oswald)는 해시된 패밀리명(__Oswald_xxxx)으로 등록되며 --font-oswald 변수로만
+// 노출된다. 캔버스가 literal "Oswald"를 참조하면 그 페이스를 못 찾아 시스템 폰트로 폴백 →
+// export 이미지의 폰트가 프리뷰와 달라지는 회귀가 발생했다.
+// 프리뷰(DOM)가 쓰는 바로 그 패밀리명을 런타임에 읽어 캔버스도 동일 페이스를 쓰게 한다.
+
+function resolveOswaldFamily(): string {
+  if (typeof document === 'undefined') return 'Oswald'
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue('--font-oswald')
+    .trim()
+  return value || 'Oswald'
+}
+
+// 패밀리 리스트("__Oswald_x", "__Oswald_Fallback_x")에서 로드 대상 primary 이름만 추출
+function primaryFamily(familyList: string): string {
+  const first = familyList.split(',')[0].trim()
+  return first.replace(/^['"]|['"]$/g, '')
+}
+
+// export에서 사용하는 weight/style을 명시적으로 로드. 이미 로드돼 있으면(프리뷰가 이미
+// 렌더했으므로 보통 그렇다) 재다운로드 없이 즉시 resolve되는 멱등 호출 → "추가 로드 0".
+async function ensureOswaldLoaded(familyList: string): Promise<void> {
+  if (typeof document === 'undefined' || !document.fonts) return
+  const family = `"${primaryFamily(familyList)}"`
+  const specs = [
+    `400 16px ${family}`,
+    `italic 400 16px ${family}`,
+    `600 16px ${family}`,
+    `700 16px ${family}`,
+  ]
+  await Promise.all(specs.map((s) => document.fonts.load(s).catch(() => {})))
+  await document.fonts.ready
+}
+
 function drawCoverFit(ctx: CanvasRenderingContext2D, img: HTMLImageElement, tw: number, th: number) {
   const ir = img.naturalWidth / img.naturalHeight
   const tr = tw / th
@@ -126,11 +161,11 @@ function setShadow(ctx: CanvasRenderingContext2D, on: boolean) {
  * 보정값 = fontSize × (naturalLineHeightRatio - 1) / 2
  * 이 값을 y에 더해주면 CSS와 동일한 위치에 렌더링됨
  */
-function measureHalfLeading(ctx: CanvasRenderingContext2D): number {
+function measureHalfLeading(ctx: CanvasRenderingContext2D, family: string): number {
   // Oswald의 자연 line-height 비율을 런타임에 측정
   const prevBaseline = ctx.textBaseline
   const prevFont = ctx.font
-  ctx.font = 'bold 100px Oswald'
+  ctx.font = `bold 100px ${family}`
   ctx.textBaseline = 'alphabetic'
   const m = ctx.measureText('M')
   const naturalRatio = (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent) / 100
@@ -140,7 +175,9 @@ function measureHalfLeading(ctx: CanvasRenderingContext2D): number {
 }
 
 export async function renderCard(p: CardRenderParams): Promise<Blob> {
-  await document.fonts.ready
+  // 프리뷰가 쓰는 next/font Oswald 페이스를 캔버스도 그대로 사용 (literal "Oswald" 폴백 회귀 수정)
+  const OSWALD = resolveOswaldFamily()
+  await ensureOswaldLoaded(OSWALD)
 
   const canvas = document.createElement('canvas')
   canvas.width = W
@@ -152,7 +189,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   ctx.textBaseline = 'top'
 
   // CSS leading-none 보정: 각 fillText y에 hl(fontSize)를 더함
-  const nlr = measureHalfLeading(ctx) // Oswald natural line-height ratio (~1.18)
+  const nlr = measureHalfLeading(ctx, OSWALD) // Oswald natural line-height ratio (~1.18)
   const hl = (fs: number) => fs * (nlr - 1) / 2
 
   const colors = STORY_COLORS[p.tribeId]
@@ -226,12 +263,12 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
   // ── 헤더: 장소명 + 날짜 ──
   ctx.fillStyle = 'white'
-  ctx.font = 'bold 56px Oswald'
+  ctx.font = `bold 56px ${OSWALD}`
   setLetterSpacing(ctx, 1.12)
   ctx.fillText(p.placeName, PX, placeNameTop + hl(56))
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
-  ctx.font = 'italic 48px Oswald'
+  ctx.font = `italic 48px ${OSWALD}`
   setLetterSpacing(ctx, 0)
   ctx.fillText(formatDate(p.date), PX, dateTop + hl(48))
 
@@ -240,7 +277,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
   // 라벨
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
-  ctx.font = 'bold 48px Oswald'
+  ctx.font = `bold 48px ${OSWALD}`
   setLetterSpacing(ctx, 9.6)
   ctx.fillText(metric.label, PX, labelY + hl(48))
   setLetterSpacing(ctx, 0)
@@ -248,7 +285,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   // 큰 숫자
   setShadow(ctx, hasBg)
   ctx.fillStyle = 'white'
-  ctx.font = 'bold 380px Oswald'
+  ctx.font = `bold 380px ${OSWALD}`
   setLetterSpacing(ctx, -7.6)
   ctx.fillText(metric.value, PX - 16, valueY + hl(380))
 
@@ -256,7 +293,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   if (metric.unit) {
     const vw = ctx.measureText(metric.value).width
     ctx.fillStyle = 'rgba(255,255,255,0.8)'
-    ctx.font = '600 88px Oswald'
+    ctx.font = `600 88px ${OSWALD}`
     setLetterSpacing(ctx, 0)
     ctx.fillText(metric.unit, PX - 16 + vw + 8, valueY + 28 + hl(88))
   }
@@ -279,9 +316,9 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   const valTexts = badges.map(b => b.value != null ? String(b.value) : '-')
 
   // 각 뱃지 컬럼 너비 측정 → gap: 72px 배치
-  ctx.font = 'bold 96px Oswald'
+  ctx.font = `bold 96px ${OSWALD}`
   const valWidths = valTexts.map(t => ctx.measureText(t).width)
-  ctx.font = '42px Oswald'
+  ctx.font = `42px ${OSWALD}`
   setLetterSpacing(ctx, 4.2)
   const lblWidths = badges.map(b => ctx.measureText(b.label).width)
   setLetterSpacing(ctx, 0)
@@ -296,15 +333,15 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
     // 숫자 + suffix (/5)
     ctx.fillStyle = 'white'
-    ctx.font = 'bold 96px Oswald'
+    ctx.font = `bold 96px ${OSWALD}`
     ctx.fillText(valTexts[i], cx, badgeY + hl(96))
     if (b.suffix && b.value != null) {
       ctx.fillStyle = 'rgba(255,255,255,0.5)'
-      ctx.font = 'bold 48px Oswald'
+      ctx.font = `bold 48px ${OSWALD}`
       // 96px 숫자 폭 측정은 같은 폰트로 해야 정확
-      ctx.font = 'bold 96px Oswald'
+      ctx.font = `bold 96px ${OSWALD}`
       const valW = ctx.measureText(valTexts[i]).width
-      ctx.font = 'bold 48px Oswald'
+      ctx.font = `bold 48px ${OSWALD}`
       ctx.textAlign = 'left'
       // 48px 텍스트를 96px 텍스트 하단에 맞춤 (top 기준이므로 96-48=48 오프셋)
       ctx.fillText(b.suffix, cx + valW / 2, badgeY + hl(96) + (96 - 48) - 8)
@@ -314,7 +351,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
 
     // 라벨
     ctx.fillStyle = 'rgba(255,255,255,0.7)'
-    ctx.font = '42px Oswald'
+    ctx.font = `42px ${OSWALD}`
     setLetterSpacing(ctx, 4.2)
     ctx.fillText(b.label, cx, badgeY + 96 + 22 + hl(42))
     setLetterSpacing(ctx, 0)
@@ -377,13 +414,13 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   ctx.fill()
 
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
-  ctx.font = 'bold 42px Oswald'
+  ctx.font = `bold 42px ${OSWALD}`
   setLetterSpacing(ctx, 4.2)
   ctx.fillText(p.tribeId.toUpperCase(), PX + 15 + 15 + 20, upperY + hl(42))
 
   // 아랫줄: SA-PI SAUNA (좌)
   ctx.fillStyle = 'rgba(255,255,255,0.4)'
-  ctx.font = 'bold 42px Oswald'
+  ctx.font = `bold 42px ${OSWALD}`
   ctx.fillText('SA-PI SAUNA', PX, footerTextY + hl(42))
 
   // 아랫줄: 칭호pill + 닉네임 (우측 정렬)
@@ -394,7 +431,7 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   if (p.userTitle) {
     const nickW = ctx.measureText(nickname).width
     const pillText = p.userTitle
-    ctx.font = 'bold 30px Oswald'
+    ctx.font = `bold 30px ${OSWALD}`
     const pillTextW = ctx.measureText(pillText).width
     const pillPadX = 20
     const pillH = 38
