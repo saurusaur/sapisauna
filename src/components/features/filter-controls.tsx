@@ -80,9 +80,8 @@ export default function FilterControls({
                 {!hideSort && (
                     <div className="flex items-center gap-1 ml-auto">
                         {([
-                            { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
-                            { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
                             { key: 'nearby' as const, label: isNearbyPermissionDenied ? '위치 권한 필요' : EXPLORE.SORT.NEARBY },
+                            { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
                         ]).map((s) => (
                             <button
                                 key={s.key}

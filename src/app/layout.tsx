@@ -57,10 +57,16 @@ export default function RootLayout({
     <html lang="ko" className={`${oswald.variable} ${libreFranklin.variable} ${notoSansKR.variable}`}>
       <head>
         {/* Material Symbols — next/font 미지원이라 link 유지 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/*
+          display=block: 폰트 로드 전 ligature 원본 글자("progress_activity" 등)가
+          노출되는 FOUT를 차단 (아이콘은 잠깐 안 보이다가 글리프로 표시).
+        */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block"
         />
       </head>
       <body className="min-h-dvh" style={{ backgroundColor: '#f5f2ef' }}>

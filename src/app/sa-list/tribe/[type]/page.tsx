@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { useRouter, useParams } from 'next/navigation'
 import {
@@ -10,13 +10,17 @@ import {
 import { usePlaces } from '@/hooks/use-places'
 import { useLogs } from '@/hooks/use-logs'
 import { useSavePlace } from '@/hooks/use-save-place'
-import type { Place } from '@/types'
+import { useUserLocation } from '@/hooks/use-user-location'
+import { useToast } from '@/contexts/toast-context'
+import { distanceMeters, formatDistance } from '@/lib/geo/distance'
 import DataState from '@/components/ui/data-state'
 import FilterControls from '@/components/features/filter-controls'
 import PlaceCard from '@/components/features/place-card'
-import { useExploreFilters } from '@/hooks/use-explore-filters'
+import { useExploreFilters, type SortType } from '@/hooks/use-explore-filters'
 import { SaveSnackbar } from '@/components/ui/snackbar'
 import { SaveBottomSheet } from '@/components/features/save-bottom-sheet'
+
+const DISTANCE_MUTED_THRESHOLD_M = 10000
 
 
 const VALID_TYPES = TRIBE_IDS
@@ -53,13 +57,28 @@ export default function TypeListPage() {
     VALID_TYPES.includes(initialType as typeof VALID_TYPES[number]) ? initialType : FALLBACK_TRIBE
   )
   const [searchQuery, setSearchQuery] = useState('')
+  const { showNotice } = useToast()
+  const {
+    location,
+    status: locationStatus,
+    permissionState,
+    requestLocation,
+  } = useUserLocation()
+  const isRequestingLocation = locationStatus === 'requesting'
+  const isNearbyPermissionDenied = permissionState === 'denied' || locationStatus === 'denied'
   const {
     showFilters, setShowFilters, toggleFiltersPanel,
     selectedFilters, toggleFilter,
     is24hOnly, setIs24hOnly,
     sortType, setSortType,
     filterCount, hasActiveFilters, resetFilters,
-  } = useExploreFilters()
+  } = useExploreFilters({
+    // 위치 있으면 가까운 순, 없으면 추천 순 (권한 확정 후 자동 결정)
+    dynamicDefault: {
+      locationAvailable: !!location || permissionState === 'granted',
+      resolved: permissionState !== 'unknown',
+    },
+  })
   const [showTypeDropdown, setShowTypeDropdown] = useState(false)
   const { isSaved, toggleDefaultSave, myLists, defaultListId, getSavedListIds, toggleListSave, removeFromAll } = useSavePlace()
 
@@ -135,6 +154,44 @@ export default function TypeListPage() {
     return map
   }, [logs])
 
+  // 내 위치 ↔ 각 장소 거리 (m) + 표시 라벨
+  const distanceMap = useMemo(() => {
+    if (!location) return null
+    const map: Record<string, number | null> = {}
+    for (const place of places) map[place.id] = distanceMeters(location, place)
+    return map
+  }, [location, places])
+
+  const distanceLabelMap = useMemo(() => {
+    if (!distanceMap) return {}
+    const map: Record<string, string | null> = {}
+    for (const [placeId, meters] of Object.entries(distanceMap)) {
+      map[placeId] = formatDistance(meters)
+    }
+    return map
+  }, [distanceMap])
+
+  // 정렬 변경 — '가까운 순' 선택 시 위치 요청 (denied면 안내)
+  const handleSortChange = useCallback((nextSortType: SortType) => {
+    if (nextSortType === 'nearby') {
+      if (isNearbyPermissionDenied) {
+        showNotice('브라우저 설정에서 위치 권한을 켜주세요')
+        return
+      }
+      if (!location) requestLocation()
+    }
+    setSortType(nextSortType)
+  }, [isNearbyPermissionDenied, location, requestLocation, setSortType, showNotice])
+
+  // 기본 정렬이 '가까운 순'으로 잡혔고 권한이 이미 허용된 경우 위치 자동 획득
+  // (granted면 프롬프트 없이 즉시 반환 — iOS 자동 프롬프트 무시 이슈 회피)
+  useEffect(() => {
+    if (sortType !== 'nearby') return
+    if (permissionState === 'granted' && !location && locationStatus !== 'requesting') {
+      requestLocation()
+    }
+  }, [sortType, permissionState, location, locationStatus, requestLocation])
+
   // 해당 타입의 추천 장소 (≥4점 건수 내림차순 → 평균 점수 내림차순)
   const recommendedPlaces = useMemo(() => {
     const qualifiedLogs = logs.filter(
@@ -200,11 +257,18 @@ export default function TypeListPage() {
         return statsB.avg - statsA.avg
       }
 
+      if (sortType === 'nearby') {
+        const distA = distanceMap?.[a.id] ?? Infinity
+        const distB = distanceMap?.[b.id] ?? Infinity
+        if (distA !== distB) return distA - distB
+        return statsB.avg - statsA.avg
+      }
+
       return 0
     })
 
     return filtered
-  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, placeStatsMap])
+  }, [recommendedPlaces, searchQuery, selectedFilters, is24hOnly, sortType, placeStatsMap, distanceMap])
 
   return (
     <div className="min-h-dvh pb-8 bath-tile-bg">
@@ -302,7 +366,9 @@ export default function TypeListPage() {
           is24hOnly={is24hOnly}
           onToggle24h={setIs24hOnly}
           sortType={sortType}
-          onSortChange={setSortType}
+          onSortChange={handleSortChange}
+          isNearbyPermissionDenied={isNearbyPermissionDenied}
+          isRequestingLocation={isRequestingLocation}
         />
 
         {/* 장소 리스트 */}
@@ -315,6 +381,8 @@ export default function TypeListPage() {
                 onClick={() => router.push(`/explore/${place.id}`)}
                 isSaved={isSaved(place.id)}
                 onToggleSave={() => handleToggleSave(place.id)}
+                distanceLabel={distanceLabelMap[place.id]}
+                distanceLabelMuted={(distanceMap?.[place.id] ?? 0) > DISTANCE_MUTED_THRESHOLD_M}
               />
             ))}
           </div>
