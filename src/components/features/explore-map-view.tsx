@@ -1,6 +1,6 @@
 'use client'
 
-import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Component, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   AdvancedMarker,
   APIProvider,
@@ -169,7 +169,7 @@ function HeartGlyph({ size }: { size: number }) {
 
 // 사우나 마커 — 클래식 물방울 핀. 일반=김, 저장=하트, 선택 시 확대.
 // [도형(회전 teardrop) + 아이콘 오버레이] 구조로 아이콘을 둥근 머리 중앙에 정렬.
-function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
+const SaunaPin = memo(function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
   const size = selected ? 35 : 30
   const borderW = selected ? 3 : 2.5
   const bottomInset = selected ? 3 : 2
@@ -192,7 +192,34 @@ function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
       </div>
     </div>
   )
-}
+})
+
+// 개별 사우나 마커 — React.memo로 감싸 자신의 selected/saved가 바뀐 마커만 리렌더된다.
+// (selectedPlaceId 변경 시 238개 전체가 아니라 선택/해제된 2개만 다시 그림)
+const PlaceMarker = memo(function PlaceMarker({
+  place,
+  selected,
+  saved,
+  onSelect,
+  markerRef,
+}: {
+  place: Place
+  selected: boolean
+  saved: boolean
+  onSelect: (placeId: string) => void
+  markerRef: (marker: google.maps.marker.AdvancedMarkerElement | null) => void
+}) {
+  return (
+    <AdvancedMarker
+      position={{ lat: place.latitude!, lng: place.longitude! }}
+      ref={markerRef}
+      zIndex={selected ? 10 : 1}
+      onClick={() => onSelect(place.id)}
+    >
+      <SaunaPin saved={saved} selected={selected} />
+    </AdvancedMarker>
+  )
+})
 
 // '나' 마커 — 유저 프로필 이모지가 있으면 흰 원 배지 + 파란 링, 없으면 파란 점.
 function UserLocationMarker({
@@ -254,6 +281,31 @@ function ClusteredMarkers({
   const map = useMap()
   const clusterer = useRef<MarkerClusterer | null>(null)
   const [markers, setMarkers] = useState<Record<string, Marker>>({})
+
+  // ── 뷰포트 컬링 ── 화면(+여유 패딩) 안의 장소만 마커로 마운트.
+  // 도시 단위로 줌인해 둘러볼 때 238개 전체가 아니라 화면 근처 수십 개만 React 마커로 유지.
+  const [viewBounds, setViewBounds] = useState<google.maps.LatLngBounds | null>(null)
+  useEffect(() => {
+    if (!map) return
+    const update = () => setViewBounds(map.getBounds() ?? null)
+    update()
+    const listener = map.addListener('idle', update)
+    return () => listener.remove()
+  }, [map])
+
+  const visiblePlaces = useMemo(() => {
+    if (!viewBounds) return places
+    const ne = viewBounds.getNorthEast()
+    const sw = viewBounds.getSouthWest()
+    // 가장자리 마커가 팬 시 갑자기 튀어나오지 않도록 20% 패딩
+    const latPad = (ne.lat() - sw.lat()) * 0.2
+    const lngPad = (ne.lng() - sw.lng()) * 0.2
+    const padded = new google.maps.LatLngBounds(
+      { lat: sw.lat() - latPad, lng: sw.lng() - lngPad },
+      { lat: ne.lat() + latPad, lng: ne.lng() + lngPad }
+    )
+    return places.filter((p) => padded.contains({ lat: p.latitude!, lng: p.longitude! }))
+  }, [places, viewBounds])
 
   useEffect(() => {
     if (!map) return
@@ -318,18 +370,28 @@ function ClusteredMarkers({
     [setMarkerRef]
   )
 
+  // 선택 토글 콜백 — onSelectPlace(useState setter)는 안정 참조. 최신 선택값은 ref로 읽어
+  // handleSelect 정체성을 유지 → 메모된 PlaceMarker가 선택 변경마다 전부 리렌더되지 않는다.
+  const selectedIdRef = useRef(selectedPlaceId)
+  selectedIdRef.current = selectedPlaceId
+  const handleSelect = useCallback(
+    (placeId: string) => {
+      onSelectPlace(selectedIdRef.current === placeId ? null : placeId)
+    },
+    [onSelectPlace]
+  )
+
   return (
     <>
-      {places.map((place) => (
-        <AdvancedMarker
+      {visiblePlaces.map((place) => (
+        <PlaceMarker
           key={place.id}
-          position={{ lat: place.latitude!, lng: place.longitude! }}
-          ref={getMarkerRef(place.id)}
-          zIndex={selectedPlaceId === place.id ? 10 : 1}
-          onClick={() => onSelectPlace(selectedPlaceId === place.id ? null : place.id)}
-        >
-          <SaunaPin saved={isSaved(place.id)} selected={selectedPlaceId === place.id} />
-        </AdvancedMarker>
+          place={place}
+          selected={selectedPlaceId === place.id}
+          saved={isSaved(place.id)}
+          onSelect={handleSelect}
+          markerRef={getMarkerRef(place.id)}
+        />
       ))}
     </>
   )
