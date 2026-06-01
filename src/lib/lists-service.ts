@@ -15,6 +15,27 @@ function generateSlug(): string {
   return nanoid(8)
 }
 
+// UUID 패턴 판별 (slug는 nanoid 8자리라 이 패턴에 매칭되지 않음)
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+}
+
+// slug 또는 UUID → 실제 list UUID 해석.
+// 공유 링크는 slug(nanoid 8자리)를 쓰므로, UUID 컬럼 쿼리 전에 반드시 해석해야 함.
+async function resolveListId(idOrSlug: string): Promise<string | null> {
+  if (isUuid(idOrSlug)) return idOrSlug
+  const { data, error } = await supabase
+    .from('lists')
+    .select('id')
+    .eq('slug', idOrSlug)
+    .single()
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return (data as { id: string }).id
+}
+
 // ─── 리스트 CRUD ───
 
 // 내 리스트 전체 조회 (default 포함)
@@ -154,8 +175,7 @@ export async function getFeaturedPublicLists(): Promise<SaList[]> {
 // 리스트 단일 조회 (+ owner 정보) — UUID 또는 slug로 조회
 export async function getListById(idOrSlug: string): Promise<SaList | null> {
   // UUID 패턴이면 id로, 아니면 slug로 조회
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug)
-  const column = isUuid ? 'id' : 'slug'
+  const column = isUuid(idOrSlug) ? 'id' : 'slug'
 
   const { data, error } = await supabase
     .from('lists')
@@ -259,7 +279,11 @@ export async function deleteList(id: string): Promise<void> {
 // ─── 리스트 아이템 ───
 
 // 리스트 내 장소 목록 (장소 정보 JOIN)
-export async function getListItems(listId: string): Promise<ListItem[]> {
+export async function getListItems(idOrSlug: string): Promise<ListItem[]> {
+  // 공유 링크는 slug로 들어오므로 UUID로 해석 후 조회 (slug를 list_id에 직접 넣으면 uuid 캐스팅 에러)
+  const listId = await resolveListId(idOrSlug)
+  if (!listId) return []
+
   const { data, error } = await supabase
     .from('list_items')
     .select('*, place:places!place_id(*, place_sources(*))')
@@ -396,7 +420,11 @@ export async function getListsContainingPlaces(userId: string, placeIds: string[
 // ─── 구독 ───
 
 // 리스트 구독 토글
-export async function toggleSubscription(_userId: string, listId: string): Promise<boolean> {
+export async function toggleSubscription(_userId: string, idOrSlug: string): Promise<boolean> {
+  // 공유 링크는 slug로 들어오므로 UUID로 해석 후 RPC 호출
+  const listId = await resolveListId(idOrSlug)
+  if (!listId) throw new Error('리스트를 찾을 수 없어요')
+
   const { data, error } = await supabase.rpc('toggle_list_subscription', {
     target_list_id: listId,
   })
@@ -419,7 +447,11 @@ export async function getSubscribedLists(userId: string): Promise<SaList[]> {
 }
 
 // 특정 리스트 구독 여부 확인
-export async function isSubscribed(userId: string, listId: string): Promise<boolean> {
+export async function isSubscribed(userId: string, idOrSlug: string): Promise<boolean> {
+  // 공유 링크는 slug로 들어오므로 UUID로 해석 후 조회
+  const listId = await resolveListId(idOrSlug)
+  if (!listId) return false
+
   const { data } = await supabase
     .from('list_subscriptions')
     .select('id')
