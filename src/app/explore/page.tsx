@@ -45,18 +45,24 @@ export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   const {
-    showFilters, toggleFiltersPanel,
-    selectedFilters, toggleFilter,
-    is24hOnly, setIs24hOnly,
-    sortType, setSortType,
-    resetFilters,
-  } = useExploreFilters({ defaultSortType: 'nearby' })
-  const {
     location,
     status: locationStatus,
     permissionState,
     requestLocation,
   } = useUserLocation()
+  const {
+    showFilters, toggleFiltersPanel,
+    selectedFilters, toggleFilter,
+    is24hOnly, setIs24hOnly,
+    sortType, setSortType,
+    resetFilters,
+  } = useExploreFilters({
+    // 위치 있으면 가까운 순, 없으면 추천 순 (권한 확정 후 자동 결정)
+    dynamicDefault: {
+      locationAvailable: !!location || permissionState === 'granted',
+      resolved: permissionState !== 'unknown',
+    },
+  })
   const { isSaved } = useSavePlace()
   const { user } = useUser()
   const [visibleCount, setVisibleCount] = useState(3)
