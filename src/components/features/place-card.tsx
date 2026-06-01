@@ -35,6 +35,8 @@ interface PlaceCardProps {
     onEditMemo?: (currentMemo: string) => void
     // collection variant 전용: 본인 리스트 여부 (편집 어포던스 표시)
     isMine?: boolean
+    distanceLabel?: string | null
+    distanceLabelMuted?: boolean
 }
 
 // 기본 시설 — 카드 표시에서 후순위로 밀기 (상세 페이지에서는 전체 표시)
@@ -55,6 +57,8 @@ export default function PlaceCard({
     collectionMemo,
     onEditMemo,
     isMine,
+    distanceLabel,
+    distanceLabelMuted,
 }: PlaceCardProps) {
     const { stats } = usePlaceStats(place.id)
     const showSave = onToggleSave !== undefined
@@ -96,7 +100,15 @@ export default function PlaceCard({
                     </div>
                 )}
             </div>
-            <p className="text-xs text-stone-400 mt-0.5">{place.short_address || place.address}</p>
+            <p className="text-xs text-stone-400 mt-0.5 truncate">
+                {place.short_address || place.address}
+                {distanceLabel && (
+                    <span className={distanceLabelMuted ? 'text-stone-300' : 'text-stone-500'}>
+                        {' · '}
+                        {distanceLabel}
+                    </span>
+                )}
+            </p>
         </>
     )
 

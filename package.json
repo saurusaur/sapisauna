@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@sentry/nextjs": "^10.47.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.1",
+    "@vis.gl/react-google-maps": "^1.8.3",
     "canvas-confetti": "^1.9.4",
     "country-to-currency": "^2.0.2",
     "culori": "^4.0.2",

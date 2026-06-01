@@ -19,6 +19,7 @@ import DataState from '@/components/ui/data-state'
 import { useAuth } from '@/contexts/auth-context'
 import BottomCTA from '@/components/ui/bottom-cta'
 import { SaveFlow } from '@/components/features/save-flow'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 // PLACE_SPECS 섹션별로 시설 분류 (AMENITIES 포함)
 const specSections = ['HEAT', 'ICE', 'PAUSE', 'BEYOND', 'AMENITIES'] as const
@@ -36,6 +37,7 @@ export default function PlaceDetailPage() {
   const { data: containingLists } = usePublicListsContainingPlace(placeId, 10)
   const [showAllLists, setShowAllLists] = useState(false)
   const [showAllReviews, setShowAllReviews] = useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [logSort, setLogSort] = useState<'latest' | 'memo' | 'score' | 'tribe'>('latest')
   const [tribeSortId, setTribeSortId] = useState<string>('')
   const tribeDropdownRef = useRef<HTMLDivElement>(null)
@@ -270,6 +272,15 @@ export default function PlaceDetailPage() {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${googleSource.external_id}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`
 
+  // "시설 정보 추가하기" — 미인증 시 로그인 유도 모달
+  const handleAddFacilityInfo = () => {
+    if (!authUser) {
+      setShowLoginPrompt(true)
+      return
+    }
+    router.push(`/place/${placeId}/edit`)
+  }
+
   // "기록하기" CTA — 미인증 시 로그인 리다이렉트
   const handleRecord = () => {
     if (!authUser) {
@@ -400,7 +411,7 @@ export default function PlaceDetailPage() {
                 <div className="flex flex-col items-center gap-2 py-3">
                   <p className="text-sm text-stone-400">아직 시설 정보가 없어요</p>
                   <button
-                    onClick={() => router.push(`/place/${placeId}/edit`)}
+                    onClick={handleAddFacilityInfo}
                     className="text-xs font-medium underline underline-offset-2"
                     style={{ color: 'var(--color-primary)' }}
                   >
@@ -421,7 +432,7 @@ export default function PlaceDetailPage() {
                   ))}
                   {showAddCTA && (
                     <button
-                      onClick={() => router.push(`/place/${placeId}/edit`)}
+                      onClick={handleAddFacilityInfo}
                       className="w-full text-center text-xs font-medium underline underline-offset-2 transition-colors"
                       style={{ color: 'var(--color-primary)' }}
                     >
@@ -692,6 +703,8 @@ export default function PlaceDetailPage() {
       </main>
 
       {authUser && <BottomCTA onClick={handleRecord}>{PLACE_DETAIL.RECORD_CTA}</BottomCTA>}
+
+      <LoginPromptModal open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
     </div>
       )}
     </SaveFlow>

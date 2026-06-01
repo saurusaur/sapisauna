@@ -1,3 +1,8 @@
+> **[ARCHIVED 2026-05-30]** 적용 완료. `src/lib/log-edit-session.ts` 구현됨
+> (buildQuickEditSession / buildDeepEntrySession 분리, clearLogSessionAfterSave가 selectedRecordDate까지 정리).
+> writer 2곳 + reader 2곳 마이그레이션 완료 (커밋 `00918da`, `3cac216`).
+> PLAN 대비 더 잘 구현됨 (steam_sauna_temp · primary_sauna_kind · _deepOnly 추가). 근거: handoff_20260529_doc_cleanup_b_plan.md §2.4.
+
 # Log Edit Session Helper
 
 Date: 2026-05-18

@@ -19,6 +19,9 @@ interface FilterControlsProps {
     // Sort
     sortType: SortType
     onSortChange: (type: SortType) => void
+    isNearbyPermissionDenied?: boolean
+    isRequestingLocation?: boolean
+    hideSort?: boolean
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,6 +38,9 @@ export default function FilterControls({
     onToggle24h,
     sortType,
     onSortChange,
+    isNearbyPermissionDenied = false,
+    isRequestingLocation = false,
+    hideSort = false,
 }: FilterControlsProps) {
     const filterCount = selectedFilters.length + (is24hOnly ? 1 : 0)
     const hasActiveFilters = filterCount > 0
@@ -71,46 +77,41 @@ export default function FilterControls({
                 )}
 
                 {/* 정렬 토글 */}
-                <div className="flex items-center gap-1 ml-auto">
-                    {([
-                        { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
-                        { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
-                    ]).map((s) => (
-                        <button
-                            key={s.key}
-                            onClick={() => onSortChange(s.key)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
-                                ? 'text-white shadow-md'
-                                : 'glass-card-light text-stone-500 hover:text-stone-700'
-                                }`}
-                            style={sortType === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
-                        >
-                            {s.label}
-                        </button>
-                    ))}
-                </div>
+                {!hideSort && (
+                    <div className="flex items-center gap-1 ml-auto">
+                        {([
+                            { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
+                            { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
+                            { key: 'nearby' as const, label: isNearbyPermissionDenied ? '위치 권한 필요' : EXPLORE.SORT.NEARBY },
+                        ]).map((s) => (
+                            <button
+                                key={s.key}
+                                onClick={() => onSortChange(s.key)}
+                                aria-disabled={s.key === 'nearby' && isNearbyPermissionDenied}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${sortType === s.key
+                                    ? 'text-white shadow-md'
+                                    : 'glass-card-light text-stone-500 hover:text-stone-700'
+                                    } ${s.key === 'nearby' && isNearbyPermissionDenied ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                style={sortType === s.key ? { backgroundColor: 'var(--color-primary)' } : {}}
+                            >
+                                {s.key === 'nearby' && isRequestingLocation ? '확인 중' : s.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* 필터 패널 */}
             {showFilters && (
                 <div className="glass-card-light p-4 mb-4 space-y-4">
                     {(Object.entries(EXPLORE_FILTERS) as [string, { label: string; options: readonly string[] }][]).map(
-                        ([key, section], index) => (
+                        ([key, section]) => (
                             <div key={key}>
                                 {/* Section header */}
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="mb-2">
                                     <label className="text-sm font-medium text-stone-700">
                                         {section.label}
                                     </label>
-                                    {index === 0 && (
-                                        <button
-                                            onClick={onToggleFilters}
-                                            className="w-5 h-5 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all"
-                                            aria-label="Close filters"
-                                        >
-                                            <span className="material-symbols-outlined text-base">{ICONS.CLOSE}</span>
-                                        </button>
-                                    )}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {section.options.map((optionId) => (
@@ -127,13 +128,22 @@ export default function FilterControls({
                         )
                     )}
 
-                    {/* 24시 토글 */}
+                    {/* 24시 토글 + 닫기 */}
                     <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                        <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-base">schedule</span>
-                            {EXPLORE.TOGGLE_24H}
-                        </label>
-                        <ToggleSwitch checked={is24hOnly} onChange={onToggle24h} />
+                        <div className="flex items-center gap-2.5">
+                            <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-base">schedule</span>
+                                {EXPLORE.TOGGLE_24H}
+                            </label>
+                            <ToggleSwitch checked={is24hOnly} onChange={onToggle24h} />
+                        </div>
+                        <button
+                            onClick={onToggleFilters}
+                            className="w-7 h-7 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all"
+                            aria-label="필터 닫기"
+                        >
+                            <span className="material-symbols-outlined text-lg">{ICONS.CLOSE}</span>
+                        </button>
                     </div>
                 </div>
             )}
