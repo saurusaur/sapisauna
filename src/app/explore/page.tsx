@@ -50,7 +50,7 @@ export default function ExplorePage() {
     is24hOnly, setIs24hOnly,
     sortType, setSortType,
     resetFilters,
-  } = useExploreFilters()
+  } = useExploreFilters({ defaultSortType: 'nearby' })
   const {
     location,
     status: locationStatus,
@@ -151,6 +151,15 @@ export default function ExplorePage() {
       showNotice('위치를 허용하면 가까운 순으로 볼 수 있어요')
     }
   }, [locationStatus, showNotice, sortType])
+
+  // 리스트뷰 기본 정렬이 '가까운 순'이라, 위치 권한이 이미 허용돼 있으면 자동으로 위치를 가져온다.
+  // (granted 상태면 프롬프트 없이 즉시 반환 — iOS의 자동 프롬프트 무시 이슈를 피함)
+  useEffect(() => {
+    if (viewMode !== 'list' || sortType !== 'nearby') return
+    if (permissionState === 'granted' && !location && locationStatus !== 'requesting') {
+      requestLocation()
+    }
+  }, [viewMode, sortType, permissionState, location, locationStatus, requestLocation])
 
   useEffect(() => {
     if (viewMode !== 'map') return
