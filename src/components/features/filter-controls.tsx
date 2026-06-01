@@ -105,22 +105,13 @@ export default function FilterControls({
             {showFilters && (
                 <div className="glass-card-light p-4 mb-4 space-y-4">
                     {(Object.entries(EXPLORE_FILTERS) as [string, { label: string; options: readonly string[] }][]).map(
-                        ([key, section], index) => (
+                        ([key, section]) => (
                             <div key={key}>
                                 {/* Section header */}
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="mb-2">
                                     <label className="text-sm font-medium text-stone-700">
                                         {section.label}
                                     </label>
-                                    {index === 0 && (
-                                        <button
-                                            onClick={onToggleFilters}
-                                            className="w-5 h-5 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all"
-                                            aria-label="Close filters"
-                                        >
-                                            <span className="material-symbols-outlined text-base">{ICONS.CLOSE}</span>
-                                        </button>
-                                    )}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {section.options.map((optionId) => (
@@ -137,13 +128,22 @@ export default function FilterControls({
                         )
                     )}
 
-                    {/* 24시 토글 */}
+                    {/* 24시 토글 + 닫기 */}
                     <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                        <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-base">schedule</span>
-                            {EXPLORE.TOGGLE_24H}
-                        </label>
-                        <ToggleSwitch checked={is24hOnly} onChange={onToggle24h} />
+                        <div className="flex items-center gap-2.5">
+                            <label className="text-sm font-medium text-stone-700 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-base">schedule</span>
+                                {EXPLORE.TOGGLE_24H}
+                            </label>
+                            <ToggleSwitch checked={is24hOnly} onChange={onToggle24h} />
+                        </div>
+                        <button
+                            onClick={onToggleFilters}
+                            className="w-7 h-7 flex items-center justify-center rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-all"
+                            aria-label="필터 닫기"
+                        >
+                            <span className="material-symbols-outlined text-lg">{ICONS.CLOSE}</span>
+                        </button>
                     </div>
                 </div>
             )}
