@@ -82,7 +82,6 @@ export default function FilterControls({
                         {([
                             { key: 'nearby' as const, label: isNearbyPermissionDenied ? '위치 권한 필요' : EXPLORE.SORT.NEARBY },
                             { key: 'recommended' as const, label: EXPLORE.SORT.RECOMMENDED },
-                            { key: 'popular' as const, label: EXPLORE.SORT.POPULAR },
                         ]).map((s) => (
                             <button
                                 key={s.key}
