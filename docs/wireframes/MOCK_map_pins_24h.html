@@ -3,192 +3,144 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>지도 핀 디자인 + 24h 배지 시안</title>
+<title>지도 핀 디자인 + 24h 배지 시안 v2</title>
 <style>
-  :root { --primary: #cc1a1a; --primary-light:#f6dada; --bather:#3b82f6; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif; background:#faf8f6; color:#3f3a36; padding:24px; }
+  :root { --primary:#cc1a1a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Apple SD Gothic Neo",system-ui,sans-serif; background:#faf8f6; color:#3f3a36; padding:24px; }
   h1 { font-size:20px; margin:0 0 4px; }
-  .sub { color:#8a817a; font-size:13px; margin:0 0 24px; }
-  h2 { font-size:15px; margin:28px 0 6px; border-left:3px solid var(--primary); padding-left:8px; }
+  .sub { color:#8a817a; font-size:13px; margin:0 0 22px; }
+  h2 { font-size:15px; margin:30px 0 6px; border-left:3px solid var(--primary); padding-left:8px; }
   .note { color:#8a817a; font-size:12px; margin:0 0 14px; line-height:1.6; }
-  /* faux map */
   .map { position:relative; background:
-      linear-gradient(0deg, rgba(0,0,0,0.03) 1px, transparent 1px) 0 0/40px 40px,
-      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px) 0 0/40px 40px,
-      #eef0ea;
-    border:1px solid #e3e0da; border-radius:14px; padding:26px; display:flex; flex-wrap:wrap;
-    gap:34px 40px; align-items:flex-end; }
-  .cell { display:flex; flex-direction:column; align-items:center; gap:10px; }
-  .cap { font-size:11px; color:#6b635c; text-align:center; max-width:120px; line-height:1.4; }
+      linear-gradient(0deg, rgba(0,0,0,.03) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px) 0 0/40px 40px, #eef0ea;
+    border:1px solid #e3e0da; border-radius:14px; padding:30px 26px; display:flex; flex-wrap:wrap; gap:36px 42px; align-items:flex-end; }
+  .cell { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .cap { font-size:11px; color:#6b635c; text-align:center; max-width:130px; line-height:1.45; }
   .cap b { color:#3f3a36; }
+  .stack { display:flex; flex-direction:column; align-items:center; gap:3px; }
 
-  /* ---------- 핀 도형 ---------- */
-  .pin-wrap { position:relative; }
+  /* ===== 심플 핀 (비선택) — 물방울 모양, 그림자 없음 ===== */
+  .pin { position:relative; }
+  .pin .drop { border-radius:50% 50% 50% 0; background:var(--primary); border:2.5px solid #fff; transform:rotate(-45deg); }
+  .pin.sm .drop { width:24px; height:24px; }
+  .pin.lg .drop { width:34px; height:34px; border-width:3px; }
+  .pin .ic { position:absolute; inset:0; display:grid; place-items:center; padding-bottom:3px; }
 
-  /* 심플 원 (비선택) */
-  .dot { width:18px; height:18px; border-radius:50%; background:var(--primary);
-    border:2.5px solid #fff; }
-  .dot.shadow { box-shadow:0 2px 6px rgba(0,0,0,.25); }
-  .dot.lg { width:22px; height:22px; }
-  /* 저장(찜) 비선택 변형들 */
-  .dot.saved-gold { background:#f5a524; }
-  .dot.saved-ring { background:#fff; border:3px solid var(--primary); }
-  .dot.saved-heart { display:grid; place-items:center; width:22px; height:22px; }
-  .dot.saved-heart svg { width:12px; height:12px; }
+  /* 미니 하트 (찜 표시 — 옵션 C) */
+  .heart { width:11px; height:11px; }
 
-  /* 증기 물방울 핀 (선택) */
-  .teardrop { position:relative; width:35px; height:35px; }
-  .teardrop .drop { position:absolute; inset:0; border-radius:50% 50% 50% 0;
-    background:var(--primary); border:3px solid #fff; transform:rotate(-45deg);
-    box-shadow:0 4px 14px rgba(0,0,0,.35); }
-  .teardrop .ic { position:absolute; left:0; right:0; top:0; bottom:3px; display:grid; place-items:center; }
-  .teardrop.noshadow .drop { box-shadow:none; }
+  /* 로고식 증기 (선택 핀) — 위아래 뾰족 */
+  .steam { width:20px; height:20px; }
 
-  /* 클러스터 링 */
-  .cluster { width:38px; height:38px; border-radius:9999px; background:#fff;
-    border:3px solid var(--primary); color:var(--primary); display:grid; place-items:center;
-    font-weight:800; font-size:13px; box-shadow:0 0 0 4px rgba(204,26,26,.18), 0 4px 12px rgba(0,0,0,.22); }
-  .cluster.flat { box-shadow:none; }
+  /* ===== 24h 라벨 (핀 위, 테두리 없음) ===== */
+  .lbl24 { background:#fff; color:var(--primary); font-size:9px; font-weight:800; line-height:1; padding:2px 6px; border-radius:9999px; }
 
-  /* ---------- 24h 배지 ---------- */
-  .b24 { position:absolute; }
-  /* A: 우상단 빨강 칩 "24" */
-  .b24.a { top:-7px; right:-9px; background:var(--primary); color:#fff; font-size:9px; font-weight:800;
-    line-height:1; padding:2px 4px; border-radius:6px; border:1.5px solid #fff; }
-  /* B: 우상단 다크 "24h" 알약 */
-  .b24.b { top:-8px; right:-14px; background:#1f1b18; color:#fff; font-size:8.5px; font-weight:700;
-    line-height:1; padding:2px 5px; border-radius:9999px; border:1.5px solid #fff; }
-  /* C: 우상단 노랑 점(달/시계 느낌) */
-  .b24.c { top:-5px; right:-5px; width:13px; height:13px; border-radius:50%; background:#f5a524;
-    border:2px solid #fff; display:grid; place-items:center; font-size:7px; }
-  /* D: 핀 아래 "24시" 라벨 */
-  .b24.d { position:static; margin-top:3px; background:#fff; color:var(--primary); font-size:9px;
-    font-weight:800; padding:1px 6px; border-radius:9999px; border:1px solid var(--primary); }
-  /* E: 우상단 흰 칩 + 빨강 테두리 "24" */
-  .b24.e { top:-7px; right:-9px; background:#fff; color:var(--primary); font-size:9px; font-weight:800;
-    line-height:1; padding:2px 4px; border-radius:6px; border:1.5px solid var(--primary); }
-
-  .legend { font-size:11px; color:#8a817a; margin-top:6px; }
-  .col { display:flex; flex-direction:column; }
+  /* ===== 클러스터 (플랫) ===== */
+  .cluster { width:38px; height:38px; border-radius:9999px; background:#fff; border:3px solid var(--primary); color:var(--primary); display:grid; place-items:center; font-weight:800; font-size:13px; }
 </style>
 </head>
 <body>
-  <h1>지도 핀 디자인 + 24h 배지 시안</h1>
-  <p class="sub">비선택=심플 원 / 선택=증기 물방울 · 24h 배지 칩 옵션 · 그림자/클러스터 비교</p>
+  <h1>지도 핀 디자인 + 24h 배지 시안 v2</h1>
+  <p class="sub">비선택=심플 핀 · 선택=물방울+로고식 뾰족 증기 · 찜=미니 하트 · 24h=핀 위 라벨 · 그림자 전부 제거</p>
 
-  <!-- ============ 1. 핀 위계: 비선택 vs 선택 ============ -->
-  <h2>1. 핀 위계 — 비선택(심플 원) vs 선택(증기 물방울)</h2>
-  <p class="note">제안: 평소엔 작은 원으로 깔끔하게, 탭(선택)하면 증기 물방울로 확대 → 차이가 명확하고 화면이 단순해짐. (비선택 그림자 제거)</p>
+  <!-- 1. 위계 -->
+  <h2>1. 핀 위계 — 비선택(심플 핀) vs 선택(증기 물방울)</h2>
+  <p class="note">비선택은 속 빈 느낌의 단순 핀, 선택하면 확대 + 로고 증기. 그림자 없이 깔끔하게.</p>
   <div class="map">
     <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div></div>
-      <div class="cap"><b>비선택</b> 심플 원<br>(그림자 없음)</div>
+      <div class="pin sm"><div class="drop"></div></div>
+      <div class="cap"><b>비선택</b> 심플 핀<br>(증기X · 그림자X)</div>
     </div>
     <div class="cell">
-      <div class="pin-wrap"><div class="dot shadow"></div></div>
-      <div class="cap">비선택 원<br>(그림자 약간 — 참고용)</div>
-    </div>
-    <div class="cell">
-      <div class="teardrop">
+      <div class="pin lg">
         <div class="drop"></div>
-        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></div>
-      </div>
-      <div class="cap"><b>선택</b> 증기 물방울<br>(확대 + 그림자)</div>
-    </div>
-  </div>
-
-  <!-- ============ 2. 비선택 핀에서 '찜(저장)' 표시 방법 ============ -->
-  <h2>2. 비선택 원에서 '찜(저장)' 구분 — 어떻게 표시할까?</h2>
-  <p class="note">현재는 저장 시 하트 핀. 비선택을 원으로 단순화하면 저장 표시 방법 결정 필요. 아래 중 택1 (또는 "지도에선 구분 안 함"도 옵션).</p>
-  <div class="map">
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div></div>
-      <div class="cap"><b>옵션 0</b><br>구분 안 함<br>(모두 같은 원)</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot saved-gold"></div></div>
-      <div class="cap"><b>옵션 A</b><br>찜 = 색 변경<br>(골드)</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot saved-ring"></div></div>
-      <div class="cap"><b>옵션 B</b><br>찜 = 속 빈 링<br>(흰 배경+빨강)</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot saved-heart"><svg viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div>
-      <div class="cap"><b>옵션 C</b><br>찜 = 원 안 미니 하트</div>
-    </div>
-  </div>
-
-  <!-- ============ 3. 24h 배지 칩 옵션 ============ -->
-  <h2>3. 24시 영업 배지 — 칩 옵션 (데이터 추가 로드 0)</h2>
-  <p class="note">is_24h는 이미 로드됨 → 배지는 렌더만. 비선택 원 기준 5종 + 선택 핀 적용 예시.</p>
-  <div class="map">
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div><span class="b24 a">24</span></div>
-      <div class="cap"><b>A</b> 빨강 "24" 칩<br>(우상단)</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div><span class="b24 b">24h</span></div>
-      <div class="cap"><b>B</b> 다크 "24h"<br>알약</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div><span class="b24 c">🌙</span></div>
-      <div class="cap"><b>C</b> 노랑 점<br>(달/야간 느낌)</div>
-    </div>
-    <div class="cell">
-      <div class="col" style="align-items:center">
-        <div class="pin-wrap"><div class="dot"></div></div>
-        <span class="b24 d">24시</span>
-      </div>
-      <div class="cap"><b>D</b> 핀 아래<br>"24시" 라벨</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap"><div class="dot"></div><span class="b24 e">24</span></div>
-      <div class="cap"><b>E</b> 흰 칩+빨강<br>테두리 "24"</div>
-    </div>
-  </div>
-
-  <p class="note" style="margin-top:14px">선택(증기) 핀에 배지 적용 예시:</p>
-  <div class="map">
-    <div class="cell">
-      <div class="pin-wrap">
-        <div class="teardrop"><div class="drop"></div><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></div></div>
-        <span class="b24 a" style="top:-4px; right:-6px">24</span>
-      </div>
-      <div class="cap">A 칩 + 선택 핀</div>
-    </div>
-    <div class="cell">
-      <div class="pin-wrap">
-        <div class="teardrop"><div class="drop"></div><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></div></div>
-        <span class="b24 e" style="top:-4px; right:-6px">24</span>
-      </div>
-      <div class="cap">E 칩 + 선택 핀</div>
-    </div>
-  </div>
-
-  <!-- ============ 4. 클러스터 ============ -->
-  <h2>4. 클러스터 — 유지 / 그림자 / 빈도</h2>
-  <p class="note">코드에서 radius 40·maxZoom 15로 낮춰 "덜 묶이게" 조정함(프리뷰 테스트용). 그림자도 비교.</p>
-  <div class="map">
-    <div class="cell">
-      <div class="cluster">12</div>
-      <div class="cap">현재(그림자 O)</div>
-    </div>
-    <div class="cell">
-      <div class="cluster flat">12</div>
-      <div class="cap">그림자 제거(플랫)</div>
-    </div>
-    <div class="cell">
-      <div class="col" style="align-items:center; gap:8px">
-        <div style="display:flex; gap:10px; align-items:flex-end">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="ic">
+          <svg class="steam" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <path d="M6.5 18 C4 15.5 9 12 6.5 9 C5 7.2 7.8 5.8 6.5 4 C5.2 5.8 8 7.2 6.5 9 C4 12 9 15.5 6.5 18 Z"/>
+            <path d="M12 20 C9 16.8 14.6 12.8 12 9.2 C10.2 7 13.6 5.4 12 3 C10.4 5.4 13.8 7 12 9.2 C9.4 12.8 15 16.8 12 20 Z"/>
+            <path d="M17.5 18 C15 15.5 20 12 17.5 9 C16 7.2 18.8 5.8 17.5 4 C16.2 5.8 19 7.2 17.5 9 C15 12 20 15.5 17.5 18 Z"/>
+          </svg>
         </div>
       </div>
-      <div class="cap">클러스터 없이<br>개별 원만 (참고)</div>
+      <div class="cap"><b>선택</b> 증기 물방울<br>(확대 · 그림자X)</div>
     </div>
   </div>
 
-  <p class="legend">※ 이 파일은 시안용 정적 목업입니다. 선택지 알려주시면 실제 앱(explore-map-view.tsx)에 반영합니다.</p>
+  <!-- 2. 증기 비교 -->
+  <h2>2. 증기 — 기존(둥근 끝) vs 로고식(뾰족 끝)</h2>
+  <p class="note">사-피 로고처럼 증기선 위아래가 뾰족하게.</p>
+  <div class="map">
+    <div class="cell">
+      <div class="pin lg"><div class="drop"></div>
+        <div class="ic"><svg class="steam" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></div>
+      </div>
+      <div class="cap">기존 (둥근 끝)</div>
+    </div>
+    <div class="cell">
+      <div class="pin lg"><div class="drop"></div>
+        <div class="ic"><svg class="steam" viewBox="0 0 24 24" fill="#fff"><path d="M6.5 18 C4 15.5 9 12 6.5 9 C5 7.2 7.8 5.8 6.5 4 C5.2 5.8 8 7.2 6.5 9 C4 12 9 15.5 6.5 18 Z"/><path d="M12 20 C9 16.8 14.6 12.8 12 9.2 C10.2 7 13.6 5.4 12 3 C10.4 5.4 13.8 7 12 9.2 C9.4 12.8 15 16.8 12 20 Z"/><path d="M17.5 18 C15 15.5 20 12 17.5 9 C16 7.2 18.8 5.8 17.5 4 C16.2 5.8 19 7.2 17.5 9 C15 12 20 15.5 17.5 18 Z"/></svg></div>
+      </div>
+      <div class="cap"><b>로고식 (뾰족 끝)</b> ✓</div>
+    </div>
+  </div>
+
+  <!-- 3. 찜 -->
+  <h2>3. 찜(저장) 표시 — 비선택 핀에 미니 하트 (옵션 C)</h2>
+  <p class="note">핀 모양은 통일, 찜한 곳만 머리에 작은 하트.</p>
+  <div class="map">
+    <div class="cell">
+      <div class="pin sm"><div class="drop"></div></div>
+      <div class="cap">일반 (미찜)</div>
+    </div>
+    <div class="cell">
+      <div class="pin sm"><div class="drop"></div>
+        <div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+      </div>
+      <div class="cap"><b>찜 — 미니 하트</b></div>
+    </div>
+  </div>
+
+  <!-- 4. 24h -->
+  <h2>4. 24시 영업 배지 — 핀 위 "24h" 라벨 (테두리 없음, 데이터 추가 로드 0)</h2>
+  <p class="note">옵션 D를 핀 위로 + "24h"로 + 테두리 제거.</p>
+  <div class="map">
+    <div class="cell">
+      <div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div>
+      <div class="cap">일반 + 24h</div>
+    </div>
+    <div class="cell">
+      <div class="stack"><span class="lbl24">24h</span>
+        <div class="pin sm"><div class="drop"></div>
+          <div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+        </div>
+      </div>
+      <div class="cap">찜 + 24h</div>
+    </div>
+    <div class="cell">
+      <div class="stack"><span class="lbl24">24h</span>
+        <div class="pin lg"><div class="drop"></div>
+          <div class="ic"><svg class="steam" viewBox="0 0 24 24" fill="#fff"><path d="M6.5 18 C4 15.5 9 12 6.5 9 C5 7.2 7.8 5.8 6.5 4 C5.2 5.8 8 7.2 6.5 9 C4 12 9 15.5 6.5 18 Z"/><path d="M12 20 C9 16.8 14.6 12.8 12 9.2 C10.2 7 13.6 5.4 12 3 C10.4 5.4 13.8 7 12 9.2 C9.4 12.8 15 16.8 12 20 Z"/><path d="M17.5 18 C15 15.5 20 12 17.5 9 C16 7.2 18.8 5.8 17.5 4 C16.2 5.8 19 7.2 17.5 9 C15 12 20 15.5 17.5 18 Z"/></svg></div>
+        </div>
+      </div>
+      <div class="cap">선택 + 24h</div>
+    </div>
+  </div>
+
+  <!-- 5. 종합 -->
+  <h2>5. 한 화면 종합 미리보기</h2>
+  <div class="map">
+    <div class="cell"><div class="pin sm"><div class="drop"></div></div></div>
+    <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div></div>
+    <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div>
+    <div class="cell"><div class="cluster">8</div></div>
+    <div class="cell">
+      <div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="0 0 24 24" fill="#fff"><path d="M6.5 18 C4 15.5 9 12 6.5 9 C5 7.2 7.8 5.8 6.5 4 C5.2 5.8 8 7.2 6.5 9 C4 12 9 15.5 6.5 18 Z"/><path d="M12 20 C9 16.8 14.6 12.8 12 9.2 C10.2 7 13.6 5.4 12 3 C10.4 5.4 13.8 7 12 9.2 C9.4 12.8 15 16.8 12 20 Z"/><path d="M17.5 18 C15 15.5 20 12 17.5 9 C16 7.2 18.8 5.8 17.5 4 C16.2 5.8 19 7.2 17.5 9 C15 12 20 15.5 17.5 18 Z"/></svg></div></div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:8px">좌→우: 일반 · 24h · 찜 · 클러스터(플랫) · 선택(증기)</p>
+
+  <p class="note" style="margin-top:18px; color:#a89; ">※ 정적 시안. 증기 path는 로고를 근사한 것 — 확정되면 실제 앱 핀(SteamWaves)을 이 path로 교체합니다.</p>
 </body>
 </html>
