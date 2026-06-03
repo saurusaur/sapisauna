@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사-피 경쟁 한장표 · 2026-06-03</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1f232c; --line:#2a2f3a;
+    --tx:#e8ebf0; --mut:#9aa3b2; --dim:#6b7382;
+    --good:#34d399; --bad:#f87171; --learn:#60a5fa; --fill:#fbbf24; --warn:#fb7185;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI",sans-serif;line-height:1.5;padding:26px 18px 60px}
+  .wrap{max-width:1180px;margin:0 auto}
+  header.top h1{font-size:22px;font-weight:800;letter-spacing:-.4px}
+  header.top .sub{color:var(--dim);font-size:12px;margin-top:5px}
+
+  .cold{background:#2a1116;border:1px solid #7f1d2b;border-radius:12px;padding:11px 15px;margin:14px 0 22px;font-size:13px;color:#f1b9c2}
+  .cold b{color:#fff}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:18px}
+  .head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:3px}
+  .head h2{font-size:19px;font-weight:800;letter-spacing:-.3px}
+  .head .pos{font-size:12px;color:var(--dim)}
+  .head .url{font-size:11px;font-weight:700;color:#7dd3fc;text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:3px 9px;margin-left:auto;white-space:nowrap;transition:all .15s}
+  .head .url:hover{background:#1d2630;border-color:#2a6f8e;color:#bae6fd}
+  .head .url .material-symbols-outlined{font-size:12px;vertical-align:-1px}
+  .threat{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;border:1px solid}
+  .t-high{color:#fda4af;border-color:#7f1d2b;background:#2a1116}
+  .t-mid{color:#fcd34d;border-color:#7c5e12;background:#2a2310}
+  .uvp{font-size:14.5px;font-weight:600;color:#e8ebf0;margin:7px 0 15px}
+
+  /* ===== 큰 이미지 스트립 ===== */
+  .strip{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px}
+  .strip figure{flex:0 0 auto;width:188px}
+  .strip img{width:188px;height:365px;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
+  .strip figcaption{font-size:12px;color:var(--mut);text-align:center;margin-top:8px;line-height:1.4;padding:0 2px}
+  .strip figcaption b{color:var(--tx)}
+  @media(max-width:520px){.strip figure{width:160px}.strip img{width:160px;height:310px}}
+
+  /* ===== 강·약점 칩 ===== */
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:start;margin-bottom:8px}
+  .kv .lab{font-size:11px;font-weight:800;letter-spacing:.4px;padding-top:4px;white-space:nowrap}
+  .lab.good{color:var(--good)} .lab.bad{color:var(--bad)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:13px;font-weight:600;padding:4px 11px;border-radius:7px;border:1px solid var(--line)}
+  .chip.g{background:#11231b;color:#9ff0c9;border-color:#1d5e3a}
+  .chip.b{background:#241114;color:#f7adb3;border-color:#7f1d2b}
+
+  .tri{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;border-top:1px solid var(--line);padding-top:13px}
+  @media(max-width:560px){.tri{grid-template-columns:1fr}}
+  .t{font-size:13.5px}
+  .t b{font-size:11px;font-weight:800;display:block;margin-bottom:3px}
+  .t.learn b{color:var(--learn)} .t.fill b{color:var(--fill)} .t.warn b{color:var(--warn)}
+  .t span{color:var(--tx);font-weight:600}
+
+  .foot{margin-top:22px;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--mut)}
+  .foot .v{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-top:8px;font-size:14px}
+  .foot .v b{color:#fff}
+  .foot .src{font-size:11px;color:var(--dim);margin-top:9px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>🧖 사-피 경쟁 한장표</h1>
+    <div class="sub">2026-06-03 · Playwright 실측 + 유저 캡처 · 위협도 = "현재 우위" 아닌 "밀도 선점 잠재력"</div>
+  </header>
+
+  <div class="cold">📌 <b>전원 콜드스타트.</b> 이키타이=일본한정 · 사사사=베타 · 모두의=기록0 · 사우나데이=후기0 → <b>아직 아무도 데이터 밀도를 못 쌓은 땅따먹기 미정 시장.</b></div>
+
+  <!-- ===== 모두의 사우나 ===== -->
+  <section class="card">
+    <div class="head"><h2>모두의 사우나</h2><span class="threat t-mid">MID</span><span class="pos">지도 디렉토리 · 넓고 얕음</span><a class="url" href="https://modui-sauna.vercel.app" target="_blank" rel="noopener">modui-sauna.vercel.app ↗</a></div>
+    <div class="uvp">전국 사우나를 지도에 뿌리는 카카오맵식 디렉토리. 핀 눌러 정보 보고, 클릭 한 번으로 체크인.</div>
+    <div class="strip">
+      <figure><img src="competitive-assets/modui.png"><figcaption><b>지도에 5,576개</b> — 커버리지로 압도(단 스크랩 노이즈)</figcaption></figure>
+      <figure><img src="competitive-assets/detail-modui-filter.png"><figcaption><b>필터</b> — 종류·지역·사우나실 유무·정렬</figcaption></figure>
+      <figure><img src="competitive-assets/detail-modui-checkin.png"><figcaption><b>"여기 다녀왔어요" 버튼 한 번</b> = 체크인(무마찰)</figcaption></figure>
+      <figure><img src="competitive-assets/detail-modui-ranking.png"><figcaption><b>랭킹 탭</b> — 조회·공유·평점·리뷰순 Top</figcaption></figure>
+      <figure><img src="competitive-assets/detail-modui-my.png"><figcaption><b>체크인·공유에 보상하는 리워드 체계</b>(방문 뱃지)</figcaption></figure>
+      <figure><img src="competitive-assets/detail-modui-biz.png"><figcaption><b>제휴·광고·스폰서 문의</b> — 수익화 방향이 드러남</figcaption></figure>
+    </div>
+    <div class="kv"><span class="lab good">강점</span><div class="chips">
+      <span class="chip g">커버리지 5,576</span><span class="chip g">지도 우선</span><span class="chip g">원탭 체크인</span><span class="chip g">카톡 공유</span></div></div>
+    <div class="kv"><span class="lab bad">약점</span><div class="chips">
+      <span class="chip b">데이터 노이즈(헬스장 혼입)</span><span class="chip b">전문속성 0</span><span class="chip b">페르소나 단일</span><span class="chip b">후기 0</span></div></div>
+    <div class="tri">
+      <div class="t learn"><b>📘 배울 점</b><span>버튼 한 번의 무마찰 체크인 + 그에 붙은 리워드 체계</span></div>
+      <div class="t fill"><b>🛠 보완 점</b><span>사-피도 지도뷰·카톡 공유를 빨리 따라잡아야</span></div>
+      <div class="t warn"><b>🚨 주의</b><span>노이즈 정리하고 밀도 먼저 쌓으면 발견을 선점당함</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 사우나데이 ===== -->
+  <section class="card">
+    <div class="head"><h2>사우나데이</h2><span class="threat t-mid">MID · 후기 콜드</span><span class="pos">지도 + 리뷰</span><a class="url" href="https://saunaday.co" target="_blank" rel="noopener">saunaday.co ↗</a></div>
+    <div class="uvp">동네 숨은 사우나를 지도와 유저 리뷰로 찾는 발견 앱. 단 "테마 리스트"는 업종·연도 필터일 뿐.</div>
+    <div class="strip">
+      <figure><img src="competitive-assets/saunaday.png"><figcaption><b>지도 + 유저 리뷰 피드</b>가 메인</figcaption></figure>
+      <figure><img src="competitive-assets/detail-saunaday-find.png"><figcaption><b>거리순·필터 + 실시간 영업중</b> 표시</figcaption></figure>
+      <figure><img src="competitive-assets/detail-saunaday-detail.png"><figcaption><b>커뮤니티는 "Coming Soon"</b> — 아직 콜드</figcaption></figure>
+    </div>
+    <div class="kv"><span class="lab good">강점</span><div class="chips">
+      <span class="chip g">커버리지 5천+</span><span class="chip g">실시간 영업중</span><span class="chip g">리뷰 디테일(온도·세신)</span></div></div>
+    <div class="kv"><span class="lab bad">약점</span><div class="chips">
+      <span class="chip b">후기 거의 0</span><span class="chip b">"테마"=필터일 뿐 큐레이션 X</span><span class="chip b">페르소나 단일</span></div></div>
+    <div class="tri">
+      <div class="t learn"><b>📘 배울 점</b><span>실시간 영업중 진입점 + 크라우드 정보수정</span></div>
+      <div class="t fill"><b>🛠 보완 점</b><span>진짜 유저 큐레이션 공백을 사-피가 선점</span></div>
+      <div class="t warn"><b>🚨 주의</b><span>커버리지는 갖춤 → 후기만 쌓이면 빠르게 위협</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 사사사 ===== -->
+  <section class="card">
+    <div class="head"><h2>사사사 사우나일기</h2><span class="threat t-high">HIGH · 베타</span><span class="pos">기록 전용</span><a class="url" href="https://log.sasasa.com" target="_blank" rel="noopener">log.sasasa.com ↗</a></div>
+    <div class="uvp">닥터사우나가 만든, 기록에만 집중한 사우나 일기. 사-피 숏/딥로그와 정면 경쟁.</div>
+    <div class="strip">
+      <figure><img src="competitive-assets/sasasa.png"><figcaption><b>"기록을 쌓아 성장하라"</b> 랜딩 + 통계</figcaption></figure>
+      <figure><img src="competitive-assets/detail-sasasa-stat.png"><figcaption><b>라운드별 건식·냉탕·외기욕</b> 온도·시간 기록</figcaption></figure>
+      <figure><img src="competitive-assets/detail-sasasa-record.png"><figcaption><b>누적 시간·칼로리 통계</b></figcaption></figure>
+      <figure><img src="competitive-assets/detail-sasasa-feature.png"><figcaption><b>"사우나로 성장하는 나"</b> 추이 관찰</figcaption></figure>
+    </div>
+    <div class="kv"><span class="lab good">강점</span><div class="chips">
+      <span class="chip g">기록 UX 정제도</span><span class="chip g">전문가 브랜드(닥터사우나)</span><span class="chip g">성장 관찰 내러티브</span></div></div>
+    <div class="kv"><span class="lab bad">약점</span><div class="chips">
+      <span class="chip b">지도·발견 없음</span><span class="chip b">소셜·공유 약함</span><span class="chip b">베타 150명</span></div></div>
+    <div class="tri">
+      <div class="t learn"><b>📘 배울 점</b><span>라운드 기반 기록 UX + 전문가 브랜드 신뢰</span></div>
+      <div class="t fill"><b>🛠 보완 점</b><span>기록+발견+소셜 통합이 사-피의 차별점</span></div>
+      <div class="t warn"><b>🚨 주의</b><span>"기록" 단일 가치에선 사사사가 더 날카로움</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 이키타이 (순서 뒤로) ===== -->
+  <section class="card">
+    <div class="head"><h2>사우나이키타이</h2><span class="threat t-mid">MID · 일본한정</span><span class="pos">데이터·커뮤니티 정점</span><a class="url" href="https://sauna-ikitai.com" target="_blank" rel="noopener">sauna-ikitai.com ↗</a></div>
+    <div class="uvp">검색부터 사활(방문기록)·커뮤니티·수익화까지 아우른 일본 최대. 한국 미진출이라 현재 직접 위협은 낮음.</div>
+    <div class="strip">
+      <figure><img src="competitive-assets/ikitai.png"><figcaption><b>일본 최대 사우나 검색</b> 사이트/앱</figcaption></figure>
+      <figure><img src="competitive-assets/detail-ikitai-search.png"><figcaption><b>온도·외기욕 + 이키타이/사활 수</b>까지 정밀 스키마</figcaption></figure>
+      <figure><img src="competitive-assets/bench-tonttu.png"><figcaption><b>톤투</b> — 기록·기여하면 추첨 응모 포인트 적립</figcaption></figure>
+    </div>
+    <div class="kv"><span class="lab good">강점</span><div class="chips">
+      <span class="chip g">시설 스키마 깊이</span><span class="chip g">사활(세트 기록)</span><span class="chip g">톤투 추첨</span><span class="chip g">검증된 수익모델</span></div></div>
+    <div class="kv"><span class="lab bad">약점</span><div class="chips">
+      <span class="chip b">일본 전용</span><span class="chip b">사우너 단일 페르소나</span><span class="chip b">정보 과밀(입문 장벽)</span></div></div>
+    <div class="tri">
+      <div class="t learn"><b>📘 배울 점</b><span>시설 스키마·톤투·연간 리포트·수익화</span></div>
+      <div class="t fill"><b>🛠 보완 점</b><span>한국형 3-트라이브로 이키타이가 못 메운 빈틈 공략</span></div>
+      <div class="t warn"><b>🚨 주의</b><span>한국 진출 시 압도적 — 기능 정면충돌은 회피</span></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div class="v">🎯 사-피 미점유 공간 = <b>한국형 3-트라이브 × 통합(기록+발견+소셜)</b>. 단 둘 다 미검증. 진짜 유저 큐레이션은 <b>무주공산.</b> 개별 기능 군비경쟁(커버리지 양·딥로그 깊이)은 회피.</div>
+    <div class="src">출처: Playwright 실측 + 유저 캡처(모두의 랭킹·마이·소개·체크인) · 2026-06-03</div>
+  </div>
+</div>
+</body>
+</html>
