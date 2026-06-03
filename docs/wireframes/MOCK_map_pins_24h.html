@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>지도 핀 디자인 + 24h 배지 시안 v4</title>
+<title>지도 핀 디자인 + 24h 배지 시안 v5</title>
 <style>
   :root { --primary:#cc1a1a; }
   * { box-sizing:border-box; }
@@ -21,15 +21,16 @@
   .cap b { color:#3f3a36; }
   .stack { display:flex; flex-direction:column; align-items:center; gap:3px; }
 
-  /* ===== 핀 (비선택=sm, 선택=lg) — 베이스 동일, 그림자 없음 ===== */
+  /* ===== 핀 ===== */
   .pin { position:relative; }
   .pin .drop { border-radius:50% 50% 50% 0; background:var(--primary); border:2.5px solid #fff; transform:rotate(-45deg); }
   .pin.sm .drop { width:24px; height:24px; }
   .pin.lg .drop { width:34px; height:34px; border-width:3px; }
-  /* 아이콘 오버레이: 꼬리(아래 26%) 제외한 '머리 영역' 안에서 중앙 정렬 → 이탈 방지 */
+  /* 아이콘 오버레이: 꼬리(아래 26%) 제외한 머리 영역에서 중앙 */
   .pin .ic { position:absolute; top:0; left:0; right:0; bottom:26%; display:grid; place-items:center; }
+  /* 하트만 머리 중앙으로 더 내림 (윗 패딩) */
+  .pin .ic.heart { padding-top:5px; }
   .heart { width:11px; height:11px; }
-  .pin.sm .steam { width:15px; height:16px; }
   .pin.lg .steam { width:21px; height:22px; }
 
   .lbl24 { background:#fff; color:var(--primary); font-size:9px; font-weight:800; line-height:1; padding:2px 6px; border-radius:9999px; }
@@ -37,49 +38,48 @@
 </style>
 </head>
 <body>
-  <h1>지도 핀 디자인 + 24h 배지 시안 v4</h1>
-  <p class="sub">증기 = PNG 로고 기준 재현(슬렌더 S-플레임·뾰족·우향 훅) · 하트 머리 영역 중앙 · 그림자 없음</p>
+  <h1>지도 핀 디자인 + 24h 배지 시안 v5</h1>
+  <p class="sub">증기 배(중간) 더 두껍게 · 하트 머리 중앙으로 내림</p>
 
-  <!-- 증기 단독 확인 -->
-  <h2>1. 증기 단독 — 로고 재현 확인</h2>
-  <p class="note">흰 배경/빨강 배경에서 크게 확인. (PNG를 손으로 근사한 path)</p>
+  <!-- 증기 단독 -->
+  <h2>1. 증기 단독 — 배(중간) 두껍게 재현</h2>
+  <p class="note">위아래 뾰족 유지, 세로 중간을 더 두껍게. 흰/빨강 배경 비교.</p>
   <div class="map" style="gap:40px">
     <div class="cell">
       <svg width="110" height="120" viewBox="0 0 26 28" fill="#cc1a1a" style="background:#fff;border-radius:12px;border:1px solid #eee">
-        <path d="M5 26 C2.5 21 3 15.5 6 12 C8.5 8.8 6 5.5 8 3 C7.2 5.8 9.5 8.8 6.7 12.3 C4 15.8 3.5 21 5 26 Z"/>
-        <path d="M12 27 C9 22 9.5 16 12.5 12 C15 8.5 12.5 5 15 1 C14 5 16.5 8.5 13.5 12.5 C11 16 10.5 22 12 27 Z"/>
-        <path d="M18 25 C15.5 20 16 15 19 11.5 C21.5 8.3 19 5.3 21 3 C20.2 5.8 22.3 8.3 19.7 11.8 C17 15.3 16.5 20 18 25 Z"/>
+        <path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/>
+        <path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/>
+        <path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/>
       </svg>
       <div class="cap">흰 배경</div>
     </div>
     <div class="cell">
       <svg width="110" height="120" viewBox="0 0 26 28" fill="#fff" style="background:var(--primary);border-radius:12px">
-        <path d="M5 26 C2.5 21 3 15.5 6 12 C8.5 8.8 6 5.5 8 3 C7.2 5.8 9.5 8.8 6.7 12.3 C4 15.8 3.5 21 5 26 Z"/>
-        <path d="M12 27 C9 22 9.5 16 12.5 12 C15 8.5 12.5 5 15 1 C14 5 16.5 8.5 13.5 12.5 C11 16 10.5 22 12 27 Z"/>
-        <path d="M18 25 C15.5 20 16 15 19 11.5 C21.5 8.3 19 5.3 21 3 C20.2 5.8 22.3 8.3 19.7 11.8 C17 15.3 16.5 20 18 25 Z"/>
+        <path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/>
+        <path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/>
+        <path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/>
       </svg>
-      <div class="cap">빨강 배경 (핀 내부 느낌)</div>
+      <div class="cap">빨강 배경 (핀 내부)</div>
     </div>
   </div>
 
   <!-- 위계 -->
-  <h2>2. 핀 위계 — 비선택 vs 선택</h2>
+  <h2>2. 핀 위계</h2>
   <div class="map">
     <div class="cell">
       <div class="pin sm"><div class="drop"></div></div>
-      <div class="cap"><b>비선택</b> 심플 핀</div>
+      <div class="cap"><b>비선택</b></div>
     </div>
     <div class="cell">
       <div class="pin lg"><div class="drop"></div>
-        <div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C2.5 21 3 15.5 6 12 C8.5 8.8 6 5.5 8 3 C7.2 5.8 9.5 8.8 6.7 12.3 C4 15.8 3.5 21 5 26 Z"/><path d="M12 27 C9 22 9.5 16 12.5 12 C15 8.5 12.5 5 15 1 C14 5 16.5 8.5 13.5 12.5 C11 16 10.5 22 12 27 Z"/><path d="M18 25 C15.5 20 16 15 19 11.5 C21.5 8.3 19 5.3 21 3 C20.2 5.8 22.3 8.3 19.7 11.8 C17 15.3 16.5 20 18 25 Z"/></svg></div>
+        <div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/><path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/><path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/></svg></div>
       </div>
       <div class="cap"><b>선택</b> 확대 + 증기</div>
     </div>
   </div>
 
-  <!-- 찜 + 하트 -->
-  <h2>3. 찜(저장) — 미니 하트 (머리 영역 중앙)</h2>
-  <p class="note">베이스 핀은 일반과 100% 동일, 하트만 추가. 하트가 꼬리로 내려가지 않게 머리 영역 안에서 중앙 정렬.</p>
+  <!-- 찜 -->
+  <h2>3. 찜 — 하트 (머리 중앙)</h2>
   <div class="map">
     <div class="cell">
       <div class="pin sm"><div class="drop"></div></div>
@@ -87,14 +87,14 @@
     </div>
     <div class="cell">
       <div class="pin sm"><div class="drop"></div>
-        <div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+        <div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
       </div>
-      <div class="cap"><b>찜 (하트)</b></div>
+      <div class="cap"><b>찜 (하트 내림)</b></div>
     </div>
   </div>
 
   <!-- 24h -->
-  <h2>4. 24시 영업 — 핀 위 "24h"</h2>
+  <h2>4. 24h</h2>
   <div class="map">
     <div class="cell">
       <div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div>
@@ -102,23 +102,23 @@
     </div>
     <div class="cell">
       <div class="stack"><span class="lbl24">24h</span>
-        <div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div>
+        <div class="pin sm"><div class="drop"></div><div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div>
       </div>
       <div class="cap">찜 + 24h</div>
     </div>
   </div>
 
   <!-- 종합 -->
-  <h2>5. 한 화면 종합</h2>
+  <h2>5. 종합</h2>
   <div class="map">
     <div class="cell"><div class="pin sm"><div class="drop"></div></div></div>
     <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div></div>
-    <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div>
+    <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div>
     <div class="cell"><div class="cluster">8</div></div>
-    <div class="cell"><div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C2.5 21 3 15.5 6 12 C8.5 8.8 6 5.5 8 3 C7.2 5.8 9.5 8.8 6.7 12.3 C4 15.8 3.5 21 5 26 Z"/><path d="M12 27 C9 22 9.5 16 12.5 12 C15 8.5 12.5 5 15 1 C14 5 16.5 8.5 13.5 12.5 C11 16 10.5 22 12 27 Z"/><path d="M18 25 C15.5 20 16 15 19 11.5 C21.5 8.3 19 5.3 21 3 C20.2 5.8 22.3 8.3 19.7 11.8 C17 15.3 16.5 20 18 25 Z"/></svg></div></div></div>
+    <div class="cell"><div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/><path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/><path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/></svg></div></div></div>
   </div>
   <p class="note" style="margin-top:8px">좌→우: 일반 · 24h · 찜 · 클러스터 · 선택(증기)</p>
 
-  <p class="note" style="margin-top:18px; color:#a89;">※ 증기는 PNG를 손으로 근사한 path. 1번 단독 확인에서 "더 길게/뾰족/훅/간격" 피드백 주시면 미세조정. 확정 시 앱에 반영.</p>
+  <p class="note" style="margin-top:18px; color:#a89;">※ 증기 두께/하트 위치 더 조정 필요하면 말씀해주세요. 확정 시 앱 반영.</p>
 </body>
 </html>
