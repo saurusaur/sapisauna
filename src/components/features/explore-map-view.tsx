@@ -316,8 +316,7 @@ function ClusteredMarkers({
           const z = getBoundsZoom(clusterMap, cluster.bounds, 64)
           if (z != null) target = Math.min(z, cap)
         }
-        clusterMap.panTo(cluster.position)
-        clusterMap.setZoom(target)
+        animateCamera(clusterMap, cluster.position, target)
       },
       renderer: {
         render: ({ count, position }) => {
@@ -445,6 +444,31 @@ function getBoundsZoom(map: google.maps.Map, bounds: google.maps.LatLngBounds, p
   const lngFraction = lngDiff / 360
   const zoomFor = (px: number, frac: number) => (frac <= 0 ? 21 : Math.log(px / WORLD / frac) / Math.LN2)
   return Math.floor(Math.min(zoomFor(h, latFraction), zoomFor(w, lngFraction), 21))
+}
+
+// 카메라를 지정 속도로 직접 애니메이션 (벡터 맵 moveCamera + rAF).
+// Google 기본 줌 애니메이션보다 빠른 속도(duration)로 부드럽게 펼치기 위함.
+function animateCamera(map: google.maps.Map, center: google.maps.LatLng, zoom: number, duration = 240) {
+  const startZoom = map.getZoom()
+  const startCenter = map.getCenter()
+  if (startZoom == null || !startCenter) {
+    map.moveCamera({ center, zoom })
+    return
+  }
+  const sLat = startCenter.lat(), sLng = startCenter.lng()
+  const tLat = center.lat(), tLng = center.lng()
+  const ease = (x: number) => 1 - Math.pow(1 - x, 3) // ease-out
+  const t0 = performance.now()
+  const step = (now: number) => {
+    const p = Math.min(1, (now - t0) / duration)
+    const e = ease(p)
+    map.moveCamera({
+      center: { lat: sLat + (tLat - sLat) * e, lng: sLng + (tLng - sLng) * e },
+      zoom: startZoom + (zoom - startZoom) * e,
+    })
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 }
 
 function MyLocationControl({
