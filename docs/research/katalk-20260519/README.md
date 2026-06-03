@@ -38,17 +38,18 @@
 
 ---
 
-## 🔧 검수 스크립트 (READ-ONLY 위주)
+## 🔧 잔존 스크립트 (2026-06-04 정리 후 — 재현·재감사용만 유지)
 
 | 스크립트 | 용도 |
 |---|---|
-| `scripts/katalk-master-reference.mjs` | 마스터 매칭 + 원본대조 검수 재생성 |
-| `scripts/katalk-db-crosscheck.mjs` | CSV ↔ DB places 매칭 (NEW/MATCHED 판정) |
-| `scripts/katalk-db-full-audit.mjs` | DB ↔ Google/Naver 전수검수 |
-| `scripts/katalk-temp-sanity-audit.mjs` | 온도 범위/교차모순 + CSV 대조 |
-| `scripts/katalk-name-facility-audit.mjs` | 이름·facilities ↔ Naver 대조 |
-| `scripts/katalk-enrich-apply.mjs` | 온도→어드민로그 반영(--apply, 범위검증·중복가드) |
+| `scripts/katalk-merge-flat.mjs` | flat.csv 재병합(FIX135 칸밀림 교정 반영) |
+| `scripts/katalk-master-reference.mjs` | 마스터 매칭 + 원본대조 검수 재생성 (라이브DB) |
+| `scripts/katalk-db-full-audit.mjs` | DB ↔ Google/Naver 전수검수 (재감사) |
+| `scripts/katalk-new-register.mjs` | 국내 등록(+meta-final.json, 온도범위·중복가드) |
+| `scripts/katalk-overseas-geocode.mjs` | 해외 place_id 직접조회(displayName·좌표·city) |
+| `scripts/katalk-overseas-register.mjs` | 해외 등록(source=google, place_id, 온도범위·중복가드) |
 
+> 2026-06-04 정리: 완료 phase의 일회성·중간 산출물(audit/dryrun/diff/preview + db-crosscheck·temp-sanity·name-facility·enrich-apply 등 스크립트)은 삭제됨(git 이력 복구 가능). 수치·결론·교훈은 **`PHASE_LOG.md`**에 통합.
 > 알려진 한계: 원본대조 파서가 노션 **다중값/범위**에서 첫값만 잡아 오탐 가능 → 큰 차이는 반드시 해당 chunk MD/노션 블록 **원본 직접 확인** 후 판단.
 
 ---
