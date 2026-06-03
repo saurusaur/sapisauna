@@ -9,7 +9,7 @@ import {
   useApiLoadingStatus,
   useMap,
 } from '@vis.gl/react-google-maps'
-import { MarkerClusterer, type Marker } from '@googlemaps/markerclusterer'
+import { MarkerClusterer, SuperClusterAlgorithm, type Marker } from '@googlemaps/markerclusterer'
 import type { Place } from '@/types'
 import type { UserLocation } from '@/hooks/use-user-location'
 import PlaceCard from '@/components/features/place-card'
@@ -17,6 +17,11 @@ import PlaceCard from '@/components/features/place-card'
 // 위치 권한이 없을 때 기본으로 보여줄 기준점 — 남산공원(N서울타워)
 const NAMSAN_PARK = { lat: 37.5512, lng: 126.9882 }
 const DEFAULT_ZOOM = 13
+
+// 클러스터 튜닝 — radius(px): 작을수록 덜 묶임 / maxZoom: 이 줌을 넘으면 개별 핀으로 분리.
+// 기본값(radius 60·maxZoom 16)이 너무 공격적("툭하면 클러스터")이라 낮춤. 프리뷰에서 값 조정해 테스트.
+const CLUSTER_RADIUS = 40
+const CLUSTER_MAX_ZOOM = 15
 
 interface ExploreMapViewProps {
   apiKey: string
@@ -287,6 +292,7 @@ function ClusteredMarkers({
     if (!map) return
     clusterer.current = new MarkerClusterer({
       map,
+      algorithm: new SuperClusterAlgorithm({ radius: CLUSTER_RADIUS, maxZoom: CLUSTER_MAX_ZOOM }),
       renderer: {
         render: ({ count, position }) => {
           const marker = new google.maps.marker.AdvancedMarkerElement({
