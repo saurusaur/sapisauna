@@ -448,7 +448,7 @@ function getBoundsZoom(map: google.maps.Map, bounds: google.maps.LatLngBounds, p
 
 // 카메라를 지정 속도로 직접 애니메이션 (벡터 맵 moveCamera + rAF).
 // Google 기본 줌 애니메이션보다 빠른 속도(duration)로 부드럽게 펼치기 위함.
-function animateCamera(map: google.maps.Map, center: google.maps.LatLng, zoom: number, duration = 240) {
+function animateCamera(map: google.maps.Map, center: google.maps.LatLng, zoom: number, duration = 250) {
   const startZoom = map.getZoom()
   const startCenter = map.getCenter()
   if (startZoom == null || !startCenter) {
