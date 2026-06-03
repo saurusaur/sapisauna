@@ -69,7 +69,8 @@ export const TRIBE_COLORS: Record<TribeId, string> = {
 export const PLACE_VENUE_TYPE = [
   { id: "public-bath", label: "대중목욕탕", icon: "public" },
   { id: "small-bath", label: "동네목욕탕", icon: "hot_tub" },
-  { id: "hotel-spa", label: "호텔/프리미엄", icon: "hotel" },
+  { id: "hotel-premium", label: "호텔/프리미엄", icon: "hotel" },
+  { id: "resort-spa", label: "리조트/워터파크", icon: "pool" },
   { id: "private-sauna", label: "개인사우나", icon: "person" },
   { id: "special", label: "특수(불가마, 효소 등)", icon: "bath_bedrock" },
 ] as const;
