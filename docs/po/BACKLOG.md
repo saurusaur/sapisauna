@@ -4,6 +4,7 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
+- [ ] [데이터] 카톡 DB Sync **Phase 4 — NEW 신규 시설 ~64건 등록** — 카톡 추출(2026-05-19)에서 DB에 없는 신규 시설을 places+place_sources+어드민로그로 등록. 출처: `katalk-db-crosscheck-20260601.md` NEW 63건 + 호텔 프리마 부산. 순서: ①크로스체크 재실행해 현재 DB(254곳) 기준 NEW 재확정 ②Google/Naver로 정식명·주소·좌표·facility_type ③5건 배치 dry-run→확인→등록. 상세 플랜·레퍼런스(facility_type 7종 규칙·온도 제약·도쿄룰·스크립트): **핸드오프 §12** `docs/handoff/handoff_20260529_katalk_db_sync_v2.md`. 해외 23건(`overseas-facilities-review.md`, 검증완료)은 별도 트랙 | priority: P1 | added: 2026-06-02
 
 ## Backlog
 
@@ -39,7 +40,12 @@
 
 ## Done
 
+### 2026-06-03
+- [x] [기능+UX] 탐색(사우나 찾기) 지도뷰 전면 개편 — (1) 탭명 '탐색'→'사우나 찾기', 기본 뷰 list→map, 위치 없을 때 남산공원(N서울타워) 기준 뷰 (2) 핀 재디자인: 비선택 심플 물방울 핀 / 선택 확대+사-피 로고 증기(BMP→potrace 벡터, 14px)+은은한 그림자 / 찜 머리중앙 미니 하트 / 비선택·클러스터 그림자 제거 (3) 클러스터: radius 40·maxZoom 15 튜닝, 빨강채움+흰숫자 30px, 클릭 시 getBoundsZoom+moveCamera rAF로 한 번에 자연 줌인(250ms, maxZoom+1 캡 → 딱 분리될 만큼) (4) 선택 마커가 하단 정보카드에 가리지 않게 PanToSelected, 줌 컨트롤 제거. 시안: `docs/wireframes/MOCK_map_pins_24h.html`. 선택+찜 동시 표시(하트 배지)는 보류 | priority: P2 | done: 2026-06-03
+- [x] [데이터] DB 품질 검수 + 교정 — 기등록 데이터 정합성 점검. (1) **마스터 매칭 파일 신설** `docs/research/MASTER_place_matching_reference.md`(255곳, DB정식명↔place_id↔주소↔카톡표기↔노션표기, 재생성가능 `scripts/katalk-master-reference.mjs`) — 향후 검수 시 원본↔정식명 조회용 (2) **카톡/노션 원본 대조 검수**(`katalk-source-crossaudit-20260603.md`, 노션 160블록 파싱) (3) **온도 교정**: 클럽케이(건84→95/습68→56/열+42)·봉일스파랜드(건99→95/습54→69)·할매탕(냉10→24)·아쿠아필드(습70→45)·북한산온천 비젠(온30/열40 추가) — 전부 노션/카톡/블로그 원본 확인 후 (4) **facilities/이름**: 그린대중목욕탕(그린사우나→정식명·jjimjil오태깅 제거, Naver 옛 찜질방 리스팅 오등록)·북한산온천(jjimjil제거+parking/탕/사우나 추가) (5) **검증만(정상)**: C 이름변경 6건 전부 DB=현재 Naver정식명 일치, jjimjilbang 67곳 대부분 정상(그린/북한산만 오태깅). 한계: 크로스오딧 파서가 노션 다중값/범위에서 오탐 → 개별 원본확인으로 걸름 | priority: P1 | done: 2026-06-03
+
 ### 2026-06-02
+- [x] [데이터] 카톡 DB Sync Phase 1~3 완료 — (1) **통합 CSV 생성**(144 국내행, chunk2/4 재정규화 + chunk1/3/5 칸밀림 8건 교정: 건식↔습식/온탕↔열탕 추출오류) (2) **DB 크로스체크**(MATCHED 40/AMBIGUOUS 16 전건확정/NEW 63, region=발화자noise 판명) (3) **facility_type 7종 확장**(026·027: `hotel-spa`→`hotel-premium` 리네임 + **`resort-spa` 신설**, 럭셔리=premium·캐주얼메가/워터파크=resort-spa·불가마효소=special) (4) **DB 전수검수 255곳**(Google+Naver 대조, country/주소/이름 오류 0) (5) **city 보강 123건**(028: Google 영문 locality, KR광역시 admin1, **도쿄 23특별구→'Tokyo' 룰** address-builder 반영) (6) **트리니티스파 제거**(마사지샵) (7) **온도 sanity 검수**(229로그, 실오류 2건만: 할매탕 냉10→24·아쿠아필드 습70→45 교정. 나머지는 Notion출처/표시온도/다른시점) (8) **아라고나이트** manual→google 업그레이드 (9) **enrich**: 어드민로그 22개 신규(UPDATE보강7+INSERT 5/19로그19+그룹C3, 온도범위검증·중복가드, 기존 시드값 보존). 마이그레이션 026·027·028 적용됨. 핸드오프 §11. Phase4(NEW 등록)는 In Progress | priority: P1 | added: 2026-05-29 | done: 2026-06-02
 - [x] [기능+UX] 탐색·tribe 정렬 UX 개편 — 정렬 동적 기본값(위치 있음→가까운 순 / 없음→추천 순, 권한 확정 후 1회 자동 선택, 사용자 수동 변경 시 덮어쓰지 않음 override 추적), 정렬 탭 '가까운' 최좌측, **인기순 탭 제거**(가까운/추천만, 탐색·tribe 공유 FilterControls). tribe(PICKS)에 위치 배선 신규 추가(useUserLocation·distanceMap·nearby 정렬 분기·granted 자동 위치획득·거리 라벨) — 기존엔 tribe '가까운' 탭이 동작 안 하던 죽은 탭이었음. granted면 프롬프트 없이 즉시 위치 반환, 미허용은 자동 프롬프트 안 띄움(iOS 이슈 회피) (b751c9a, f5b2fff, 5bd3ac2) | priority: P1 | done: 2026-06-02
 - [x] [버그] 스토리 카드 export 폰트 폴백 회귀 — next/font 전환 후 캔버스가 literal "Oswald"를 참조하나 해시 패밀리명(__Oswald_xxxx)과 불일치해 export 시 시스템 폰트로 폴백되던 회귀. 런타임에 `--font-oswald`를 읽어 프리뷰와 동일 페이스를 캔버스에 적용, 사용 weight 멱등 프리로드(추가 다운로드 없음) 후 렌더 (876a2db) | priority: P1 | done: 2026-06-02
 - [x] [버그] 로딩 시 아이콘 폰트 FOUT — 웹폰트 로드 전 ligature 원본 글자("progress_activity")가 노출돼 스피너 대신 텍스트가 도는 현상. ContentLoader를 순수 CSS 원형 스피너로 교체 + Material Symbols `display=swap`→`block` + preconnect (8766515) | priority: P2 | done: 2026-06-02
