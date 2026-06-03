@@ -35,6 +35,9 @@
   .hbadge.white { background:#fff; }
   .hbadge.red { background:var(--primary); }
   .hbadge svg { width:9px; height:9px; }
+  .cluster.redfill { background:var(--primary); color:#fff; border:2px solid #fff; }
+  .cluster.muted { background:#fbeaea; border:2px solid #e7a3a3; color:#b54a4a; }
+  .cluster.smc { width:30px; height:30px; font-size:11px; }
 </style></head><body>
 <h1>지도 핀 디자인 + 24h 배지 시안 v6 — 로고 자동 트레이싱</h1>
 <p class="sub">증기 = BMP 로고를 potrace로 벡터 추출(정확) · 하트 박스 정중앙 정렬(가로·세로)</p>
@@ -219,5 +222,14 @@
 22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198
 19 29 21 30 -87 -39z"/></g></svg></div><span class="hbadge red"><svg viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></div><div class="cap"><b>C</b> 증기 + 빨강 배지<br>흰 하트</div></div>
 </div>
-<p class="note" style="margin-top:18px; color:#a89;">※ 증기는 로고 BMP를 potrace로 추출한 실제 벡터입니다. 크기/위치만 더 조정 가능. 확정 시 앱 SteamWaves를 이 path로 교체.</p>
+<h2>7. 클러스터 룩 — "혼자 튀는" 문제 옵션</h2>
+<p class="note">빨강 핀들 사이에서 흰+빨강링 클러스터가 튀어 보임. 더 어우러지는 옵션 비교 (핀과 함께).</p>
+<div class="map">
+  <div class="cell"><div style="display:flex; gap:10px; align-items:center"><div class="pin sm"><div class="drop"></div></div><div class="cluster">8</div><div class="pin sm"><div class="drop"></div></div></div><div class="cap"><b>현재</b> 흰 바탕+빨강 링</div></div>
+  <div class="cell"><div style="display:flex; gap:10px; align-items:center"><div class="pin sm"><div class="drop"></div></div><div class="cluster redfill">8</div><div class="pin sm"><div class="drop"></div></div></div><div class="cap"><b>A</b> 빨강 채움+흰 숫자<br>(핀과 통일)</div></div>
+  <div class="cell"><div style="display:flex; gap:10px; align-items:center"><div class="pin sm"><div class="drop"></div></div><div class="cluster muted">8</div><div class="pin sm"><div class="drop"></div></div></div><div class="cap"><b>B</b> 연한 핑크 톤<br>(차분)</div></div>
+  <div class="cell"><div style="display:flex; gap:10px; align-items:center"><div class="pin sm"><div class="drop"></div></div><div class="cluster smc">8</div><div class="pin sm"><div class="drop"></div></div></div><div class="cap"><b>C</b> 현재 + 더 작게(30px)</div></div>
+</div>
+
+<p class="note" style="margin-top:18px; color:#a89;">※ 증기는 로고 BMP를 potrace로 추출한 실제 벡터입니다. 확정 시 앱 반영. 클러스터 클릭 줌·선택 마커 가림은 코드 반영 완료.</p>
 </body></html>
