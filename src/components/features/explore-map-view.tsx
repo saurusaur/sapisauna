@@ -128,6 +128,18 @@ function FitBoundsToPlaces({
   return null
 }
 
+// 선택 시 해당 마커를 화면 위쪽으로 패닝 — 하단 정보 카드에 가리지 않도록.
+function PanToSelected({ selectedPlace }: { selectedPlace: Place | null }) {
+  const map = useMap()
+  useEffect(() => {
+    if (!map || !selectedPlace || selectedPlace.latitude == null || selectedPlace.longitude == null) return
+    map.panTo({ lat: selectedPlace.latitude, lng: selectedPlace.longitude })
+    // 하단 카드(높이 ~190px) 위로 마커를 올림: 중앙에서 위로 살짝 이동
+    map.panBy(0, 90)
+  }, [map, selectedPlace])
+  return null
+}
+
 // 사우나 증기 — 사-피 로고에서 추출한 벡터(potrace). 선택 핀에만 표시.
 function SteamLogo({ size }: { size: number }) {
   return (
@@ -295,6 +307,12 @@ function ClusteredMarkers({
     clusterer.current = new MarkerClusterer({
       map,
       algorithm: new SuperClusterAlgorithm({ radius: CLUSTER_RADIUS, maxZoom: CLUSTER_MAX_ZOOM }),
+      // 클러스터 클릭 — 기본 fitBounds는 밀집 시 최대까지 튐. 분리될 만큼만 한 단계씩 줌인.
+      onClusterClick: (_event, cluster, clusterMap) => {
+        const z = clusterMap.getZoom() ?? DEFAULT_ZOOM
+        clusterMap.panTo(cluster.position)
+        clusterMap.setZoom(Math.min(z + 2, CLUSTER_MAX_ZOOM + 1))
+      },
       renderer: {
         render: ({ count, position }) => {
           const marker = new google.maps.marker.AdvancedMarkerElement({
@@ -488,6 +506,7 @@ function ExploreMapInner({
             style={{ width: '100%', height: '100%' }}
           >
             <FitBoundsToPlaces userLocation={userLocation} />
+            <PanToSelected selectedPlace={selectedPlace} />
             <ClusteredMarkers
               places={placesWithCoordinates}
               selectedPlaceId={selectedPlace?.id ?? null}
