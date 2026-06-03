@@ -1,0 +1,6821 @@
+[
+ {
+  "id": "d0eac388-aaac-4f85-9800-7320fa462032",
+  "name": "스파레이",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서초구 강남대로107길 5 크레신빌딩",
+   "lat": 37.5181498,
+   "lng": 127.0181435,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270181435_375181498"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파레이",
+   "addr": "서울특별시 서초구 강남대로107길 5",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5179489,
+   "lng": 127.0181942,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파레이",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 서초구 잠원동 8-22 크레신빌딩",
+   "road": "서울특별시 서초구 강남대로107길 5 크레신빌딩",
+   "mapx": "1270181435",
+   "mapy": "375181498"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "50e2c66d-6f82-4064-ad8a-4fbf4a9baeaa",
+  "name": "신호사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 장문로 98-1 1층",
+   "lat": 37.5260431,
+   "lng": 127.0006091,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270006091_375260431"
+  },
+  "google": {
+   "ok": true,
+   "name": "신호찜질방사우나",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.525956799999996,
+   "lng": 127.00060739999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "신호사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 용산구 보광동 218 1층",
+   "road": "서울특별시 용산구 장문로 98-1 1층",
+   "mapx": "1270006091",
+   "mapy": "375260431"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "c8774a4a-2b01-4218-a535-45d3b52324c1",
+  "name": "삼호궁전사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서초구 논현로 87",
+   "lat": 37.4775719,
+   "lng": 127.0442278,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270442278_374775719"
+  },
+  "google": {
+   "ok": true,
+   "name": "삼호궁전사우나",
+   "addr": "서울특별시 서초구 논현로 87",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4775476,
+   "lng": 127.04428150000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "삼호궁전사우나",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "서울특별시 서초구 양재동 275-6",
+   "road": "서울특별시 서초구 논현로 87",
+   "mapx": "1270442278",
+   "mapy": "374775719"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "87702ab3-6296-4789-91ea-8493d91a2de7",
+  "name": "실로암사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 용마산로 171",
+   "lat": 37.5691287,
+   "lng": 127.0855322,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270855322_375691287"
+  },
+  "google": {
+   "ok": true,
+   "name": "실로암사우나",
+   "addr": "서울특별시 광진구 용마산로 173",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5690015,
+   "lng": 127.08555849999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "실로암사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 광진구 중곡동 169-80",
+   "road": "서울특별시 광진구 용마산로 171",
+   "mapx": "1270855322",
+   "mapy": "375691287"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "a7c48191-2334-42be-bc9a-da5c71610126",
+  "name": "Vabali",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "DE",
+   "city": "Berlin",
+   "addr": "6 Seydlitzstraße, Mitte, Berlin, Germany",
+   "lat": 52.5286101,
+   "lng": 13.3595874,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJjfrdZphRqEcRT6O7Rn8rVLI"
+  },
+  "google": {
+   "ok": true,
+   "name": "바발리 스파 베를린",
+   "addr": "Seydlitzstraße 6, 10557 Berlin",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 52.528522099999996,
+   "lng": 13.3593514,
+   "country": "DE"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "a39ef875-2354-401b-9c02-ce961e74744d",
+  "name": "황금스파",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 청계천로 400 롯데캐슬베네치아",
+   "lat": 37.5708889,
+   "lng": 127.0205583,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270205583_375708889"
+  },
+  "google": {
+   "ok": true,
+   "name": "황금스파",
+   "addr": "서울특별시 중구 황학동 2545 롯데케슬 베네치아몰 지하2층 (롯데케슬 102동 밑)",
+   "types": [
+    "sauna",
+    "public_bath",
+    "massage_spa",
+    "spa",
+    "massage",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 37.5711359,
+   "lng": 127.0203349,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "황금스파",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 중구 황학동 2545 롯데캐슬베네치아",
+   "road": "서울특별시 중구 청계천로 400 롯데캐슬베네치아",
+   "mapx": "1270205583",
+   "mapy": "375708889"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f329d84c-93e9-4e7e-9632-8c96ea7e46ed",
+  "name": "AIRE Ancient Baths New York",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "US",
+   "city": "New York",
+   "addr": "88 Franklin Street, Manhattan, New York, United States",
+   "lat": 40.7181473,
+   "lng": -74.00482,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ63NebSBawokRnDuPylB7t38"
+  },
+  "google": {
+   "ok": true,
+   "name": "AIRE Ancient Baths New York · Tribeca",
+   "addr": "88 Franklin St, New York, NY 10013",
+   "types": [
+    "spa",
+    "gift_shop",
+    "public_bath",
+    "massage_spa",
+    "massage",
+    "point_of_interest",
+    "service",
+    "store",
+    "establishment"
+   ],
+   "lat": 40.7181473,
+   "lng": -74.00482,
+   "country": "US"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "272c8e5e-99bb-4dcc-9845-d2ffb9360208",
+  "name": "세현사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 부평구 백범로 520",
+   "lat": 37.4712968,
+   "lng": 126.6947837,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1266947837_374712968"
+  },
+  "google": {
+   "ok": true,
+   "name": "세현사우나",
+   "addr": "인천광역시 부평구 십정동 356-4",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.471319199999996,
+   "lng": 126.69469429999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "세현사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "인천광역시 부평구 십정동 356-4",
+   "road": "인천광역시 부평구 백범로 520",
+   "mapx": "1266947837",
+   "mapy": "374712968"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "ee2b63df-4c0d-478a-85d3-1fca698cc43f",
+  "name": "레몬사우나",
+  "isMatched": true,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 광나루로 635",
+   "lat": 37.5400478,
+   "lng": 127.0976864,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270976864_375400478"
+  },
+  "google": {
+   "ok": true,
+   "name": "레몬사우나",
+   "addr": "서울특별시 광진구 광장동 484",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.540067799999996,
+   "lng": 127.0978632,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "레몬사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 광진구 광장동 484",
+   "road": "서울특별시 광진구 광나루로 635",
+   "mapx": "1270976864",
+   "mapy": "375400478"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "9588f7cc-63d1-4ba0-abd0-53afaae6bb49",
+  "name": "클럽케이서울",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 선릉로 524 지하 1층, 2층",
+   "lat": 37.5064001,
+   "lng": 127.0482775,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270482775_375064001"
+  },
+  "google": {
+   "ok": true,
+   "name": "Club K Seoul",
+   "addr": "서울특별시 강남구 선릉로 524 대림아크로텔 지하 1층 지하2층",
+   "types": [
+    "spa",
+    "night_club",
+    "bar",
+    "live_music_venue",
+    "event_venue",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5067648,
+   "lng": 127.04808460000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "클럽케이서울",
+   "category": "스포츠시설>헬스장",
+   "addr": "서울특별시 강남구 삼성동 140-3 지하 1층, 2층",
+   "road": "서울특별시 강남구 선릉로 524 지하 1층, 2층",
+   "mapx": "1270482775",
+   "mapy": "375064001"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "f73d775a-7b46-423e-970b-10c9c294541e",
+  "name": "하남사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 후암로28길 38",
+   "lat": 37.5493312,
+   "lng": 126.9792741,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269792741_375493312"
+  },
+  "google": {
+   "ok": true,
+   "name": "대도목욕탕",
+   "addr": "서울특별시 용산구 후암로28길 38",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5492869,
+   "lng": 126.9792477,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "테르엔 하남미사점",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "경기도 하남시 망월동 970-3 3층 301호",
+   "road": "경기도 하남시 미사강변대로226번길 30 3층 301호",
+   "mapx": "1271852905",
+   "mapy": "375695429"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "82cc6aa1-0573-466b-a5aa-f6370e003884",
+  "name": "호텔더디자이너스 서울역점 남성전용 사우나",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 한강대로 305 호텔더디자이너스 서울역점 지하2층",
+   "lat": 37.5455592,
+   "lng": 126.9715771,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269715771_375455592"
+  },
+  "google": {
+   "ok": true,
+   "name": "호텔 더 디자이너스 서울역",
+   "addr": "서울특별시 용산구 남영동 한강대로 305",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5455475,
+   "lng": 126.9715612,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "호텔더디자이너스 서울역점 남성전용 사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 용산구 갈월동 69-27 호텔더디자이너스 서울역점 지하2층",
+   "road": "서울특별시 용산구 한강대로 305 호텔더디자이너스 서울역점 지하2층",
+   "mapx": "1269715771",
+   "mapy": "375455592"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7e41a924-5341-47df-9292-411dd1750941",
+  "name": "Kuusijärvi",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "FI",
+   "city": "Vanda",
+   "addr": "3 Kuusijärventie, Vanda, Nyland, Finland",
+   "lat": 60.31274,
+   "lng": 25.1115499,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJf0AkBfAGkkYRtj_h8zh5U9Y"
+  },
+  "google": {
+   "ok": true,
+   "name": "Kuusijärventie 3",
+   "addr": "Kuusijärventie 3, 01260 Vantaa",
+   "types": [
+    "premise",
+    "street_address"
+   ],
+   "lat": 60.3137254,
+   "lng": 25.113294999999997,
+   "country": "FI"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "0eca346f-c889-4abe-84ce-200ffb5a92c0",
+  "name": "KIWAMI SAUNA Osu",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Nagoya",
+   "addr": "1-chōme-4-12, Tachibana, Naka Ward, Nagoya, Aichi, Japan",
+   "lat": 35.1551829,
+   "lng": 136.9003387,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJw9j0NgB3A2ARGGFFJ0VXZrQ"
+  },
+  "google": {
+   "ok": true,
+   "name": "KIWAMI SAUNA 大須",
+   "addr": "1-chōme-4-12 Tachibana, Naka Ward, Nagoya, Aichi 460-0016",
+   "types": [
+    "sauna",
+    "wellness_center",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1551829,
+   "lng": 136.90033870000002,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "ada7d237-fb1c-4b16-b7ac-8bcdc1ff49fb",
+  "name": "Kairyou-yu",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "JP",
+   "city": "Shibuya",
+   "addr": "2-chōme-19-9, Higashi, Shibuya, Tokyo, Japan",
+   "lat": 35.6530753,
+   "lng": 139.7095256,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ2-qK3EKLGGARns7TXQln2ac"
+  },
+  "google": {
+   "ok": true,
+   "name": "카이료유",
+   "addr": "2-chōme-19-9 Higashi, Shibuya, Tokyo 150-0011",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.6530753,
+   "lng": 139.7095256,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "0e03904b-60c1-4c74-912a-31e1f1c22ef0",
+  "name": "Therme Erding",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "DE",
+   "city": "Erding",
+   "addr": "1-5 Thermenallee, Erding, Bayern, Germany",
+   "lat": 48.290231,
+   "lng": 11.8885776,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJH8EL2U4QnkcReD2Uos8B02k"
+  },
+  "google": {
+   "ok": true,
+   "name": "Therme Erding",
+   "addr": "Thermenallee 1-5, 85435 Erding",
+   "types": [
+    "water_park",
+    "sauna",
+    "amusement_park",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 48.290231000000006,
+   "lng": 11.8885776,
+   "country": "DE"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "c0bd8983-6e5f-49f7-b17d-b2ae4a9d5c17",
+  "name": "Shiriuchi Onsen Kokyu no Ma",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Shiriuchi",
+   "addr": "284, Yunosato, Shiriuchi, Hokkaido, Japan",
+   "lat": 41.5957056,
+   "lng": 140.2945292,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJySLX44HInl8R9UJ0LhM_8Po"
+  },
+  "google": {
+   "ok": true,
+   "name": "Utopia Warakuen Shiriuchi Onsen Inn",
+   "addr": "284 Yunosato, Shiriuchi, Kamiiso District, Hokkaido 049-1221",
+   "types": [
+    "japanese_inn",
+    "sauna",
+    "hotel",
+    "public_bath",
+    "spa",
+    "lodging",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 41.595705599999995,
+   "lng": 140.2945292,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "ca118a6e-453d-4240-a4ba-d7f36b12187a",
+  "name": "Wellbe Sakae",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Nagoya",
+   "addr": "3-chōme-13-12, Sakae, Naka Ward, Nagoya, Aichi, Japan",
+   "lat": 35.1663956,
+   "lng": 136.9056817,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJgaTQU9JwA2ARu_5EEb6vxac"
+  },
+  "google": {
+   "ok": true,
+   "name": "웰비 사카에",
+   "addr": "〒460-0008 Aichi, Nagoya, Naka Ward, Sakae, 3-chōme−13−１２ 3F",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1663956,
+   "lng": 136.9056817,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "6ed6bb25-543e-4fdd-8be1-96e5099f1721",
+  "name": "Shinagawa Sauna",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Shinagawa City",
+   "addr": "1-chōme-6-1, Ōi, Shinagawa City, Tokyo, Japan",
+   "lat": 35.6068912,
+   "lng": 139.7333533,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJs-YjKQCLGGARyxekaAaL6Pk"
+  },
+  "google": {
+   "ok": true,
+   "name": "Shinagawa Sauna",
+   "addr": "1-chōme-6-1 Ōi, Shinagawa City, Tokyo 140-0014",
+   "types": [
+    "hostel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.6068912,
+   "lng": 139.7333533,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "95a65323-11ae-4251-86c9-7f115ba83911",
+  "name": "Aomoriya by Hoshino Resorts",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Misawa",
+   "addr": "Horikirizawa-56, Inuotose, Misawa, Aomori, Japan",
+   "lat": 40.6616861,
+   "lng": 141.3554479,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ6_Yie81dm18RTybdewmBTCY"
+  },
+  "google": {
+   "ok": true,
+   "name": "호시노리조트 아오모리야",
+   "addr": "Horikirizawa-56 Furumagiyama, Misawa, Aomori 033-8688",
+   "types": [
+    "hotel",
+    "japanese_inn",
+    "resort_hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 40.6616861,
+   "lng": 141.3554479,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "dc98375b-d9f0-4f3c-9256-6df1bfb90b45",
+  "name": "아라고나이트 고온천",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": "서귀포시",
+   "addr": "제주특별자치도 서귀포시 안덕면 산록남로 762번길 71",
+   "lat": 33.3030342,
+   "lng": 126.3923592,
+   "coordSrc": "naver",
+   "source": "manual",
+   "ext": "1263923592_333030342"
+  },
+  "google": {
+   "ok": true,
+   "name": "아라고나이트 고온천",
+   "addr": "제주특별자치도 서귀포시 안덕면 산록남로762번길 71",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 33.3032342,
+   "lng": 126.3928771,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "아라고나이트 고온천",
+   "category": "여행,명소>온천,스파",
+   "addr": "제주특별자치도 서귀포시 안덕면 상천리 380-7",
+   "road": "제주특별자치도 서귀포시 안덕면 산록남로762번길 71",
+   "mapx": "1263923592",
+   "mapy": "333030342"
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "01892d98-8e3c-4d86-aa61-5a2d6ec9b3d7",
+  "name": "Ume-yu",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "JP",
+   "city": "Kyoto",
+   "addr": "175-1, Iwatakichō, Shimogyo Ward, Kyoto, Japan",
+   "lat": 34.9929641,
+   "lng": 135.7656753,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ9YjdGroIAWAR-MhOlVbFUQs"
+  },
+  "google": {
+   "ok": true,
+   "name": "우메유 사우나",
+   "addr": "175-1 Iwatakichō, Shimogyo Ward, Kyoto, 600-8115",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 34.9929641,
+   "lng": 135.7656753,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "908c8ab7-7ee3-4593-80f9-42c7dac2d9f8",
+  "name": "Shibuya Saunas",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Shibuya",
+   "addr": "18-9, Sakuragaokachō, Shibuya, Tokyo, Japan",
+   "lat": 35.656061,
+   "lng": 139.700851,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJpzjfMsyLGGARYO1X1qbsAnU"
+  },
+  "google": {
+   "ok": true,
+   "name": "시부야 사우나",
+   "addr": "18-9 Sakuragaokachō, Shibuya, Tokyo 150-0031",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.656061,
+   "lng": 139.700851,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "a5414757-8ad8-4d80-a18b-070365715b23",
+  "name": "SKY SPA Yokohama",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Yokohama",
+   "addr": "2-chōme-19-12, Takashima, Nishi Ward, Yokohama, Kanagawa, Japan",
+   "lat": 35.4645561,
+   "lng": 139.6246488,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJdx0GWRNcGGARRyDTpB_Y-Hs"
+  },
+  "google": {
+   "ok": true,
+   "name": "스카이 스파 요코하마",
+   "addr": "〒220-0011 Kanagawa, Yokohama, Nishi Ward, Takashima, 2-chōme−19−１２ Sky Building, 14階",
+   "types": [
+    "spa",
+    "sauna",
+    "hotel",
+    "public_bath",
+    "lodging",
+    "massage",
+    "health",
+    "restaurant",
+    "point_of_interest",
+    "service",
+    "food",
+    "establishment"
+   ],
+   "lat": 35.464556099999996,
+   "lng": 139.6246488,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "676e4785-368b-47e6-8597-3c52867cbb5c",
+  "name": "강변스파랜드",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 구의강변로 45",
+   "lat": 37.53492,
+   "lng": 127.091553,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270915530_375349200"
+  },
+  "google": {
+   "ok": true,
+   "name": "강변스파랜드",
+   "addr": "서울특별시 광진구 구의강변로 45",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5348073,
+   "lng": 127.09154969999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "강변스파랜드",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 광진구 구의동 593-15 지하1,2층",
+   "road": "서울특별시 광진구 구의강변로 45 지하1,2층",
+   "mapx": "1270913310",
+   "mapy": "375349218"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "b25808c0-1cff-4c90-a13b-70d847eb96ce",
+  "name": "Noboribetsu Grand Hotel",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Noboribetsu",
+   "addr": "154, Noboribetsuonsenchō, Noboribetsu, Hokkaido, Japan",
+   "lat": 42.4919542,
+   "lng": 141.1418679,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJnSiZScZmdV8Rui-ZB43nN18"
+  },
+  "google": {
+   "ok": true,
+   "name": "노보리베츠 그랜드 호텔",
+   "addr": "154 Noboribetsuonsenchō, Noboribetsu, Hokkaido 059-0551",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 42.491954199999995,
+   "lng": 141.14186790000002,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "9f22876a-bb94-4a6c-a537-3fcf8a1cab78",
+  "name": "sauna kolme kyla",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Okayama",
+   "addr": "1-chōme-8-182, Toyonari, Minami Ward, Okayama, Japan",
+   "lat": 34.6322857,
+   "lng": 133.9297627,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJvbPOQQAHVDURCke2YOOiMDU"
+  },
+  "google": {
+   "ok": true,
+   "name": "sauna kolme kylä 岡山サウナ（サウナ コルメ キュラ）",
+   "addr": "〒700-0942 Okayama, Minami Ward, Toyonari, 1-chōme−8−１８２ 番3",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 34.632275299999996,
+   "lng": 133.92985729999998,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "2a0571a3-e91c-46bf-b47f-abec3312337f",
+  "name": "Kannojigoku Hotel",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Kokonoe",
+   "addr": "257, Tano, Kokonoe, Oita, Japan",
+   "lat": 33.1125069,
+   "lng": 131.2268319,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJCRE0o7s1QTURS8eE60_EVcs"
+  },
+  "google": {
+   "ok": true,
+   "name": "칸노지고쿠 료칸",
+   "addr": "257 Tano, Kokonoe, Kusu District, Oita 879-4911",
+   "types": [
+    "japanese_inn",
+    "hotel",
+    "spa",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 33.1125069,
+   "lng": 131.2268319,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "58b4bb93-cf75-4195-8a2a-996a5f894cc1",
+  "name": "한림탕",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Cheju",
+   "addr": "제주특별자치도 제주시 한림읍 한림로 685-10",
+   "lat": 33.4160422,
+   "lng": 126.2642832,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "한라 사우나",
+   "addr": "제주특별자치도 제주시 특별자치도 한림읍 한림리 941-2",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 33.4112186,
+   "lng": 126.26496429999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "한림탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "제주특별자치도 제주시 한림읍 한림리 1314-89",
+   "road": "제주특별자치도 제주시 한림읍 한림로 685-10",
+   "mapx": "1262642832",
+   "mapy": "334160422"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "3bb75020-b6c8-479c-916c-7c08a5ad21c9",
+  "name": "리버사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 이촌로84길 9 유일빌딩 지하2, 3층",
+   "lat": 37.5184361,
+   "lng": 126.9770515,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "리버사우나",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5184176,
+   "lng": 126.97697040000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "리버사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 용산구 이촌동 300-21 유일빌딩 지하2, 3층",
+   "road": "서울특별시 용산구 이촌로84길 9 유일빌딩 지하2, 3층",
+   "mapx": "1269770515",
+   "mapy": "375184361"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "32920bd6-49c8-4660-8db2-5f27c9bf19c0",
+  "name": "소금강스파",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": "Gangneung",
+   "addr": "강원특별자치도 강릉시 연곡면 진고개로 2418-30 1층",
+   "lat": 37.8494213,
+   "lng": 128.8073403,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "소금강온천",
+   "addr": "강원특별자치도 강릉시 연곡면 송림리 804-14",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.849117899999996,
+   "lng": 128.80795,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "소금강스파",
+   "category": "여행,명소>온천,스파",
+   "addr": "강원특별자치도 강릉시 연곡면 송림리 804-14 1층",
+   "road": "강원특별자치도 강릉시 연곡면 진고개로 2418-30 1층",
+   "mapx": "1288073403",
+   "mapy": "378494213"
+  },
+  "flags": [
+   "🟡ext-id-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "1c8ecb4a-f445-484f-9b29-aa5031f50a7a",
+  "name": "봉래탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 영도구 대교로2번길 7 2층",
+   "lat": 35.0933863,
+   "lng": 129.0447966,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "봉래목욕탕",
+   "addr": "대한민국 부산광역시",
+   "types": [
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.0934787,
+   "lng": 129.0446507,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "봉래탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 영도구 봉래동3가 100-1 2층",
+   "road": "부산광역시 영도구 대교로2번길 7 2층",
+   "mapx": "1290447966",
+   "mapy": "350933863"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "15a8b840-9dcc-48b0-b5bd-d3ee86db5c61",
+  "name": "서울사우나 휘트니스",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Cheju",
+   "addr": "제주특별자치도 제주시 노형로 283",
+   "lat": 33.4788364,
+   "lng": 126.4683171,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "서울사우나",
+   "addr": "제주특별자치도 제주시 노형동 노형로 283",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 33.4787963,
+   "lng": 126.46833889999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스페이스본휘트니스",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "서울특별시 종로구 사직동 9 광화문스페이스본 상가 지하2층",
+   "road": "서울특별시 종로구 사직로8길 4 광화문스페이스본 상가 지하2층",
+   "mapx": "1269698564",
+   "mapy": "375746029"
+  },
+  "flags": [
+   "🟡ext-id-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "4926fac9-01c2-4ea5-8657-1e7b8ff376df",
+  "name": "인천조탕",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 중구 용유서로 30",
+   "lat": 37.4441625,
+   "lng": 126.4045572,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "인천조탕",
+   "addr": "인천광역시 KR 인천광역시 중구 용유서로 30 인천조탕",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4446036,
+   "lng": 126.40416359999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "인천조탕",
+   "category": "생활,편의>찜질방",
+   "addr": "인천광역시 중구 남북동 923",
+   "road": "인천광역시 중구 용유서로 30",
+   "mapx": "1264045572",
+   "mapy": "374441625"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "fa8ca9dc-5987-4db1-8468-2a2011a6a8b4",
+  "name": "라파사우나찜질방",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 송파구 오금로 396 지하1층",
+   "lat": 37.4980888,
+   "lng": 127.134399,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "라파사우나찜질방",
+   "addr": "서울특별시 송파구 오금로 396",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4977786,
+   "lng": 127.13401669999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "라파사우나찜질방",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 송파구 가락동 166-2 지하1층",
+   "road": "서울특별시 송파구 오금로 396 지하1층",
+   "mapx": "1271343990",
+   "mapy": "374980888"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "69786b8a-804d-4773-bf07-921bc92871ce",
+  "name": "동아온천사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "대전광역시 유성구 온천로 59",
+   "lat": 36.3556006,
+   "lng": 127.344583,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "동아온천사우나",
+   "addr": "대전광역시 유성구 온천로 59",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.355505199999996,
+   "lng": 127.3445389,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "동아24시사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 동대문구 전농동 645-2",
+   "road": "서울특별시 동대문구 서울시립대로 31",
+   "mapx": "1270456030",
+   "mapy": "375745239"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "4ea45563-6c82-4e87-b9a5-db102aa88ed7",
+  "name": "파라다이스시티 씨메르",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 중구 영종해안남로321번길 186",
+   "lat": 37.435628,
+   "lng": 126.4570723,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": ""
+  },
+  "google": {
+   "ok": true,
+   "name": "파라다이스시티",
+   "addr": "인천광역시 중구 영종해안남로321번길 186",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4370548,
+   "lng": 126.45579869999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "파라다이스시티 씨메르",
+   "category": "레저,테마>워터파크",
+   "addr": "인천광역시 중구 운서동 2874",
+   "road": "인천광역시 중구 영종해안남로321번길 186",
+   "mapx": "1264570723",
+   "mapy": "374356280"
+  },
+  "flags": [
+   "🟡ext-id-missing",
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7125e831-8b99-4843-8494-0f489b9990b6",
+  "name": "Bettei Senjyuan",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Minakami",
+   "addr": "614, Tanigawa, Minakami, Gunma, Japan",
+   "lat": 36.7854796,
+   "lng": 138.9574947,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJYYiWRIkTHmARWmZDqfqQQhM"
+  },
+  "google": {
+   "ok": true,
+   "name": "벳테이 센쥬안",
+   "addr": "614 Tanigawa, Minakami, Tone District, Gunma 379-1619",
+   "types": [
+    "japanese_inn",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.785479599999995,
+   "lng": 138.95749469999998,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "df8ce37c-4a79-4e9a-9d36-c5a5d8e44b99",
+  "name": "Yuyado Daiichi",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Nakashibetsu",
+   "addr": "518, Yōrōushi, Nakashibetsu, Hokkaido, Japan",
+   "lat": 43.5876787,
+   "lng": 144.7223483,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJAxNUPLkKbV8R-sxqGktRVkw"
+  },
+  "google": {
+   "ok": true,
+   "name": "유야도 다이이치",
+   "addr": "518 Yōrōushi, Nakashibetsu, Shibetsu District, Hokkaido 088-2684",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 43.5876787,
+   "lng": 144.7223483,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "2da01557-42e5-4bf6-b1cf-7e7a95d0c1be",
+  "name": "유라이크",
+  "isMatched": false,
+  "db": {
+   "type": "private-sauna",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 청파로45길 19 5층",
+   "lat": 37.5442018,
+   "lng": 126.9694199,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269694199_375442018"
+  },
+  "google": {
+   "ok": true,
+   "name": "1인 세신샵 유라이크스파 Ulike Spa Yongsan Seoul Premium Private Korean Body Scrub Care l 韓国個室アカスリl WOMAN ONLY",
+   "addr": "서울특별시 용산구 청파로45길 19 Ulike Spa 5층",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5442605,
+   "lng": 126.96937,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유라이크",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 용산구 청파동3가 29-14 5층",
+   "road": "서울특별시 용산구 청파로45길 19 5층",
+   "mapx": "1269694199",
+   "mapy": "375442018"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "11c6e15b-e3ac-4acc-9ebc-95cbcf8ae0fd",
+  "name": "Onyado Nono Nanba",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Osaka",
+   "addr": "1-chōme-4-18, Nipponbashi, Chuo Ward, Osaka, Japan",
+   "lat": 34.667985,
+   "lng": 135.506326,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJIx5hp2rnAGAR8YNxqZbCux8"
+  },
+  "google": {
+   "ok": true,
+   "name": "온야도 노노 난바",
+   "addr": "1-chōme-4-18 Nipponbashi, Chuo Ward, Osaka, 542-0073",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 34.667985,
+   "lng": 135.506326,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "11c8d769-db13-4130-b80a-b316185f297a",
+  "name": "고려사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 송파구 송파대로27길 30 태림빌딩",
+   "lat": 37.4909741,
+   "lng": 127.115929,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271159290_374909741"
+  },
+  "google": {
+   "ok": true,
+   "name": "고려탕",
+   "addr": "서울특별시 송파구 문정동 150-35",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4908834,
+   "lng": 127.11576369999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "고려사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 송파구 문정동 150-35 태림빌딩",
+   "road": "서울특별시 송파구 송파대로27길 30 태림빌딩",
+   "mapx": "1271159290",
+   "mapy": "374909741"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "b1879d2d-0e1a-4258-8179-ec7042403880",
+  "name": "건강나라",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 동대문구 왕산로37길 39",
+   "lat": 37.5816959,
+   "lng": 127.0439002,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270439002_375816959"
+  },
+  "google": {
+   "ok": true,
+   "name": "할머니냉면",
+   "addr": "서울특별시 동대문구 왕산로37길 51",
+   "types": [
+    "korean_restaurant",
+    "restaurant",
+    "point_of_interest",
+    "food",
+    "establishment"
+   ],
+   "lat": 37.5822259,
+   "lng": 127.043698,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "건강나라",
+   "category": "쇼핑,유통>건강기능보조식품",
+   "addr": "서울특별시 서대문구 대신동 124-17 건강나라",
+   "road": "서울특별시 서대문구 봉원사길 7 건강나라",
+   "mapx": "1269464639",
+   "mapy": "375669874"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "c9666cf7-e742-4bb9-a2dd-f68e54f4d466",
+  "name": "온유재스파마사지 상무점",
+  "isMatched": false,
+  "db": {
+   "type": "private-sauna",
+   "country": "KR",
+   "city": null,
+   "addr": "광주광역시 서구 시청로 57 2층 201호",
+   "lat": 35.1536442,
+   "lng": 126.8511675,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268511675_351536442"
+  },
+  "google": {
+   "ok": true,
+   "name": "온유재스파 상무점",
+   "addr": "광주광역시 서구 시청로 57",
+   "types": [
+    "massage_spa",
+    "spa",
+    "massage",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 35.1536483,
+   "lng": 126.85117890000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "온유재스파마사지 상무점",
+   "category": "미용>피부,체형관리",
+   "addr": "광주광역시 서구 치평동 1231-3 2층 201호",
+   "road": "광주광역시 서구 시청로 57 2층 201호",
+   "mapx": "1268511675",
+   "mapy": "351536442"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "78d91d1c-d7cd-4818-8a94-521a24b48a4f",
+  "name": "난곡목욕탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 관악구 난곡로24가길 12",
+   "lat": 37.469651,
+   "lng": 126.92125,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269212500_374696510"
+  },
+  "google": {
+   "ok": true,
+   "name": "프린스대중사우나",
+   "addr": "서울특별시 관악구 난우길 2",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4731701,
+   "lng": 126.91915709999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "난곡목욕탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 관악구 신림동 640-3",
+   "road": "서울특별시 관악구 난곡로24가길 12",
+   "mapx": "1269212500",
+   "mapy": "374696510"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "8ec5199d-a7e9-46ae-951f-e71536006af8",
+  "name": "Bathhouse Williamsburg",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "US",
+   "city": null,
+   "addr": "103 North 10th Street, Brooklyn, Williamsburg, New York, United States",
+   "lat": 40.7205873,
+   "lng": -73.9575054,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJBTF_ACxZwokRk8y1ICME3F4"
+  },
+  "google": {
+   "ok": true,
+   "name": "Bathhouse",
+   "addr": "103 N 10th St, Brooklyn, NY 11249",
+   "types": [
+    "sauna",
+    "public_bath",
+    "swimming_pool",
+    "spa",
+    "sports_activity_location",
+    "massage",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 40.7205873,
+   "lng": -73.9575054,
+   "country": "US"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "9fa63f79-f180-456e-8c9e-0b7ca752d2b4",
+  "name": "AIRE Ancient Baths Barcelona",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "ES",
+   "city": "Barcelona",
+   "addr": "22 Passeig de Picasso, Ciutat Vella, Barcelona, Catalunya, Spain",
+   "lat": 41.3870319,
+   "lng": 2.1834724,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ_dPAk_2ipBIR4JAJ7OLhr-U"
+  },
+  "google": {
+   "ok": true,
+   "name": "Aire Ancient Baths | Barcelona",
+   "addr": "Passeig de Picasso, 22, Ciutat Vella, 08003 Barcelona",
+   "types": [
+    "spa",
+    "gift_shop",
+    "public_bath",
+    "massage_spa",
+    "massage",
+    "point_of_interest",
+    "service",
+    "store",
+    "establishment"
+   ],
+   "lat": 41.3870319,
+   "lng": 2.1834724,
+   "country": "ES"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "9ac220df-2a42-4b1d-8969-4e0b57830f82",
+  "name": "Elamus Spa",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "EE",
+   "city": "Tallinn",
+   "addr": "30 Akadeemia tee, Mustamäe, Tallinn, Harju maakond, Estonia",
+   "lat": 59.3998304,
+   "lng": 24.6653202,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJZYUkv0qVkkYR7U-wlEsybnE"
+  },
+  "google": {
+   "ok": true,
+   "name": "Elamus Spa",
+   "addr": "Akadeemia tee 30, 12611 Tallinn",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 59.3998304,
+   "lng": 24.6653202,
+   "country": "EE"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "55a14cf6-735c-4866-b969-b55bedd93643",
+  "name": "대성관",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 북구 금곡대로199번길 12",
+   "lat": 35.2269653,
+   "lng": 129.0103476,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290103476_352269653"
+  },
+  "google": {
+   "ok": true,
+   "name": "대성관",
+   "addr": "부산광역시 북구 금곡대로199번길 12",
+   "types": [
+    "restaurant",
+    "point_of_interest",
+    "food",
+    "establishment"
+   ],
+   "lat": 35.226991,
+   "lng": 129.01039169999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "대성관 본점",
+   "category": "한식>감자탕",
+   "addr": "경기도 수원시 팔달구 인계동 1010-5",
+   "road": "경기도 수원시 팔달구 장다리로 161",
+   "mapx": "1270236767",
+   "mapy": "372643435"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "4da4073a-c3b2-4ef8-853a-aec5c3f329c2",
+  "name": "성수탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성동구 성덕정19길 11",
+   "lat": 37.5375655,
+   "lng": 127.0565146,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270565146_375375655"
+  },
+  "google": {
+   "ok": true,
+   "name": "성수탕",
+   "addr": "서울특별시 성수동2가 331-163번지 성동구 서울특별시 KR",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.537535399999996,
+   "lng": 127.05649049999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "성수탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 성동구 성수동2가 331-163",
+   "road": "서울특별시 성동구 성덕정19길 11",
+   "mapx": "1270565146",
+   "mapy": "375375655"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f4bd04a9-9066-4650-9cfa-2eb2c8107fd1",
+  "name": "로데오 스파",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 선릉로 823 한양타운빌딩 지하2층",
+   "lat": 37.5256156,
+   "lng": 127.0393899,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270393899_375256156"
+  },
+  "google": {
+   "ok": true,
+   "name": "로데오 스파",
+   "addr": "서울특별시 강남구 선릉로 823",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5255332,
+   "lng": 127.03936619999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "로데오 스파",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 강남구 신사동 665-1 한양타운빌딩 지하2층",
+   "road": "서울특별시 강남구 선릉로 823 한양타운빌딩 지하2층",
+   "mapx": "1270393899",
+   "mapy": "375256156"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "0be3cf82-87af-4571-84c0-2d263ffdffad",
+  "name": "Koganeyu",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Sumida City",
+   "addr": "4-chōme-14-6, Taihei, Sumida City, Tokyo, Japan",
+   "lat": 35.7022277,
+   "lng": 139.8153012,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJc5oUv9WIGGARu20d1daLWBE"
+  },
+  "google": {
+   "ok": true,
+   "name": "코가네유",
+   "addr": "4-chōme-14-6 Taihei, Sumida City, Tokyo 130-0012",
+   "types": [
+    "hotel",
+    "public_bath",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.70222770000001,
+   "lng": 139.8153012,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "13d9f01a-f05b-43ab-bc0a-88eec3dcfe24",
+  "name": "Hotta-yu sento",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Adachi City",
+   "addr": "3-chōme-20-14, Sekibara, Adachi City, Tokyo, Japan",
+   "lat": 35.7717454,
+   "lng": 139.7889942,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJfakvb-GRGGAR_AWZXCQ3-zc"
+  },
+  "google": {
+   "ok": true,
+   "name": "호타유",
+   "addr": "3-chōme-20-14 Sekibara, Adachi City, Tokyo 123-0852",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.7717454,
+   "lng": 139.7889942,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "07da6b4f-e085-4660-b03a-4ff0d3300601",
+  "name": "Janu Tokyo",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "JP",
+   "city": "Minato City",
+   "addr": "1-chōme-2-1, Azabudai, Minato City, Tokyo, Japan",
+   "lat": 35.6621677,
+   "lng": 139.7403096,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJEWV5V2-LGGARWr133cObY_8"
+  },
+  "google": {
+   "ok": true,
+   "name": "자누 도쿄",
+   "addr": "1-chōme-2-2 Azabudai, Minato City, Tokyo 106-0041",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.6621677,
+   "lng": 139.7403096,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "eb0daeb3-4ded-4c6f-a3fe-99f2f0811e1e",
+  "name": "군인공제회관 M스포렉스",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 남부순환로 2806 군인공제회관",
+   "lat": 37.489201,
+   "lng": 127.0529027,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270529027_374892010"
+  },
+  "google": {
+   "ok": true,
+   "name": "군인공제회관",
+   "addr": "서울특별시 강남구 남부순환로 2806",
+   "types": [
+    "corporate_office",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4890581,
+   "lng": 127.0528941,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "군인공제회관 M스포렉스",
+   "category": "스포츠시설>헬스장",
+   "addr": "서울특별시 강남구 도곡동 467-12 군인공제회관",
+   "road": "서울특별시 강남구 남부순환로 2806 군인공제회관",
+   "mapx": "1270529027",
+   "mapy": "374892010"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "af4ed227-7a57-47b7-93c0-cfe12cacbcf3",
+  "name": "TOTOPA Toritsu Meiji Koen",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Shinjuku City",
+   "addr": "5-7, Kasumigaokamachi, Shinjuku City, Tokyo, Japan",
+   "lat": 35.6746794,
+   "lng": 139.7131361,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ3R0NHwCNGGARduN5UUON42o"
+  },
+  "google": {
+   "ok": true,
+   "name": "TOTOPA 都立明治公園店",
+   "addr": "5-7 Kasumigaokamachi, Shinjuku City, Tokyo 160-0013",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.674679399999995,
+   "lng": 139.71313609999999,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "39104a83-cb27-4722-98b4-ad87305a49a2",
+  "name": "관악24시불가마사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 관악구 관악로 212 관악프라자",
+   "lat": 37.4834845,
+   "lng": 126.955075,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269550750_374834845"
+  },
+  "google": {
+   "ok": true,
+   "name": "관악24시불가마사우나",
+   "addr": "서울특별시 관악구 관악로 212",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4836165,
+   "lng": 126.9551487,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "관악24시불가마사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 관악구 봉천동 31-1 관악프라자",
+   "road": "서울특별시 관악구 관악로 212 관악프라자",
+   "mapx": "1269550750",
+   "mapy": "374834845"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "6d05bd50-5c1c-4e79-a83a-31b5461a161d",
+  "name": "대영온천",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 남구 황령대로492번길 10",
+   "lat": 35.1378781,
+   "lng": 129.1068357,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291068357_351378781"
+  },
+  "google": {
+   "ok": true,
+   "name": "대영온천",
+   "addr": "부산광역시 남구 황령대로492번길 10",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1379197,
+   "lng": 129.1068247,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "대영온천",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 남구 대연동 16-3",
+   "road": "부산광역시 남구 황령대로492번길 10",
+   "mapx": "1291068357",
+   "mapy": "351378781"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "25ca7ae4-83d1-4fcc-b008-29f35aabc91a",
+  "name": "버핏그라운드 광화문",
+  "isMatched": false,
+  "db": {
+   "type": "gym-sauna",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 세종대로 136 B1, B2층",
+   "lat": 37.5684246,
+   "lng": 126.9782701,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269782701_375684246"
+  },
+  "google": {
+   "ok": true,
+   "name": "버핏그라운드 광화문",
+   "addr": "서울특별시 중구 세종대로 136 서울파이낸스센터 B1-B2",
+   "types": [
+    "spa",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 37.568427299999996,
+   "lng": 126.9777398,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "버핏그라운드 광화문",
+   "category": "스포츠시설>헬스장",
+   "addr": "서울특별시 중구 태평로1가 84 B1, B2층",
+   "road": "서울특별시 중구 세종대로 136 B1, B2층",
+   "mapx": "1269782701",
+   "mapy": "375684246"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "e803c330-f6a1-42e9-bf7e-71dad2925b48",
+  "name": "골드로즈사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 선릉로86길 31 롯데골드로즈2",
+   "lat": 37.5042023,
+   "lng": 127.0520244,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270520244_375042023"
+  },
+  "google": {
+   "ok": true,
+   "name": "골드로즈사우나",
+   "addr": "서울특별시 강남구 선릉로86길 31 롯데골드로즈2 B1",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.504099,
+   "lng": 127.05196399999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "골드로즈사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 강남구 대치동 890-59 롯데골드로즈2",
+   "road": "서울특별시 강남구 선릉로86길 31 롯데골드로즈2",
+   "mapx": "1270520244",
+   "mapy": "375042023"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "1139001e-593d-4a18-941e-ed556d2f5be1",
+  "name": "선수촌사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 송파구 양재대로 1164 지하 1층",
+   "lat": 37.5111167,
+   "lng": 127.1284,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271284000_375111167"
+  },
+  "google": {
+   "ok": true,
+   "name": "선수촌사우나",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5109978,
+   "lng": 127.12814529999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "선수촌사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 송파구 오금동 1 지하 1층",
+   "road": "서울특별시 송파구 양재대로 1164 지하 1층",
+   "mapx": "1271284000",
+   "mapy": "375111167"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "505b93a1-2e23-4946-8599-7e42103e3df9",
+  "name": "간월산온천",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "울산광역시 울주군 상북면 알프스온천4길 26 간월산온천",
+   "lat": 35.5561907,
+   "lng": 129.0723002,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290723002_355561907"
+  },
+  "google": {
+   "ok": true,
+   "name": "간월산온천텔",
+   "addr": "울산광역시 울주군 상북면 등억알프스리 507-1",
+   "types": [
+    "motel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.556232099999995,
+   "lng": 129.07240919999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "간월산온천",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "울산광역시 울주군 상북면 등억알프스리 507-1 간월산온천",
+   "road": "울산광역시 울주군 상북면 알프스온천4길 26 간월산온천",
+   "mapx": "1290723002",
+   "mapy": "355561907"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d42dba7f-5507-4f10-aed5-7b81c130bcc6",
+  "name": "계룡스파텔대온천탕",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "대전광역시 유성구 온천로 81",
+   "lat": 36.3550473,
+   "lng": 127.3482568,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1273482568_363550473"
+  },
+  "google": {
+   "ok": true,
+   "name": "계룡스파텔 대온천탕",
+   "addr": "대전광역시 유성구 봉명동",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.3550732,
+   "lng": 127.3482241,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "계룡스파텔대온천탕",
+   "category": "여행,명소>온천,스파",
+   "addr": "대전광역시 유성구 봉명동 539-1",
+   "road": "대전광역시 유성구 온천로 81",
+   "mapx": "1273482568",
+   "mapy": "363550473"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f5525324-1df0-4ce3-9793-b5425e86f312",
+  "name": "광안해수월드",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 수영구 민락동 110-85",
+   "lat": 35.1551789,
+   "lng": 129.1337908,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291337908_351551789"
+  },
+  "google": {
+   "ok": true,
+   "name": "광안해수월드",
+   "addr": "부산광역시 수영구 광안해변로370번길 7",
+   "types": [
+    "public_bath",
+    "sports_complex",
+    "sports_activity_location",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1558694,
+   "lng": 129.1336059,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "광안해수월드",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 수영구 민락동 110-14 해수월드",
+   "road": "부산광역시 수영구 광안해변로370번길 7 해수월드",
+   "mapx": "1291335469",
+   "mapy": "351558950"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "5bed4463-bb17-42a2-88eb-f7e20c1eb955",
+  "name": "그랜드 하얏트 서울",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 용산구 소월로 322",
+   "lat": 37.5396013,
+   "lng": 126.997452,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269974520_375396013"
+  },
+  "google": {
+   "ok": true,
+   "name": "Grand Hyatt Seoul",
+   "addr": "서울특별시 용산구 소월로 322",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.539431799999996,
+   "lng": 126.997519,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "그랜드 하얏트 서울 더 테라스 키친",
+   "category": "음식점>뷔페",
+   "addr": "서울특별시 용산구 한남동 747-7 로비층",
+   "road": "서울특별시 용산구 소월로 322 로비층",
+   "mapx": "1269974520",
+   "mapy": "375396013"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "d55bca86-7fbc-43b3-a482-5b9528683ab2",
+  "name": "동방온천사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 금강로106번길 3 2층, 3층",
+   "lat": 35.2183801,
+   "lng": 129.0796963,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290796963_352183801"
+  },
+  "google": {
+   "ok": true,
+   "name": "동방온천 hot spring",
+   "addr": "부산광역시 동래구 금강로106번길 3",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.2184163,
+   "lng": 129.0795589,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "동방온천사우나",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 동래구 온천동 210-72 2층, 3층",
+   "road": "부산광역시 동래구 금강로106번길 3 2층, 3층",
+   "mapx": "1290796963",
+   "mapy": "352183801"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "8df154b1-0301-4502-8368-0fbe6bfbff19",
+  "name": "성지연사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 테헤란로 313 지하2층",
+   "lat": 37.5037548,
+   "lng": 127.0454597,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270454597_375037548"
+  },
+  "google": {
+   "ok": true,
+   "name": "성지연 사우나",
+   "addr": "서울특별시 강남구 역삼동 테헤란로 313",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5037751,
+   "lng": 127.0453251,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "성지연사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 강남구 역삼동 702-13 지하2층",
+   "road": "서울특별시 강남구 테헤란로 313 지하2층",
+   "mapx": "1270454597",
+   "mapy": "375037548"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d7a00239-388d-4f20-b64f-ad2081ef8937",
+  "name": "도미인 EXPRESS 서울 인사동",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 종로구 인사동길 20-9",
+   "lat": 37.5723948,
+   "lng": 126.9871734,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269871734_375723948"
+  },
+  "google": {
+   "ok": true,
+   "name": "ドーミーインEXPRESS SEOUL 仁寺洞(インサドン)",
+   "addr": "서울특별시 종로구 인사동길 20-9",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5723917,
+   "lng": 126.9871118,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "도미인 EXPRESS 서울 인사동",
+   "category": "숙박>호텔",
+   "addr": "서울특별시 종로구 인사동 34-2",
+   "road": "서울특별시 종로구 인사동길 20-9",
+   "mapx": "1269871734",
+   "mapy": "375723948"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "29be5f74-684c-40a3-b0c8-95a2befe79cb",
+  "name": "그랜드 하얏트 인천",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 중구 영종해안남로321번길 208",
+   "lat": 37.4405294,
+   "lng": 126.4575405,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1264575405_374405294"
+  },
+  "google": {
+   "ok": true,
+   "name": "그랜드 하얏트 인천",
+   "addr": "인천광역시 중구 영종해안남로321번길 208",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4404925,
+   "lng": 126.4574508,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "그랜드 하얏트 인천",
+   "category": "숙박>호텔",
+   "addr": "인천광역시 중구 운서동 2850-1",
+   "road": "인천광역시 중구 영종해안남로321번길 208",
+   "mapx": "1264575405",
+   "mapy": "374405294"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "0236da96-bfdd-47ae-85f0-3cfdc11bac27",
+  "name": "면역공방",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 퇴계로20길 2 지하2층 _퍼시픽호텔 지하",
+   "lat": 37.5598302,
+   "lng": 126.9852942,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269852942_375598302"
+  },
+  "google": {
+   "ok": true,
+   "name": "면역공방",
+   "addr": "서울특별시 중구 퇴계로20길 2",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5596964,
+   "lng": 126.98541039999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "면역공방",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "서울특별시 중구 남산동2가 31-1 지하2층 _퍼시픽호텔 지하",
+   "road": "서울특별시 중구 퇴계로20길 2 지하2층 _퍼시픽호텔 지하",
+   "mapx": "1269852942",
+   "mapy": "375598302"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "1a0d1987-e8d3-4982-bb66-0a60c9c18aa8",
+  "name": "금정산부곡온천",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 금정구 수림로20번길 36 3. 4, 5층",
+   "lat": 35.2415092,
+   "lng": 129.0907349,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290907349_352415092"
+  },
+  "google": {
+   "ok": true,
+   "name": "금정산부곡온천",
+   "addr": "부산광역시 금정구 수림로20번길 36",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.241479399999996,
+   "lng": 129.090724,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "금정산부곡온천",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 금정구 부곡동 63-1 3. 4, 5층",
+   "road": "부산광역시 금정구 수림로20번길 36 3. 4, 5층",
+   "mapx": "1290907349",
+   "mapy": "352415092"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "aa929b86-d792-4c4f-8ef2-a0b6de8882ca",
+  "name": "금샘탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 금정구 금샘로578번길 46",
+   "lat": 35.2731237,
+   "lng": 129.0873249,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290873249_352731237"
+  },
+  "google": {
+   "ok": true,
+   "name": "금샘탕",
+   "addr": "부산광역시 금정구 금샘로578번길 46",
+   "types": [
+    "public_bath",
+    "public_bathroom",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.2731243,
+   "lng": 129.0873506,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "금샘탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 금정구 남산동 681",
+   "road": "부산광역시 금정구 금샘로578번길 46",
+   "mapx": "1290873249",
+   "mapy": "352731237"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "9141a630-dffe-4bfe-b76b-3080ba1f97d4",
+  "name": "녹천탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 금강공원로26번길 32",
+   "lat": 35.2204606,
+   "lng": 129.081595,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290815950_352204606"
+  },
+  "google": {
+   "ok": true,
+   "name": "녹천탕",
+   "addr": "부산광역시 동래구 온천제1동 140-8",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.220438699999995,
+   "lng": 129.0816399,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "녹천탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 동래구 온천동 140-8",
+   "road": "부산광역시 동래구 금강공원로26번길 32",
+   "mapx": "1290815950",
+   "mapy": "352204606"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "25d28906-a9a9-472d-ab2e-e4cb0e15f818",
+  "name": "24시사우나 네이버한방스파",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 마포구 큰우물로 53 지하 1층",
+   "lat": 37.5422664,
+   "lng": 126.9446458,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269446458_375422664"
+  },
+  "google": {
+   "ok": true,
+   "name": "네이버한방스파",
+   "addr": "서울특별시 마포구 큰우물로 53",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.542313799999995,
+   "lng": 126.9446432,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "24시사우나 네이버한방스파",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 마포구 염리동 174-14 지하 1층",
+   "road": "서울특별시 마포구 큰우물로 53 지하 1층",
+   "mapx": "1269446458",
+   "mapy": "375422664"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "313d1211-4b5a-42b8-adfb-83fd746ffb2e",
+  "name": "국제광천수온천",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 부산진구 거제대로 70 7, 8, 9층",
+   "lat": 35.1748637,
+   "lng": 129.0682308,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290682308_351748637"
+  },
+  "google": {
+   "ok": true,
+   "name": "국제광천수온천",
+   "addr": "부산광역시 부산진구 거제대로 70 7층~9층",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.174938,
+   "lng": 129.06813169999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "국제광천수온천",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 부산진구 양정동 321-2 7, 8, 9층",
+   "road": "부산광역시 부산진구 거제대로 70 7, 8, 9층",
+   "mapx": "1290682308",
+   "mapy": "351748637"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "54736d75-3fff-4408-b0f9-a2e0844e1cc7",
+  "name": "금천파크온천호텔",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 금강로 140-1",
+   "lat": 35.2211206,
+   "lng": 129.0809024,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290809024_352211206"
+  },
+  "google": {
+   "ok": true,
+   "name": "금천파크온천",
+   "addr": "부산광역시 동래구 금강로 140-1",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.2211046,
+   "lng": 129.080861,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "금천파크온천호텔",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 동래구 온천동 95-38",
+   "road": "부산광역시 동래구 금강로 140-1",
+   "mapx": "1290809024",
+   "mapy": "352211206"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7fde88ea-e46b-4d48-be8d-9026b19aa8a3",
+  "name": "송도해수온천 송해온",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 연수구 인천타워대로197번길 16 리치센트럴 지하1층 B102호",
+   "lat": 37.3890043,
+   "lng": 126.6353273,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1266353273_373890043"
+  },
+  "google": {
+   "ok": true,
+   "name": "송해온",
+   "addr": "인천광역시 연수구 인천타워대로 197번길 16 리치센트럴 지하 1층 B102호",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.3889553,
+   "lng": 126.63526770000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "송도해수온천 송해온",
+   "category": "여행,명소>온천,스파",
+   "addr": "인천광역시 연수구 송도동 96 리치센트럴 지하1층 B102호",
+   "road": "인천광역시 연수구 인천타워대로197번길 16 리치센트럴 지하1층 B102호",
+   "mapx": "1266353273",
+   "mapy": "373890043"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "558503e4-0e9a-4703-823b-601202cf2cad",
+  "name": "쉐르빌사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성동구 무학로6길 50",
+   "lat": 37.5646833,
+   "lng": 127.0347875,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270347875_375646833"
+  },
+  "google": {
+   "ok": true,
+   "name": "쉐르빌사우나",
+   "addr": "서울특별시 성동구 도선동 69",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5643416,
+   "lng": 127.03490849999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "쉐르빌사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 성동구 도선동 69",
+   "road": "서울특별시 성동구 무학로6길 50",
+   "mapx": "1270347875",
+   "mapy": "375646833"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "bd79fa67-8fb4-4a64-9d1b-61844ace660f",
+  "name": "소노캄 여수",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": "Yeosu",
+   "addr": "전라남도 여수시 오동도로 111 1층 셰프스키친",
+   "lat": 34.7419663,
+   "lng": 127.7547225,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1277547225_347419663"
+  },
+  "google": {
+   "ok": true,
+   "name": "셰프스 키친",
+   "addr": "전라남도 여수시 수정동 332-28",
+   "types": [
+    "restaurant",
+    "point_of_interest",
+    "food",
+    "establishment"
+   ],
+   "lat": 34.742753,
+   "lng": 127.7547939,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "소노캄여수 에스뜨레자",
+   "category": "음식점>카페,디저트",
+   "addr": "전라남도 여수시 수정동 772 1층 에스뜨레자",
+   "road": "전라남도 여수시 오동도로 111 1층 에스뜨레자",
+   "mapx": "1277544564",
+   "mapy": "347419208"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "a41aac90-7f91-48e9-9749-b0b65f5d7bc3",
+  "name": "매일온천",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 자양로53길 109",
+   "lat": 37.5569134,
+   "lng": 127.0891734,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270891734_375569134"
+  },
+  "google": {
+   "ok": true,
+   "name": "매일온천사우나",
+   "addr": "서울특별시 광진구 중곡동 81-2",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5568683,
+   "lng": 127.08920300000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "매일온천",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 중구 인현동1가 46-3",
+   "road": "서울특별시 중구 을지로16길 5-10",
+   "mapx": "1269940501",
+   "mapy": "375657744"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "84535bd6-81a1-42aa-b778-c45302e63ad3",
+  "name": "도미인 서울 강남",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 봉은사로 134",
+   "lat": 37.5056299,
+   "lng": 127.0294946,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270294946_375056299"
+  },
+  "google": {
+   "ok": true,
+   "name": "ドーミーインSEOULカンナム",
+   "addr": "서울특별시 강남구 봉은사로 134",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.505624,
+   "lng": 127.02945869999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "도미인 서울 강남",
+   "category": "숙박>호텔",
+   "addr": "서울특별시 강남구 역삼동 603-1",
+   "road": "서울특별시 강남구 봉은사로 134",
+   "mapx": "1270294946",
+   "mapy": "375056299"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "87791b43-5818-4d17-82af-ea423597c34c",
+  "name": "Midorinokaze Resort Kitayuzawa",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Date",
+   "addr": "300-2, Ōtakiku Kitayuzawaonsenchō, Date, Hokkaido, Japan",
+   "lat": 42.6242446,
+   "lng": 141.0256347,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJ26524iBbdV8RhRg9unvgC6o"
+  },
+  "google": {
+   "ok": true,
+   "name": "미도리노카제 리조트 기타유자와",
+   "addr": "300-2 Ōtakiku Kitayuzawaonsenchō, Date, Hokkaido 052-0316",
+   "types": [
+    "japanese_inn",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 42.6242446,
+   "lng": 141.02563469999998,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "210be980-9882-4393-8e1f-a3febcba1fac",
+  "name": "황토와 소나무 불한증막",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": "Jeongeup",
+   "addr": "전북특별자치도 정읍시 신태인읍 고산1길 2 황솔찜질방",
+   "lat": 35.7102828,
+   "lng": 126.8506556,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268506556_357102828"
+  },
+  "google": {
+   "ok": true,
+   "name": "황토와소나무",
+   "addr": "경기도 용인시 처인구 역삼동 지삼로 483",
+   "types": [
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.2368324,
+   "lng": 127.1564058,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "황토와 소나무 불한증막",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 동대문구 전농동 6 지하1",
+   "road": "서울특별시 동대문구 사가정로 190 지하1",
+   "mapx": "1270662700",
+   "mapy": "375783522"
+  },
+  "flags": [
+   "🟡coord-far 171932m"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "2cffdfdf-17e5-4b4c-a73d-0793b3c3e97b",
+  "name": "백제불한증막 인삼사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 송파구 백제고분로 293 1층~B3층",
+   "lat": 37.5028918,
+   "lng": 127.098896,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270988960_375028918"
+  },
+  "google": {
+   "ok": true,
+   "name": "백제인삼사우나",
+   "addr": "서울특별시 송파구 백제고분로 293",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5028503,
+   "lng": 127.09901509999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "백제불한증막 인삼사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 송파구 석촌동 15 1층~B3층",
+   "road": "서울특별시 송파구 백제고분로 293 1층~B3층",
+   "mapx": "1270988960",
+   "mapy": "375028918"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "b72b4e90-85bf-4028-8ed0-873faef2f42b",
+  "name": "봉일스파랜드",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 관악구 은천로 28 봉일프라자",
+   "lat": 37.4858032,
+   "lng": 126.9384848,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269384848_374858032"
+  },
+  "google": {
+   "ok": true,
+   "name": "봉일스파랜드",
+   "addr": "서울특별시 관악구 은천로 28",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4858696,
+   "lng": 126.9384465,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "봉일스파랜드",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 관악구 봉천동 951-25 봉일프라자",
+   "road": "서울특별시 관악구 은천로 28 봉일프라자",
+   "mapx": "1269384848",
+   "mapy": "374858032"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "e10a54f2-98b3-421f-ab71-225e83565f8d",
+  "name": "삼부건강랜드보석사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 은평구 증산로21길 11 지하1층 삼부건강랜드보석사우나",
+   "lat": 37.5959397,
+   "lng": 126.9132393,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269132393_375959397"
+  },
+  "google": {
+   "ok": true,
+   "name": "24시 삼부건강랜드 보석사우나",
+   "addr": "서울특별시 은평구 증산로21길 11",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5957801,
+   "lng": 126.91347499999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "삼부건강랜드보석사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 은평구 신사동 361 지하1층 삼부건강랜드보석사우나",
+   "road": "서울특별시 은평구 증산로21길 11 지하1층 삼부건강랜드보석사우나",
+   "mapx": "1269132393",
+   "mapy": "375959397"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7273b6ab-3a88-4034-9ce1-02273afe7497",
+  "name": "솔로사우나레포 노량진점",
+  "isMatched": true,
+  "db": {
+   "type": "private-sauna",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 동작구 노들로2길 7 노량진드림스퀘어 A동 206호",
+   "lat": 37.5142424,
+   "lng": 126.9393186,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269393186_375142424"
+  },
+  "google": {
+   "ok": true,
+   "name": "솔로사우나_레포 노량진점",
+   "addr": "서울특별시 드림스퀘어 A 동 206호 KR 서울특별시 동작구 노들로2길7",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5142981,
+   "lng": 126.93924919999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "솔로사우나레포 노량진점",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 동작구 노량진동 16-1 노량진드림스퀘어 A동 206호",
+   "road": "서울특별시 동작구 노들로2길 7 노량진드림스퀘어 A동 206호",
+   "mapx": "1269393186",
+   "mapy": "375142424"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "7a76b1ea-9ef1-4c15-a34d-778ae95e7fff",
+  "name": "더앤리조트스파",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Yangyang",
+   "addr": "강원 양양군 현남면 개매길 260",
+   "lat": 37.9421733,
+   "lng": 128.7695904,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "http://www.thenresort.com/"
+  },
+  "google": {
+   "ok": true,
+   "name": "더앤리조트",
+   "addr": "강원특별자치도 양양군 현남면 개매길 260",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.942043,
+   "lng": 128.769548,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "더앤리조트 스파",
+   "category": "여행,명소>온천,스파",
+   "addr": "강원특별자치도 양양군 현남면 전포매리 47-4",
+   "road": "강원특별자치도 양양군 현남면 개매길 260",
+   "mapx": "1287695904",
+   "mapy": "379421733"
+  },
+  "flags": [
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "76249854-056d-4205-8a35-ef74454b284e",
+  "name": "보리여성불한증막",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 선릉로130길 20 삼성래미안2차상가 지하1층",
+   "lat": 37.516578,
+   "lng": 127.04281,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270428100_375165780"
+  },
+  "google": {
+   "ok": true,
+   "name": "보리 여성 불한증막 사우나",
+   "addr": "서울특별시 강남구 선릉로130길 20 삼성래미안상가 지하 1층",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.516618099999995,
+   "lng": 127.042778,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "보리여성불한증막",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "서울특별시 강남구 삼성동 7-3 삼성래미안2차상가 지하1층",
+   "road": "서울특별시 강남구 선릉로130길 20 삼성래미안2차상가 지하1층",
+   "mapx": "1270428100",
+   "mapy": "375165780"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "43469200-84c8-4df6-a643-1709282cfc43",
+  "name": "블루오션웰니스스파",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 중구 자연대로 7 2층 201호",
+   "lat": 37.4864636,
+   "lng": 126.5624824,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1265624824_374864636"
+  },
+  "google": {
+   "ok": true,
+   "name": "블루오션웰니스스파",
+   "addr": "인천광역시 중구 자연대로 7",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.486552499999995,
+   "lng": 126.5624537,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "블루오션웰니스스파",
+   "category": "생활,편의>찜질방",
+   "addr": "인천광역시 중구 중산동 1873-14 2층 201호",
+   "road": "인천광역시 중구 자연대로 7 2층 201호",
+   "mapx": "1265624824",
+   "mapy": "374864636"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "9a65005f-0cba-43be-a277-d3daaf177e5b",
+  "name": "더파크 스파랜드",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 영등포구 선유동1로 50 A동 지하1층",
+   "lat": 37.5266499,
+   "lng": 126.892785,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268927850_375266499"
+  },
+  "google": {
+   "ok": true,
+   "name": "더파크 스파랜드",
+   "addr": "서울특별시 영등포구 선유동1로 50 더파크365",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.526523399999995,
+   "lng": 126.89287269999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "더파크 스파랜드",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 영등포구 당산동3가 558-3 A동 지하1층",
+   "road": "서울특별시 영등포구 선유동1로 50 A동 지하1층",
+   "mapx": "1268927850",
+   "mapy": "375266499"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f06195fa-15bc-4a66-b0e0-90068a70075b",
+  "name": "베뉴지아쿠아24",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강서구 화곡로 347 지하2층 베뉴지아쿠아&베뉴지피트니스",
+   "lat": 37.5547094,
+   "lng": 126.8513356,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268513356_375547094"
+  },
+  "google": {
+   "ok": true,
+   "name": "베뉴지아쿠아24",
+   "addr": "서울특별시 강서구 화곡로 347 지하",
+   "types": [
+    "sauna",
+    "public_bath",
+    "massage_spa",
+    "spa",
+    "massage",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 37.554743699999996,
+   "lng": 126.85135770000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "베뉴지아쿠아24",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 강서구 화곡동 1095 지하2층 베뉴지아쿠아&베뉴지피트니스",
+   "road": "서울특별시 강서구 화곡로 347 지하2층 베뉴지아쿠아&베뉴지피트니스",
+   "mapx": "1268513356",
+   "mapy": "375547094"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "58de0934-9dfe-4086-b622-b9d82e8efa52",
+  "name": "Taikou-no-Yu Hot Spring",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "JP",
+   "city": "Kobe",
+   "addr": "Arimachō, Kita Ward, Kobe, Hyogo, Japan",
+   "lat": 34.7979027,
+   "lng": 135.2512053,
+   "coordSrc": "google",
+   "source": "google",
+   "ext": "ChIJgZSbjEKKAGARj2-20HeR-OQ"
+  },
+  "google": {
+   "ok": true,
+   "name": "다이코노유",
+   "addr": "池の尻-292-2 Arimachō, Kita Ward, Kobe, Hyogo 651-1401",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 34.7979027,
+   "lng": 135.25120529999998,
+   "country": "JP"
+  },
+  "naver": {
+   "ok": false,
+   "skip": true
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "da7666e6-ea1d-4b4d-8bca-5290ac885ec0",
+  "name": "루하스사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 은평구 통일로 1022 지하1층 B109, B110, B111, 지하2층 B201호",
+   "lat": 37.6338023,
+   "lng": 126.9177389,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269177389_376338023"
+  },
+  "google": {
+   "ok": true,
+   "name": "루하스사우나",
+   "addr": "서울특별시 은평구 통일로 1022 지하1층 B109, B110, B111, 지하2층 B201호",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.6341391,
+   "lng": 126.9177488,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "루하스사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 은평구 진관동 100-1 지하1층 B109, B110, B111, 지하2층 B201호",
+   "road": "서울특별시 은평구 통일로 1022 지하1층 B109, B110, B111, 지하2층 B201호",
+   "mapx": "1269177389",
+   "mapy": "376338023"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "72dba5ca-1c84-4acb-ba51-2ed9a32bf324",
+  "name": "센텀 스파랜드",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 센텀남대로 35 신세계백화점센텀시티점",
+   "lat": 35.1683869,
+   "lng": 129.129033,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291290330_351683869"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파랜드 신세계백화점 센텀시티점",
+   "addr": "부산광역시 해운대구 센텀남대로 35",
+   "types": [
+    "sauna",
+    "public_bath",
+    "massage_spa",
+    "spa",
+    "massage",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 35.168233799999996,
+   "lng": 129.1295279,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "센텀 스파랜드",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 해운대구 우동 1495 신세계백화점센텀시티점",
+   "road": "부산광역시 해운대구 센텀남대로 35 신세계백화점센텀시티점",
+   "mapx": "1291290330",
+   "mapy": "351683869"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7e519017-1356-4b8b-8977-a425e93e68eb",
+  "name": "수정사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서초구 반포대로21길 30 수정빌라",
+   "lat": 37.487414,
+   "lng": 127.0081372,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270081372_374874140"
+  },
+  "google": {
+   "ok": true,
+   "name": "수정사우나",
+   "addr": "서울특별시 서초구 반포대로21길 30",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4874297,
+   "lng": 127.00808819999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "수정사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 중구 신당동 363-4 1층",
+   "road": "서울특별시 중구 동호로11길 33 1층",
+   "mapx": "1270093333",
+   "mapy": "375536934"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "282fb281-3693-40ba-9068-f111654b63d7",
+  "name": "만수탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 사하구 장림시장5길 255",
+   "lat": 35.0789691,
+   "lng": 128.9716813,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1289716813_350789691"
+  },
+  "google": {
+   "ok": true,
+   "empty": true
+  },
+  "naver": {
+   "ok": true,
+   "title": "만수탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "경상남도 합천군 합천읍 합천리 618 1층 2층 사우나",
+   "road": "경상남도 합천군 합천읍 중앙로 76-9 1층 2층 사우나",
+   "mapx": "1281592303",
+   "mapy": "355675499"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "1891a8c5-ddda-49d9-b8aa-6ac08acacd85",
+  "name": "동래 반도 온천",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 금강공원로 37",
+   "lat": 35.2183275,
+   "lng": 129.0804952,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290804952_352183275"
+  },
+  "google": {
+   "ok": true,
+   "name": "동래반도온천",
+   "addr": "부산광역시 동래구 금강공원로 37",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.218395,
+   "lng": 129.0805654,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "동래 반도 온천",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 동래구 온천동 189-134",
+   "road": "부산광역시 동래구 금강공원로 37",
+   "mapx": "1290804952",
+   "mapy": "352183275"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "5d9f65bb-1acc-47d8-929e-0ce180d3a7bc",
+  "name": "스파앳홈 T2 인천공항 제2터미널점",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "인천광역시 중구 제2터미널대로 446 인천공항제2터미널 지하1층 서편",
+   "lat": 37.4690648,
+   "lng": 126.433177,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1264331770_374690648"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파앳홈 인천공항2터미널 Spa at home Incheon Airport T2",
+   "addr": "인천광역시 중구 제2터미널대로 446 지하 1층",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4675501,
+   "lng": 126.43180860000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파앳홈 T2 인천공항 제2터미널점",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "인천광역시 중구 운서동 2868 인천공항제2터미널 지하1층 서편",
+   "road": "인천광역시 중구 제2터미널대로 446 인천공항제2터미널 지하1층 서편",
+   "mapx": "1264331770",
+   "mapy": "374690648"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "df5d08f4-dff5-410e-801a-a2f2ba60d01d",
+  "name": "라성보석사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성동구 성수이로 118 성수아카데미타워 1층",
+   "lat": 37.544919,
+   "lng": 127.057521,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270575210_375449190"
+  },
+  "google": {
+   "ok": true,
+   "name": "라성스파",
+   "addr": "서울특별시 성수동1가",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5452297,
+   "lng": 127.0576831,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "라성보석사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 성동구 성수동2가 277-17 성수아카데미타워 1층",
+   "road": "서울특별시 성동구 성수이로 118 성수아카데미타워 1층",
+   "mapx": "1270575210",
+   "mapy": "375449190"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "bb9f34e7-260f-4b89-9dbe-7f7c7f6fb751",
+  "name": "도봉산 24시 불한증막 사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Euijeongbu",
+   "addr": "경기도 의정부시 평화로 252 지하1층",
+   "lat": 37.714444,
+   "lng": 127.048016,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270480160_377144440"
+  },
+  "google": {
+   "ok": true,
+   "name": "도봉산불가마사우나",
+   "addr": "경기도 의정부시 호원1동 450",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.714268,
+   "lng": 127.04773630000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "도봉산 24시 불한증막 사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "경기도 의정부시 호원동 450 지하1층",
+   "road": "경기도 의정부시 평화로 252 지하1층",
+   "mapx": "1270480160",
+   "mapy": "377144440"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "76436113-4ab1-40d0-a069-87976b81cfea",
+  "name": "스파마린",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 마린시티2로 33 제니스스퀘어 상가 지하1층 스파마린",
+   "lat": 35.1563961,
+   "lng": 129.1443834,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291443834_351563961"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파마린",
+   "addr": "부산광역시 해운대구 마린시티2로 33",
+   "types": [
+    "spa",
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1563665,
+   "lng": 129.1444061,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파마린",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "부산광역시 해운대구 우동 1407 제니스스퀘어 상가 지하1층 스파마린",
+   "road": "부산광역시 해운대구 마린시티2로 33 제니스스퀘어 상가 지하1층 스파마린",
+   "mapx": "1291443834",
+   "mapy": "351563961"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7319c949-c0af-4302-8f27-99ae38f78d49",
+  "name": "스파렉스 굿모닝시티",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 장충단로 247 굿모닝시티 쇼핑몰 스파렉스 지하3층",
+   "lat": 37.566935,
+   "lng": 127.0071691,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270071691_375669350"
+  },
+  "google": {
+   "ok": true,
+   "name": "24시 스파렉스 굿모닝시티",
+   "addr": "서울특별시 중구 장충단로 247",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5668728,
+   "lng": 127.0072811,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파렉스 굿모닝시티",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 중구 을지로6가 18-21 굿모닝시티 쇼핑몰 스파렉스 지하3층",
+   "road": "서울특별시 중구 장충단로 247 굿모닝시티 쇼핑몰 스파렉스 지하3층",
+   "mapx": "1270071691",
+   "mapy": "375669350"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "39871b48-3683-4831-a9a2-27927865dacd",
+  "name": "더 리버사이드 호텔 더 메디스파",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울 서초구 강남대로107길 6",
+   "lat": 37.5186248,
+   "lng": 127.0181346,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "http://www.riversidehotel.co.kr/pages/spa02.php"
+  },
+  "google": {
+   "ok": true,
+   "name": "더 리버사이드 호텔 더 메디스파",
+   "addr": "3rd, 6 강남대로107길 Floor, 서초구 서울특별시",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.518643999999995,
+   "lng": 127.01810080000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "더 리버사이드 호텔 더 메디스파",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 서초구 잠원동 6-1 리버사이드호텔",
+   "road": "서울특별시 서초구 강남대로107길 6 리버사이드호텔",
+   "mapx": "1270181346",
+   "mapy": "375186248"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d029b609-ca00-4672-a3e8-5a54eea367ae",
+  "name": "태화강참숯가마",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "울산광역시 울주군 언양읍 대암둔기로 82 태화강참숯가마",
+   "lat": 35.5487187,
+   "lng": 129.1840651,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291840651_355487187"
+  },
+  "google": {
+   "ok": true,
+   "name": "태화강참숯가마",
+   "addr": "울산광역시 울주군 언양읍 대암둔기로 82",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.5493714,
+   "lng": 129.1814054,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "태화강참숯가마",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "울산광역시 울주군 언양읍 구수리 370-7 태화강참숯가마",
+   "road": "울산광역시 울주군 언양읍 대암둔기로 82 태화강참숯가마",
+   "mapx": "1291840651",
+   "mapy": "355487187"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "77333149-25f9-4d9f-a644-6272f57079ea",
+  "name": "할매탕",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 중동2로10번길 7",
+   "lat": 35.1631355,
+   "lng": 129.1649033,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291649033_351631355"
+  },
+  "google": {
+   "ok": true,
+   "name": "할매탕",
+   "addr": "부산광역시 해운대구 중동2로10번길 7",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.163503399999996,
+   "lng": 129.164975,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "강공순할매집",
+   "category": "음식점>한식",
+   "addr": "서울특별시 영등포구 여의도동 25-4 지하105",
+   "road": "서울특별시 영등포구 여의나루로 67 지하105",
+   "mapx": "1269265235",
+   "mapy": "375235600"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "6915d330-bb93-4d64-bf55-f302050f0149",
+  "name": "디오션 스파&사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Yeosu",
+   "addr": "전라남도 여수시 소호로 295 콘도 B2",
+   "lat": 34.7324504,
+   "lng": 127.6439655,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1276439655_347324504"
+  },
+  "google": {
+   "ok": true,
+   "name": "디오션리조트",
+   "addr": "전라남도 여수시 소호동 소호로 295",
+   "types": [
+    "resort_hotel",
+    "water_park",
+    "golf_course",
+    "wedding_venue",
+    "hotel",
+    "convention_center",
+    "amusement_park",
+    "athletic_field",
+    "lodging",
+    "sports_activity_location",
+    "event_venue",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 34.7319929,
+   "lng": 127.64412189999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "디오션 스파&amp;사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "전라남도 여수시 소호동 923 콘도 B2",
+   "road": "전라남도 여수시 소호로 295 콘도 B2",
+   "mapx": "1276439655",
+   "mapy": "347324504"
+  },
+  "flags": [
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d96c2dc1-367f-46ca-92b4-ce41bc51600f",
+  "name": "오레브핫스프링앤스파",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": "Seogwipo",
+   "addr": "제주특별자치도 서귀포시 태평로 152 오레브핫스프링앤스파",
+   "lat": 33.2429932,
+   "lng": 126.5371602,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1265371602_332429932"
+  },
+  "google": {
+   "ok": true,
+   "name": "오레브 핫스프링 앤 스파",
+   "addr": "제주특별자치도 서귀포시 특별자치도 태평로 150",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 33.2428673,
+   "lng": 126.53812669999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "오레브핫스프링앤스파",
+   "category": "여행,명소>온천,스파",
+   "addr": "제주특별자치도 서귀포시 호근동 2163 오레브핫스프링앤스파",
+   "road": "제주특별자치도 서귀포시 태평로 152 오레브핫스프링앤스파",
+   "mapx": "1265371602",
+   "mapy": "332429932"
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f254e4d9-cec3-49ad-936e-8d703ffd9b99",
+  "name": "원성탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": "Cheonan",
+   "addr": "충청남도 천안시 동남구 원거리6길 25",
+   "lat": 36.8009169,
+   "lng": 127.1583249,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271583249_368009169"
+  },
+  "google": {
+   "ok": true,
+   "name": "25",
+   "addr": "충청남도 천안시 동남구 원거리6길 25",
+   "types": [
+    "street_address"
+   ],
+   "lat": 36.800919799999996,
+   "lng": 127.158311,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "원성탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "충청남도 천안시 동남구 원성동 562-3",
+   "road": "충청남도 천안시 동남구 원거리6길 25",
+   "mapx": "1271583249",
+   "mapy": "368009169"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "0cd62b6d-a424-4866-bc2a-b5d62e36df9b",
+  "name": "혜우사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서대문구 신촌역로 10 B2 혜우사우나",
+   "lat": 37.5576359,
+   "lng": 126.9430699,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269430699_375576359"
+  },
+  "google": {
+   "ok": true,
+   "name": "혜우사우나",
+   "addr": "서울특별시 서대문구 대현동 101 7 지하 2층",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5577575,
+   "lng": 126.9430565,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "혜우사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 서대문구 대현동 101-7 B2 혜우사우나",
+   "road": "서울특별시 서대문구 신촌역로 10 B2 혜우사우나",
+   "mapx": "1269430699",
+   "mapy": "375576359"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "dee6dbaa-f2f3-4d82-8687-11cf5b9a9d4b",
+  "name": "휘경인삼사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 동대문구 망우로 123 휘경인삼사우나",
+   "lat": 37.5917142,
+   "lng": 127.0666134,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270666134_375917142"
+  },
+  "google": {
+   "ok": true,
+   "name": "HG Sauna(휘경인삼사우나)",
+   "addr": "Hwigyeong Ginseng Sauna, 71-1 휘경동 동대문구 서울특별시",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5917759,
+   "lng": 127.0664945,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "휘경인삼사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 동대문구 휘경동 71-1 휘경인삼사우나",
+   "road": "서울특별시 동대문구 망우로 123 휘경인삼사우나",
+   "mapx": "1270666134",
+   "mapy": "375917142"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "1d12baf4-c15f-4220-a8e8-eefdf90b6105",
+  "name": "설해원 온천사우나",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": "Yangyang",
+   "addr": "강원특별자치도 양양군 손양면 공항로 230 설해온천 스파레벨(B1)",
+   "lat": 38.0521936,
+   "lng": 128.6612931,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1286612931_380521936"
+  },
+  "google": {
+   "ok": true,
+   "name": "설해온천사우나",
+   "addr": "강원특별자치도 양양군 손양면 동호리 510-28번지 설해스테이 지하 1층 KR",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 38.052105999999995,
+   "lng": 128.6618117,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "설해원 온천사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "강원특별자치도 양양군 손양면 동호리 510-28 설해온천 스파레벨(B1)",
+   "road": "강원특별자치도 양양군 손양면 공항로 230 설해온천 스파레벨(B1)",
+   "mapx": "1286612931",
+   "mapy": "380521936"
+  },
+  "flags": [
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7c59f5ab-fc9f-4e21-a7a0-6d4f96f8bb51",
+  "name": "마포365구민센터",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 마포구 토정로 98",
+   "lat": 37.544342,
+   "lng": 126.9218248,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269218248_375443420"
+  },
+  "google": {
+   "ok": true,
+   "name": "마포 365 구민센터",
+   "addr": "서울특별시 마포구 당인동",
+   "types": [
+    "sports_club",
+    "point_of_interest",
+    "association_or_organization",
+    "establishment"
+   ],
+   "lat": 37.5442125,
+   "lng": 126.92170419999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "마포365구민센터",
+   "category": "스포츠,오락>구민체육센터",
+   "addr": "서울특별시 마포구 당인동 1-30",
+   "road": "서울특별시 마포구 토정로 98",
+   "mapx": "1269218248",
+   "mapy": "375443420"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "bf69f204-a81b-45da-a17d-fd13f1986819",
+  "name": "숲속한방랜드",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서대문구 봉원사길 75-7",
+   "lat": 37.5702256,
+   "lng": 126.945587,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269455870_375702256"
+  },
+  "google": {
+   "ok": true,
+   "name": "숲속한방랜드",
+   "addr": "서울특별시 서대문구 봉원사길 75-7",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5702503,
+   "lng": 126.9457016,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "숲속한방랜드",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 서대문구 봉원동 51",
+   "road": "서울특별시 서대문구 봉원사길 75-7",
+   "mapx": "1269455870",
+   "mapy": "375702256"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "5027bb58-cf2c-46e3-8f70-e4145cd43565",
+  "name": "동양사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 은평구 가좌로7길 11",
+   "lat": 37.5863578,
+   "lng": 126.9200018,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269200018_375863578"
+  },
+  "google": {
+   "ok": true,
+   "name": "동양 사우나",
+   "addr": "서울특별시 은평구 응암동 730-17",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5862145,
+   "lng": 126.91997699999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "동양사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 은평구 응암동 730-17",
+   "road": "서울특별시 은평구 가좌로7길 11",
+   "mapx": "1269200018",
+   "mapy": "375863578"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d6c19557-bbdc-4810-969b-23ae47bd5d95",
+  "name": "서울신라호텔",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 동호로 249",
+   "lat": 37.5558806,
+   "lng": 127.0051533,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270051533_375558806"
+  },
+  "google": {
+   "ok": true,
+   "name": "서울신라호텔",
+   "addr": "서울특별시 중구 동호로 249",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5559034,
+   "lng": 127.0052509,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "서울신라호텔",
+   "category": "숙박>호텔",
+   "addr": "서울특별시 중구 장충동2가 202",
+   "road": "서울특별시 중구 동호로 249",
+   "mapx": "1270051533",
+   "mapy": "375558806"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "905b3fdb-9165-4810-afeb-58a5af81d1f9",
+  "name": "아난티 앳 부산 코브",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 기장군 기장읍 기장해안로 268-32 아난티 앳 부산 코브",
+   "lat": 35.1978188,
+   "lng": 129.228348,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1292283480_351978188"
+  },
+  "google": {
+   "ok": true,
+   "name": "아난티 앳 부산 코브",
+   "addr": "부산광역시 기장군 기장해안로 268-32",
+   "types": [
+    "hotel",
+    "banquet_hall",
+    "wedding_venue",
+    "spa",
+    "lodging",
+    "event_venue",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 35.1976638,
+   "lng": 129.22808609999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "아난티 앳 부산 코브 다모임",
+   "category": "음식점>뷔페",
+   "addr": "부산광역시 기장군 기장읍 시랑리 704-1",
+   "road": "부산광역시 기장군 기장읍 기장해안로 268-32",
+   "mapx": "1292285839",
+   "mapy": "351981930"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "56f2246b-092e-4a4b-a8c4-15a96dcf3b34",
+  "name": "쉐레이암반수사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 종로구 진흥로 432 1층",
+   "lat": 37.6082382,
+   "lng": 126.9564599,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269564599_376082382"
+  },
+  "google": {
+   "ok": true,
+   "name": "쉐레이암반수사우나",
+   "addr": "서울특별시 종로구 구기동 110-1",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.60816820000001,
+   "lng": 126.956526,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "쉐레이암반수사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 종로구 구기동 110-1 1층",
+   "road": "서울특별시 종로구 진흥로 432 1층",
+   "mapx": "1269564599",
+   "mapy": "376082382"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "d97f24a0-e760-4584-bb97-7c7fbe196c74",
+  "name": "유성온천불가마사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "대전광역시 유성구 계룡로113번길 76",
+   "lat": 36.3566998,
+   "lng": 127.3450365,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1273450365_363566998"
+  },
+  "google": {
+   "ok": true,
+   "name": "유성온천불가마사우나",
+   "addr": "대전광역시 유성구 계룡로113번길 76",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.3567572,
+   "lng": 127.3450848,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유성온천불가마사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "대전광역시 유성구 봉명동 538-1",
+   "road": "대전광역시 유성구 계룡로113번길 76",
+   "mapx": "1273450365",
+   "mapy": "363566998"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "6e8342fe-e7b5-4c92-98d8-47bc0dab2470",
+  "name": "척산온천휴양촌",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Sokcho-si",
+   "addr": "강원특별자치도 속초시 관광로 327",
+   "lat": 38.1902163,
+   "lng": 128.5407098,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1285407098_381902163"
+  },
+  "google": {
+   "ok": true,
+   "name": "척산온천휴양촌",
+   "addr": "강원특별자치도 속초시 노학동 관광로 327",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 38.190086,
+   "lng": 128.540571,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "척산온천휴양촌",
+   "category": "여행,명소>온천,스파",
+   "addr": "강원특별자치도 속초시 노학동 972-1",
+   "road": "강원특별자치도 속초시 관광로 327",
+   "mapx": "1285407098",
+   "mapy": "381902163"
+  },
+  "flags": [
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f4b8a112-3043-4923-a146-17f3094e4557",
+  "name": "성수불막사우나",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성동구 동일로 143 성수1차대우아파트 지하1층",
+   "lat": 37.5454636,
+   "lng": 127.0655222,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270655222_375454636"
+  },
+  "google": {
+   "ok": true,
+   "name": "성수불막사우나",
+   "addr": "서울특별시 성동구 성수동1가 1차아파트 성수대우프레시아",
+   "types": [
+    "spa",
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5453974,
+   "lng": 127.06548319999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "성수불막사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 성동구 성수동2가 279-50 성수1차대우아파트 지하1층",
+   "road": "서울특별시 성동구 동일로 143 성수1차대우아파트 지하1층",
+   "mapx": "1270655222",
+   "mapy": "375454636"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "317665c5-034b-4b50-98a7-f4e953b7cde3",
+  "name": "소노벨청송 솔샘온천",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Cheongsong",
+   "addr": "경상북도 청송군 주왕산면 소노로 38 소노벨 청송 지하3층",
+   "lat": 36.3766389,
+   "lng": 129.1104486,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291104486_363766389"
+  },
+  "google": {
+   "ok": true,
+   "name": "소노벨 청송",
+   "addr": "경상북도 청송군 주왕산면 주왕산로 494-1",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.3767165,
+   "lng": 129.1104066,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "소노벨청송 솔샘온천",
+   "category": "여행,명소>온천,스파",
+   "addr": "경상북도 청송군 주왕산면 하의리 859 소노벨 청송 지하3층",
+   "road": "경상북도 청송군 주왕산면 소노로 38 소노벨 청송 지하3층",
+   "mapx": "1291104486",
+   "mapy": "363766389"
+  },
+  "flags": [
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "c1dc05fb-3293-407c-82cc-85b45a5e3028",
+  "name": "트리니티스파 신세계백화점센텀시티점",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 센텀남대로 35 신세계백화점센텀시티점10F",
+   "lat": 35.1691761,
+   "lng": 129.1302407,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291302407_351691761"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파랜드 신세계백화점 센텀시티점",
+   "addr": "부산광역시 해운대구 센텀남대로 35",
+   "types": [
+    "sauna",
+    "public_bath",
+    "massage_spa",
+    "spa",
+    "massage",
+    "health",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 35.168233799999996,
+   "lng": 129.1295279,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "트리니티스파 신세계백화점센텀시티점",
+   "category": "미용>피부,체형관리",
+   "addr": "부산광역시 해운대구 우동 1495 신세계백화점센텀시티점10F",
+   "road": "부산광역시 해운대구 센텀남대로 35 신세계백화점센텀시티점10F",
+   "mapx": "1291302407",
+   "mapy": "351691761"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "74337566-118a-4b90-985f-07fcf2e93f6e",
+  "name": "오성건강랜드",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서대문구 모래내로 143 창덕에버빌",
+   "lat": 37.569477,
+   "lng": 126.917444,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269174440_375694770"
+  },
+  "google": {
+   "ok": true,
+   "name": "오성건강랜드",
+   "addr": "서울특별시 서대문구 모래내로 143",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5694452,
+   "lng": 126.91725369999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "오성건강랜드",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 서대문구 남가좌동 105-1 창덕에버빌",
+   "road": "서울특별시 서대문구 모래내로 143 창덕에버빌",
+   "mapx": "1269174440",
+   "mapy": "375694770"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "42c1cf9a-28c1-4d00-a807-1526ecd63c3c",
+  "name": "조선 팰리스 서울 강남",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 테헤란로 231 센터필드타워 웨스트동",
+   "lat": 37.5029272,
+   "lng": 127.0411011,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270411011_375029272"
+  },
+  "google": {
+   "ok": true,
+   "name": "Josun Palace, a Luxury Collection Hotel, Seoul Gangnam",
+   "addr": "서울특별시 강남구 231 테헤란로",
+   "types": [
+    "hotel",
+    "wedding_venue",
+    "lodging",
+    "event_venue",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 37.502899899999996,
+   "lng": 127.04131059999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "조선 팰리스 서울 강남",
+   "category": "숙박>호텔",
+   "addr": "서울특별시 강남구 역삼동 676 센터필드타워 웨스트동",
+   "road": "서울특별시 강남구 테헤란로 231 센터필드타워 웨스트동",
+   "mapx": "1270411011",
+   "mapy": "375029272"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "4d0cad9e-9a24-4890-a3f0-40a05e243be6",
+  "name": "우영탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강북구 삼양로92길 23",
+   "lat": 37.6366135,
+   "lng": 127.018373,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270183730_376366135"
+  },
+  "google": {
+   "ok": true,
+   "name": "우영탕",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "restaurant",
+    "point_of_interest",
+    "food",
+    "establishment"
+   ],
+   "lat": 37.63662,
+   "lng": 127.0183715,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "우영탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 강북구 수유동 129-10",
+   "road": "서울특별시 강북구 삼양로92길 23",
+   "mapx": "1270183730",
+   "mapy": "376366135"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "35af5049-2a00-4de6-9ec1-f591e05880aa",
+  "name": "주신사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 마장로9길 33",
+   "lat": 37.5697629,
+   "lng": 127.0193775,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270193775_375697629"
+  },
+  "google": {
+   "ok": true,
+   "name": "주신사우나",
+   "addr": "서울특별시 황학동 73-1번지 중구 서울특별시 KR",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5697508,
+   "lng": 127.01928849999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "주신사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 중구 황학동 73-1",
+   "road": "서울특별시 중구 마장로9길 33",
+   "mapx": "1270193775",
+   "mapy": "375697629"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "0a2ca23c-39ac-47e6-b123-63ce63d16745",
+  "name": "한별불가마사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강동구 동남로75길 13-10",
+   "lat": 37.5539127,
+   "lng": 127.1550263,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271550263_375539127"
+  },
+  "google": {
+   "ok": true,
+   "name": "한별사우나",
+   "addr": "서울특별시 강동구 명일동 47-3",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.553906399999995,
+   "lng": 127.15508039999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "한별불가마사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 강동구 명일동 47-3",
+   "road": "서울특별시 강동구 동남로75길 13-10",
+   "mapx": "1271550263",
+   "mapy": "375539127"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "19303c83-cd42-484c-bb70-1b62a64ed10c",
+  "name": "해피황토사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 은평구 갈현로3길 15",
+   "lat": 37.6004215,
+   "lng": 126.9085773,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269085773_376004215"
+  },
+  "google": {
+   "ok": true,
+   "name": "해피황토사우나",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.600471399999996,
+   "lng": 126.9085296,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "해피황토사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 은평구 신사동 14-18",
+   "road": "서울특별시 은평구 갈현로3길 15",
+   "mapx": "1269085773",
+   "mapy": "376004215"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "bfb6580b-8ef5-4bc3-a0c4-2682f495e962",
+  "name": "스파렉스 동묘",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 종로구 지봉로 19 13층",
+   "lat": 37.5717317,
+   "lng": 127.0152465,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270152465_375717317"
+  },
+  "google": {
+   "ok": true,
+   "name": "스파렉스 동묘",
+   "addr": "서울특별시 종로구 지봉로 19 13 층",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5717578,
+   "lng": 127.015208,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파렉스 동묘",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 종로구 창신동 328-18 13층",
+   "road": "서울특별시 종로구 지봉로 19 13층",
+   "mapx": "1270152465",
+   "mapy": "375717317"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "704495e7-3ef5-4ad4-8a03-35e8f3b4e47d",
+  "name": "유성온천대온탕",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "대전광역시 유성구 온천로 33",
+   "lat": 36.3558005,
+   "lng": 127.3416082,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1273416082_363558005"
+  },
+  "google": {
+   "ok": true,
+   "name": "유성온천대온탕",
+   "addr": "대전광역시 유성구 온천로 33",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.3560095,
+   "lng": 127.3415541,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유성온천대온탕",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "대전광역시 유성구 봉명동 535-8",
+   "road": "대전광역시 유성구 온천로 33",
+   "mapx": "1273416082",
+   "mapy": "363558005"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=public-bath·G=lodging"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "092e97d7-5c77-4c10-9797-9f8a8b7cdc25",
+  "name": "풍림24시불가마사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 마포구 마포대로 127",
+   "lat": 37.5459649,
+   "lng": 126.95208,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269520800_375459649"
+  },
+  "google": {
+   "ok": true,
+   "name": "풍림24시불가마사우나",
+   "addr": "서울특별시 마포구 공덕동 404",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.546175999999996,
+   "lng": 126.952139,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "풍림24시불가마사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 마포구 공덕동 404",
+   "road": "서울특별시 마포구 마포대로 127",
+   "mapx": "1269520800",
+   "mapy": "375459649"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "8c6cd963-fc0f-4f9c-ba45-0dcb7848836c",
+  "name": "하이디하우스",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서초구 성촌4길 11",
+   "lat": 37.467004,
+   "lng": 127.0218022,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270218022_374670040"
+  },
+  "google": {
+   "ok": true,
+   "name": "하이디하우스",
+   "addr": "서울특별시 서초구 성촌4길 11",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4668705,
+   "lng": 127.02170939999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "하이디하우스",
+   "category": "음식점>카페,디저트",
+   "addr": "서울특별시 중구 신당동 340-127 한스하우스",
+   "road": "서울특별시 중구 다산로14길 17 한스하우스",
+   "mapx": "1270124977",
+   "mapy": "375559360"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "8ffe2725-e35c-4e15-9b5c-059d6d03968d",
+  "name": "프라임노다지사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 광나루로56길 5 프라임프라자 지하2층",
+   "lat": 37.5368106,
+   "lng": 127.0961825,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270961825_375368106"
+  },
+  "google": {
+   "ok": true,
+   "name": "프라임노다지사우나",
+   "addr": "Primesanga B2, 56 gil 63, 구의로 광진구 서울특별시",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.536790599999996,
+   "lng": 127.09606999999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "프라임노다지사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 광진구 구의동 631-1 프라임프라자 지하2층",
+   "road": "서울특별시 광진구 광나루로56길 5 프라임프라자 지하2층",
+   "mapx": "1270961825",
+   "mapy": "375368106"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "aba7646f-5599-47a4-bd26-4800c8e1b192",
+  "name": "하이렉스파불한증막사우나",
+  "isMatched": false,
+  "db": {
+   "type": "special",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 노원구 노원로1길 67",
+   "lat": 37.6207151,
+   "lng": 127.0837922,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270837922_376207151"
+  },
+  "google": {
+   "ok": true,
+   "name": "하이렉스파",
+   "addr": "서울특별시 노원구 노원로1길 67",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.6208238,
+   "lng": 127.0836035,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "하이렉스파불한증막사우나",
+   "category": "생활,편의>찜질방",
+   "addr": "서울특별시 노원구 공릉동 89-1",
+   "road": "서울특별시 노원구 노원로1길 67",
+   "mapx": "1270837922",
+   "mapy": "376207151"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "4467c03d-087e-45dc-91c1-b52b77e61fa3",
+  "name": "영빈호텔사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 퇴계로56길 18",
+   "lat": 37.5629964,
+   "lng": 127.0055405,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270055405_375629964"
+  },
+  "google": {
+   "ok": true,
+   "name": "영빈사우나",
+   "addr": "서울특별시 중구 쌍림동 240",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.563007999999996,
+   "lng": 127.00552250000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "영빈호텔사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 중구 쌍림동 240",
+   "road": "서울특별시 중구 퇴계로56길 18",
+   "mapx": "1270055405",
+   "mapy": "375629964"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7843748f-f018-4af8-83b7-9293a0435e0a",
+  "name": "스파바이록시땅앳파크로쉬",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": "Jeongseon",
+   "addr": "강원특별자치도 정선군 북평면 중봉길 9-12 파크로쉬",
+   "lat": 37.4749147,
+   "lng": 128.6110656,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1286110656_374749147"
+  },
+  "google": {
+   "ok": true,
+   "name": "파크로쉬 리조트 앤 웰니스",
+   "addr": "강원특별자치도 정선군 북평면 중봉길 9-12",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.474745,
+   "lng": 128.6112306,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "스파바이록시땅앳파크로쉬",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "강원특별자치도 정선군 북평면 숙암리 482",
+   "road": "강원특별자치도 정선군 중봉길 9-12 파크로쉬",
+   "mapx": "1286110656",
+   "mapy": "374749147"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "0563f6c6-edc6-4a1d-9718-4101de021c18",
+  "name": "영진목욕탕사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 양천구 목동중앙북로14길 6",
+   "lat": 37.546086,
+   "lng": 126.8730446,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268730446_375460860"
+  },
+  "google": {
+   "ok": true,
+   "name": "영진목욕탕",
+   "addr": "서울특별시 목동 528-5번지 양천구 서울특별시 KR",
+   "types": [
+    "store",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.546011899999996,
+   "lng": 126.87308859999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "영진목욕탕사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 양천구 목동 528-5",
+   "road": "서울특별시 양천구 목동중앙북로14길 6",
+   "mapx": "1268730446",
+   "mapy": "375460860"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "ccb05800-0586-468f-ae5c-4464de50df15",
+  "name": "위례파크 사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Seongnam-si",
+   "addr": "경기도 성남시 수정구 위례광장로 19 아이페리온 지하1층",
+   "lat": 37.4657937,
+   "lng": 127.1405888,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271405888_374657937"
+  },
+  "google": {
+   "ok": true,
+   "name": "GA스타",
+   "addr": "경기도 성남시 위례광장로 19 지하 1층",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4656915,
+   "lng": 127.14045200000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "위례파크 사우나",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "경기도 성남시 수정구 창곡동 562 아이페리온 지하1층",
+   "road": "경기도 성남시 수정구 위례광장로 19 아이페리온 지하1층",
+   "mapx": "1271405888",
+   "mapy": "374657937"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "51aa7ebd-a46f-40a4-8ba5-12c4a8d02c59",
+  "name": "우리유황온천",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 자양로5길 33 지하2층",
+   "lat": 37.5309805,
+   "lng": 127.0842251,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270842251_375309805"
+  },
+  "google": {
+   "ok": true,
+   "name": "우리유황온천",
+   "addr": "서울특별시 광진구 자양로5길 33 지하 2층",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5309059,
+   "lng": 127.08415360000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "우리유황온천",
+   "category": "여행,명소>온천,스파",
+   "addr": "서울특별시 광진구 자양동 663-21 지하2층",
+   "road": "서울특별시 광진구 자양로5길 33 지하2층",
+   "mapx": "1270842251",
+   "mapy": "375309805"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "63e858c2-8042-45d1-ac96-9055add92a30",
+  "name": "유진사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서대문구 세무서5길 35",
+   "lat": 37.5915241,
+   "lng": 126.9448101,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269448101_375915241"
+  },
+  "google": {
+   "ok": true,
+   "name": "유진남여사우나",
+   "addr": "서울특별시 서대문구 홍제동 번지 3층 266-105 서문대중탕",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5914783,
+   "lng": 126.9447815,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유진사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 서대문구 홍제동 266-105",
+   "road": "서울특별시 서대문구 세무서5길 35",
+   "mapx": "1269448101",
+   "mapy": "375915241"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "3e5c5182-d04f-4781-9885-a662304df0b6",
+  "name": "클럽디오아시스 스파&워터파크",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 달맞이길 30 엘시티",
+   "lat": 35.160056,
+   "lng": 129.168482,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291684820_351600560"
+  },
+  "google": {
+   "ok": true,
+   "name": "클럽디 오아시스 스파&워터파크",
+   "addr": "부산광역시 해운대구 달맞이길 30",
+   "types": [
+    "water_park",
+    "amusement_park",
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1600514,
+   "lng": 129.1684719,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "클럽디오아시스 스파&amp;워터파크",
+   "category": "레저,테마>워터파크",
+   "addr": "부산광역시 해운대구 중동 1829 엘시티",
+   "road": "부산광역시 해운대구 달맞이길 30 엘시티",
+   "mapx": "1291684820",
+   "mapy": "351600560"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "7c0d4d19-bc69-44dc-b2d5-30ce1adcbede",
+  "name": "한신옥사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성동구 왕십리로31나길 18",
+   "lat": 37.5630198,
+   "lng": 127.0282292,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270282292_375630198"
+  },
+  "google": {
+   "ok": true,
+   "name": "한신옥사우나",
+   "addr": "서울특별시 성동구 왕십리제2동 990",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.56255,
+   "lng": 127.0281505,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "한신옥사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 성동구 하왕십리동 990",
+   "road": "서울특별시 성동구 왕십리로31나길 18",
+   "mapx": "1270282292",
+   "mapy": "375630198"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "87b98972-e7e3-4f91-8bd8-665da1aaa9e8",
+  "name": "우이령불가마주쉼사우나",
+  "isMatched": true,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강북구 삼양로179길 212-22 주쉼사우나",
+   "lat": 37.6708465,
+   "lng": 127.0058562,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270058562_376708465"
+  },
+  "google": {
+   "ok": true,
+   "name": "우이령불가마주쉼사우나",
+   "addr": "서울특별시 강북구 삼양로179길 212-16",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.6707323,
+   "lng": 127.0059396,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "우이령불가마주쉼사우나",
+   "category": "생활,편의>목욕,찜질",
+   "addr": "서울특별시 강북구 우이동 246 주쉼사우나",
+   "road": "서울특별시 강북구 삼양로179길 212-22 주쉼사우나",
+   "mapx": "1270058562",
+   "mapy": "376708465"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "4482da09-b35e-43f1-a2ac-c9bfa1d9a85d",
+  "name": "힐스파",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 해운대구 달맞이길117번길 11 힐스파",
+   "lat": 35.1584673,
+   "lng": 129.1752684,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291752684_351584673"
+  },
+  "google": {
+   "ok": true,
+   "name": "힐스파",
+   "addr": "부산광역시 해운대구 달맞이길117번길 11",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.1584686,
+   "lng": 129.1753048,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "힐스파",
+   "category": "생활,편의>찜질방",
+   "addr": "부산광역시 해운대구 중동 1509-7 힐스파",
+   "road": "부산광역시 해운대구 달맞이길117번길 11 힐스파",
+   "mapx": "1291752684",
+   "mapy": "351584673"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "df948f6a-f514-4e6b-b3fa-7462efbdf873",
+  "name": "프리마스파",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 강남구 도산대로102길 10",
+   "lat": 37.523927,
+   "lng": 127.0529789,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270529789_375239270"
+  },
+  "google": {
+   "ok": true,
+   "name": "프리마스파",
+   "addr": "서울특별시 강남구 청담동 56-17",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5238753,
+   "lng": 127.0528683,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "프리마스파",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 강남구 청담동 56-17",
+   "road": "서울특별시 강남구 도산대로102길 10",
+   "mapx": "1270529789",
+   "mapy": "375239270"
+  },
+  "flags": [
+   "🟡city-missing",
+   "🟡type? DB=hotel-spa·G=public_bath/sauna"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "5b6a9a8c-e624-4161-b50a-9b9f7b3acb4b",
+  "name": "유성온천사이언스",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "대전광역시 유성구 온천로 60 유성사이언스타운 2층",
+   "lat": 36.3547421,
+   "lng": 127.344454,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1273444540_363547421"
+  },
+  "google": {
+   "ok": true,
+   "name": "유성 사이언스 스파사우나",
+   "addr": "대한민국 대전광역시",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 36.354558399999995,
+   "lng": 127.34432059999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유성온천사이언스",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "대전광역시 유성구 봉명동 549-1 유성사이언스타운 2층",
+   "road": "대전광역시 유성구 온천로 60 유성사이언스타운 2층",
+   "mapx": "1273444540",
+   "mapy": "363547421"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "004a435b-b6b3-443e-861c-3a44cf81356a",
+  "name": "웨스틴 조선 서울",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 중구 소공로 106",
+   "lat": 37.5644687,
+   "lng": 126.9800462,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269800462_375644687"
+  },
+  "google": {
+   "ok": true,
+   "name": "웨스틴 조선 서울",
+   "addr": "서울특별시 중구 소공로 106",
+   "types": [
+    "hotel",
+    "wedding_venue",
+    "lodging",
+    "event_venue",
+    "point_of_interest",
+    "service",
+    "establishment"
+   ],
+   "lat": 37.564378,
+   "lng": 126.98005799999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "웨스틴 조선 서울 아리아",
+   "category": "음식점>뷔페",
+   "addr": "서울특별시 중구 소공동 87-1 웨스틴 조선 서울 저층 로비",
+   "road": "서울특별시 중구 소공로 106 웨스틴 조선 서울 저층 로비",
+   "mapx": "1269800267",
+   "mapy": "375644228"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "924e2423-d068-40c5-a4f1-3f9031565942",
+  "name": "송파파크하비오워터킹덤워터파크&찜질스파",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 송파구 송파대로 111 202동 지하1층",
+   "lat": 37.4802483,
+   "lng": 127.1247596,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1271247596_374802483"
+  },
+  "google": {
+   "ok": true,
+   "name": "워터킹덤 & 스파",
+   "addr": "서울특별시 송파구 송파대로 111 파크하비오 202동 B1",
+   "types": [
+    "water_park",
+    "tourist_attraction",
+    "amusement_park",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.4804509,
+   "lng": 127.12429200000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "송파파크하비오워터킹덤워터파크&amp;찜질스파",
+   "category": "레저,테마>워터파크",
+   "addr": "서울특별시 송파구 문정동 618 202동 지하1층",
+   "road": "서울특별시 송파구 송파대로 111 202동 지하1층",
+   "mapx": "1271247596",
+   "mapy": "374802483"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "0422e887-3dbd-4213-b70e-1fd5f2b8aeed",
+  "name": "옥정스파24시사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Yangju-si",
+   "addr": "경기도 양주시 옥정동로7다길 62 대길프라자 8층 옥정스파24시사우나",
+   "lat": 37.8202275,
+   "lng": 127.0928125,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270928125_378202275"
+  },
+  "google": {
+   "ok": true,
+   "name": "오션스파24시",
+   "addr": "경기도 양주시 광사동 652-1 5층 KR",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.7949169,
+   "lng": 127.07810289999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "옥정스파24시사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "경기도 양주시 옥정동 966-1 대길프라자 8층 옥정스파24시사우나",
+   "road": "경기도 양주시 옥정동로7다길 62 대길프라자 8층 옥정스파24시사우나",
+   "mapx": "1270928125",
+   "mapy": "378202275"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "0eac2c4e-2245-4455-ad4a-c0f86f47380d",
+  "name": "허심청",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 온천장로107번길 32 허심청",
+   "lat": 35.2211495,
+   "lng": 129.0826866,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1290826866_352211495"
+  },
+  "google": {
+   "ok": true,
+   "name": "허심청 온천탕",
+   "addr": "부산광역시 동래구 금강공원로20번길 23",
+   "types": [
+    "spa",
+    "sauna",
+    "public_bath",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 35.2210076,
+   "lng": 129.0826365,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "허심청",
+   "category": "여행,명소>온천,스파",
+   "addr": "부산광역시 동래구 온천동 137 허심청",
+   "road": "부산광역시 동래구 온천장로107번길 32 허심청",
+   "mapx": "1290826866",
+   "mapy": "352211495"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "f628ea0e-c04f-4c1b-8908-f09a322f8cca",
+  "name": "유림탕쑥사우나",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "부산광역시 동래구 명안로 23-1",
+   "lat": 35.1986438,
+   "lng": 129.1041569,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1291041569_351986438"
+  },
+  "google": {
+   "ok": true,
+   "name": "23-1",
+   "addr": "부산광역시 동래구 명안로 23-1",
+   "types": [
+    "street_address"
+   ],
+   "lat": 35.198648299999995,
+   "lng": 129.10416039999998,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "유림탕쑥사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 도봉구 쌍문동 120-8",
+   "road": "서울특별시 도봉구 도봉로113가길 5",
+   "mapx": "1270322068",
+   "mapy": "376486644"
+  },
+  "flags": [
+   "🟡city-missing",
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "88b0fba8-d458-436f-a135-537a62709cd1",
+  "name": "단오풍정",
+  "isMatched": false,
+  "db": {
+   "type": "private-sauna",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 성북구 동소문로25길 13 1층",
+   "lat": 37.5948942,
+   "lng": 127.0181807,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270181807_375948942"
+  },
+  "google": {
+   "ok": true,
+   "name": "Danpoong spa: Hanok branch | 個室アカスリ Danpoong韓屋店 | Private Body Scrub Shop |1인 세신샵 단오풍정 한옥점",
+   "addr": "서울특별시 성북구 동소문로25길 13",
+   "types": [
+    "sauna",
+    "public_bath",
+    "spa",
+    "health",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5948846,
+   "lng": 127.01818180000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "1인 세신샵 단오풍정 종로점",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 종로구 종로2가 9 지층",
+   "road": "서울특별시 종로구 종로 69 지층",
+   "mapx": "1269855542",
+   "mapy": "375704026"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "696e7291-a636-4d12-b1fb-9e896f04c48c",
+  "name": "24시인아사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": "Yangju-si",
+   "addr": "경기도 양주시 고암길 358",
+   "lat": 37.8346998,
+   "lng": 127.0656471,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270656471_378346998"
+  },
+  "google": {
+   "ok": true,
+   "name": "신인아24시불가마사우나",
+   "addr": "경기도 양주시 덕정동 240-27번지 KR",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.8346176,
+   "lng": 127.06568299999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "24시인아사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "경기도 양주시 덕정동 240-27",
+   "road": "경기도 양주시 고암길 358",
+   "mapx": "1270656471",
+   "mapy": "378346998"
+  },
+  "flags": [
+   "⚪g-name-mismatch"
+  ],
+  "gNameOk": false
+ },
+ {
+  "id": "ce21515f-f766-4dc5-a9a5-487070a6d240",
+  "name": "그랜드워커힐서울",
+  "isMatched": false,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 광진구 광장동 22-1 그랜드워커힐 서울",
+   "lat": 37.555169,
+   "lng": 127.1107738,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "https://www.walkerhill.com/grandwalkerhillseoul/kr/"
+  },
+  "google": {
+   "ok": true,
+   "name": "그랜드 워커힐 서울",
+   "addr": "서울특별시 광진구 워커힐로 177",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5552126,
+   "lng": 127.11089050000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "그랜드 워커힐 서울 금룡",
+   "category": "중식>중식당",
+   "addr": "서울특별시 광진구 광장동 22-1 그랜드 워커힐 서울 1층",
+   "road": "서울특별시 광진구 워커힐로 177 그랜드 워커힐 서울 1층",
+   "mapx": "1271109062",
+   "mapy": "375551332"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "3cb4d74b-28aa-4d8d-9736-fb318e8cdf95",
+  "name": "천호목욕탕",
+  "isMatched": false,
+  "db": {
+   "type": "small-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 마포구 망원로7길 23",
+   "lat": 37.558568,
+   "lng": 126.9051753,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1269051753_375585680"
+  },
+  "google": {
+   "ok": true,
+   "name": "천호대중목욕탕",
+   "addr": "서울특별시 망원동 424-16번지 마포구 서울특별시 KR",
+   "types": [
+    "spa",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.5585271,
+   "lng": 126.9051537,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "한강허브사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 강동구 천호동 425-5 대우한강베네시티상가 101동 지하2층 한강허브사우나",
+   "road": "서울특별시 강동구 올림픽로 664 대우한강베네시티상가 101동 지하2층 한강허브사우나",
+   "mapx": "1271244013",
+   "mapy": "375406355"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "681bc0a1-39ac-41fa-865a-c631c7574a23",
+  "name": "안토",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울 강북구 삼양로 689",
+   "lat": 37.6632824,
+   "lng": 127.0086662,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "https://www.antoresort.co.kr/"
+  },
+  "google": {
+   "ok": true,
+   "name": "안토",
+   "addr": "서울특별시 강북구 삼양로 689",
+   "types": [
+    "resort_hotel",
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.6632828,
+   "lng": 127.00867640000001,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "안토",
+   "category": "숙박>콘도,리조트",
+   "addr": "서울특별시 강북구 우이동 346 안토",
+   "road": "서울특별시 강북구 삼양로 689 안토",
+   "mapx": "1270086662",
+   "mapy": "376632824"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "48cd5f1b-1215-45fc-bdfc-e596ae9d9430",
+  "name": "오라카이 청계산 호텔 사우나",
+  "isMatched": true,
+  "db": {
+   "type": "hotel-spa",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 서초구 청계산로9길 1-7 지하1층",
+   "lat": 37.4490135,
+   "lng": 127.0547297,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1270547297_374490135"
+  },
+  "google": {
+   "ok": true,
+   "name": "오라카이 청계산 호텔, BW 프리미어 컬렉션",
+   "addr": "서울특별시 서초구 청계산로9길 1-7",
+   "types": [
+    "hotel",
+    "lodging",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.449020999999995,
+   "lng": 127.05467309999999,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "오라카이 청계산 호텔 사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 서초구 신원동 604 지하1층",
+   "road": "서울특별시 서초구 청계산로9길 1-7 지하1층",
+   "mapx": "1270547297",
+   "mapy": "374490135"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ },
+ {
+  "id": "8722bf99-9ba7-429c-8fe7-968604bf9ce2",
+  "name": "현대월드대중사우나",
+  "isMatched": false,
+  "db": {
+   "type": "public-bath",
+   "country": "KR",
+   "city": null,
+   "addr": "서울특별시 양천구 목동서로 77 현대월드타워 지하 118호",
+   "lat": 37.5359724,
+   "lng": 126.8780154,
+   "coordSrc": "naver",
+   "source": "naver",
+   "ext": "1268780154_375359724"
+  },
+  "google": {
+   "ok": true,
+   "name": "현대월드대중사우나",
+   "addr": "대한민국 서울특별시",
+   "types": [
+    "public_bath",
+    "point_of_interest",
+    "establishment"
+   ],
+   "lat": 37.536223,
+   "lng": 126.87805789999997,
+   "country": "KR"
+  },
+  "naver": {
+   "ok": true,
+   "title": "현대월드대중사우나",
+   "category": "생활,편의>목욕탕,사우나",
+   "addr": "서울특별시 양천구 목동 907 현대월드타워 지하 118호",
+   "road": "서울특별시 양천구 목동서로 77 현대월드타워 지하 118호",
+   "mapx": "1268780154",
+   "mapy": "375359724"
+  },
+  "flags": [
+   "🟡city-missing"
+  ],
+  "gNameOk": true
+ }
+]
