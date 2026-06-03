@@ -5,7 +5,21 @@
 
 ---
 
-## 📌 다음 세션 첫 작업 = 해외 사우나 23건 등록 (Phase 4b)
+## ✅ Phase 4b 완료 (2026-06-04) — 신규 16건 등록·검증 완료
+> 결과: places **296→312**(+16), place_sources(google, external_id=place_id)+16, 어드민 logs+deep_logs 16. **place_id 중복0·온도범위위반0·spot-check 16/16 통과**. 신규 ft = small-bath 4·public-bath 6·hotel-premium 6 / cc = JP14·US1·HK1.
+>
+> ⚠️ **핸드오프 전제 대비 교정 3건** (그대로 등록 시 사고날 부분):
+> 1. **23건 중 7건 이미 존재** (2026-03 큐레이션 시드 출처: 사우나도쿄·사우나스·카이료유·아리마·토토파·미도리노카제·자누). 핸드오프 "전건 신규/JP 선례 11건"은 오류 — 실제 비-KR 59건. 진짜 신규는 **16건**. → `overseas-existing7-verify-20260604.md` (검증만, 무변경. 카이료유 ft는 사용자 결정으로 small-bath 유지).
+> 2. **`hotel-spa` enum 폐기** — 마이그레이션 026에서 `hotel-premium`으로 리네임. review의 hotel-spa 그대로 INSERT 시 CHECK 위반 → 호텔류 전부 **hotel-premium**.
+> 3. **해외 facilities/온도 = 사용자 검토 반영** — 2026-06-04 유저가 16건 시설·온도·정식명 전수 교정(코코로노명=Hotel Furukawa, 코코로노 습식40, 토토켄 급냉탕/건95, 91도 입장료1980엔·11층 private memo, 쓰루가메유·이나리유·마에다유·우메유 ft=small-bath 등).
+>
+> 산출: `scripts/katalk-overseas-geocode.mjs`(place_id 직접조회) · `scripts/katalk-overseas-register.mjs`(해외 등록, source=google) · `overseas-geocode-20260604.json/.md` · `overseas-register-dryrun-20260604.md` · `overseas-existing7-verify-20260604.md`
+>
+> 잔여(선택): 아리마 카톡 건식93-94 enrich 보류 / 91도 11층 '가족실·개인실 대여' facility 칩 신설 후보(private-room 등).
+
+---
+
+## 📌 (원본) 다음 세션 첫 작업 = 해외 사우나 23건 등록 (Phase 4b)
 
 ### ⭐ 시작 전 반드시 읽을 것 (READ FIRST)
 1. **`docs/research/katalk-20260519/README.md`** — **검증 시 어떤 원본 파일을 쓸지 + 신규 등록 컨벤션의 SSOT.**
