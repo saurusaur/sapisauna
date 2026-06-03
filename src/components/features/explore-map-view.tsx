@@ -307,11 +307,20 @@ function ClusteredMarkers({
     clusterer.current = new MarkerClusterer({
       map,
       algorithm: new SuperClusterAlgorithm({ radius: CLUSTER_RADIUS, maxZoom: CLUSTER_MAX_ZOOM }),
-      // 클러스터 클릭 — 기본 fitBounds는 밀집 시 최대까지 튐. 분리될 만큼만 한 단계씩 줌인.
+      // 클러스터 클릭 — 한 번에 완전히 풀리도록 마커 bounds로 fit. 단 과도한 줌은
+      // 클러스터가 더 안 생기는 zoom(maxZoom+1)으로 캡 → "딱 분리될 만큼".
       onClusterClick: (_event, cluster, clusterMap) => {
-        const z = clusterMap.getZoom() ?? DEFAULT_ZOOM
-        clusterMap.panTo(cluster.position)
-        clusterMap.setZoom(Math.min(z + 2, CLUSTER_MAX_ZOOM + 1))
+        const cap = CLUSTER_MAX_ZOOM + 1
+        if (cluster.bounds) {
+          clusterMap.fitBounds(cluster.bounds, 64)
+          google.maps.event.addListenerOnce(clusterMap, 'idle', () => {
+            const z = clusterMap.getZoom()
+            if (z !== undefined && z > cap) clusterMap.setZoom(cap)
+          })
+        } else {
+          clusterMap.panTo(cluster.position)
+          clusterMap.setZoom(cap)
+        }
       },
       renderer: {
         render: ({ count, position }) => {
@@ -501,6 +510,7 @@ function ExploreMapInner({
             gestureHandling="greedy"
             disableDefaultUI
             zoomControl
+            zoomControlOptions={{ position: google.maps.ControlPosition.RIGHT_CENTER }}
             clickableIcons={false}
             onClick={() => onSelectPlace(null)}
             style={{ width: '100%', height: '100%' }}
