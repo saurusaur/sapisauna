@@ -150,35 +150,29 @@ function HeartGlyph({ size }: { size: number }) {
   )
 }
 
-// 사우나 마커 — 물방울 핀. 비선택=심플 핀 / 저장=하트 / 선택=확대+로고 증기. 그림자 없음.
-// 24시 영업이면 핀 위 "24h" 라벨. 아이콘은 박스 정중앙(=둥근 머리 중심)에 정렬.
-const SaunaPin = memo(function SaunaPin({ saved, selected, is24h }: { saved: boolean; selected: boolean; is24h: boolean }) {
+// 사우나 마커 — 물방울 핀. 비선택=심플 핀(그림자 없음) / 저장=하트 / 선택=확대+로고 증기+은은한 그림자.
+// 아이콘은 박스 정중앙(=둥근 머리 중심)에 정렬.
+const SaunaPin = memo(function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
   const dropSize = selected ? 34 : 26
   const borderW = selected ? 3 : 2.5
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-      {is24h && (
-        <span style={{ background: '#fff', color: 'var(--color-primary)', fontSize: 9, fontWeight: 800, lineHeight: 1, padding: '2px 6px', borderRadius: 9999, whiteSpace: 'nowrap' }}>
-          24h
+    <div style={{ position: 'relative', width: dropSize, height: dropSize }}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50% 50% 50% 0',
+          background: 'var(--color-primary)',
+          border: `${borderW}px solid #fff`,
+          transform: 'rotate(-45deg)',
+          boxShadow: selected ? '0 3px 10px rgba(0,0,0,0.3)' : 'none',
+        }}
+      />
+      {(selected || saved) && (
+        <span style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'block' }}>
+          {selected ? <SteamLogo size={14} /> : <HeartGlyph size={11} />}
         </span>
       )}
-      <div style={{ position: 'relative', width: dropSize, height: dropSize }}>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50% 50% 50% 0',
-            background: 'var(--color-primary)',
-            border: `${borderW}px solid #fff`,
-            transform: 'rotate(-45deg)',
-          }}
-        />
-        {(selected || saved) && (
-          <span style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'block' }}>
-            {selected ? <SteamLogo size={14} /> : <HeartGlyph size={11} />}
-          </span>
-        )}
-      </div>
     </div>
   )
 })
@@ -205,7 +199,7 @@ const PlaceMarker = memo(function PlaceMarker({
       zIndex={selected ? 10 : 1}
       onClick={() => onSelect(place.id)}
     >
-      <SaunaPin saved={saved} selected={selected} is24h={place.is_24h} />
+      <SaunaPin saved={saved} selected={selected} />
     </AdvancedMarker>
   )
 })
