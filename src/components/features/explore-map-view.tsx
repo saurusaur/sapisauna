@@ -307,20 +307,17 @@ function ClusteredMarkers({
     clusterer.current = new MarkerClusterer({
       map,
       algorithm: new SuperClusterAlgorithm({ radius: CLUSTER_RADIUS, maxZoom: CLUSTER_MAX_ZOOM }),
-      // 클러스터 클릭 — 한 번에 완전히 풀리도록 마커 bounds로 fit. 단 과도한 줌은
-      // 클러스터가 더 안 생기는 zoom(maxZoom+1)으로 캡 → "딱 분리될 만큼".
+      // 클러스터 클릭 — 목표 줌을 미리 계산해 한 번에 줌인(오버슈트 없이 자연스럽게).
+      // 마커 bounds를 채울 zoom을 구하되, 클러스터가 더 안 생기는 zoom(maxZoom+1)으로 캡.
       onClusterClick: (_event, cluster, clusterMap) => {
         const cap = CLUSTER_MAX_ZOOM + 1
+        let target = cap
         if (cluster.bounds) {
-          clusterMap.fitBounds(cluster.bounds, 64)
-          google.maps.event.addListenerOnce(clusterMap, 'idle', () => {
-            const z = clusterMap.getZoom()
-            if (z !== undefined && z > cap) clusterMap.setZoom(cap)
-          })
-        } else {
-          clusterMap.panTo(cluster.position)
-          clusterMap.setZoom(cap)
+          const z = getBoundsZoom(clusterMap, cluster.bounds, 64)
+          if (z != null) target = Math.min(z, cap)
         }
+        clusterMap.panTo(cluster.position)
+        clusterMap.setZoom(target)
       },
       renderer: {
         render: ({ count, position }) => {
@@ -428,6 +425,28 @@ function createClusterElement(count: number) {
   return el
 }
 
+// fitBounds가 만들어낼 zoom을 미리 계산 (오버슈트 없는 단일 줌 애니메이션용).
+// 마커가 거의 같은 좌표(분모 0)면 21 반환 → 호출부에서 cap으로 제한된다.
+function getBoundsZoom(map: google.maps.Map, bounds: google.maps.LatLngBounds, paddingPx: number): number | null {
+  const div = map.getDiv() as HTMLElement
+  const w = div.offsetWidth - paddingPx * 2
+  const h = div.offsetHeight - paddingPx * 2
+  if (w <= 0 || h <= 0) return null
+  const WORLD = 256
+  const latRad = (lat: number) => {
+    const s = Math.sin((lat * Math.PI) / 180)
+    return Math.log((1 + s) / (1 - s)) / 2
+  }
+  const ne = bounds.getNorthEast()
+  const sw = bounds.getSouthWest()
+  const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI
+  let lngDiff = ne.lng() - sw.lng()
+  if (lngDiff < 0) lngDiff += 360
+  const lngFraction = lngDiff / 360
+  const zoomFor = (px: number, frac: number) => (frac <= 0 ? 21 : Math.log(px / WORLD / frac) / Math.LN2)
+  return Math.floor(Math.min(zoomFor(h, latFraction), zoomFor(w, lngFraction), 21))
+}
+
 function MyLocationControl({
   onRequestUserLocation,
   isRequesting,
@@ -509,8 +528,6 @@ function ExploreMapInner({
             mapId={mapId}
             gestureHandling="greedy"
             disableDefaultUI
-            zoomControl
-            zoomControlOptions={{ position: google.maps.ControlPosition.RIGHT_CENTER }}
             clickableIcons={false}
             onClick={() => onSelectPlace(null)}
             style={{ width: '100%', height: '100%' }}
