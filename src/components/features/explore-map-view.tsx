@@ -14,9 +14,9 @@ import type { Place } from '@/types'
 import type { UserLocation } from '@/hooks/use-user-location'
 import PlaceCard from '@/components/features/place-card'
 
-const SEOUL_CITY_HALL = { lat: 37.5666, lng: 126.9784 }
-const MIN_ZOOM = 8
-const MAX_ZOOM = 17
+// 위치 권한이 없을 때 기본으로 보여줄 기준점 — 남산공원(N서울타워)
+const NAMSAN_PARK = { lat: 37.5512, lng: 126.9882 }
+const DEFAULT_ZOOM = 13
 
 interface ExploreMapViewProps {
   apiKey: string
@@ -97,10 +97,8 @@ function MapLoadGate({
 }
 
 function FitBoundsToPlaces({
-  places,
   userLocation,
 }: {
-  places: Place[]
   userLocation: UserLocation | null
 }) {
   const map = useMap()
@@ -114,35 +112,13 @@ function FitBoundsToPlaces({
     map.setZoom(14)
   }, [map, userLocation])
 
-  // 내 위치가 없을 때만 등록된 장소 전체가 보이도록 fit (내 위치 있으면 건드리지 않음
-  // → 검색/필터로 장소가 바뀌어도 내 위치에서 튕기지 않음)
+  // 내 위치가 없으면 남산공원을 기준으로 보여준다 (사우나 찾기 기본 뷰).
+  // 내 위치 있으면 위 효과가 처리하므로 건드리지 않음 — 검색/필터로 장소가 바뀌어도 튕기지 않음.
   useEffect(() => {
     if (!map || userLocation) return
-
-    const bounds = new google.maps.LatLngBounds()
-    let hasBounds = false
-    for (const place of places) {
-      if (place.latitude === null || place.longitude === null) continue
-      bounds.extend({ lat: place.latitude, lng: place.longitude })
-      hasBounds = true
-    }
-
-    if (!hasBounds) {
-      map.setCenter(SEOUL_CITY_HALL)
-      map.setZoom(11)
-      return
-    }
-
-    map.fitBounds(bounds, 64)
-    const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
-      const zoom = map.getZoom()
-      if (zoom === undefined) return
-      if (zoom > MAX_ZOOM) map.setZoom(MAX_ZOOM)
-      if (zoom < MIN_ZOOM) map.setZoom(MIN_ZOOM)
-    })
-
-    return () => listener.remove()
-  }, [map, places, userLocation])
+    map.setCenter(NAMSAN_PARK)
+    map.setZoom(DEFAULT_ZOOM)
+  }, [map, userLocation])
 
   return null
 }
@@ -472,11 +448,10 @@ function ExploreMapInner({
     () => places.filter((place) => place.latitude !== null && place.longitude !== null),
     [places]
   )
+  // 위치 없으면 남산공원 기준 (FitBoundsToPlaces와 일치 → 초기 깜빡임 방지)
   const initialCenter = userLocation
     ? { lat: userLocation.latitude, lng: userLocation.longitude }
-    : placesWithCoordinates[0]
-      ? { lat: placesWithCoordinates[0].latitude!, lng: placesWithCoordinates[0].longitude! }
-      : SEOUL_CITY_HALL
+    : NAMSAN_PARK
 
   return (
     <div className="relative">
@@ -496,7 +471,7 @@ function ExploreMapInner({
         <div className="relative h-[clamp(420px,calc(100dvh-220px),640px)] min-h-[420px] max-h-[640px] overflow-hidden rounded-xl glass-card-light">
           <Map
             defaultCenter={initialCenter}
-            defaultZoom={11}
+            defaultZoom={DEFAULT_ZOOM}
             mapId={mapId}
             gestureHandling="greedy"
             disableDefaultUI
@@ -505,7 +480,7 @@ function ExploreMapInner({
             onClick={() => onSelectPlace(null)}
             style={{ width: '100%', height: '100%' }}
           >
-            <FitBoundsToPlaces places={placesWithCoordinates} userLocation={userLocation} />
+            <FitBoundsToPlaces userLocation={userLocation} />
             <ClusteredMarkers
               places={placesWithCoordinates}
               selectedPlaceId={selectedPlace?.id ?? null}

@@ -870,7 +870,7 @@ export const NAV = {
   HOME: "홈",
   HISTORY: "내 기록",
   SA_LIST: "사-리스트",
-  EXPLORE: "탐색",
+  EXPLORE: "사우나 찾기",
   MY: "마이",
   ADD_RECORD: "기록하기",
   COMING_SOON: "coming soon",
