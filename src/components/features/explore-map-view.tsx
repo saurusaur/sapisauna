@@ -128,13 +128,15 @@ function FitBoundsToPlaces({
   return null
 }
 
-// 사우나 김(스팀) 3줄 — 일반(미저장) 핀 아이콘
-function SteamWaves({ size }: { size: number }) {
+// 사우나 증기 — 사-피 로고에서 추출한 벡터(potrace). 선택 핀에만 표시.
+function SteamLogo({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.4} strokeLinecap="round">
-      <path d="M7 18c2-2 2-4 0-6s-2-4 0-6" />
-      <path d="M12 19c2-2 2-4 0-6s-2-4 0-6" />
-      <path d="M17 18c2-2 2-4 0-6s-2-4 0-6" />
+    <svg width={size} height={(size * 625) / 490} viewBox="107 0 490 625" fill="#fff" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+      <g transform="translate(0,702) scale(0.1,-0.1)">
+        <path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026 -123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498 -272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55 219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558 226 1235 604 1810 25 37 16 35 -102 -28z" />
+        <path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20 -538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71 -604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166 371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929 -116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0 -60 -35 -123 -78z" />
+        <path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54 -1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814 -398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546 22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198 19 29 21 30 -87 -39z" />
+      </g>
     </svg>
   )
 }
@@ -148,28 +150,34 @@ function HeartGlyph({ size }: { size: number }) {
   )
 }
 
-// 사우나 마커 — 클래식 물방울 핀. 일반=김, 저장=하트, 선택 시 확대.
-// [도형(회전 teardrop) + 아이콘 오버레이] 구조로 아이콘을 둥근 머리 중앙에 정렬.
-const SaunaPin = memo(function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
-  const size = selected ? 35 : 30
+// 사우나 마커 — 물방울 핀. 비선택=심플 핀 / 저장=하트 / 선택=확대+로고 증기. 그림자 없음.
+// 24시 영업이면 핀 위 "24h" 라벨. 아이콘은 박스 정중앙(=둥근 머리 중심)에 정렬.
+const SaunaPin = memo(function SaunaPin({ saved, selected, is24h }: { saved: boolean; selected: boolean; is24h: boolean }) {
+  const dropSize = selected ? 34 : 26
   const borderW = selected ? 3 : 2.5
-  const bottomInset = selected ? 3 : 2
-  const iconSize = saved ? (selected ? 19 : 16) : (selected ? 22 : 17)
   return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: '50% 50% 50% 0',
-          background: 'var(--color-primary)',
-          border: `${borderW}px solid #fff`,
-          transform: 'rotate(-45deg)',
-          boxShadow: selected ? '0 4px 14px rgba(0,0,0,0.35)' : '0 2px 8px rgba(0,0,0,0.24)',
-        }}
-      />
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: bottomInset, display: 'grid', placeItems: 'center' }}>
-        {saved ? <HeartGlyph size={iconSize} /> : <SteamWaves size={iconSize} />}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      {is24h && (
+        <span style={{ background: '#fff', color: 'var(--color-primary)', fontSize: 9, fontWeight: 800, lineHeight: 1, padding: '2px 6px', borderRadius: 9999, whiteSpace: 'nowrap' }}>
+          24h
+        </span>
+      )}
+      <div style={{ position: 'relative', width: dropSize, height: dropSize }}>
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50% 50% 50% 0',
+            background: 'var(--color-primary)',
+            border: `${borderW}px solid #fff`,
+            transform: 'rotate(-45deg)',
+          }}
+        />
+        {(selected || saved) && (
+          <span style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'block' }}>
+            {selected ? <SteamLogo size={14} /> : <HeartGlyph size={11} />}
+          </span>
+        )}
       </div>
     </div>
   )
@@ -197,7 +205,7 @@ const PlaceMarker = memo(function PlaceMarker({
       zIndex={selected ? 10 : 1}
       onClick={() => onSelect(place.id)}
     >
-      <SaunaPin saved={saved} selected={selected} />
+      <SaunaPin saved={saved} selected={selected} is24h={place.is_24h} />
     </AdvancedMarker>
   )
 })
@@ -383,20 +391,19 @@ function createClusterElement(count: number) {
   // 클러스터는 개별 사우나 핀과 위계가 구분되도록 링형(흰 바탕 + 빨강 링) + 숫자.
   // 개수 많을수록 살짝 크게. (:root CSS 변수는 인라인 스타일에서도 해석됨)
   const big = count >= 25
-  const d = big ? 46 : 38
+  const d = big ? 40 : 34
   const el = document.createElement('div')
   el.textContent = String(count)
   el.style.width = `${d}px`
   el.style.height = `${d}px`
   el.style.borderRadius = '9999px'
   el.style.background = '#ffffff'
-  el.style.border = '3px solid var(--color-primary)'
+  el.style.border = '2.5px solid var(--color-primary)'
   el.style.color = 'var(--color-primary)'
   el.style.display = 'grid'
   el.style.placeItems = 'center'
-  el.style.fontSize = big ? '15px' : '13px'
+  el.style.fontSize = big ? '14px' : '12px'
   el.style.fontWeight = '800'
-  el.style.boxShadow = '0 0 0 4px rgba(204,26,26,0.18), 0 4px 12px rgba(0,0,0,0.22)'
   return el
 }
 
