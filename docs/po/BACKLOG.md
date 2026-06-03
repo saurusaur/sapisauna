@@ -9,17 +9,15 @@
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
-- [x] [기능+UX] 나의 기록 대시보드 | priority: P0 | added: 2026-03-10 | done: 2026-04-12
 - [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [UX] 뉴비 유저 사우나 용어 설명 팝업 — 처음 보는 유저를 위해 사우나 용어(아우프구스/세신/토토노이/노천탕/한증막/온탕/열탕/냉탕/급냉탕/건식/습식 등) 클릭 시 설명 팝오버. 트리거 후보: 로그 폼 라벨 옆 ⓘ 아이콘 / 장소 상세 시설 칩 클릭 / 온보딩 첫 진입 시 1회 가이드. 용어 사전 단일 소스(content.ts에 GLOSSARY 상수) | priority: P1 | added: 2026-04-30
 - [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
-- [ ] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록 | priority: P1 | added: 2026-03-04
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
-- [ ] [기능] 탐색 탭 → 지도 뷰 전환 — 탐색을 "주변 사우나 찾기 + 장소 정보" 지도 중심으로 변경. 지도 API 선정(Naver/Mapbox) 필요 | priority: P2 | added: 2026-04-18
+- [ ] [UX] 지도 검색 흐름 개선 (대작업) — 현재 지도뷰 검색이 불편: 상단 검색바가 이미 로드된 장소만 이름/주소로 클라이언트 필터링하고 지도는 결과로 이동/줌하지 않음, 지역·주소 검색·자동완성 없음. 개선 방향: ① 장소명/지역/주소 검색 시 지도 자동 센터링+줌 & 결과 마커 강조 ② "이 지역에서 검색"(지도 이동 시 현재 bounds 기준 재조회) 패턴 ③ 검색 자동완성(장소/지역). 기본 뷰가 지도로 바뀌면서(2026-06-03) 검색 진입 빈도↑ → 우선순위 상향 검토 | priority: P2 | added: 2026-06-03
 - [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
 - [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
@@ -29,6 +27,7 @@
 - [ ] [버그] Google 지도 URL 폴백 dead code — `explore/[id]/page.tsx:266-268`에서 `place.latitude` 삼항 분기 true/false가 동일 결과. 좌표 있을 때 `query=<lat>,<lng>` 로 핀 정확도 개선 필요 | priority: P2 | added: 2026-04-20
 
 <!-- P3 — 장기 -->
+- [ ] [성능] 지도뷰 마커 명령형화(#3) — 현재 모든 장소가 @vis.gl AdvancedMarker(React 컴포넌트)로 마운트돼 줌아웃(전국 보기)·첫 진입 시 마운트 총량이 큼. 비저장(일반) 핀을 markerclusterer 네이티브 마커(순수 DOM, createClusterElement 방식)로 그리고 선택/저장 등 인터랙티브한 소수만 React 마커로 유지하면 reconcile 대상이 238→수 개로 감소. #1(메모이제이션)·#2(뷰포트 컬링)으로 클릭·팬 비용은 해결됐고, 이건 줌아웃 마운트 총량 근본해결용 | priority: P3 | added: 2026-06-02
 - [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (참고용 한글본: `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md`) / v1 초안 deprecated: `docs/plans/archive/PLAN_sauna_pet.md` | priority: P3 | added: 2026-05-18
 - [ ] [기능] 내 루틴 찾아가기 (Routine Fit) — 수요 근거: 먼데이사우나 톡방에서 루틴 화제의 26%가 "스탠다드가 뭐예요?/13도 몇분?" 식 *기준·캘리브레이션 질문*(자랑·공유 아님). 분석: `docs/research/katalk-20260519/topic-analysis.md`. **소셜이 아니라 self-discovery 루프**로 설계. 입력변수(HEAT/ICE/PAUSE/REPEAT)+결과변수(토토노우·만족도·또갈래요)가 이미 스키마에 있음. 단계: ① **콜드스타트**(입문자용 기본 루틴 템플릿, 크로스유저 밀도 불필요 → 지금도 가능, P2) → ② **개인 수렴**(내 로그 기반 "고만족 세션 패턴" 피드백, 내 로그 수십개면 됨 → 중기, P3) → ③ **크로스유저/장소 평균**(유저 수백+ 게이트 → 장기, P3). 진짜 "옵티마이제이션"은 ②③의 개인화 추천 = 기록앱→루틴코치 전환점 | priority: P3 | added: 2026-05-30
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
@@ -39,6 +38,16 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-06-02
+- [x] [기능+UX] 탐색·tribe 정렬 UX 개편 — 정렬 동적 기본값(위치 있음→가까운 순 / 없음→추천 순, 권한 확정 후 1회 자동 선택, 사용자 수동 변경 시 덮어쓰지 않음 override 추적), 정렬 탭 '가까운' 최좌측, **인기순 탭 제거**(가까운/추천만, 탐색·tribe 공유 FilterControls). tribe(PICKS)에 위치 배선 신규 추가(useUserLocation·distanceMap·nearby 정렬 분기·granted 자동 위치획득·거리 라벨) — 기존엔 tribe '가까운' 탭이 동작 안 하던 죽은 탭이었음. granted면 프롬프트 없이 즉시 위치 반환, 미허용은 자동 프롬프트 안 띄움(iOS 이슈 회피) (b751c9a, f5b2fff, 5bd3ac2) | priority: P1 | done: 2026-06-02
+- [x] [버그] 스토리 카드 export 폰트 폴백 회귀 — next/font 전환 후 캔버스가 literal "Oswald"를 참조하나 해시 패밀리명(__Oswald_xxxx)과 불일치해 export 시 시스템 폰트로 폴백되던 회귀. 런타임에 `--font-oswald`를 읽어 프리뷰와 동일 페이스를 캔버스에 적용, 사용 weight 멱등 프리로드(추가 다운로드 없음) 후 렌더 (876a2db) | priority: P1 | done: 2026-06-02
+- [x] [버그] 로딩 시 아이콘 폰트 FOUT — 웹폰트 로드 전 ligature 원본 글자("progress_activity")가 노출돼 스피너 대신 텍스트가 도는 현상. ContentLoader를 순수 CSS 원형 스피너로 교체 + Material Symbols `display=swap`→`block` + preconnect (8766515) | priority: P2 | done: 2026-06-02
+- [x] [성능] 탐색 지도뷰 INP 개선 — 마커 클릭 시 selectedPlaceId 변경이 전체 마커(약 238개)를 동기 리렌더해 INP 3.5s(render 3,490ms). SaunaPin/PlaceMarker React.memo화 + handleSelect ref 기반 안정 콜백으로 선택/해제된 2개만 리렌더, 뷰포트 컬링(화면+20% 패딩 내 장소만 마운트). #3(비저장 마커 명령형화)은 줌아웃 마운트 총량 근본해결용으로 별도 P3 백로그 등록 (5e32023) | priority: P2 | done: 2026-06-02
+- [x] [UX] 필터 패널 닫기 X 이전 — 상단 섹션 헤더의 작은 X가 누르기 어려워 24시 영업 행 오른쪽 끝으로 이전, 토글은 라벨 옆에 배치 (0a107ca) | priority: P2 | done: 2026-06-02
+- [x] [버그] SA-리스트 공유 링크(slug) 로딩 실패 — 공유 링크는 8자리 slug를 쓰는데 getListItems·isSubscribed·toggleSubscription이 slug를 UUID 컬럼에 직접 쿼리해 "invalid input syntax for type uuid" 에러. resolveListId() 헬퍼로 slug→UUID 해석 후 쿼리(getListById 패턴과 동일). 인스타 DM 등 외부 공유 링크 진입에서만 발생하던 버그 (68bad2a) | priority: P0 | done: 2026-06-02
+- [x] [기능] 장소 탐색 강화 — '내 주변' 거리순 정렬(geolocation) + Explore에서 직접 장소 등록. 거리순 정렬은 탐색·tribe 동적 기본값으로 완성, 직접 등록은 빈 상태/검색결과 없음 CTA(/place/add)로 제공 | priority: P1 | added: 2026-03-04 | done: 2026-06-02
+- [x] [기능] 탐색 탭 → 지도 뷰 전환 — Google Maps 지도뷰(리스트/지도 토글), 사우나 핀(김/하트)·내 이모지·링 클러스터 마커, 위치기반 거리정렬, 로드 실패 fallback (35c4f43, ef3f1ed 등) | priority: P2 | added: 2026-04-18 | done: 2026-06-02
 
 ### 2026-05-19
 - [x] [데이터] jimi 트라이브 첫 로그 마일스톤 "구운달걀" → "맥반석란" 통일 — 사우나펫 v2.5.1 도입 사전 작업. `user_titles.title`+`base_title`+`users.active_title` UPDATE, `rewards.ts:64` 상수 변경. 마이그레이션 025 | priority: P2 | added: 2026-05-19 | done: 2026-05-19

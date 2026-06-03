@@ -9,14 +9,19 @@ import {
   useApiLoadingStatus,
   useMap,
 } from '@vis.gl/react-google-maps'
-import { MarkerClusterer, type Marker } from '@googlemaps/markerclusterer'
+import { MarkerClusterer, SuperClusterAlgorithm, type Marker } from '@googlemaps/markerclusterer'
 import type { Place } from '@/types'
 import type { UserLocation } from '@/hooks/use-user-location'
 import PlaceCard from '@/components/features/place-card'
 
-const SEOUL_CITY_HALL = { lat: 37.5666, lng: 126.9784 }
-const MIN_ZOOM = 8
-const MAX_ZOOM = 17
+// 위치 권한이 없을 때 기본으로 보여줄 기준점 — 남산공원(N서울타워)
+const NAMSAN_PARK = { lat: 37.5512, lng: 126.9882 }
+const DEFAULT_ZOOM = 13
+
+// 클러스터 튜닝 — radius(px): 작을수록 덜 묶임 / maxZoom: 이 줌을 넘으면 개별 핀으로 분리.
+// 기본값(radius 60·maxZoom 16)이 너무 공격적("툭하면 클러스터")이라 낮춤. 프리뷰에서 값 조정해 테스트.
+const CLUSTER_RADIUS = 40
+const CLUSTER_MAX_ZOOM = 15
 
 interface ExploreMapViewProps {
   apiKey: string
@@ -97,10 +102,8 @@ function MapLoadGate({
 }
 
 function FitBoundsToPlaces({
-  places,
   userLocation,
 }: {
-  places: Place[]
   userLocation: UserLocation | null
 }) {
   const map = useMap()
@@ -114,46 +117,38 @@ function FitBoundsToPlaces({
     map.setZoom(14)
   }, [map, userLocation])
 
-  // 내 위치가 없을 때만 등록된 장소 전체가 보이도록 fit (내 위치 있으면 건드리지 않음
-  // → 검색/필터로 장소가 바뀌어도 내 위치에서 튕기지 않음)
+  // 내 위치가 없으면 남산공원을 기준으로 보여준다 (사우나 찾기 기본 뷰).
+  // 내 위치 있으면 위 효과가 처리하므로 건드리지 않음 — 검색/필터로 장소가 바뀌어도 튕기지 않음.
   useEffect(() => {
     if (!map || userLocation) return
-
-    const bounds = new google.maps.LatLngBounds()
-    let hasBounds = false
-    for (const place of places) {
-      if (place.latitude === null || place.longitude === null) continue
-      bounds.extend({ lat: place.latitude, lng: place.longitude })
-      hasBounds = true
-    }
-
-    if (!hasBounds) {
-      map.setCenter(SEOUL_CITY_HALL)
-      map.setZoom(11)
-      return
-    }
-
-    map.fitBounds(bounds, 64)
-    const listener = google.maps.event.addListenerOnce(map, 'idle', () => {
-      const zoom = map.getZoom()
-      if (zoom === undefined) return
-      if (zoom > MAX_ZOOM) map.setZoom(MAX_ZOOM)
-      if (zoom < MIN_ZOOM) map.setZoom(MIN_ZOOM)
-    })
-
-    return () => listener.remove()
-  }, [map, places, userLocation])
+    map.setCenter(NAMSAN_PARK)
+    map.setZoom(DEFAULT_ZOOM)
+  }, [map, userLocation])
 
   return null
 }
 
-// 사우나 김(스팀) 3줄 — 일반(미저장) 핀 아이콘
-function SteamWaves({ size }: { size: number }) {
+// 선택 시 해당 마커를 화면 위쪽으로 패닝 — 하단 정보 카드에 가리지 않도록.
+function PanToSelected({ selectedPlace }: { selectedPlace: Place | null }) {
+  const map = useMap()
+  useEffect(() => {
+    if (!map || !selectedPlace || selectedPlace.latitude == null || selectedPlace.longitude == null) return
+    map.panTo({ lat: selectedPlace.latitude, lng: selectedPlace.longitude })
+    // 하단 카드(높이 ~190px) 위로 마커를 올림: 중앙에서 위로 살짝 이동
+    map.panBy(0, 90)
+  }, [map, selectedPlace])
+  return null
+}
+
+// 사우나 증기 — 사-피 로고에서 추출한 벡터(potrace). 선택 핀에만 표시.
+function SteamLogo({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.4} strokeLinecap="round">
-      <path d="M7 18c2-2 2-4 0-6s-2-4 0-6" />
-      <path d="M12 19c2-2 2-4 0-6s-2-4 0-6" />
-      <path d="M17 18c2-2 2-4 0-6s-2-4 0-6" />
+    <svg width={size} height={(size * 625) / 490} viewBox="107 0 490 625" fill="#fff" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+      <g transform="translate(0,702) scale(0.1,-0.1)">
+        <path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026 -123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498 -272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55 219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558 226 1235 604 1810 25 37 16 35 -102 -28z" />
+        <path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20 -538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71 -604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166 371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929 -116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0 -60 -35 -123 -78z" />
+        <path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54 -1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814 -398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546 22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198 19 29 21 30 -87 -39z" />
+      </g>
     </svg>
   )
 }
@@ -167,15 +162,13 @@ function HeartGlyph({ size }: { size: number }) {
   )
 }
 
-// 사우나 마커 — 클래식 물방울 핀. 일반=김, 저장=하트, 선택 시 확대.
-// [도형(회전 teardrop) + 아이콘 오버레이] 구조로 아이콘을 둥근 머리 중앙에 정렬.
+// 사우나 마커 — 물방울 핀. 비선택=심플 핀(그림자 없음) / 저장=하트 / 선택=확대+로고 증기+은은한 그림자.
+// 아이콘은 박스 정중앙(=둥근 머리 중심)에 정렬.
 const SaunaPin = memo(function SaunaPin({ saved, selected }: { saved: boolean; selected: boolean }) {
-  const size = selected ? 35 : 30
+  const dropSize = selected ? 34 : 26
   const borderW = selected ? 3 : 2.5
-  const bottomInset = selected ? 3 : 2
-  const iconSize = saved ? (selected ? 19 : 16) : (selected ? 22 : 17)
   return (
-    <div style={{ position: 'relative', width: size, height: size }}>
+    <div style={{ position: 'relative', width: dropSize, height: dropSize }}>
       <div
         style={{
           position: 'absolute',
@@ -184,12 +177,14 @@ const SaunaPin = memo(function SaunaPin({ saved, selected }: { saved: boolean; s
           background: 'var(--color-primary)',
           border: `${borderW}px solid #fff`,
           transform: 'rotate(-45deg)',
-          boxShadow: selected ? '0 4px 14px rgba(0,0,0,0.35)' : '0 2px 8px rgba(0,0,0,0.24)',
+          boxShadow: selected ? '0 3px 10px rgba(0,0,0,0.3)' : 'none',
         }}
       />
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: bottomInset, display: 'grid', placeItems: 'center' }}>
-        {saved ? <HeartGlyph size={iconSize} /> : <SteamWaves size={iconSize} />}
-      </div>
+      {(selected || saved) && (
+        <span style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'block' }}>
+          {selected ? <SteamLogo size={14} /> : <HeartGlyph size={11} />}
+        </span>
+      )}
     </div>
   )
 })
@@ -311,6 +306,18 @@ function ClusteredMarkers({
     if (!map) return
     clusterer.current = new MarkerClusterer({
       map,
+      algorithm: new SuperClusterAlgorithm({ radius: CLUSTER_RADIUS, maxZoom: CLUSTER_MAX_ZOOM }),
+      // 클러스터 클릭 — 목표 줌을 미리 계산해 한 번에 줌인(오버슈트 없이 자연스럽게).
+      // 마커 bounds를 채울 zoom을 구하되, 클러스터가 더 안 생기는 zoom(maxZoom+1)으로 캡.
+      onClusterClick: (_event, cluster, clusterMap) => {
+        const cap = CLUSTER_MAX_ZOOM + 1
+        let target = cap
+        if (cluster.bounds) {
+          const z = getBoundsZoom(clusterMap, cluster.bounds, 64)
+          if (z != null) target = Math.min(z, cap)
+        }
+        animateCamera(clusterMap, cluster.position, target)
+      },
       renderer: {
         render: ({ count, position }) => {
           const marker = new google.maps.marker.AdvancedMarkerElement({
@@ -401,21 +408,67 @@ function createClusterElement(count: number) {
   // 클러스터는 개별 사우나 핀과 위계가 구분되도록 링형(흰 바탕 + 빨강 링) + 숫자.
   // 개수 많을수록 살짝 크게. (:root CSS 변수는 인라인 스타일에서도 해석됨)
   const big = count >= 25
-  const d = big ? 46 : 38
+  const d = big ? 34 : 30
   const el = document.createElement('div')
   el.textContent = String(count)
   el.style.width = `${d}px`
   el.style.height = `${d}px`
   el.style.borderRadius = '9999px'
-  el.style.background = '#ffffff'
-  el.style.border = '3px solid var(--color-primary)'
-  el.style.color = 'var(--color-primary)'
+  el.style.background = 'var(--color-primary)'
+  el.style.border = '2px solid #ffffff'
+  el.style.color = '#ffffff'
   el.style.display = 'grid'
   el.style.placeItems = 'center'
-  el.style.fontSize = big ? '15px' : '13px'
+  el.style.fontSize = big ? '13px' : '11px'
   el.style.fontWeight = '800'
-  el.style.boxShadow = '0 0 0 4px rgba(204,26,26,0.18), 0 4px 12px rgba(0,0,0,0.22)'
   return el
+}
+
+// fitBounds가 만들어낼 zoom을 미리 계산 (오버슈트 없는 단일 줌 애니메이션용).
+// 마커가 거의 같은 좌표(분모 0)면 21 반환 → 호출부에서 cap으로 제한된다.
+function getBoundsZoom(map: google.maps.Map, bounds: google.maps.LatLngBounds, paddingPx: number): number | null {
+  const div = map.getDiv() as HTMLElement
+  const w = div.offsetWidth - paddingPx * 2
+  const h = div.offsetHeight - paddingPx * 2
+  if (w <= 0 || h <= 0) return null
+  const WORLD = 256
+  const latRad = (lat: number) => {
+    const s = Math.sin((lat * Math.PI) / 180)
+    return Math.log((1 + s) / (1 - s)) / 2
+  }
+  const ne = bounds.getNorthEast()
+  const sw = bounds.getSouthWest()
+  const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI
+  let lngDiff = ne.lng() - sw.lng()
+  if (lngDiff < 0) lngDiff += 360
+  const lngFraction = lngDiff / 360
+  const zoomFor = (px: number, frac: number) => (frac <= 0 ? 21 : Math.log(px / WORLD / frac) / Math.LN2)
+  return Math.floor(Math.min(zoomFor(h, latFraction), zoomFor(w, lngFraction), 21))
+}
+
+// 카메라를 지정 속도로 직접 애니메이션 (벡터 맵 moveCamera + rAF).
+// Google 기본 줌 애니메이션보다 빠른 속도(duration)로 부드럽게 펼치기 위함.
+function animateCamera(map: google.maps.Map, center: google.maps.LatLng, zoom: number, duration = 250) {
+  const startZoom = map.getZoom()
+  const startCenter = map.getCenter()
+  if (startZoom == null || !startCenter) {
+    map.moveCamera({ center, zoom })
+    return
+  }
+  const sLat = startCenter.lat(), sLng = startCenter.lng()
+  const tLat = center.lat(), tLng = center.lng()
+  const ease = (x: number) => 1 - Math.pow(1 - x, 3) // ease-out
+  const t0 = performance.now()
+  const step = (now: number) => {
+    const p = Math.min(1, (now - t0) / duration)
+    const e = ease(p)
+    map.moveCamera({
+      center: { lat: sLat + (tLat - sLat) * e, lng: sLng + (tLng - sLng) * e },
+      zoom: startZoom + (zoom - startZoom) * e,
+    })
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 }
 
 function MyLocationControl({
@@ -472,11 +525,10 @@ function ExploreMapInner({
     () => places.filter((place) => place.latitude !== null && place.longitude !== null),
     [places]
   )
+  // 위치 없으면 남산공원 기준 (FitBoundsToPlaces와 일치 → 초기 깜빡임 방지)
   const initialCenter = userLocation
     ? { lat: userLocation.latitude, lng: userLocation.longitude }
-    : placesWithCoordinates[0]
-      ? { lat: placesWithCoordinates[0].latitude!, lng: placesWithCoordinates[0].longitude! }
-      : SEOUL_CITY_HALL
+    : NAMSAN_PARK
 
   return (
     <div className="relative">
@@ -496,16 +548,16 @@ function ExploreMapInner({
         <div className="relative h-[clamp(420px,calc(100dvh-220px),640px)] min-h-[420px] max-h-[640px] overflow-hidden rounded-xl glass-card-light">
           <Map
             defaultCenter={initialCenter}
-            defaultZoom={11}
+            defaultZoom={DEFAULT_ZOOM}
             mapId={mapId}
             gestureHandling="greedy"
             disableDefaultUI
-            zoomControl
             clickableIcons={false}
             onClick={() => onSelectPlace(null)}
             style={{ width: '100%', height: '100%' }}
           >
-            <FitBoundsToPlaces places={placesWithCoordinates} userLocation={userLocation} />
+            <FitBoundsToPlaces userLocation={userLocation} />
+            <PanToSelected selectedPlace={selectedPlace} />
             <ClusteredMarkers
               places={placesWithCoordinates}
               selectedPlaceId={selectedPlace?.id ?? null}

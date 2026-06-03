@@ -43,7 +43,7 @@ export default function ExplorePage() {
   const mapLocationNoticeShownRef = useRef(false)
   const mapLoadErrorReportedRef = useRef(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('map')
   const {
     location,
     status: locationStatus,
