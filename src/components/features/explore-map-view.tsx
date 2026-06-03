@@ -403,18 +403,18 @@ function createClusterElement(count: number) {
   // 클러스터는 개별 사우나 핀과 위계가 구분되도록 링형(흰 바탕 + 빨강 링) + 숫자.
   // 개수 많을수록 살짝 크게. (:root CSS 변수는 인라인 스타일에서도 해석됨)
   const big = count >= 25
-  const d = big ? 40 : 34
+  const d = big ? 34 : 30
   const el = document.createElement('div')
   el.textContent = String(count)
   el.style.width = `${d}px`
   el.style.height = `${d}px`
   el.style.borderRadius = '9999px'
-  el.style.background = '#ffffff'
-  el.style.border = '2.5px solid var(--color-primary)'
-  el.style.color = 'var(--color-primary)'
+  el.style.background = 'var(--color-primary)'
+  el.style.border = '2px solid #ffffff'
+  el.style.color = '#ffffff'
   el.style.display = 'grid'
   el.style.placeItems = 'center'
-  el.style.fontSize = big ? '14px' : '12px'
+  el.style.fontSize = big ? '13px' : '11px'
   el.style.fontWeight = '800'
   return el
 }
