@@ -4,9 +4,11 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- [ ] [데이터] 카톡 DB Sync **Phase 4 — NEW 신규 시설 ~64건 등록** — 카톡 추출(2026-05-19)에서 DB에 없는 신규 시설을 places+place_sources+어드민로그로 등록. 출처: `katalk-db-crosscheck-20260601.md` NEW 63건 + 호텔 프리마 부산. 순서: ①크로스체크 재실행해 현재 DB(254곳) 기준 NEW 재확정 ②Google/Naver로 정식명·주소·좌표·facility_type ③5건 배치 dry-run→확인→등록. 상세 플랜·레퍼런스(facility_type 7종 규칙·온도 제약·도쿄룰·스크립트): **핸드오프 §12** `docs/handoff/handoff_20260529_katalk_db_sync_v2.md`. 해외 23건(`overseas-facilities-review.md`, 검증완료)은 별도 트랙 | priority: P1 | added: 2026-06-02
+- (없음)
 
 ## Backlog
+- [ ] [데이터] resort-spa 재분류 일괄 검토 — `PHASE_LOG.md` 메모의 워터파크/메가 데이온천 후보 15곳(아쿠아필드 고양/안성/하남·스파랜드류·이천 테르메덴·Therme Erding 등) 중 현재 public-bath/hotel-spa 잔존분을 026 정의에 맞춰 resort-spa로 전환 검토 | priority: P2 | added: 2026-06-04
+- [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
@@ -40,6 +42,10 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-06-04
+- [x] [데이터] 카톡 DB Sync **Phase 4 완료 (국내 40 + 해외 16)** — (1) **국내 NEW 40건 등록**(places 256→296, naver+mapx_mapy, 어드민 logs/deep_logs. NEW 48→실신규 40: −5 silent중복 프록시미티검출 −3 좌표병합. 온도위반0·중복0) + enrich(NULL보강6·신규로그4·facilities/memo)·깨진 facilities 42곳·jjim Phase5·deep_log memo 손상 7건 (2) **해외 신규 16건 등록**(places 296→**312**, source=google·external_id=place_id·coordinate_source=google, cc JP14/US1/HK1. 23건 중 7건은 기존 시드라 제외). **핸드오프 전제 교정 3건**: ①7건 이미존재(시드)→신규16 ②`hotel-spa`는 026서 폐기→`hotel-premium`(INSERT CHECK 회피) ③16건 시설·온도·정식명 사용자 전수검토 반영(코코로노=Hotel Furukawa, 아리마/fuua=resort-spa 재분류, 아리마 건식94 enrich). 산출: `katalk-overseas-register.mjs`·`overseas-register-dryrun-20260604.md`·`overseas-existing7-verify-20260604.md` | priority: P1 | added: 2026-06-02 | done: 2026-06-04
+- [x] [정리] katalk 데이터 동기화 산출물 대청소 — "검수된 최종 품질보장본만 잔존" 기준. 완료 phase 일회성/중간 산출물 77삭제(git 복구가능), katalk 스크립트 32→6(merge-flat·master-reference·db-full-audit·register류), research 디렉토리 ~62→15(raw·chunk·flat·최종등록입력·decisions·README). 핸드오프 3+PLAN_phase4 archive, 와이어프레임 7 archive. **`PHASE_LOG.md` 신설**(수치·결론·교훈·미적용항목 통합 — resort-spa 재분류 후보 15곳·DB 잔여 플래그 등 메모 보존). README/PHASE_LOG 참조 정합성 정리 | priority: P2 | done: 2026-06-04
 
 ### 2026-06-03
 - [x] [기능+UX] 탐색(사우나 찾기) 지도뷰 전면 개편 — (1) 탭명 '탐색'→'사우나 찾기', 기본 뷰 list→map, 위치 없을 때 남산공원(N서울타워) 기준 뷰 (2) 핀 재디자인: 비선택 심플 물방울 핀 / 선택 확대+사-피 로고 증기(BMP→potrace 벡터, 14px)+은은한 그림자 / 찜 머리중앙 미니 하트 / 비선택·클러스터 그림자 제거 (3) 클러스터: radius 40·maxZoom 15 튜닝, 빨강채움+흰숫자 30px, 클릭 시 getBoundsZoom+moveCamera rAF로 한 번에 자연 줌인(250ms, maxZoom+1 캡 → 딱 분리될 만큼) (4) 선택 마커가 하단 정보카드에 가리지 않게 PanToSelected, 줌 컨트롤 제거. 시안: `docs/wireframes/MOCK_map_pins_24h.html`. 선택+찜 동시 표시(하트 배지)는 보류 | priority: P2 | done: 2026-06-03
