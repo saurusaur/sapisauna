@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>지도 핀 디자인 + 24h 배지 시안 v5</title>
+<html lang="ko"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>지도 핀 디자인 + 24h 배지 시안 v6 (로고 트레이싱)</title>
 <style>
   :root { --primary:#cc1a1a; }
   * { box-sizing:border-box; }
@@ -20,105 +18,106 @@
   .cap { font-size:11px; color:#6b635c; text-align:center; max-width:140px; line-height:1.45; }
   .cap b { color:#3f3a36; }
   .stack { display:flex; flex-direction:column; align-items:center; gap:3px; }
-
-  /* ===== 핀 ===== */
   .pin { position:relative; }
   .pin .drop { border-radius:50% 50% 50% 0; background:var(--primary); border:2.5px solid #fff; transform:rotate(-45deg); }
   .pin.sm .drop { width:24px; height:24px; }
   .pin.lg .drop { width:34px; height:34px; border-width:3px; }
-  /* 아이콘 오버레이: 꼬리(아래 26%) 제외한 머리 영역에서 중앙 */
-  .pin .ic { position:absolute; top:0; left:0; right:0; bottom:26%; display:grid; place-items:center; }
-  /* 하트만 머리 중앙으로 더 내림 (윗 패딩) */
-  .pin .ic.heart { padding-top:5px; }
+  /* 아이콘: 박스 정중앙(=둥근 머리 중심)에 절대 정렬 → 가로/세로 모두 중앙 */
+  .pin .ic { position:absolute; inset:0; }
+  .pin .ic > svg { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
   .heart { width:11px; height:11px; }
-  .pin.lg .steam { width:21px; height:22px; }
-
+  .pin.lg .ic > svg.steam { width:20px; }
   .lbl24 { background:#fff; color:var(--primary); font-size:9px; font-weight:800; line-height:1; padding:2px 6px; border-radius:9999px; }
   .cluster { width:34px; height:34px; border-radius:9999px; background:#fff; border:2.5px solid var(--primary); color:var(--primary); display:grid; place-items:center; font-weight:800; font-size:12px; }
-</style>
-</head>
-<body>
-  <h1>지도 핀 디자인 + 24h 배지 시안 v5</h1>
-  <p class="sub">증기 배(중간) 더 두껍게 · 하트 머리 중앙으로 내림</p>
+</style></head><body>
+<h1>지도 핀 디자인 + 24h 배지 시안 v6 — 로고 자동 트레이싱</h1>
+<p class="sub">증기 = BMP 로고를 potrace로 벡터 추출(정확) · 하트 박스 정중앙 정렬(가로·세로)</p>
 
-  <!-- 증기 단독 -->
-  <h2>1. 증기 단독 — 배(중간) 두껍게 재현</h2>
-  <p class="note">위아래 뾰족 유지, 세로 중간을 더 두껍게. 흰/빨강 배경 비교.</p>
-  <div class="map" style="gap:40px">
-    <div class="cell">
-      <svg width="110" height="120" viewBox="0 0 26 28" fill="#cc1a1a" style="background:#fff;border-radius:12px;border:1px solid #eee">
-        <path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/>
-        <path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/>
-        <path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/>
-      </svg>
-      <div class="cap">흰 배경</div>
-    </div>
-    <div class="cell">
-      <svg width="110" height="120" viewBox="0 0 26 28" fill="#fff" style="background:var(--primary);border-radius:12px">
-        <path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/>
-        <path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/>
-        <path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/>
-      </svg>
-      <div class="cap">빨강 배경 (핀 내부)</div>
-    </div>
-  </div>
+<h2>1. 증기 단독 — 로고에서 추출한 벡터</h2>
+<p class="note">BMP → potrace 자동 트레이싱 결과(여백 크롭). 흰/빨강 배경.</p>
+<div class="map" style="gap:40px">
+  <div class="cell"><svg width="120" height="130" viewBox="107 0 490 625" style="background:#fff;border-radius:12px;border:1px solid #eee;padding:10px" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,702.000000) scale(0.100000,-0.100000)" fill="#cc1a1a"><path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026
+-123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498
+-272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55
+219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558
+226 1235 604 1810 25 37 16 35 -102 -28z"/><path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20
+-538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71
+-604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166
+371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929
+-116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0
+-60 -35 -123 -78z"/><path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54
+-1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814
+-398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546
+22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198
+19 29 21 30 -87 -39z"/></g></svg><div class="cap">흰 배경</div></div>
+  <div class="cell"><svg width="120" height="130" viewBox="107 0 490 625" style="background:var(--primary);border-radius:12px;padding:10px" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,702.000000) scale(0.100000,-0.100000)" fill="#fff"><path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026
+-123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498
+-272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55
+219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558
+226 1235 604 1810 25 37 16 35 -102 -28z"/><path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20
+-538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71
+-604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166
+371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929
+-116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0
+-60 -35 -123 -78z"/><path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54
+-1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814
+-398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546
+22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198
+19 29 21 30 -87 -39z"/></g></svg><div class="cap">빨강 배경 (핀 내부)</div></div>
+</div>
 
-  <!-- 위계 -->
-  <h2>2. 핀 위계</h2>
-  <div class="map">
-    <div class="cell">
-      <div class="pin sm"><div class="drop"></div></div>
-      <div class="cap"><b>비선택</b></div>
-    </div>
-    <div class="cell">
-      <div class="pin lg"><div class="drop"></div>
-        <div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/><path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/><path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/></svg></div>
-      </div>
-      <div class="cap"><b>선택</b> 확대 + 증기</div>
-    </div>
-  </div>
+<h2>2. 핀 위계</h2>
+<div class="map">
+  <div class="cell"><div class="pin sm"><div class="drop"></div></div><div class="cap"><b>비선택</b></div></div>
+  <div class="cell"><div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="107 0 490 625" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,702.000000) scale(0.100000,-0.100000)" fill="#fff"><path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026
+-123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498
+-272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55
+219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558
+226 1235 604 1810 25 37 16 35 -102 -28z"/><path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20
+-538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71
+-604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166
+371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929
+-116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0
+-60 -35 -123 -78z"/><path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54
+-1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814
+-398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546
+22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198
+19 29 21 30 -87 -39z"/></g></svg></div></div><div class="cap"><b>선택</b> 확대 + 증기</div></div>
+</div>
 
-  <!-- 찜 -->
-  <h2>3. 찜 — 하트 (머리 중앙)</h2>
-  <div class="map">
-    <div class="cell">
-      <div class="pin sm"><div class="drop"></div></div>
-      <div class="cap">일반</div>
-    </div>
-    <div class="cell">
-      <div class="pin sm"><div class="drop"></div>
-        <div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-      </div>
-      <div class="cap"><b>찜 (하트 내림)</b></div>
-    </div>
-  </div>
+<h2>3. 찜 — 하트 (박스 정중앙)</h2>
+<div class="map">
+  <div class="cell"><div class="pin sm"><div class="drop"></div></div><div class="cap">일반</div></div>
+  <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div><div class="cap"><b>찜 (하트 중앙)</b></div></div>
+</div>
 
-  <!-- 24h -->
-  <h2>4. 24h</h2>
-  <div class="map">
-    <div class="cell">
-      <div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div>
-      <div class="cap">일반 + 24h</div>
-    </div>
-    <div class="cell">
-      <div class="stack"><span class="lbl24">24h</span>
-        <div class="pin sm"><div class="drop"></div><div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div>
-      </div>
-      <div class="cap">찜 + 24h</div>
-    </div>
-  </div>
+<h2>4. 24h</h2>
+<div class="map">
+  <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div><div class="cap">일반 + 24h</div></div>
+  <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div><div class="cap">찜 + 24h</div></div>
+</div>
 
-  <!-- 종합 -->
-  <h2>5. 종합</h2>
-  <div class="map">
-    <div class="cell"><div class="pin sm"><div class="drop"></div></div></div>
-    <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div></div>
-    <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic heart"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div>
-    <div class="cell"><div class="cluster">8</div></div>
-    <div class="cell"><div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="0 0 26 28" fill="#fff"><path d="M5 26 C1 21 1.8 14 5.3 11.2 C8.6 8.5 5.8 5.2 8 3 C6.8 5.4 10.2 8.6 6.9 11.6 C3.6 14.8 2 21 5 26 Z"/><path d="M12 27 C7.5 22 8.2 14 12 11 C15.6 8 12.6 4.5 15 1 C13.6 4.6 17.4 8.2 13.8 12 C10.2 15.5 11 22 12 27 Z"/><path d="M18 25 C14 20 14.8 13.5 18.3 10.8 C21.6 8.2 18.8 5 21 3 C19.8 5.4 23 8.4 19.8 11.4 C16.6 14.4 15 20 18 25 Z"/></svg></div></div></div>
-  </div>
-  <p class="note" style="margin-top:8px">좌→우: 일반 · 24h · 찜 · 클러스터 · 선택(증기)</p>
-
-  <p class="note" style="margin-top:18px; color:#a89;">※ 증기 두께/하트 위치 더 조정 필요하면 말씀해주세요. 확정 시 앱 반영.</p>
-</body>
-</html>
+<h2>5. 종합</h2>
+<div class="map">
+  <div class="cell"><div class="pin sm"><div class="drop"></div></div></div>
+  <div class="cell"><div class="stack"><span class="lbl24">24h</span><div class="pin sm"><div class="drop"></div></div></div></div>
+  <div class="cell"><div class="pin sm"><div class="drop"></div><div class="ic"><svg class="heart" viewBox="0 -2 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div></div></div>
+  <div class="cell"><div class="cluster">8</div></div>
+  <div class="cell"><div class="pin lg"><div class="drop"></div><div class="ic"><svg class="steam" viewBox="107 0 490 625" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,702.000000) scale(0.100000,-0.100000)" fill="#fff"><path d="M4312 6965 c-525 -280 -978 -753 -1204 -1258 -228 -507 -266 -1026
+-123 -1657 14 -63 44 -185 65 -270 196 -784 225 -1078 150 -1518 -86 -498
+-272 -967 -555 -1397 -19 -28 -13 -26 105 36 698 365 1178 917 1337 1539 55
+219 67 325 67 615 1 378 -22 523 -184 1185 -130 528 -160 706 -160 943 0 558
+226 1235 604 1810 25 37 16 35 -102 -28z"/><path d="M2400 6562 c-648 -437 -976 -870 -1091 -1439 -26 -131 -35 -382 -20
+-538 19 -184 45 -313 131 -656 108 -430 121 -509 127 -759 6 -243 -5 -344 -71
+-604 -59 -234 -124 -407 -233 -626 -50 -101 -91 -186 -89 -187 5 -5 286 166
+371 226 417 296 650 634 746 1081 20 89 23 136 23 310 0 278 -23 411 -159 929
+-116 436 -142 612 -132 886 17 472 192 966 499 1412 16 24 25 43 21 43 -4 0
+-60 -35 -123 -78z"/><path d="M5801 5789 c-579 -368 -931 -806 -1060 -1317 -82 -324 -67 -653 54
+-1162 26 -107 62 -260 81 -340 63 -267 83 -490 65 -715 -40 -482 -151 -814
+-398 -1182 l-102 -153 50 25 c27 14 88 48 136 77 684 402 1010 877 1062 1546
+22 276 -14 542 -135 988 -167 616 -190 784 -149 1074 50 352 245 834 483 1198
+19 29 21 30 -87 -39z"/></g></svg></div></div></div>
+</div>
+<p class="note" style="margin-top:8px">좌→우: 일반 · 24h · 찜 · 클러스터 · 선택(증기)</p>
+<p class="note" style="margin-top:18px; color:#a89;">※ 증기는 로고 BMP를 potrace로 추출한 실제 벡터입니다. 크기/위치만 더 조정 가능. 확정 시 앱 SteamWaves를 이 path로 교체.</p>
+</body></html>
