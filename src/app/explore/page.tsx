@@ -22,6 +22,8 @@ import { useToast } from '@/contexts/toast-context'
 
 
 const DISTANCE_MUTED_THRESHOLD_M = 10000
+// 전체 장소 리스트: 초기 표시 개수 + '더 보기' 페이징 단위
+const PAGE_SIZE = 20
 const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
 const googleMapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || ''
 
@@ -65,7 +67,7 @@ export default function ExplorePage() {
   })
   const { isSaved } = useSavePlace()
   const { user } = useUser()
-  const [visibleCount, setVisibleCount] = useState(3)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [saveCounts, setSaveCounts] = useState<Record<string, number>>({})
 
   // DB 데이터 로드
@@ -422,7 +424,7 @@ export default function ExplorePage() {
                 </div>
               )}
 
-              {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 3개 + 검색 유도) */}
+              {/* 전체 장소 프리뷰 (검색/필터 미활성 시 상위 PAGE_SIZE개 + 더 보기 페이징) */}
               {!isSearchOrFilterActive && (
                 <div>
                   <h2 className="text-sm font-bold text-stone-600 mb-3">전체 장소</h2>
@@ -448,16 +450,16 @@ export default function ExplorePage() {
                       {filteredPlaces.length > visibleCount && (
                         <div className="flex items-center justify-center gap-4 pt-2">
                           <button
-                            onClick={() => setVisibleCount(prev => prev + 10)}
+                            onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
                             className="text-xs font-medium underline underline-offset-2 transition-colors"
                             style={{ color: 'var(--color-primary)' }}
                           >
                             더 보기 ({filteredPlaces.length - visibleCount}곳 남음)
                           </button>
-                          {visibleCount > 3 && (
+                          {visibleCount > PAGE_SIZE && (
                             <button
                               onClick={() => {
-                                setVisibleCount(3)
+                                setVisibleCount(PAGE_SIZE)
                                 searchRef.current?.focus()
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
                               }}
