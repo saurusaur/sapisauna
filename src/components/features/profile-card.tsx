@@ -27,8 +27,62 @@ export default function ProfileCard() {
   const { user } = useUser()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
-  // 비로그인 — 동일 레이아웃, 이름 SA-PIEN + 스탬프 유도 문구 (블러 없음)
-  if (!user) {
+  const isGuest = !user
+
+  // 아바타 (게스트/로그인 동일 위치·크기)
+  const avatar = (
+    <div
+      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+      style={{
+        backgroundColor: isGuest
+          ? 'var(--color-primary)'
+          : profileBgColor(user!.profile_hue, `var(--color-${user!.primary_type || 'saunner'})`),
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+      }}
+    >
+      <span className="text-[24px] leading-none">
+        {isGuest ? '🧖' : user!.profile_emoji || TRIBE_EMOJI_MAP[user!.primary_type || 'saunner']}
+      </span>
+    </div>
+  )
+
+  // 동일 스켈레톤: [아바타] [이름row + 서브라인]
+  const body = (
+    <div className="flex items-center gap-3">
+      {avatar}
+      <div className="flex flex-col gap-1.5 min-w-0">
+        {/* 이름 (+ 로그인 시 레벨 작게) */}
+        <div className="flex items-baseline gap-1.5 min-w-0">
+          <span className="text-base font-bold text-stone-700 truncate">
+            {isGuest ? 'SA-PIEN' : user!.nickname}
+          </span>
+          {!isGuest && (
+            <button
+              onClick={() => router.push('/settings/titles')}
+              className="text-[11px] font-semibold text-stone-400 font-heading flex-shrink-0 hover:text-stone-500"
+            >
+              Lv.{user!.level ?? 0}
+            </button>
+          )}
+        </div>
+        {/* 서브라인: 칭호 chip / 스탬프 유도 문구 */}
+        {!isGuest && user!.active_title ? (
+          <span className="text-xs text-amber-600/90 px-2 py-0.5 rounded-full bg-amber-50 w-fit truncate">
+            {user!.active_title}
+          </span>
+        ) : (
+          <span
+            className="text-xs font-medium"
+            style={{ color: isGuest ? 'var(--color-primary)' : '#a8a29e' }}
+          >
+            사우나 스탬프 모아보세요!
+          </span>
+        )}
+      </div>
+    </div>
+  )
+
+  if (isGuest) {
     return (
       <>
         <button
@@ -36,68 +90,16 @@ export default function ProfileCard() {
           className="w-full min-h-[176px] p-4 text-left transition-all active:scale-[0.98]"
           style={CARD_STYLE}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: 'var(--color-primary)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)' }}
-            >
-              <span className="text-[24px] leading-none">🧖</span>
-            </div>
-            <div className="flex flex-col gap-1.5 min-w-0">
-              <span className="text-base font-bold text-stone-700">SA-PIEN</span>
-              <span className="text-xs font-medium" style={{ color: 'var(--color-primary)' }}>
-                사우나 스탬프 모아보세요!
-              </span>
-            </div>
-          </div>
+          {body}
         </button>
         <LoginPromptModal open={showPrompt} onClose={() => setShowPrompt(false)} />
       </>
     )
   }
 
-  // 로그인
   return (
     <div className="w-full min-h-[176px] p-4 flex flex-col" style={CARD_STYLE}>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => {/* TODO: router.push('/user/home') */}}
-          className="flex-shrink-0 active:scale-95 transition-transform"
-        >
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{
-              backgroundColor: profileBgColor(user.profile_hue, `var(--color-${user.primary_type || 'saunner'})`),
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-            }}
-          >
-            <span className="text-[24px] leading-none">
-              {user.profile_emoji || TRIBE_EMOJI_MAP[user.primary_type || 'saunner']}
-            </span>
-          </div>
-        </button>
-
-        <div className="flex flex-col gap-1.5 min-w-0">
-          {/* 이름 + 레벨(작게) */}
-          <div className="flex items-baseline gap-1.5 min-w-0">
-            <span className="text-base font-bold text-stone-700 truncate">{user.nickname}</span>
-            <button
-              onClick={() => router.push('/settings/titles')}
-              className="text-[11px] font-semibold text-stone-400 font-heading flex-shrink-0 hover:text-stone-500"
-            >
-              Lv.{user.level ?? 0}
-            </button>
-          </div>
-          {/* 칭호 */}
-          {user.active_title ? (
-            <span className="text-xs text-amber-600/90 px-2 py-0.5 rounded-full bg-amber-50 w-fit truncate">
-              {user.active_title}
-            </span>
-          ) : (
-            <span className="text-xs font-medium text-stone-400">사우나 스탬프 모아보세요!</span>
-          )}
-        </div>
-      </div>
+      {body}
     </div>
   )
 }

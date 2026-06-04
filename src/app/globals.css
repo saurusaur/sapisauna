@@ -234,15 +234,15 @@ input[type="range"]::-moz-range-thumb {
   animation: fade-in 0.3s ease-out;
 }
 
-/* 사-첵 버튼 움찔 — 주기적으로 살짝 들썩여 누르고 싶게 */
-@keyframes sachek-nudge {
-  0%, 70%, 100% { transform: scale(1) rotate(0deg); }
-  78% { transform: scale(1.06) rotate(-3deg); }
-  85% { transform: scale(1.05) rotate(3deg); }
-  92% { transform: scale(1.07) rotate(-1.5deg); }
+/* 사-첵 버튼 — 처음 등장할 때 한 번만 두근(팝) */
+@keyframes sachek-pop {
+  0% { transform: scale(0.7); }
+  55% { transform: scale(1.1); }
+  75% { transform: scale(0.97); }
+  100% { transform: scale(1); }
 }
 .sachek-nudge {
-  animation: sachek-nudge 3.4s ease-in-out infinite;
+  animation: sachek-pop 0.65s ease-out 0.15s both;
   transform-origin: center;
 }
 @media (prefers-reduced-motion: reduce) {

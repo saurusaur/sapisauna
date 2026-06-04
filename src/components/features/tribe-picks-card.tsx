@@ -71,7 +71,7 @@ export default function TribePicksCard() {
               key={tribe.id}
               onClick={() => goTribe(tribe.id)}
               className={`relative h-[100px] rounded-2xl overflow-hidden p-3 flex flex-col text-left text-white transition-all duration-300 ${
-                active ? 'scale-[1.09] shadow-lg z-[1]' : isGuest ? 'opacity-[0.55] shadow-sm' : 'shadow-sm'
+                active ? 'scale-[1.09] shadow-lg z-[1]' : isGuest ? 'opacity-80 shadow-sm' : 'shadow-sm'
               }`}
               style={{
                 backgroundColor: tribe.color,
