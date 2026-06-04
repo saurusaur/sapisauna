@@ -10,6 +10,7 @@
 
 <!-- 🎯 P0 최우선 — 모든 기록 기능의 기반 -->
 - [ ] [아키텍처/데이터] **로그·스키마 구조 재검토 (최우선)** — F1(블록 탭 기록=누른 순서가 루틴) 등 신규 기록 모델이 현재 `logs`/`deep_logs` 컬럼형 스키마(온도=개별 컬럼)와 맞는지 근본 재검토. 루틴 시퀀스(블록 순서)·세트·트라이브 기본블록을 어떻게 저장할지 결정. **데이터 전체의 기반 — 여기가 흔들리면 전부 흔들림.** F1·F3·F5의 선행조건. 드래프팅 핸드오프: `docs/handoff/handoff_20260604_log_schema_redesign.md` | priority: P0 | added: 2026-06-04
+- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
 
 <!-- 🧪 사-피 방향성 (구현스케치 `docs/po/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
      페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/UX_DIRECTION_page_emphasis_20260604.md` -->

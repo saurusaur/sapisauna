@@ -1,71 +1,57 @@
 'use client'
 
 /**
- * 프로필 카드 — 홈 헤더 아래 글래스 카드
- * Row 1: 아바타 + 닉네임/칭호 (→ 유저 홈) + 레벨 프로그레스바 (→ 칭호)
- * Row 2: 이번 주 열기 링 + 총 기록 + 방문 장소 (→ 내 기록)
+ * 프로필(스탬프) 카드 — 홈 상단, 살짝 기울인 카드.
+ * 프로필 이미지 + 닉네임 + 칭호 + 레벨만 (통계는 /history 대시보드로 분리).
+ * 카드 하단 빈 캔버스는 홈 레이아웃에서 도장(체크인 데코)이 찍히는 영역.
+ * 비로그인: "나만의 사우나 카드" 예시 variant → 탭 시 로그인 유도.
  */
 
-import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
-import { useUserLogs } from '@/hooks/use-logs'
 import { levelProgress } from '@/lib/reward-engine'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
 import { profileBgColor } from '@/lib/utils'
-import { HeatRing } from '@/components/features/history-dashboard'
-import { getISOWeekRange, filterByDateRange, computeWeeklyHeatMinutes, getHeatTarget } from '@/lib/history-stats'
+
+// 카드 공통 스타일 — 거의 불투명(베이지 위에서 또렷) + 글래스 섀도
+const CARD_STYLE: React.CSSProperties = {
+  background: 'rgba(251,250,248,0.95)',
+  backdropFilter: 'blur(10px)',
+  WebkitBackdropFilter: 'blur(10px)',
+  border: '0.5px solid hsl(0 0% 100% / 0.8)',
+  boxShadow: 'var(--glass-shadow)',
+  borderRadius: 'var(--radius)',
+}
 
 export default function ProfileCard() {
   const router = useRouter()
   const { user } = useUser()
-  const { data: logs } = useUserLogs()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
-  // 이번 주 열기 계산 (전체 기록 기준)
-  const todayKey = useMemo(() => {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  }, [])
-
-  const weeklyHeat = useMemo(() => {
-    const range = getISOWeekRange(todayKey)
-    const weekLogs = filterByDateRange(logs, range)
-    return computeWeeklyHeatMinutes(weekLogs)
-  }, [logs, todayKey])
-
-  const heatTarget = getHeatTarget('all')
-
+  // 비로그인 — 예시 카드
   if (!user) {
     return (
       <>
         <button
           onClick={() => requireAuth()}
-          className="relative w-full glass-card-light p-4 transition-all active:scale-[0.98] overflow-hidden"
+          className="relative w-full min-h-[140px] p-4 text-left transition-all active:scale-[0.98] overflow-hidden"
+          style={CARD_STYLE}
         >
-          <div className="opacity-40">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.5 }} />
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-stone-700">SA-PIEN</span>
-                <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50">예비 사-피엔스</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 h-[52px]">
-              <div className="flex items-center justify-center">
-                <HeatRing current={0} target={57} size={44} strokeWidth={4} color="var(--color-primary)" showLabel={false} />
-              </div>
-              <div className="flex items-center justify-center">
-                <span className="text-lg font-bold text-stone-700 font-heading">0</span>
-              </div>
-              <div className="flex items-center justify-center">
-                <span className="text-lg font-bold text-stone-700 font-heading">0</span>
-              </div>
+          <div className="opacity-40 flex items-center gap-3">
+            <div
+              className="w-11 h-11 rounded-xl flex-shrink-0"
+              style={{ backgroundColor: 'var(--color-primary)', opacity: 0.5 }}
+            />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-bold text-stone-700">SA-PIEN</span>
+              <span className="text-[11px] text-amber-600/70 px-2 py-0.5 rounded-full bg-amber-50 w-fit">
+                예비 사-피엔스
+              </span>
             </div>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px] rounded-2xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/55 backdrop-blur-[1px]">
             <p className="text-sm font-medium text-stone-600">나만의 사우나 카드를 만들어보세요</p>
           </div>
         </button>
@@ -74,95 +60,56 @@ export default function ProfileCard() {
     )
   }
 
-  const logCount = logs.length
-  const placeCount = new Set(logs.map(l => l.place_id)).size
+  // 로그인 — 프로필 + 칭호 + 레벨
   const progress = levelProgress(user.xp ?? 0)
   const percent = Math.round(progress * 100)
 
   return (
-    <div className="w-full glass-card-light p-4 transition-all">
-      {/* Row 1: 프로필 (→ 유저 홈) + 레벨 (→ 칭호) */}
-      <div className="flex items-center gap-2.5 mb-4">
-        {/* 프로필 영역 — 향후 유저 홈으로 링크 */}
+    <div className="w-full min-h-[158px] p-4 flex flex-col" style={CARD_STYLE}>
+      <div className="flex items-center gap-3">
+        {/* 프로필 아바타 → (향후 유저 홈) */}
         <button
           onClick={() => {/* TODO: router.push('/user/home') */}}
-          className="flex items-center gap-2.5 min-w-0 flex-1 active:scale-[0.98] transition-transform"
+          className="flex items-center gap-3 min-w-0 active:scale-[0.98] transition-transform"
         >
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: profileBgColor(user.profile_hue, `var(--color-${user.primary_type || 'saunner'})`) }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              backgroundColor: profileBgColor(user.profile_hue, `var(--color-${user.primary_type || 'saunner'})`),
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+            }}
           >
-            <span className="text-lg leading-none">{user.profile_emoji || TRIBE_EMOJI_MAP[user.primary_type || 'saunner']}</span>
-          </div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="text-sm font-bold text-stone-700 truncate">
-              {user.nickname}
+            <span className="text-[22px] leading-none">
+              {user.profile_emoji || TRIBE_EMOJI_MAP[user.primary_type || 'saunner']}
             </span>
-            {user.active_title && (
-              <span className="text-[11px] text-amber-600/70 px-1.5 py-0.5 rounded-full bg-amber-50 truncate flex-shrink-0">
-                {user.active_title}
-              </span>
-            )}
           </div>
-        </button>
 
-        {/* 레벨 → 칭호 선택 */}
-        <button
-          onClick={() => router.push('/settings/titles')}
-          className="flex items-center gap-2 flex-shrink-0 active:scale-95 transition-transform"
-        >
-          <div className="w-6 h-[3px] rounded-full bg-stone-200 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${percent}%`, backgroundColor: 'var(--color-primary)' }}
-            />
+          <div className="flex flex-col gap-1.5 min-w-0">
+            {/* 닉네임 + 칭호 */}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[15px] font-bold text-stone-700 truncate">{user.nickname}</span>
+              {user.active_title && (
+                <span className="text-[11px] text-amber-600/90 px-2 py-0.5 rounded-full bg-amber-50 truncate flex-shrink-0">
+                  {user.active_title}
+                </span>
+              )}
+            </div>
+            {/* 레벨 */}
+            <button
+              onClick={(e) => { e.stopPropagation(); router.push('/settings/titles') }}
+              className="flex items-center gap-2 active:scale-95 transition-transform"
+            >
+              <div className="w-[70px] h-1 rounded-full bg-stone-200 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${percent}%`, backgroundColor: 'var(--color-primary)' }}
+                />
+              </div>
+              <span className="text-xs font-semibold text-stone-500 font-heading">Lv.{user.level ?? 0}</span>
+            </button>
           </div>
-          <span className="text-xs font-semibold text-stone-500 font-heading">
-            Lv.{user.level ?? 0}
-          </span>
         </button>
       </div>
-
-      {/* Row 2: 링 + 총 기록 + 방문 장소 (전부 → 내 기록) */}
-      <button
-        onClick={() => router.push('/history')}
-        className="w-full active:scale-[0.98] transition-transform"
-      >
-        {/* 값 줄 */}
-        <div className="grid grid-cols-3 h-[52px]">
-          <div className="flex items-center justify-center">
-            <HeatRing
-              current={weeklyHeat}
-              target={heatTarget}
-              size={44}
-              strokeWidth={4}
-              color="var(--color-primary)"
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <span className="text-xl font-bold text-stone-700 font-heading leading-none">
-              {logCount}
-            </span>
-          </div>
-          <div className="flex items-center justify-center">
-            <span className="text-xl font-bold text-stone-700 font-heading leading-none">
-              {placeCount}
-            </span>
-          </div>
-        </div>
-        {/* 라벨 줄 */}
-        <div className="grid grid-cols-3 mt-1">
-          <div className="flex justify-center">
-            <span className="text-[9px] text-stone-400 font-medium">이번 주 열기</span>
-          </div>
-          <div className="flex justify-center">
-            <span className="text-[9px] text-stone-400 font-medium">총 기록</span>
-          </div>
-          <div className="flex justify-center">
-            <span className="text-[9px] text-stone-400 font-medium">방문 장소</span>
-          </div>
-        </div>
-      </button>
     </div>
   )
 }
