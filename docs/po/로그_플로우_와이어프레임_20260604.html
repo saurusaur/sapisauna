@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사-피 로그 플로우 · 와이어프레임 (라이트 마찰 0 + 점진적 상세)</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+  :root{
+    --beige:#f4efe6; --beige2:#ece4d6; --ink:#2b2622; --muted:#857c70;
+    --line:#ddd2c0; --card:#fffdf8; --red:#d6452f; --red2:#b73a28;
+    --saunner:#e8743b; --bather:#3b82c4; --jimi:#8b5cf6;
+    --good:#2e9e6b; --warn:#c79a2a; --bad:#c0492f;
+    --glass:rgba(255,253,248,.72);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--beige);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:34px 22px 100px}
+  h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:30px;letter-spacing:.5px;margin:0 0 6px}
+  h2{font-family:'Oswald',sans-serif;font-weight:600;font-size:22px;margin:46px 0 6px;letter-spacing:.3px;display:flex;align-items:center;gap:9px}
+  h2 .num{background:var(--red);color:#fff;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+  h3{font-size:16px;margin:24px 0 8px;font-weight:700}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  .lead{font-size:14.5px;max-width:880px}
+  p{margin:8px 0}
+  .pill{display:inline-block;font-family:'Oswald';font-size:11px;letter-spacing:.6px;padding:2px 9px;border-radius:999px;background:var(--beige2);border:1px solid var(--line);color:var(--muted);vertical-align:middle}
+  .pill.red{background:var(--red);color:#fff;border-color:var(--red)}
+  .pill.rec{background:var(--good);color:#fff;border-color:var(--good)}
+  .pill.s{background:rgba(232,116,59,.15);color:var(--saunner);border-color:rgba(232,116,59,.3)}
+  .pill.b{background:rgba(59,130,196,.15);color:var(--bather);border-color:rgba(59,130,196,.3)}
+  .pill.j{background:rgba(139,92,246,.15);color:var(--jimi);border-color:rgba(139,92,246,.3)}
+
+  /* Phone mockup */
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:230px;background:#1c1916;border-radius:30px;padding:9px;box-shadow:0 18px 40px -16px rgba(0,0,0,.4);flex:0 0 auto}
+  .screen{background:var(--beige);border-radius:23px;overflow:hidden;height:470px;display:flex;flex-direction:column;position:relative}
+  .stbar{height:22px;background:var(--beige);display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:9px;color:var(--muted);font-weight:700}
+  .scrollbody{flex:1;overflow:hidden;padding:12px 13px;display:flex;flex-direction:column;gap:9px}
+  .caption{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;width:230px}
+  .caption b{color:var(--ink)}
+  .arrow{align-self:center;color:var(--red);font-size:30px;margin-top:200px}
+  .m{display:flex;align-items:center;gap:5px}
+  .material-symbols-rounded{font-variation-settings:'wght' 500;font-size:18px;vertical-align:middle}
+
+  /* mockup atoms */
+  .topbar{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700}
+  .topbar .x{color:var(--muted)}
+  .placehdr{font-family:'Oswald';font-weight:600;font-size:15px}
+  .meta{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+  .seg{display:flex;background:var(--beige2);border-radius:11px;padding:3px;font-size:11px;font-weight:700;gap:3px}
+  .seg .t{flex:1;text-align:center;padding:6px 0;border-radius:8px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:3px}
+  .seg .t.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .seg .t.on.red{background:var(--red);color:#fff}
+  .q{font-size:12px;font-weight:700;margin-top:2px}
+  .qx{font-size:10px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .blk{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;position:relative}
+  .blk .material-symbols-rounded{font-size:20px;color:var(--muted)}
+  .blk.on{border-color:var(--saunner);background:rgba(232,116,59,.07)}
+  .blk.on .material-symbols-rounded{color:var(--saunner)}
+  .blk .seqno{position:absolute;top:-7px;left:-7px;background:var(--saunner);color:#fff;width:19px;height:19px;border-radius:50%;font-family:'Oswald';font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .blk .tempadd{position:absolute;top:5px;right:6px;font-size:9px;color:var(--saunner);font-weight:700;display:flex;align-items:center;gap:1px}
+  .blk .tempval{position:absolute;top:5px;right:6px;font-size:10px;color:var(--saunner);font-weight:800;background:rgba(232,116,59,.12);padding:1px 5px;border-radius:6px}
+  .blk.add{border-style:dashed;color:var(--muted);justify-content:center}
+  .summary{background:var(--beige2);border-radius:10px;padding:7px 9px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+  .summary b{color:var(--ink);font-weight:700}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:2px 6px;font-weight:700;color:var(--ink)}
+  .feelrow{display:flex;gap:5px}
+  .feel{flex:1;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:7px 0;font-size:11px;font-weight:700;color:var(--muted)}
+  .feel.on{border-color:var(--red);background:rgba(214,69,47,.08);color:var(--red)}
+  .cta{margin-top:auto;background:var(--red);color:#fff;border-radius:12px;padding:11px;text-align:center;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px}
+  .cta.ghost{background:transparent;border:1.5px dashed var(--line);color:var(--muted);font-weight:700}
+  .slider{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 9px}
+  .slider .lab{display:flex;justify-content:space-between;font-size:10px;font-weight:700}
+  .slider .lab .v{color:var(--saunner);font-family:'Oswald';font-size:13px}
+  .track{height:5px;background:var(--beige2);border-radius:3px;margin:8px 0 3px;position:relative}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;width:55%;background:var(--saunner);border-radius:3px}
+  .track .knob{position:absolute;left:53%;top:50%;transform:translateY(-50%);width:14px;height:14px;background:#fff;border:3px solid var(--saunner);border-radius:50%}
+  .drawer{background:var(--beige2);border-radius:11px;padding:9px;display:flex;flex-direction:column;gap:7px;border:1px dashed var(--saunner)}
+  .drawer .dh{font-size:11px;font-weight:800;display:flex;align-items:center;gap:4px;color:var(--saunner)}
+  .miniinput{display:flex;gap:6px}
+  .miniinput .f{flex:1;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:10px;text-align:center;font-weight:700}
+  .miniinput .f .t{font-size:8px;color:var(--muted);display:block}
+  .miniinput .f .n{font-family:'Oswald';font-size:14px;color:var(--ink)}
+  .listrow{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:8px;display:flex;align-items:center;gap:8px}
+  .listrow .ic{width:30px;height:30px;border-radius:8px;background:rgba(232,116,59,.1);display:flex;align-items:center;justify-content:center}
+  .listrow .ic .material-symbols-rounded{color:var(--saunner);font-size:18px}
+  .listrow .meta2{flex:1;font-size:11px;font-weight:700}
+  .listrow .meta2 small{display:block;color:var(--muted);font-weight:500;font-size:9px}
+
+  /* story card */
+  .storycard{border-radius:16px;padding:14px;color:#fff;font-family:'Oswald';position:relative;overflow:hidden;background:linear-gradient(155deg,#e8743b,#b73a28)}
+  .storycard .place{font-size:15px;font-weight:700}
+  .storycard .when{font-size:9px;opacity:.85;font-weight:400;font-family:'Noto Sans KR'}
+  .storycard .seqline{display:flex;align-items:center;gap:4px;margin:12px 0;flex-wrap:wrap}
+  .storycard .sb{background:rgba(255,255,255,.18);border-radius:7px;padding:3px 7px;font-size:9px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:1px}
+  .storycard .sb .tt{font-family:'Noto Sans KR';font-size:8px}
+  .storycard .sb .tv{font-size:11px;font-weight:700}
+  .storycard .sb .dv{font-size:7px;opacity:.8;font-family:'Noto Sans KR'}
+  .storycard .uname{font-size:9px;opacity:.9;font-family:'Noto Sans KR';margin-top:8px}
+  .storycard .big{position:absolute;right:10px;bottom:8px;font-size:34px;font-weight:700;opacity:.9}
+  .layertog{display:flex;gap:5px;margin-top:9px}
+  .layertog .lt{flex:1;text-align:center;font-size:9px;font-weight:700;padding:5px 0;border-radius:8px;background:var(--beige2);color:var(--muted);border:1px solid var(--line)}
+  .layertog .lt.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .layertog .lt.dis{opacity:.4}
+
+  /* tables / cards */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;background:var(--card);border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--beige2);font-family:'Oswald';font-weight:600;font-size:12px;letter-spacing:.4px}
+  td b{color:var(--ink)}
+  tr:last-child td{border-bottom:none}
+  .yes{color:var(--good);font-weight:700}
+  .no{color:var(--bad);font-weight:700}
+  .mid{color:var(--warn);font-weight:700}
+  .optcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+  .optcard.rec{border:2px solid var(--good);background:linear-gradient(180deg,rgba(46,158,107,.05),var(--card))}
+  .optcard h3{margin-top:0}
+  .prosCons{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px}
+  .prosCons div{flex:1;min-width:230px;font-size:13px}
+  .prosCons .p{color:var(--good)}
+  .prosCons .c{color:var(--bad)}
+  .prosCons ul{margin:5px 0;padding-left:18px}
+  .note{background:rgba(199,154,42,.1);border-left:3px solid var(--warn);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13.5px;margin:14px 0}
+  .deci{background:rgba(214,69,47,.07);border-left:3px solid var(--red);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13.5px;margin:10px 0}
+  .deci b{color:var(--red2)}
+  code{background:var(--beige2);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:'SF Mono',ui-monospace,monospace}
+  .codeblk{background:#211d19;color:#e8e0d2;border-radius:12px;padding:14px 16px;font-family:'SF Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin:12px 0}
+  .codeblk .k{color:#e8743b}.codeblk .c{color:#7d756a}.codeblk .s{color:#8fb573}
+  .divider{height:1px;background:var(--line);margin:38px 0}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 0 16px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>로그 플로우 · 와이어프레임</h1>
+  <div class="sub">2026-06-04 · 브랜치 <b>preview</b> · 목적: <b>라이트 유저 마찰 0 체크인 + 원하는 유저는 점진적으로 온도·상세 추가</b>. 흐름/와이어프레임 + 온도 레이어 옵션 A/B/C + 스토리 카드 레이어 토글 + 단일 테이블 스키마 스케치 + 구현 순서. 방향 스케치(드래프트, DDL·구현은 승인 후).</div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--saunner)"></span>사우나파</span>
+    <span><span class="dot" style="background:var(--bather)"></span>목욕파</span>
+    <span><span class="dot" style="background:var(--jimi)"></span>찜질파</span>
+    <span><span class="pill rec">추천</span> 권장안</span>
+    <span><span class="pill red">결정</span> 유저 결정 포인트</span>
+  </div>
+
+  <!-- ============ 0 원칙 ============ -->
+  <h2><span class="num">0</span> 설계 원칙 — "마찰은 0, 데이터는 남게"</h2>
+  <p class="lead">핵심은 <b>레이어(layer)로 분리</b>입니다. 한 화면에 모든 입력을 보여주면 라이트 유저가 도망가고, 입력을 없애면 데이터가 사라집니다. 그래서 <b>① 발도장 레이어(필수·1탭)</b> → <b>② 온도 레이어(선택·인라인 1탭)</b> → <b>③ 상세 레이어(매니아·풀폼)</b> → <b>④ 저장 후 추가</b> 의 4단을 쌓습니다. 각 레이어는 <b>같은 컬럼/같은 블록을 공유</b>하므로(블록↔슬라이더 동일 데이터) 어느 깊이에서 멈춰도 데이터가 일관됩니다.</p>
+  <table>
+    <tr><th>레이어</th><th>누가</th><th>입력 비용</th><th>남는 데이터</th><th>필수?</th></tr>
+    <tr><td><b>① 발도장(블록 탭)</b></td><td>모든 유저</td><td>블록 2~4탭 + 어땠어 1탭</td><td>장소·날짜·루틴 순서·만족도</td><td class="yes">필수</td></tr>
+    <tr><td><b>② 온도(인라인)</b></td><td>관심 유저</td><td>블록 위 "+°" 탭 → 슬라이더</td><td>블록별 온도(건식/냉탕/온탕…)</td><td class="mid">선택</td></tr>
+    <tr><td><b>③ 상세(풀폼)</b></td><td>매니아</td><td>"더 자세히" 펼침</td><td>단계별 시간·반복·청결·비용·세신·메모·동행</td><td class="no">선택</td></tr>
+    <tr><td><b>④ 사후 보강</b></td><td>아무나</td><td>기록 상세에서 편집</td><td>위 ②③ 무엇이든 나중에</td><td class="no">선택</td></tr>
+  </table>
+  <div class="note"><b>우선순위 반영</b>: 유저가 말한 우선순위(온도·루틴·청결도)를 그대로 강제하면 마찰이 생기므로 → <b>루틴은 ①(필수)</b>, <b>온도는 ②(가장 가까운 선택, 1탭)</b>, <b>청결도는 ③ 상단(상세 펼치면 첫 항목)</b> 으로 배치해 "원하면 즉시, 강제 없이" 채워지게 합니다.</div>
+
+  <!-- ============ 1 기본 흐름 ============ -->
+  <h2><span class="num">1</span> 라이트 유저 기본 흐름 (리뷰 + 개선)</h2>
+  <div class="sub">유저 제안 흐름을 그대로 살리되, <b>장소 자동선택</b>·<b>"지난번처럼" 칩</b>·<b>모드 세그먼트</b> 3가지를 보완 제안.</div>
+
+  <div class="row">
+    <!-- step1 home -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="stbar"><span>8:02</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="topbar"><span class="placehdr">HELLO SA-PIEN 🔥</span><span class="material-symbols-rounded" style="color:var(--muted)">settings</span></div>
+          <div style="background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px;font-size:11px;color:var(--muted)">📅 이번 달 도장판<div style="display:flex;gap:4px;margin-top:7px;font-size:15px">🔥 🛁 ⬜ ⬜ ⬜<br></div></div>
+          <div style="margin-top:auto"></div>
+          <div style="background:linear-gradient(145deg,var(--red),var(--red2));border-radius:16px;padding:18px;text-align:center;color:#fff;box-shadow:0 10px 24px -10px var(--red)">
+            <div class="material-symbols-rounded" style="font-size:34px">approval</div>
+            <div style="font-weight:800;font-size:15px;margin-top:4px">사-첵 하기</div>
+            <div style="font-size:10px;opacity:.85">오늘 사우나 어땠어요?</div>
+          </div>
+          <div style="display:flex;gap:6px;font-size:9px;color:var(--muted);text-align:center">
+            <div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px">history<br>내 기록</div>
+            <div style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px">tune<br>나만의 루틴</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="caption"><b>1. 홈 — 사-첵(도장찍기)</b><br>큰 단일 버튼. 도장판이 동기 부여.</div>
+    </div>
+
+    <div class="arrow material-symbols-rounded">arrow_forward</div>
+
+    <!-- step2 place -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="stbar"><span>8:02</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="topbar"><span class="material-symbols-rounded x">arrow_back</span><span class="placehdr">어디 다녀왔어요?</span><span></span></div>
+          <div style="background:var(--card);border:2px solid var(--red);border-radius:13px;padding:11px;display:flex;align-items:center;gap:8px">
+            <span class="material-symbols-rounded" style="color:var(--red)">my_location</span>
+            <div style="flex:1;font-size:12px;font-weight:800">스파랜드 센텀시티<small style="display:block;color:var(--muted);font-weight:500;font-size:9px">120m · 가장 가까워요</small></div>
+            <span class="material-symbols-rounded" style="color:var(--good)">check_circle</span>
+          </div>
+          <div class="qx" style="text-align:center">아니면 아래에서 선택 / 검색</div>
+          <div class="listrow"><div class="ic"><span class="material-symbols-rounded">location_on</span></div><div class="meta2">허심청<small>380m</small></div></div>
+          <div class="listrow"><div class="ic"><span class="material-symbols-rounded">location_on</span></div><div class="meta2">아쿠아필드 하남<small>최근 방문</small></div></div>
+          <div style="background:var(--beige2);border-radius:10px;padding:9px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><span class="material-symbols-rounded">search</span> 사우나 검색…</div>
+          <div class="cta">이 장소로 <span class="material-symbols-rounded">arrow_forward</span></div>
+        </div>
+      </div></div>
+      <div class="caption"><b>2. 장소 — GPS 자동선택</b><br><span class="pill">개선</span> 가장 가까운 곳 <b>미리 선택</b>(확정 1탭). DB 전국망이라 마찰 0. 기존 검색 화면 재활용.</div>
+    </div>
+
+    <div class="arrow material-symbols-rounded">arrow_forward</div>
+
+    <!-- step3 blocks -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="topbar"><span class="placehdr">스파랜드 센텀</span><span class="material-symbols-rounded x">close</span></div>
+          <div class="meta"><span class="material-symbols-rounded" style="font-size:12px">calendar_today</span>오늘 · 오후 8시 &nbsp;|&nbsp; 🔥 사우나파 ▾</div>
+          <div class="seg"><div class="t on red"><span class="material-symbols-rounded" style="font-size:14px">bolt</span>빠른</div><div class="t"><span class="material-symbols-rounded" style="font-size:14px">tune</span>상세</div></div>
+          <div class="q">오늘 뭐 했어요? <span class="qx">누른 순서가 루틴</span></div>
+          <div class="grid">
+            <div class="blk on"><span class="seqno">1</span><span class="material-symbols-rounded">local_fire_department</span>건식</div>
+            <div class="blk"><span class="material-symbols-rounded">humidity_high</span>습식</div>
+            <div class="blk on"><span class="seqno">2</span><span class="material-symbols-rounded">ac_unit</span>냉탕</div>
+            <div class="blk"><span class="material-symbols-rounded">hot_tub</span>온탕</div>
+            <div class="blk on"><span class="seqno">3</span><span class="material-symbols-rounded">self_improvement</span>휴식</div>
+            <div class="blk add"><span class="material-symbols-rounded">add</span>추가</div>
+          </div>
+          <div class="summary"><span class="chip">1 건식</span>→<span class="chip">2 냉탕</span>→<span class="chip">3 휴식</span></div>
+        </div>
+      </div></div>
+      <div class="caption"><b>3. 블록 탭 = 루틴</b><br>트라이브 기본 세트. 탭 순서대로 번호. <span class="pill s">사우나파</span> 건식·습식·냉탕·온탕·휴식</div>
+    </div>
+
+    <div class="arrow material-symbols-rounded">arrow_forward</div>
+
+    <!-- step4 feel + save -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="topbar"><span class="placehdr">스파랜드 센텀</span><span class="material-symbols-rounded x">close</span></div>
+          <div class="summary"><span class="chip">1 건식</span>→<span class="chip">2 냉탕</span>→<span class="chip">3 휴식</span></div>
+          <div class="q">또 갈래요? <span class="qx">한 탭이면 끝</span></div>
+          <div class="feelrow">
+            <div class="feel">😐<br>별로</div>
+            <div class="feel">🙂<br>보통</div>
+            <div class="feel on">😆<br>좋아</div>
+            <div class="feel">🤯<br>최고</div>
+          </div>
+          <div class="cta ghost" style="margin-top:6px"><span class="material-symbols-rounded" style="font-size:15px">tune</span> 온도·상세 추가 (선택)</div>
+          <div class="cta"><span class="material-symbols-rounded">approval</span> 사-첵 완료</div>
+          <div class="qx" style="text-align:center">온도는 블록 한 번 더 눌러 추가 · 나중에도 가능</div>
+        </div>
+      </div></div>
+      <div class="caption"><b>4. 어땠어요 → 저장</b><br>필수는 여기까지(블록+만족도). 평균 <b>4~6탭, 8초</b>. 상세는 선택.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>기본 흐름 개선 제안 3가지</b><br>
+    ① <b>장소 자동선택</b>: 스탬프 탭 시 GPS 최근접 1곳을 미리 선택해 두고 "이 장소로" 확정만(1탭). 검색은 fallback. (기존 검색 화면 그대로 재활용 OK)<br>
+    ② <b>"지난번처럼" 칩</b>: 블록 화면 상단에 <b>마지막에 쓴 루틴</b>을 칩 하나로 → 탭 한 번에 블록 프리필. (찜질파처럼 기본 세트가 약한 트라이브에 특히 유효)<br>
+    ③ <b>모드 게이트 금지</b>: "퀵이냐 상세냐" 선택 화면을 강제하지 않음. 상단 <code>⚡빠른 | ✍️상세</code> 세그먼트 + <b>기본값을 트라이브·직전 선택으로 기억</b>(사우너=상세 우선, 목욕/찜질=빠른 우선). 게이트 없이 "선택" 성립.
+  </div>
+
+  <div class="deci"><span class="pill red">결정 1</span> <b>"어땠어요"를 무엇에 매핑?</b> — 기존 <code>revisit_score</code>(또 갈래요, 1~5, F3 랭킹 핵심 지표) 재사용을 권장. 별도 "만족도"를 새로 만들면 비교/랭킹 지표가 둘로 갈라짐. → revisit 4단계 라벨(별로/보통/좋아/최고)로 통일할지 확인 필요.</div>
+
+  <!-- ============ 2 나만의 루틴 ============ -->
+  <h2><span class="num">2</span> 나만의 루틴 페이지 (별도 진입 + 빠른기록 내 진입)</h2>
+  <div class="sub">루틴 저장/설정/불러오기 + 추천 루틴 구경·끌어오기. 빠른기록 화면에서도 별도 링크로 진입.</div>
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="topbar"><span class="material-symbols-rounded x">arrow_back</span><span class="placehdr">나만의 루틴</span><span></span></div>
+          <div style="background:rgba(232,116,59,.1);border:1px dashed var(--saunner);border-radius:11px;padding:9px;font-size:11px;font-weight:700;color:var(--saunner);display:flex;align-items:center;gap:5px"><span class="material-symbols-rounded" style="font-size:15px">bolt</span> 지금 이 기록을 '내 루틴'으로 저장</div>
+          <div class="qx" style="font-weight:700;color:var(--ink)">내 루틴</div>
+          <div class="listrow"><div class="ic"><span class="material-symbols-rounded">local_fire_department</span></div><div class="meta2">퇴근 사우나<small>1 건식 · 2 냉탕 · 3 휴식</small></div><span class="pill s">불러오기</span></div>
+          <div class="listrow"><div class="ic"><span class="material-symbols-rounded">hot_tub</span></div><div class="meta2">주말 목욕<small>1 온탕 · 2 세신 · 3 냉탕</small></div><span class="pill s">불러오기</span></div>
+          <div class="qx" style="font-weight:700;color:var(--ink)">추천 루틴 <span style="font-weight:500;color:var(--muted)">트라이브 맞춤·입문</span></div>
+          <div class="listrow"><div class="ic"><span class="material-symbols-rounded">local_fire_department</span></div><div class="meta2">토토노우 입문<small>1 건식 · 2 냉탕 · 3 휴식 ×3</small></div><span class="pill b">써보기</span></div>
+          <div class="cta ghost"><span class="material-symbols-rounded" style="font-size:15px">add</span> 새 루틴 만들기</div>
+        </div>
+      </div></div>
+      <div class="caption"><b>나만의 루틴 허브</b><br>저장·불러오기·추천 구경. 불러오면 블록이 프리필된 채 시작.</div>
+    </div>
+    <div style="flex:1;min-width:280px">
+      <h3>구조 제안</h3>
+      <ul style="font-size:14px">
+        <li><b>진입 2곳</b>: ① 홈 하단 바로가기 ② 빠른기록 블록 화면 상단 "나만의 루틴 편집" 링크(시트로 띄움 → 닫으면 제자리)</li>
+        <li><b>"지금 이 기록을 내 루틴으로 저장"</b> — 방금 탭한 블록 시퀀스를 그대로 템플릿화. 매니아 retention 트리거.</li>
+        <li><b>추천 루틴</b>: 트라이브별 입문 루틴 시드(<code>토토노우 입문</code>, <code>찜질 풀코스</code>). "써보기" → 블록 프리필 + 설명 툴팁.</li>
+        <li>저장 단위는 <b>블록 시퀀스(+선택적 온도/시간 프리셋)</b>. 스키마의 <code>user_routines</code> 와 1:1.</li>
+      </ul>
+      <div class="deci"><span class="pill red">결정 2</span> 추천 루틴에 <b>온도·시간 프리셋까지</b> 담을지(예: "건식 12분 90° → 냉탕 1분 15°"), 아니면 <b>블록 순서만</b> 담고 온도는 비울지. 프리셋이 있으면 입문자 교육 효과 ↑, 데이터 오염(남의 추천값이 내 기록으로) 리스크 ↑.</div>
+    </div>
+  </div>
+
+  <!-- ============ 3 온도/상세 레이어 옵션 ============ -->
+  <h2><span class="num">3</span> 온도·상세 입력 레이어 — 옵션 A / B / C</h2>
+  <div class="sub">3-2의 핵심 분기. "모두 옵셔널 + 나중에 추가 가능 + 같은 데이터 공유"가 공통 제약. 세 방식의 트레이드오프.</div>
+
+  <!-- Option A -->
+  <div class="optcard">
+    <h3>옵션 A — 블록 인라인 확장 <span class="pill">같은 뷰</span></h3>
+    <p>블록을 <b>한 번 더 탭</b>하면 그 블록 아래에 작은 드로어가 열려 <b>온도·시간·반복</b>을 입력. 라이트 유저는 안 건드림. 화면 이동 없음. (스케치의 "온도는 블록 한 번 더 눌러 추가"를 그대로 구현)</p>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <div class="phone"><div class="screen">
+          <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+          <div class="scrollbody">
+            <div class="seg"><div class="t on red"><span class="material-symbols-rounded" style="font-size:14px">bolt</span>빠른</div><div class="t"><span class="material-symbols-rounded" style="font-size:14px">tune</span>상세</div></div>
+            <div class="grid">
+              <div class="blk on"><span class="seqno">1</span><span class="tempval">90°</span><span class="material-symbols-rounded">local_fire_department</span>건식</div>
+              <div class="blk on"><span class="seqno">2</span><span class="tempadd"><span class="material-symbols-rounded" style="font-size:11px">add</span>°</span><span class="material-symbols-rounded">ac_unit</span>냉탕</div>
+            </div>
+            <div class="drawer">
+              <div class="dh"><span class="material-symbols-rounded" style="font-size:14px">local_fire_department</span> 1 건식 상세</div>
+              <div class="slider"><div class="lab"><span>온도</span><span class="v">90°C</span></div><div class="track"><div class="fill"></div><div class="knob"></div></div></div>
+              <div class="miniinput"><div class="f"><span class="t">시간</span><span class="n">12</span>분</div><div class="f"><span class="t">반복</span><span class="n">3</span>회</div></div>
+            </div>
+            <div class="cta">사-첵 완료</div>
+          </div>
+        </div></div>
+        <div class="caption">블록 재탭 → 인라인 드로어. 온도 입력 시 블록에 <b>90°</b> 뱃지.</div>
+      </div>
+      <div style="flex:1;min-width:240px">
+        <div class="prosCons">
+          <div class="p"><b>장점</b><ul><li>화면 이동 0, 가장 가벼움</li><li>온도가 <b>정확히 그 블록에</b> 귀속 — 데이터 모델과 1:1</li><li>"건식 2회+냉탕 2회" 혼합/반복도 자연스럽게 표현</li></ul></div>
+          <div class="c"><b>단점</b><ul><li>블록 많으면 세로로 길어짐(드로어 여러 개)</li><li>청결도·비용·메모 같은 <b>세션 전역 항목</b>을 둘 곳이 애매</li><li>탭=선택 / 재탭=상세 라는 제스처 학습 필요</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="optcard">
+    <h3>옵션 B — 모드 세그먼트 → 전체 재정렬 <span class="pill">뷰 전환</span></h3>
+    <p>상단 <code>⚡빠른 | ✍️상세</code> 세그먼트. <b>상세</b>로 바꾸면 방금 탭한 블록들이 <b>세로 리스트로 재정렬</b>되어 각 행마다 슬라이더+시간+반복+블록 점수, 그 아래 <b>전역 항목</b>(청결도·비용·세신·메모·동행)이 붙음.</p>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <div class="phone"><div class="screen">
+          <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+          <div class="scrollbody">
+            <div class="seg"><div class="t"><span class="material-symbols-rounded" style="font-size:14px">bolt</span>빠른</div><div class="t on red"><span class="material-symbols-rounded" style="font-size:14px">tune</span>상세</div></div>
+            <div class="slider"><div class="lab"><span>1 건식 <span class="material-symbols-rounded" style="font-size:12px;color:var(--saunner)">local_fire_department</span></span><span class="v">90°C · 12분</span></div><div class="track"><div class="fill"></div><div class="knob"></div></div></div>
+            <div class="slider"><div class="lab"><span>2 냉탕 <span class="material-symbols-rounded" style="font-size:12px;color:var(--bather)">ac_unit</span></span><span class="v">15°C · 1분</span></div><div class="track"><div class="fill" style="width:35%;background:var(--bather)"></div><div class="knob" style="left:33%;border-color:var(--bather)"></div></div></div>
+            <div class="listrow"><div class="ic"><span class="material-symbols-rounded">cleaning_services</span></div><div class="meta2">청결도<small>★★★★☆</small></div></div>
+            <div class="listrow"><div class="ic"><span class="material-symbols-rounded">payments</span></div><div class="meta2">비용·세신·메모<small>탭해서 추가</small></div></div>
+            <div class="cta">사-첵 완료</div>
+          </div>
+        </div></div>
+        <div class="caption">상세 모드 = 블록이 편집 리스트로. 전역 항목 하단에 누적.</div>
+      </div>
+      <div style="flex:1;min-width:240px">
+        <div class="prosCons">
+          <div class="p"><b>장점</b><ul><li>매니아에게 익숙한 풀폼, <b>많은 필드도 깔끔</b>하게 수용</li><li>전역 항목(청결/비용/메모) 자리 명확</li><li>빠른/상세 시각적으로 완전 분리 → 라이트 유저는 절대 안 봄</li></ul></div>
+          <div class="c"><b>단점</b><ul><li>모드 전환이 <b>맥락 점프</b>로 느껴질 수 있음</li><li>전환 시 블록 그리드↔리스트 레이아웃 변형 구현 부담</li><li>온도만 빠르게 넣고 싶은 유저에겐 과함</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="optcard rec">
+    <h3>옵션 C — 하이브리드: 인라인 온도 + "더 자세히" 풀폼 <span class="pill rec">추천</span></h3>
+    <p>A의 가벼움과 B의 수용력을 합칩니다. <b>(1)</b> 각 블록에 <b>온도 "+°" 인라인</b>(가장 원하는 1개만, A 방식) — 80% 케이스. <b>(2)</b> 단계별 시간·반복·청결·비용·세신·메모 같은 롱테일은 <b>하단 "✍️ 더 자세히" 한 번</b>으로 펼치는 풀 섹션(B 방식). <b>(3)</b> 저장 후 기록 상세에서 <b>무엇이든 편집</b>(레이어 ④).</p>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <div class="phone"><div class="screen">
+          <div class="stbar"><span>8:03</span><span>● ● ●</span></div>
+          <div class="scrollbody">
+            <div class="grid">
+              <div class="blk on"><span class="seqno">1</span><span class="tempval">90°</span><span class="material-symbols-rounded">local_fire_department</span>건식</div>
+              <div class="blk on"><span class="seqno">2</span><span class="tempadd"><span class="material-symbols-rounded" style="font-size:11px">add</span>°</span><span class="material-symbols-rounded">ac_unit</span>냉탕</div>
+            </div>
+            <div class="feelrow"><div class="feel">😐</div><div class="feel on">😆</div><div class="feel">🤯</div></div>
+            <div class="cta ghost"><span class="material-symbols-rounded" style="font-size:15px">expand_more</span> 더 자세히 (시간·청결·비용·메모)</div>
+            <div class="drawer" style="border-style:solid;border-color:var(--line);background:var(--card)">
+              <div class="dh" style="color:var(--ink)">단계별 시간 · 청결도 · 비용 · 세신 · 메모</div>
+              <div class="miniinput"><div class="f"><span class="t">청결</span><span class="n">4</span>★</div><div class="f"><span class="t">비용</span><span class="n">12k</span>₩</div></div>
+            </div>
+            <div class="cta">사-첵 완료</div>
+          </div>
+        </div></div>
+        <div class="caption"><b>온도=인라인 1탭</b>, 롱테일=펼침 1번. 둘 다 선택, 저장 후 보강.</div>
+      </div>
+      <div style="flex:1;min-width:240px">
+        <div class="prosCons">
+          <div class="p"><b>장점</b><ul><li><b>온도(최우선 선택)</b>는 1탭, 롱테일은 안 보이게 접힘 → 마찰 최소</li><li>전역 항목 자리 명확(펼침 섹션)</li><li>모드 점프 없음 — 한 화면에서 점진적 노출</li><li>저장 후 편집까지 같은 컴포넌트 재사용</li></ul></div>
+          <div class="c"><b>단점</b><ul><li>인라인 드로어 + 펼침 섹션 <b>두 패턴 공존</b> → 디자인 일관성 관리 필요</li><li>구현 범위가 A/B 단독보다 약간 큼(단, 단계적 출시 가능)</li></ul></div>
+        </div>
+        <p style="font-size:13px;margin-top:10px"><b>왜 C인가</b>: 유저의 우선순위(온도>루틴>청결)와 정확히 맞물립니다. 온도는 "원하는 사람이 쉽게"의 1탭 대상이라 인라인이 최적이고, 청결·비용·메모는 빈도가 낮아 접어두는 게 맞습니다. A로 시작해 "더 자세히"만 얹으면 C가 되므로 <b>증분 구현</b>도 자연스럽습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>비교축</th><th>A 인라인</th><th>B 모드전환</th><th>C 하이브리드</th></tr>
+    <tr><td>라이트 유저 마찰</td><td class="yes">0</td><td class="yes">0</td><td class="yes">0</td></tr>
+    <tr><td>온도만 빠르게</td><td class="yes">최고(1탭)</td><td class="mid">모드 전환 필요</td><td class="yes">최고(1탭)</td></tr>
+    <tr><td>전역 항목(청결·비용·메모)</td><td class="no">자리 애매</td><td class="yes">명확</td><td class="yes">명확</td></tr>
+    <tr><td>많은 필드 수용</td><td class="mid">길어짐</td><td class="yes">우수</td><td class="yes">우수</td></tr>
+    <tr><td>구현 부담</td><td class="yes">작음</td><td class="mid">중(레이아웃 변형)</td><td class="mid">중(증분 가능)</td></tr>
+    <tr><td>저장 후 편집 재사용</td><td class="mid">부분</td><td class="yes">전체</td><td class="yes">전체</td></tr>
+  </table>
+  <div class="deci"><span class="pill red">결정 3</span> <b>온도·상세 레이어 방식</b>: A / B / <b>C(추천)</b> 중 택. C라면 1차 출시를 "A(인라인 온도)만" → 2차에 "더 자세히 풀폼"으로 쪼갤지 결정.</div>
+
+  <!-- ============ 4 스토리 카드 ============ -->
+  <h2><span class="num">4</span> 스토리 카드 — 레이어 토글 (루틴 / +온도 / +시간)</h2>
+  <div class="sub">데이터가 쌓인 만큼 카드도 단계별로. 입력 안 한 레이어는 토글 비활성(흐림). 미리보기 실시간 갱신.</div>
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen" style="background:#15120f">
+        <div class="stbar" style="background:#15120f;color:#988e80"><span>8:05</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="storycard">
+            <div class="place">스파랜드 센텀시티</div>
+            <div class="when">2026.06.04 오후 8시 · 부산</div>
+            <div class="seqline">
+              <span class="sb"><span class="tt">건식</span></span>→
+              <span class="sb"><span class="tt">냉탕</span></span>→
+              <span class="sb"><span class="tt">휴식</span></span>
+            </div>
+            <div class="uname">@stella · 🔥 SAUNNER</div>
+            <div class="big">🔥</div>
+          </div>
+          <div class="layertog"><div class="lt on">루틴</div><div class="lt dis">+온도</div><div class="lt dis">+시간</div></div>
+        </div>
+      </div></div>
+      <div class="caption"><b>L0 루틴만</b><br>장소·시간·유저·블록 순서. (온도 없으면 +온도 토글 흐림)</div>
+    </div>
+    <div>
+      <div class="phone"><div class="screen" style="background:#15120f">
+        <div class="stbar" style="background:#15120f;color:#988e80"><span>8:05</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="storycard">
+            <div class="place">스파랜드 센텀시티</div>
+            <div class="when">2026.06.04 오후 8시 · 부산</div>
+            <div class="seqline">
+              <span class="sb"><span class="tt">건식</span><span class="tv">90°</span></span>→
+              <span class="sb"><span class="tt">냉탕</span><span class="tv">15°</span></span>→
+              <span class="sb"><span class="tt">휴식</span></span>
+            </div>
+            <div class="uname">@stella · 🔥 SAUNNER · ΔT 75°</div>
+            <div class="big">75°</div>
+          </div>
+          <div class="layertog"><div class="lt">루틴</div><div class="lt on">+온도</div><div class="lt dis">+시간</div></div>
+        </div>
+      </div></div>
+      <div class="caption"><b>L1 +온도</b><br>블록별 온도 뱃지 + 헤드라인 <b>온도차(ΔT)</b>.</div>
+    </div>
+    <div>
+      <div class="phone"><div class="screen" style="background:#15120f">
+        <div class="stbar" style="background:#15120f;color:#988e80"><span>8:05</span><span>● ● ●</span></div>
+        <div class="scrollbody">
+          <div class="storycard">
+            <div class="place">스파랜드 센텀시티</div>
+            <div class="when">2026.06.04 오후 8시 · 부산</div>
+            <div class="seqline">
+              <span class="sb"><span class="tt">건식</span><span class="tv">90°</span><span class="dv">12분</span></span>→
+              <span class="sb"><span class="tt">냉탕</span><span class="tv">15°</span><span class="dv">1분</span></span>→
+              <span class="sb"><span class="tt">휴식</span><span class="dv">5분</span></span>
+            </div>
+            <div class="uname">@stella · 🔥 SAUNNER · 총 54분 ×3세트</div>
+            <div class="big">×3</div>
+          </div>
+          <div class="layertog"><div class="lt">루틴</div><div class="lt">+온도</div><div class="lt on">+시간</div></div>
+        </div>
+      </div></div>
+      <div class="caption"><b>L2 +시간</b><br>단계별 시간/반복 + 총 소요·세트.</div>
+    </div>
+    <div style="flex:1;min-width:240px">
+      <h3>구현 메모</h3>
+      <ul style="font-size:14px">
+        <li><b>토글 = 누적 단계</b>(L0⊂L1⊂L2)가 아니라 <b>독립 ON/OFF</b>로도 가능 — "온도만, 시간 빼고" 같은 조합 허용 여부는 결정 포인트.</li>
+        <li>데이터 없는 레이어는 <b>토글 비활성+흐림</b>(빈 카드 방지). 5상태 중 Partial/Empty 처리.</li>
+        <li>카드 렌더는 <b>블록 시퀀스 1개 소스</b>에서 파생 → 입력 폼·히스토리·스토리가 동일 데이터 사용(이중관리 제거).</li>
+        <li>기존 <code>renderCard / image-export.ts</code> 재활용. 블록 시퀀스를 받는 레이아웃만 추가.</li>
+      </ul>
+      <div class="deci"><span class="pill red">결정 4</span> 토글을 <b>누적(루틴→온도→시간)</b> 스테퍼로 할지, <b>독립 칩</b> 3개로 할지. 누적이 단순·직관적, 독립이 표현 자유도 ↑.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ============ 5 데이터 맵 ============ -->
+  <h2><span class="num">5</span> 입력 데이터 전체 맵 — "결국 다 받고 싶다"를 어디서 받나</h2>
+  <div class="sub">지금 logs/deep_logs가 받는 모든 필드를 4개 레이어에 배치. 무엇 하나 안 버리되, 강제도 안 함.</div>
+  <table>
+    <tr><th>데이터</th><th>현재 컬럼</th><th>새 위치(레이어)</th><th>입력 UI</th></tr>
+    <tr><td><b>루틴 순서/반복</b></td><td>heat/ice/pause_time, repeat (고정4슬롯)</td><td>① 블록 시퀀스 <span class="pill rec">핵심전환</span></td><td>블록 탭 순서</td></tr>
+    <tr><td><b>각 탕 온도</b></td><td>sauna/steam/cold/hot/jjim/very_hot/ice_bath_temp</td><td>② 블록별 temp</td><td>블록 인라인 슬라이더</td></tr>
+    <tr><td><b>단계별 시간</b></td><td>heat_time, ice_time, pause_time</td><td>② 블록별 duration</td><td>인라인 / 더자세히</td></tr>
+    <tr><td>또 갈래요(revisit)</td><td>revisit_score</td><td>① 어땠어요</td><td>4단 이모지</td></tr>
+    <tr><td>토토노/수질/땀/휴식 퀄</td><td>totono_score, water/sweat/rest_quality</td><td>③ 상세(트라이브별)</td><td>더 자세히</td></tr>
+    <tr><td>청결도</td><td>deep.cleanliness</td><td>③ 상세 상단</td><td>더 자세히 첫 항목</td></tr>
+    <tr><td>비용/통화</td><td>deep.cost, currency</td><td>③ 상세</td><td>더 자세히</td></tr>
+    <tr><td>세신/마사지</td><td>deep.scrub_types, scrub_cost, satisfaction</td><td>② 블록(세신) + ③ 비용·만족</td><td>세신 블록 + 상세</td></tr>
+    <tr><td>매점</td><td>deep.store_score, store_memo</td><td>② 블록(매점) + ③ 평가</td><td>매점 블록 + 상세</td></tr>
+    <tr><td>동행/혼잡/메모/탕성별</td><td>deep.companion, crowd, memo, bath_gender</td><td>③ 상세 / 세션 메타</td><td>더 자세히</td></tr>
+    <tr><td>주 이용 사우나</td><td>primary_sauna_kind</td><td>블록에서 파생(첫 heat 블록)</td><td>자동 + 수동지정</td></tr>
+  </table>
+  <div class="note"><b>관찰</b>: 거의 모든 deep_logs 필드는 ②(블록 귀속) 또는 ③(세션 전역)으로 깔끔히 나뉩니다 → <b>logs/deep_logs 1:1 분리 유지 이유가 약함</b>. 합칠 근거(섹션 6).</div>
+
+  <!-- ============ 6 스키마 ============ -->
+  <h2><span class="num">6</span> 스키마 스케치 — 단일 세션 테이블 + 블록 자식</h2>
+  <div class="sub">유저: "두 테이블 합치는 거 대환영." → <code>logs</code>+<code>deep_logs</code>를 <b>logs 하나로 병합</b> + 순서/반복/혼합 표현용 <b>log_blocks</b> 신설.</div>
+
+  <h3>저장 방식 3안</h3>
+  <table>
+    <tr><th>안</th><th>구조</th><th>쿼리/집계</th><th>마이그레이션</th><th>유연성</th></tr>
+    <tr><td><b>1. log_blocks 테이블</b> <span class="pill rec">추천</span></td><td>logs(세션 1행) + log_blocks(N행: seq,type,temp?,dur?,rep?,score?)</td><td class="yes">SQL 집계·필터 자연스러움(장소별 평균온도 등)</td><td class="mid">자식 테이블 추가 + 백필</td><td class="yes">순서·반복·혼합 완전 표현</td></tr>
+    <tr><td>2. logs.routine JSONB</td><td>logs 한 컬럼에 블록 배열</td><td class="no">집계/필터 어려움(GIN·jsonb_path)</td><td class="yes">컬럼 1개 추가로 끝</td><td class="yes">스키마 자유</td></tr>
+    <tr><td>3. 하이브리드</td><td>log_blocks(정) + 자주 쓰는 온도는 logs에 파생 캐시</td><td class="yes">집계 빠름 + 호환</td><td class="mid">트리거/뷰로 동기화</td><td class="yes">둘 다</td></tr>
+  </table>
+  <p class="lead"><b>추천: 1(log_blocks)을 정(正)으로, 3의 파생 캐시를 곁들임.</b> 이유: F3(방문 비교)·장소별 평균온도·통계 인사이트가 전부 SQL 집계 의존이라 JSONB는 부적합. 단, <b>어드민 시드 온도(238곳)·스토리·통계가 기존 고정 온도 컬럼에 의존</b>하므로, 그 컬럼들을 <b>블록에서 파생되는 캐시</b>로 남겨 무손실·하위호환을 확보.</p>
+
+  <div class="codeblk">
+<span class="c">-- 세션 1행 (logs = 기존 logs + deep_logs 병합)</span>
+<span class="k">logs</span>(
+  id, user_id, place_id, record_date, visited_at, tribe_id, bath_gender,
+  revisit_score,                       <span class="c">-- "또 갈래요/어땠어요"(필수)</span>
+  totono_score, water_quality, sweat_quality, rest_quality, cleanliness,  <span class="c">-- ③ 점수</span>
+  cost, currency, companion, crowd, memo, food_eaten,                     <span class="c">-- ③ deep 병합</span>
+  primary_sauna_kind,                  <span class="c">-- 블록서 파생/수동지정</span>
+  <span class="c">-- ▼ 파생 캐시(블록서 자동 채움, 하위호환·집계·어드민시드용)</span>
+  sauna_temp, steam_sauna_temp, cold_bath_temp, hot_bath_temp,
+  very_hot_bath_temp, ice_bath_temp, jjim_temp,
+  heat_time, ice_time, pause_time, repeat
+)
+
+<span class="c">-- 블록 시퀀스 N행 (신설, 순서/반복/혼합의 정)</span>
+<span class="k">log_blocks</span>(
+  id, log_id, seq <span class="c">-- 탭 순서(=루틴)</span>,
+  block_type <span class="c">-- 'dry'|'steam'|'cold'|'hot'|'very_hot'|'ice'|'rest'|'scrub'|'store'|'jjim'… (content.ts와 통일)</span>,
+  temp <span class="c">-- 선택</span>, duration_sec <span class="c">-- 선택</span>, repeat <span class="c">-- 선택</span>,
+  score <span class="c">-- 블록별 선택 평가</span>, memo
+)
+
+<span class="c">-- 루틴 템플릿 (나만의 + 추천 시드)</span>
+<span class="k">user_routines</span>(id, user_id <span class="c">-- NULL=추천시드</span>, tribe_id, name, icon,
+  blocks <span class="c">-- jsonb: [{type,temp?,dur?,rep?}]</span>, is_featured)
+  </div>
+
+  <div class="deci"><span class="pill red">결정 5</span> <b>고정 온도 컬럼의 운명</b>: (a) 파생 캐시로 유지(블록이 정, 컬럼은 자동 채움 — <b>추천</b>, 무손실·호환) vs (b) 완전 제거하고 전부 블록·뷰로 — 깔끔하지만 어드민 시드/스토리/통계 동반수정 범위 큼.</div>
+  <div class="deci"><span class="pill red">결정 6</span> <b>어드민 온도 시드(238곳)</b>: 현재 logs 고정컬럼에만 존재. 블록 모델로 갈 때 (a) 컬럼 그대로 두고 신규 유저 로그만 블록 병행 vs (b) 시드도 단일 'temp-only' 블록으로 백필. 무손실 우선이면 (a)부터.</div>
+  <div class="deci"><span class="pill red">결정 7</span> <b>블록 vocabulary 통일 위치</b>: <code>content.ts</code>의 PLACE_SPECS(HEAT/ICE/PAUSE/BEYOND) id를 블록 타입 SSOT로 쓸지, 별도 BLOCK_TYPES 상수를 둘지. 트라이브 기본 블록 세트 정의도 여기.</div>
+
+  <!-- ============ 7 구현 순서 ============ -->
+  <h2><span class="num">7</span> 구현 순서 — 3가지 롤아웃 옵션</h2>
+  <div class="optcard">
+    <h3>옵션 ① UI 먼저 (스키마 시밍)</h3>
+    <p>블록 탭 UI를 먼저 만들고, 저장 시 <b>기존 고정 컬럼으로 매핑하는 shim</b>으로 흘려보냄(순서/반복은 임시로 미저장 또는 JSON 메모). 빠르게 체감 검증.</p>
+    <div class="prosCons"><div class="p"><b>장점</b> 가장 빠른 출시·검증, DB 변경 0</div><div class="c"><b>단점</b> 순서·반복·혼합 데이터가 안 남음 → F3/통계 토대 미완. 나중에 재마이그레이션.</div></div>
+  </div>
+  <div class="optcard">
+    <h3>옵션 ② 스키마 먼저</h3>
+    <p>log_blocks·user_routines 마이그레이션 + 병합을 먼저 완료하고 UI를 그 위에 구축.</p>
+    <div class="prosCons"><div class="p"><b>장점</b> 깨끗한 토대, 재작업 없음</div><div class="c"><b>단점</b> 첫 가시 산출물까지 오래. 어드민 시드/스토리/통계 동반수정을 한 번에 떠안음(리스크 집중).</div></div>
+  </div>
+  <div class="optcard rec">
+    <h3>옵션 ③ 증분 병행 <span class="pill rec">추천</span></h3>
+    <p><b>1)</b> log_blocks·user_routines를 <b>가산적으로 추가</b>(기존 컬럼은 파생 캐시로 보존) → <b>2)</b> 블록 탭 UI가 <b>블록 + 캐시 컬럼 둘 다 기록</b>(읽기는 당분간 기존 컬럼 사용 → 스토리/통계 무중단) → <b>3)</b> 온도 인라인(레이어②) → <b>4)</b> "더 자세히"(레이어③) + 나만의 루틴 → <b>5)</b> 읽기를 블록 기반으로 점진 전환, 구 폼 은퇴.</p>
+    <div class="prosCons">
+      <div class="p"><b>장점</b><ul><li>매 단계 배포 가능, 리스크 분산</li><li>어드민 시드·스토리·통계 <b>무중단</b>(캐시 컬럼 유지)</li><li>실패해도 롤백 쉬움(가산적)</li></ul></div>
+      <div class="c"><b>단점</b> 캐시 동기화 코드(블록→컬럼) 한시적 이중관리. 전환 완료 후 제거.</div>
+    </div>
+    <p style="font-size:13px;margin-top:8px"><b>권장 첫 PR</b>: (1) <code>log_blocks</code>/<code>user_routines</code> 마이그레이션 + (2) 블록 탭 빠른기록 화면(레이어①) + 캐시 매핑. 여기까지가 "라이트 마찰 0"의 최소 완성형.</p>
+  </div>
+
+  <!-- ============ 8 결정 ============ -->
+  <h2><span class="num">8</span> 정리 — 유저 결정 포인트</h2>
+  <table>
+    <tr><th>#</th><th>결정</th><th>나의 추천</th></tr>
+    <tr><td>1</td><td>"어땠어요" → revisit 재사용 vs 새 만족도</td><td><b>revisit 재사용</b>(4단 라벨)</td></tr>
+    <tr><td>2</td><td>추천 루틴에 온도/시간 프리셋 포함?</td><td><b>블록 순서만</b>(프리셋 분리)</td></tr>
+    <tr><td>3</td><td>온도·상세 레이어: A/B/C</td><td><b>C 하이브리드</b>(인라인 온도+더자세히)</td></tr>
+    <tr><td>4</td><td>스토리 토글: 누적 vs 독립</td><td><b>누적 스테퍼</b>(루틴→온도→시간)</td></tr>
+    <tr><td>5</td><td>고정 온도 컬럼: 파생캐시 vs 제거</td><td><b>파생 캐시 유지</b></td></tr>
+    <tr><td>6</td><td>어드민 시드 238곳 처리</td><td><b>컬럼 보존 + 신규만 블록 병행</b></td></tr>
+    <tr><td>7</td><td>블록 vocabulary SSOT 위치</td><td><b>content.ts 확장</b>(PLACE_SPECS 기반 BLOCK_TYPES)</td></tr>
+    <tr><td>—</td><td>구현 순서</td><td><b>옵션 ③ 증분 병행</b></td></tr>
+  </table>
+  <div class="note">이 문서는 <b>방향 드래프트</b>입니다. 결정 1~7 확정 후 별도 세션에서 DDL·구현(권장 첫 PR부터). 영향 매핑(스토리/히스토리/통계 동반수정표)은 스키마 확정 시 작성.</div>
+
+</div>
+</body>
+</html>
