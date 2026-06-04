@@ -11,8 +11,8 @@ import type { SaList } from '@/types'
 import { listBgColor } from '@/lib/utils'
 import FeaturedSaListCard from './featured-sa-list-card'
 
-// home variant 높낮이 스태거 패턴(각도 0·겹침 없음, 높이만 차이)
-const HOME_STAGGER = [0, 18, 6, 22, 10]
+// home variant 높낮이 스태거 패턴(각도 0·겹침 없음, 높이만 차이 — 재미있게 크게)
+const HOME_STAGGER = [0, 30, 12, 38, 18]
 
 interface Props {
   lists: SaList[]
@@ -55,7 +55,7 @@ export default function FeaturedSaListCarousel({
         <p className="text-xs text-stone-500 font-medium mt-1 mb-4">고수들의 추천 사우나</p>
 
         {/* -mx-5: 섹션 px-5 상쇄 → 풀블리드 스크롤 */}
-        <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-6 pt-1">
+        <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-9 pt-1">
           {lists.map((list, i) => {
             const handle = list.owner_nickname ? list.owner_nickname.toUpperCase() : ''
             return (
@@ -63,18 +63,18 @@ export default function FeaturedSaListCarousel({
                 key={list.id}
                 type="button"
                 onClick={() => router.push(`/sa-list/${list.id}`)}
-                className="flex-shrink-0 w-[160px] h-[128px] rounded-[18px] p-3.5 flex flex-col text-left text-white active:scale-[0.97] transition-transform"
+                className="flex-shrink-0 w-[146px] h-[172px] rounded-[20px] p-4 flex flex-col text-left text-white active:scale-[0.97] transition-transform"
                 style={{
                   backgroundColor: listBgColor(list.cover_hue),
                   marginTop: HOME_STAGGER[i % HOME_STAGGER.length],
-                  boxShadow: '0 8px 20px -7px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 1px rgba(255,255,255,0.12)',
+                  boxShadow: '0 10px 24px -8px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 1px rgba(255,255,255,0.12)',
                 }}
               >
-                <p className="text-[17px] font-extrabold leading-tight line-clamp-2 drop-shadow-sm">{list.title}</p>
+                <p className="text-[19px] font-extrabold leading-[1.2] line-clamp-3 drop-shadow-sm">{list.title}</p>
                 {list.description && (
-                  <p className="text-[11px] leading-snug text-white/90 mt-1 line-clamp-2 drop-shadow-sm">{list.description}</p>
+                  <p className="text-[12px] leading-relaxed text-white/90 mt-2 line-clamp-3 drop-shadow-sm">{list.description}</p>
                 )}
-                <p className="mt-auto text-[10.5px] text-white/85 uppercase tracking-wide">
+                <p className="mt-auto pt-2 text-[11px] text-white/85 uppercase tracking-wide">
                   {handle}{handle ? ' · ' : ''}{list.place_count}곳
                 </p>
               </button>

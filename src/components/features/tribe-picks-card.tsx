@@ -63,7 +63,7 @@ export default function TribePicksCard() {
       <p className="text-xs text-stone-500 font-medium mt-1 mb-4">실시간 업데이트 트라이브별 베스트 사우나!</p>
 
       {/* 3 컬러 카드 */}
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-3 gap-3">
         {TRIBE_LIST.map((tribe, i) => {
           const active = isGuest && activeIndex === i
           return (
@@ -71,7 +71,7 @@ export default function TribePicksCard() {
               key={tribe.id}
               onClick={() => goTribe(tribe.id)}
               className={`relative h-[100px] rounded-2xl overflow-hidden p-3 flex flex-col text-left text-white transition-all duration-300 ${
-                active ? 'scale-[1.04] shadow-md z-[1]' : 'shadow-sm'
+                active ? 'scale-[1.09] shadow-lg z-[1]' : isGuest ? 'opacity-[0.55] shadow-sm' : 'shadow-sm'
               }`}
               style={{
                 backgroundColor: tribe.color,

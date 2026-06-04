@@ -42,7 +42,7 @@ export default function Home() {
       </div>
 
       {/* ── 헤더 ── */}
-      <header className="relative z-[3] px-6 pt-8">
+      <header className="relative z-[3] px-6 pt-8 pb-2">
         <h1 className="text-[40px] leading-none italic font-heading text-white">
           <span className="font-medium">HELLO</span>{' '}
           <span className="font-bold">SA-PIEN</span>
@@ -51,45 +51,45 @@ export default function Home() {
       </header>
 
       {/* ── 스탬프 카드 슬롯 (프로필 카드 + 도장 + 사-첵 CTA) ── */}
-      <div className="relative z-[2] mx-[18px] mt-6 h-[184px]">
+      <div className="relative z-[5] mx-4 mt-6 h-[224px]">
         {/* 유저(스탬프) 카드 — 살짝 기울임 */}
-        <div className="absolute left-0 top-1.5 w-[74%] origin-center" style={{ transform: 'rotate(-3.5deg)' }}>
+        <div className="absolute left-0 top-1.5 w-[78%] origin-center" style={{ transform: 'rotate(-3.5deg)' }}>
           <ProfileCard />
         </div>
 
-        {/* 흰 도장 — 우측 위 레드 영역 배경 장식 */}
+        {/* 흰 도장 — 헤더↔사첵 사이, 사첵 위쪽 레드에 걸치게 (우측 살짝 클립) */}
         <SaunaStamp
           color="#ffffff"
           steamRotate={-40}
-          className="absolute w-[56px] h-[56px]"
-          style={{ right: '4px', top: '-52px', transform: 'rotate(16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
+          className="absolute w-[78px] h-[78px]"
+          style={{ right: '-10px', top: '-72px', transform: 'rotate(16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
         />
 
         {/* 블루 도장 — 카드 하단 캔버스 (체크인 데코) */}
         <SaunaStamp
           color="var(--color-bather)"
           steamRotate={15}
-          className="absolute w-[44px] h-[44px]"
-          style={{ left: '10%', top: '92px', transform: 'rotate(-16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
+          className="absolute w-[46px] h-[46px]"
+          style={{ left: '9%', top: '116px', transform: 'rotate(-16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
         />
 
-        {/* 사-첵 CTA — 기록하기 진입(엄지존, 오른쪽 일부 크롭) */}
+        {/* 사-첵 CTA — 기록하기 진입(엄지존, 오른쪽 일부 크롭, 움찔+호버/누름 애니메이션) */}
         <button
           type="button"
           onClick={handleRecord}
           aria-label="사우나 기록하기"
-          className="absolute rounded-full overflow-hidden active:scale-[0.96] transition-transform z-[4]"
-          style={{
-            right: '-28px',
-            top: '40px',
-            width: '152px',
-            height: '152px',
-            transform: 'rotate(10deg)',
-            boxShadow: '0 12px 28px -10px rgba(204,26,26,0.34), 0 4px 12px -5px rgba(0,0,0,0.10)',
-          }}
+          className="group absolute z-[4]"
+          style={{ right: '-30px', top: '42px', width: '196px', height: '196px', transform: 'rotate(10deg)' }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+          <div className="sachek-nudge w-full h-full">
+            <div
+              className="w-full h-full rounded-full overflow-hidden transition-transform duration-200 group-hover:scale-[1.05] group-active:scale-95"
+              style={{ boxShadow: '0 14px 32px -10px rgba(204,26,26,0.4), 0 5px 14px -5px rgba(0,0,0,0.12)' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+            </div>
+          </div>
         </button>
       </div>
 
