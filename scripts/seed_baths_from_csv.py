@@ -23,6 +23,7 @@
 """
 import csv
 import json
+import math
 import os
 import sys
 import uuid
@@ -33,6 +34,7 @@ CSV_PATH = "data/생활_목욕장업_영업중.csv"
 ENV_PATH = ".env.local"
 SRC_EPSG = "EPSG:5174"   # 지방행정 인허가 좌표계
 CHUNK = 1000             # 벌크 insert 청크 크기
+DEDUP_RADIUS_M = 100     # 기존(non-manual) 장소 이 거리 이내면 중복으로 보고 스킵
 
 
 def load_env(path):
@@ -61,6 +63,28 @@ def rest(method, url, key, body=None):
         return e.code, e.read().decode("utf-8")
 
 
+def haversine_m(la1, lo1, la2, lo2):
+    r = 6371000.0
+    p1, p2 = math.radians(la1), math.radians(la2)
+    dp = math.radians(la2 - la1)
+    dl = math.radians(lo2 - lo1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return r * 2 * math.asin(math.sqrt(a))
+
+
+def fetch_existing_nonmanual(base, key):
+    """기존에 있던 non-manual(naver/google/수동입력 등) 장소의 좌표 목록.
+    naver/google 샘플과 govdata가 겹치지 않도록 중복 판정 기준으로 쓴다."""
+    url = (f"{base}/rest/v1/places?select=latitude,longitude"
+           "&or=(coordinate_source.neq.manual,coordinate_source.is.null)"
+           "&latitude=not.is.null")
+    st, body = rest("GET", url, key)
+    if st not in (200, 206):
+        print(f"  ⚠️ 기존 장소 조회 실패 HTTP {st} — 교차중복 스킵 생략")
+        return []
+    return [(r["latitude"], r["longitude"]) for r in json.loads(body)]
+
+
 def main():
     keep = "--keep" in sys.argv
     dry = "--dry-run" in sys.argv
@@ -75,7 +99,8 @@ def main():
     tf = Transformer.from_crs(SRC_EPSG, "EPSG:4326", always_xy=True)
 
     places, sources = [], []
-    n_total = n_coord = n_nocoord = 0
+    n_total = n_coord = n_nocoord = n_dup_internal = 0
+    seen_na = set()  # (이름, 주소) 내부 완전중복 제거용
 
     with open(CSV_PATH, encoding="utf-8", newline="") as f:
         r = csv.reader(f)
@@ -89,6 +114,12 @@ def main():
             road = row[ix["도로명주소"]].strip()
             jibun = row[ix["지번주소"]].strip()
             address = road or jibun or None
+
+            key_na = (name, address or "")
+            if key_na in seen_na:
+                n_dup_internal += 1
+                continue
+            seen_na.add(key_na)
 
             lat = lng = None
             sx = row[ix["좌표정보(X)"]].strip()
@@ -130,7 +161,8 @@ def main():
                 "longitude": lng,
             })
 
-    print(f"파싱: {n_total}건 (좌표 있음 {n_coord} / 좌표 없음 {n_nocoord})")
+    print(f"파싱: {n_total}행 → 적재대상 {len(places)}곳 "
+          f"(좌표 {n_coord} / 무좌표 {n_nocoord} / 내부중복 스킵 {n_dup_internal})")
     if dry:
         print("--dry-run: DB 미기록 종료")
         print("샘플:", json.dumps(sources[0], ensure_ascii=False))
@@ -141,6 +173,22 @@ def main():
         s1, _ = rest("DELETE", f"{base}/rest/v1/place_sources?source=eq.manual", key)
         s2, _ = rest("DELETE", f"{base}/rest/v1/places?coordinate_source=eq.manual", key)
         print(f"기존 manual 정리: place_sources HTTP {s1}, places HTTP {s2}")
+
+    # 교차중복 제거: 기존 non-manual(naver/google 등) 장소 DEDUP_RADIUS_M 이내 후보 스킵
+    existing = fetch_existing_nonmanual(base, key)
+    if existing:
+        kept_p, kept_s, n_dup_cross = [], [], 0
+        for p, s in zip(places, sources):
+            if p["latitude"] is not None and any(
+                haversine_m(p["latitude"], p["longitude"], ela, elo) < DEDUP_RADIUS_M
+                for ela, elo in existing
+            ):
+                n_dup_cross += 1
+                continue
+            kept_p.append(p)
+            kept_s.append(s)
+        places, sources = kept_p, kept_s
+        print(f"기존 장소 {DEDUP_RADIUS_M}m 교차중복 스킵: {n_dup_cross} (기존 {len(existing)}곳 기준)")
 
     def bulk(table, rows):
         ok = 0
