@@ -70,7 +70,7 @@ export default function TribePicksCard() {
             <button
               key={tribe.id}
               onClick={() => goTribe(tribe.id)}
-              className={`relative h-[100px] rounded-2xl overflow-hidden p-3 flex flex-col text-left text-white transition-all duration-300 ${
+              className={`relative h-[100px] rounded-2xl overflow-hidden p-3 flex flex-col text-left text-white transition-all duration-200 active:scale-[0.96] ${
                 active ? 'scale-[1.09] shadow-lg z-[1]' : isGuest ? 'opacity-80 shadow-sm' : 'shadow-sm'
               }`}
               style={{

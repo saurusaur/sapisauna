@@ -4,7 +4,7 @@
  * 프로필(스탬프) 카드 — 홈 상단, 살짝 기울인 카드.
  * 로그인/비로그인 동일 레이아웃(이름 위치 일치):
  *   [아바타] 이름 · Lv.N(작게)
- *            칭호 chip  (게스트: "사우나 스탬프 모아보세요!")
+ *            칭호 chip  (게스트: "나만의 사우나 도장판 채우기!")
  * 카드 하단 빈 캔버스는 홈에서 도장(체크인 데코)이 찍히는 영역.
  */
 
@@ -75,7 +75,7 @@ export default function ProfileCard() {
             className="text-xs font-medium"
             style={{ color: isGuest ? 'var(--color-primary)' : '#a8a29e' }}
           >
-            사우나 스탬프 모아보세요!
+            나만의 사우나 도장판 채우기!
           </span>
         )}
       </div>

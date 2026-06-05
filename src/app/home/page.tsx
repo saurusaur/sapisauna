@@ -60,7 +60,7 @@ export default function Home() {
       </header>
 
       {/* ── 스탬프 카드 슬롯 (프로필 카드 + 도장 + 사-첵 CTA) ── */}
-      <div className="relative z-[5] mx-4 mt-6 h-[224px]">
+      <div className="relative z-[5] mx-4 mt-6 h-[214px]">
         {/* 유저(스탬프) 카드 — 살짝 기울임 */}
         <div className="absolute left-0 top-1.5 w-[78%] origin-center" style={{ transform: 'rotate(-3.5deg)' }}>
           <ProfileCard />
@@ -88,7 +88,7 @@ export default function Home() {
           onClick={handleRecord}
           aria-label="사우나 기록하기"
           className="group absolute z-[4]"
-          style={{ right: '-30px', top: '42px', width: '196px', height: '196px', transform: 'rotate(10deg)' }}
+          style={{ right: '-32px', top: '56px', width: '212px', height: '212px', transform: 'rotate(10deg)' }}
         >
           <div className={`w-full h-full ${popReady ? 'sachek-nudge' : ''}`}>
             <div
@@ -103,7 +103,7 @@ export default function Home() {
       </div>
 
       {/* ── 섹션 ── */}
-      <main className="relative z-[1] px-5 pt-6 space-y-8">
+      <main className="relative z-[1] px-5 pt-3 space-y-8">
         <TribePicksCard />
         <FeaturedSaListCarousel lists={featuredLists} home />
       </main>
