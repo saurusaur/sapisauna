@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNav from '@/components/bottom-nav'
 import { useFeaturedPublicLists } from '@/hooks/use-lists'
@@ -19,8 +20,16 @@ function getTodayKey(): string {
 export default function Home() {
   const router = useRouter()
   const { user: authUser } = useAuth()
-  const { data: featuredLists } = useFeaturedPublicLists()
+  const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
+
+  // 사-첵 팝: 페이지(데이터 포함) 로딩 완료 후 1회만 재생
+  const [popReady, setPopReady] = useState(false)
+  useEffect(() => {
+    if (featuredLoading || popReady) return
+    const t = setTimeout(() => setPopReady(true), 150)
+    return () => clearTimeout(t)
+  }, [featuredLoading, popReady])
 
   const handleRecord = () => {
     if (!authUser) {
@@ -81,7 +90,7 @@ export default function Home() {
           className="group absolute z-[4]"
           style={{ right: '-30px', top: '42px', width: '196px', height: '196px', transform: 'rotate(10deg)' }}
         >
-          <div className="sachek-nudge w-full h-full">
+          <div className={`w-full h-full ${popReady ? 'sachek-nudge' : ''}`}>
             <div
               className="w-full h-full rounded-full overflow-hidden transition-transform duration-200 group-hover:scale-[1.05] group-active:scale-95"
               style={{ boxShadow: '0 14px 32px -10px rgba(204,26,26,0.4), 0 5px 14px -5px rgba(0,0,0,0.12)' }}

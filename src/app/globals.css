@@ -242,7 +242,7 @@ input[type="range"]::-moz-range-thumb {
   100% { transform: scale(1); }
 }
 .sachek-nudge {
-  animation: sachek-pop 0.65s ease-out 0.15s both;
+  animation: sachek-pop 0.65s ease-out both;
   transform-origin: center;
 }
 @media (prefers-reduced-motion: reduce) {

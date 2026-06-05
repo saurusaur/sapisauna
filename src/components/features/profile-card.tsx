@@ -87,7 +87,7 @@ export default function ProfileCard() {
       <>
         <button
           onClick={() => requireAuth()}
-          className="w-full min-h-[176px] p-4 text-left transition-all active:scale-[0.98]"
+          className="w-full min-h-[176px] p-4 flex flex-col text-left transition-all active:scale-[0.98]"
           style={CARD_STYLE}
         >
           {body}
