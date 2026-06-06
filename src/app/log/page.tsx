@@ -362,25 +362,23 @@ export default function LogPage() {
   }
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
-      {/* 페르소나 밴드 */}
-      <header className="px-5 pt-7 pb-4 text-white relative" style={{ background: tribeColor, borderRadius: '0 0 28px 28px' }}>
-        <div className="flex items-center justify-between mb-3">
-          <button onClick={() => setShowBackConfirm(true)} className="w-8 h-8 flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></button>
-          <span className="font-semibold text-sm tracking-wide opacity-90">오늘의 사-첵</span>
-          <span className="w-8" />
+      {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
+      <header className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
+        <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></button>
+        <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
+        <div className="inline-flex items-center justify-center gap-2 text-3xl font-extrabold italic font-heading mt-0.5">
+          {logType.toUpperCase()} <span className="not-italic text-[26px]">{TRIBE_EMOJI_MAP[logType]}</span>
+          <button onClick={() => setPersonaOpen(o => !o)} title="트라이브 바꾸기" className="not-italic w-7 h-7 rounded-full flex items-center justify-center bg-white/25 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 16 }}>swap_horiz</span></button>
         </div>
-        <div className="flex items-end gap-2">
-          <div className="flex-1">
-            <div className="text-[11px] tracking-widest opacity-85 font-semibold">LOGGING AS</div>
-            <div className="text-2xl font-extrabold italic font-heading flex items-center gap-2">{logType.toUpperCase()} <span className="not-italic">{TRIBE_EMOJI_MAP[logType]}</span></div>
-          </div>
-          <button onClick={() => setPersonaOpen(o => !o)} className="text-[11px] font-bold rounded-full px-3 py-2 flex items-center gap-1 bg-white/25 transition-transform active:scale-95">
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>swap_horiz</span>바꾸기
-          </button>
-        </div>
-        {/* 트라이브 카드 (홈 TRIBE PICKS 비주얼 통일) */}
+        <div className="font-bold text-xl mt-4 px-4 break-keep">{placeName}</div>
+        <div className="text-xs font-semibold opacity-90 mt-1.5">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</div>
+        <button onClick={() => setShowChange(s => !s)} className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold rounded-full px-3 py-1.5 bg-white/25 transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>변경</button>
+      </header>
+
+      <main className="px-5 pt-4 space-y-6">
+        {/* 트라이브 바꾸기 패널 (홈 TRIBE PICKS 비주얼 통일) */}
         {personaOpen && (
-          <div className="grid grid-cols-3 gap-2 mt-3">
+          <div className="grid grid-cols-3 gap-2 rounded-2xl p-3" style={{ background: T.card }}>
             {TRIBE_IDS.map(t => {
               const on = t === logType
               return (
@@ -395,22 +393,10 @@ export default function LogPage() {
             })}
           </div>
         )}
-      </header>
 
-      <main className="px-5 pt-4 space-y-6">
-        {/* 장소·날짜·시간·탕 요약 + 변경 */}
-        <div className="rounded-2xl px-3.5 py-3" style={{ background: T.card }}>
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.tint, color: T.primary }}><span className="material-symbols-outlined">location_on</span></span>
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-[15px] truncate text-stone-800">{placeName}</div>
-              <div className="text-[11px] text-stone-500">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</div>
-            </div>
-            <button onClick={() => setShowChange(s => !s)} className="text-[11px] font-bold rounded-full px-3 py-1.5 text-stone-600 transition-transform active:scale-95" style={{ background: T.slot }}>변경</button>
-          </div>
-
-          {showChange && (
-            <div className="mt-3 pt-3 space-y-2.5" style={{ borderTop: `1px solid ${T.slot}` }}>
+        {/* 장소·날짜·시간·탕 변경 패널 */}
+        {showChange && (
+          <div className="rounded-2xl p-4 space-y-2.5" style={{ background: T.card }}>
               <div className="flex items-center gap-2 text-xs relative">
                 <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
                 <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
@@ -449,7 +435,6 @@ export default function LogPage() {
               <button onClick={goReselectPlace} className="text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
             </div>
           )}
-        </div>
 
         {/* 블록 선택 */}
         <section className="space-y-3">
