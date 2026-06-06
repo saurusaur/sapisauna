@@ -12,6 +12,8 @@
 // ─────────────────────────────────────────────────────────
 // Slider
 // ─────────────────────────────────────────────────────────
+import { useRef } from 'react'
+
 export function Slider({
   label,
   value,
@@ -39,14 +41,59 @@ export function Slider({
   /** true이면 우측에 × 리셋 버튼 표시 */
   showReset?: boolean
   onReset?: () => void
-  /** "slider" = 기본 슬라이더, "chip" = 원형 넘버 칩 */
-  variant?: 'slider' | 'chip'
+  /** "slider"=기본, "chip"=넘버 칩, "seal"=도장 씰 평가, "stamp"=통일 온도 슬라이더 */
+  variant?: 'slider' | 'chip' | 'seal' | 'stamp'
 }) {
   // 현재 값 이하인 step 중 가장 큰 value의 label
   const descriptor = steps.length > 0
     ? [...steps].filter(s => s.value <= value).sort((a, b) => b.value - a.value)[0]?.label
       ?? steps[0]?.label
     : null
+
+  // ── seal / stamp 공용: 온도 바 드래그 ──
+  const barRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const applyBar = (clientX: number) => {
+    const el = barRef.current; if (!el) return
+    const r = el.getBoundingClientRect()
+    const p = Math.max(0, Math.min(1, (clientX - r.left) / r.width))
+    onChange(Math.round(min + p * (max - min)))
+  }
+
+  // ── seal variant (도장 씰 평가: 라벨 | 씰 | 값) ──
+  if (variant === 'seal') {
+    return (
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: label ? '62px 1fr auto' : '1fr auto' }}>
+        {label && <span className="text-xs font-bold text-stone-700">{label}</span>}
+        <div className={`flex gap-2 items-center ${inactive ? 'opacity-50' : ''}`}>
+          {[1, 2, 3, 4, 5].map((v) => (
+            <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="rounded-full relative shrink-0 transition-transform active:scale-90" style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+              {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
+            </button>
+          ))}
+        </div>
+        <span className="text-[11px] font-bold text-right" style={{ minWidth: 40, color: value ? 'var(--color-primary)' : undefined }}>{value ? (descriptor ?? '') : '—'}</span>
+      </div>
+    )
+  }
+
+  // ── stamp variant (통일 온도 슬라이더: t-stamp 트랙 + 드래그 + D2 라벨) ──
+  if (variant === 'stamp') {
+    const pct = Math.round(((value - min) / (max - min)) * 100)
+    return (
+      <div ref={barRef} className="relative h-11 rounded-xl overflow-hidden cursor-ew-resize touch-none select-none" style={{ backgroundColor: 'var(--color-primary-light)' }}
+        onPointerDown={(e) => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); applyBar(e.clientX) }}
+        onPointerMove={(e) => { if (dragging.current) applyBar(e.clientX) }}
+        onPointerUp={() => { dragging.current = false }}>
+        <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
+        {descriptor && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold pointer-events-none" style={{ color: 'var(--color-card)' }}>{descriptor}</span>}
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold font-heading pointer-events-none text-stone-800">{value}{unit}</span>
+        <span className="absolute top-1/2 rounded-full pointer-events-none flex items-center justify-center" style={{ left: `${pct}%`, width: 15, height: 15, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-card)' }}>
+          <span className="rounded-full" style={{ width: 6, height: 6, backgroundColor: 'var(--color-primary)' }} />
+        </span>
+      </div>
+    )
+  }
 
   // ── chip variant ──
   if (variant === 'chip') {

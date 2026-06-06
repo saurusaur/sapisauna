@@ -38,6 +38,7 @@ const T = {
   card: 'var(--color-card)',
   tint: 'var(--color-primary-light)',
   primary: 'var(--color-primary)',
+  muted: 'var(--color-muted-fg)',
 }
 
 const QUALITY: Record<TribeId, { label: string; steps: { value: number; label: string }[] }> = {
@@ -75,7 +76,8 @@ function makePicked(catalogId: string): Picked {
   const d = BLOCK_TYPE_MAP[catalogId]
   const temp = d.tempRange ? Math.round((d.tempRange[0] + d.tempRange[1]) / 2) : null
   const durationSec = d.durUnit === 'sec' ? 30 : d.durUnit === 'min' ? 480 : null
-  return { catalogId, temp, durationSec, score: null, cost: null, memo: null, norepeat: false }
+  // 1회성 활동(beyond: 세신·마사지·매점·식당·수면)은 자동 반복 제외. 아우프구스는 사우나 사이클 일부라 반복 포함.
+  return { catalogId, temp, durationSec, score: null, cost: null, memo: null, norepeat: d.category === 'beyond' && d.blockType !== 'aufguss' }
 }
 
 export default function LogPage() {
@@ -132,6 +134,7 @@ export default function LogPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [showBackConfirm, setShowBackConfirm] = useState(false)
+  const [showPlaceConfirm, setShowPlaceConfirm] = useState(false)
 
   const deriveBathGender = (ft: string | null, bp: string | null, g?: 'male' | 'female'): BathGender | null => {
     if (ft === 'private-sauna') return g === 'male' ? 'private_male' : g === 'female' ? 'private_female' : 'private'
@@ -243,6 +246,8 @@ export default function LogPage() {
   }
 
   const cancelLog = () => { clearLogSessionAfterSave(); router.back() }
+  const hasInput = picked.length > 0 || !!memo || !!cost || !!companion || !!crowd || cleanliness > 0
+  const goReselectPlace = () => { if (hasInput) setShowPlaceConfirm(true); else router.push('/place') }
 
   const displayDate = recordDate.replace(/-/g, '.')
   const formatHour = (h: number) => h < 12 ? `오전 ${h === 0 ? 12 : h}시` : `오후 ${h === 12 ? 12 : h - 12}시`
@@ -275,10 +280,6 @@ export default function LogPage() {
       </button>
     )
   }
-  const ChipRow = ({ value, steps, onChange, label }: { value: number; steps: { value: number; label: string }[]; onChange: (v: number) => void; label: string }) => (
-    <Slider label={label} value={value || 1} min={1} max={5} steps={steps} onChange={onChange} variant="chip" inactive={value === 0} onActivate={() => onChange(3)} />
-  )
-
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 밴드 */}
@@ -304,7 +305,7 @@ export default function LogPage() {
               const on = t === logType
               return (
                 <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(3) }}
-                  className="relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-opacity"
+                  className="relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-opacity shadow-md"
                   style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.55, boxShadow: on ? `inset 0 0 0 2.5px ${T.card}` : undefined }}>
                   <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
                   <span className="absolute text-[40px] leading-none" style={{ right: -6, bottom: -8, transform: 'rotate(-8deg)' }}>{TRIBE_EMOJI_MAP[t]}</span>
@@ -364,7 +365,7 @@ export default function LogPage() {
                   </div>
                 )}
               </div>
-              <button onClick={() => router.push('/place')} className="text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
+              <button onClick={goReselectPlace} className="text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
             </div>
           )}
         </div>
@@ -423,14 +424,13 @@ export default function LogPage() {
                   return (
                     <div key={i} className="rounded-2xl p-3 space-y-2" style={{ background: T.card }} onDragOver={e => e.preventDefault()} onDrop={() => handleDrop(i)}>
                       <div className="flex items-center gap-2">
-                        <span draggable onDragStart={() => { dragFrom.current = i }} className="w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center cursor-grab relative shrink-0" style={{ background: p.norepeat ? 'transparent' : T.primary, border: p.norepeat ? `2px dashed ${T.primary}` : undefined, color: p.norepeat ? T.primary : T.card }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{d.icon}</span>
+                        <span draggable onDragStart={() => { dragFrom.current = i }} onClick={() => updatePicked(i, { norepeat: !p.norepeat })} title="탭=반복 제외 / 드래그=순서" className="w-9 h-9 rounded-full flex items-center justify-center cursor-grab relative shrink-0" style={{ background: p.norepeat ? 'transparent' : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 19 }}>{d.icon}</span>
                         </span>
                         <span className="font-bold text-sm flex-1 text-stone-800">{d.label}{p.norepeat ? ' ·1회' : ''}</span>
-                        <button onClick={() => updatePicked(i, { norepeat: !p.norepeat })} className="text-[10px] font-bold px-2 py-1 rounded-full text-stone-500" style={p.norepeat ? { background: T.primary, color: T.card } : { background: T.slot }}>1회</button>
                         <button onClick={() => togglePick(p.catalogId)} className="text-stone-300"><span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span></button>
                       </div>
-                      {d.tempRange && <Slider label="온도" value={p.temp ?? d.tempRange[0]} min={d.tempRange[0]} max={d.tempRange[1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />}
+                      {d.tempRange && <Slider variant="stamp" label="" value={p.temp ?? d.tempRange[0]} min={d.tempRange[0]} max={d.tempRange[1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />}
                       {d.durUnit && (
                         <div className="flex items-center gap-2 text-sm">
                           <span className="text-xs font-semibold w-12 text-stone-500">시간</span>
@@ -439,7 +439,7 @@ export default function LogPage() {
                           <button onClick={() => updatePicked(i, { durationSec: (p.durationSec ?? 0) + (d.durUnit === 'sec' ? 10 : 60) })} className="w-7 h-7 rounded-lg" style={{ background: T.slot }}>+</button>
                         </div>
                       )}
-                      {evalSteps && <ChipRow label={REST_EVAL.has(d.blockType) ? '휴식 질' : MEMO_BLOCKS.has(d.blockType) ? '맛' : '만족도'} value={p.score ?? 0} steps={evalSteps} onChange={v => updatePicked(i, { score: v })} />}
+                      {evalSteps && <Slider variant="seal" label={REST_EVAL.has(d.blockType) ? '휴식 질' : MEMO_BLOCKS.has(d.blockType) ? '맛' : '만족도'} value={p.score ?? 0} min={1} max={5} steps={evalSteps} onChange={v => updatePicked(i, { score: v })} />}
                       {PRICE_BLOCKS.has(d.blockType) && <input inputMode="numeric" placeholder="₩ 가격" value={p.cost ?? ''} onChange={e => updatePicked(i, { cost: e.target.value ? Number(e.target.value) : null })} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: T.slot }} />}
                       {MEMO_BLOCKS.has(d.blockType) && <input placeholder="추천메뉴 (예: 식혜가 시원)" value={p.memo ?? ''} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="w-full rounded-lg px-3 py-2 text-sm" style={{ background: T.slot }} />}
                     </div>
@@ -459,8 +459,8 @@ export default function LogPage() {
 
         {/* 평가 */}
         <section className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
-          <ChipRow label={QUALITY[logType].label} value={quality} steps={QUALITY[logType].steps} onChange={setQuality} />
-          <ChipRow label="또 갈래요?" value={revisit} steps={REVISIT_STEPS} onChange={setRevisit} />
+          <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
+          <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
         </section>
 
         {/* 더 자세히 */}
@@ -468,12 +468,21 @@ export default function LogPage() {
           <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>더 자세히 (청결·동행·입장료·메모)</button>
           {detailOpen && (
             <div className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
-              <ChipRow label="청결도" value={cleanliness} steps={CLEAN_STEPS} onChange={setCleanliness} />
-              <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
-              <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
-              <div className="flex items-center gap-2">
-                <input inputMode="numeric" placeholder="입장료" value={cost} onChange={e => setCost(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: T.slot }} />
-                <input value={currency} onChange={e => setCurrency(e.target.value)} className="w-20 rounded-lg px-3 py-2 text-sm text-center" style={{ background: T.slot }} />
+              <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
+              <div>
+                <p className="text-xs font-bold text-stone-700 mb-1.5">동행</p>
+                <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-stone-700 mb-1.5">혼잡도</p>
+                <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-stone-700 mb-1.5">입장료</p>
+                <div className="flex items-center gap-2">
+                  <input inputMode="numeric" placeholder="금액" value={cost} onChange={e => setCost(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: T.slot }} />
+                  <input value={currency} onChange={e => setCurrency(e.target.value)} className="w-20 rounded-lg px-3 py-2 text-sm text-center" style={{ background: T.slot }} />
+                </div>
               </div>
               <textarea placeholder="오늘의 한 줄 메모" value={memo} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
             </div>
@@ -492,6 +501,13 @@ export default function LogPage() {
           message={editId ? '편집을 취소할까요?\n변경사항이 저장되지 않습니다.' : '기록을 취소할까요?\n입력한 내용이 사라집니다.'}
           onConfirm={cancelLog}
           onCancel={() => setShowBackConfirm(false)}
+        />
+      )}
+      {showPlaceConfirm && (
+        <ConfirmModal
+          message={'장소를 다시 선택하면\n입력한 내용이 사라져요.'}
+          onConfirm={() => router.push('/place')}
+          onCancel={() => setShowPlaceConfirm(false)}
         />
       )}
     </div>

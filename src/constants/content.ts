@@ -635,10 +635,10 @@ export const BLOCK_TYPES: BlockTypeDef[] = [
   // ── HEAT ──
   { id: "dry-sauna", blockType: "dry-sauna", label: "건식", icon: "sauna", category: "heat", durUnit: "min", cacheCol: "dry_sauna_temp", tempRange: [50, 130], tempSteps: [ { value: 50, label: "미지근" }, { value: 65, label: "따뜻" }, { value: 85, label: "뜨끈" }, { value: 100, label: "후끈" }, { value: 120, label: "지옥" } ] },
   { id: "steam-sauna", blockType: "steam-sauna", label: "습식", icon: "water_voc", category: "heat", durUnit: "min", cacheCol: "steam_sauna_temp", tempRange: [40, 75], tempSteps: [ { value: 40, label: "미지근" }, { value: 48, label: "따뜻" }, { value: 55, label: "뜨끈" }, { value: 62, label: "뜨겁" }, { value: 70, label: "찜기" } ] },
+  { id: "salt-sauna", blockType: "salt-sauna", label: "소금", icon: "salinity", category: "heat", durUnit: "min", cacheCol: "salt_sauna_temp", tempRange: [40, 70], tempSteps: [ { value: 40, label: "미온" }, { value: 55, label: "적당" }, { value: 70, label: "뜨끈" } ] },
   { id: "hot-bath", blockType: "hot-bath", label: "온탕", icon: "heat", category: "heat", durUnit: "min", cacheCol: "hot_bath_temp", tempRange: [35, 43], tempSteps: [ { value: 35, label: "미지근" }, { value: 37, label: "따뜻" }, { value: 39, label: "적당" }, { value: 41, label: "뜨끈" }, { value: 42, label: "뜨겁" } ] },
   { id: "very-hot-bath", blockType: "very-hot-bath", label: "열탕", icon: "emergency_heat_2", category: "heat", durUnit: "min", cacheCol: "very_hot_bath_temp", tempRange: [38, 46], tempSteps: [ { value: 38, label: "따뜻" }, { value: 40, label: "뜨끈" }, { value: 42, label: "뜨겁" }, { value: 44, label: "극열" }, { value: 46, label: "삶음" } ] },
   { id: "bulgama", blockType: "bulgama", label: "한증막", icon: "warehouse", category: "heat", durUnit: "min", cacheCol: "bulgama_temp", tempRange: [60, 140], tempSteps: [ { value: 70, label: "따뜻" }, { value: 90, label: "뜨끈" }, { value: 105, label: "후끈" }, { value: 120, label: "지글지글" }, { value: 140, label: "용암" } ] },
-  { id: "salt-sauna", blockType: "salt-sauna", label: "소금", icon: "salinity", category: "heat", durUnit: "min", cacheCol: "salt_sauna_temp", tempRange: [40, 70], tempSteps: [ { value: 40, label: "미온" }, { value: 55, label: "적당" }, { value: 70, label: "뜨끈" } ] },
   { id: "open-air-bath", blockType: "open-air-bath", label: "노천탕", icon: "bath_outdoor", category: "heat", durUnit: "min", cacheCol: "open_air_bath_temp", tempRange: [30, 45], tempSteps: [ { value: 30, label: "미지근" }, { value: 38, label: "따뜻" }, { value: 45, label: "뜨끈" } ] },
   // ── ICE ──
   { id: "cold-bath", blockType: "cold-bath", label: "냉탕", icon: "ac_unit", category: "ice", durUnit: "sec", cacheCol: "cold_bath_temp", tempRange: [5, 30], tempSteps: [ { value: 5, label: "극냉" }, { value: 10, label: "차가움" }, { value: 15, label: "시원" }, { value: 20, label: "미지근" }, { value: 30, label: "미온" } ] },
@@ -649,13 +649,14 @@ export const BLOCK_TYPES: BlockTypeDef[] = [
   { id: "outdoor-rest", blockType: "outdoor-rest", label: "외기욕", icon: "chair_umbrella", category: "rest", durUnit: "min", evalKind: "rest" },
   { id: "indoor-rest", blockType: "indoor-rest", label: "내기욕", icon: "living", category: "rest", durUnit: "min", evalKind: "rest" },
   // ── BEYOND ──
-  { id: "aufguss", blockType: "aufguss", label: "아우프구스", icon: "airwave", category: "beyond", durUnit: "min" },
-  { id: "sleep-room", blockType: "sleep-room", label: "수면", icon: "airline_seat_flat", category: "beyond", durUnit: null, evalKind: "rest" },
+  // 선택 빈도 높은 순서로 정렬 (팔레트 노출 순서)
   { id: "scrub", blockType: "scrub", variant: "basic", label: "세신", icon: "spa", category: "beyond", durUnit: null, evalKind: "scrub" },
   { id: "scrub-withmassage", blockType: "scrub", variant: "withmassage", label: "마사지세신", icon: "spa", category: "beyond", durUnit: null, evalKind: "scrub", catalogOnly: true },
   { id: "massage", blockType: "massage", label: "마사지", icon: "massage", category: "beyond", durUnit: null, evalKind: "massage" },
   { id: "snack", blockType: "snack", label: "매점", icon: "dining", category: "beyond", durUnit: null, evalKind: "snack" },
   { id: "restaurant", blockType: "restaurant", label: "식당", icon: "restaurant", category: "beyond", durUnit: null, evalKind: "restaurant" },
+  { id: "sleep-room", blockType: "sleep-room", label: "수면", icon: "airline_seat_flat", category: "beyond", durUnit: null, evalKind: "rest" },
+  { id: "aufguss", blockType: "aufguss", label: "아우프구스", icon: "airwave", category: "beyond", durUnit: "min" },
   { id: "other", blockType: "other", label: "기타", icon: "more_horiz", category: "beyond", durUnit: "min" },
 ];
 
@@ -667,7 +668,7 @@ export const BLOCK_TYPE_MAP: Record<string, BlockTypeDef> = Object.fromEntries(
 export const TRIBE_DEFAULT_BLOCKS: Record<string, string[]> = {
   saunner: ["dry-sauna", "steam-sauna", "cold-bath", "hot-bath", "rest"],
   bather: ["hot-bath", "very-hot-bath", "cold-bath", "scrub", "rest"],
-  jimi: ["bulgama", "salt-sauna", "snack", "sleep-room", "rest"],
+  jimi: ["bulgama", "ice-room", "snack", "sleep-room", "rest"],
 };
 
 // 레인 카테고리 메타 (활동 전체보기)
