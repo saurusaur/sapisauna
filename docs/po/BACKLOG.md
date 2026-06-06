@@ -4,12 +4,32 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
+- (없음)
 
 ## Backlog
 
+<!-- 🎯 P0 최우선 — 모든 기록 기능의 기반 -->
+- [ ] [아키텍처/데이터] **로그·스키마 구조 재검토 (최우선)** — F1(블록 탭 기록=누른 순서가 루틴) 등 신규 기록 모델이 현재 `logs`/`deep_logs` 컬럼형 스키마(온도=개별 컬럼)와 맞는지 근본 재검토. 루틴 시퀀스(블록 순서)·세트·트라이브 기본블록을 어떻게 저장할지 결정. **데이터 전체의 기반 — 여기가 흔들리면 전부 흔들림.** F1·F3·F5의 선행조건. 드래프팅 핸드오프: `docs/handoff/handoff_20260604_log_schema_redesign.md` | priority: P0 | added: 2026-06-04
+- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
+
+<!-- 🧪 사-피 방향성 (구현스케치 `docs/po/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
+     페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/UX_DIRECTION_page_emphasis_20260604.md` -->
+- [ ] [기능+게임화] **F1 빠른 기록 = 블록 탭** — 누른 순서가 루틴(1건식→2냉탕→3휴식), 온도/세트는 상세 토글로 분리, "어땠어"(별로~최고), 나만의 루틴 저장/불러오기 + 트라이브 추천 루틴("토토노우 입문"). 마찰 0·데이터는 남게. ※"내 루틴 찾아가기(Routine Fit)" ①콜드스타트 흡수. 선행: 로그/스키마 재검토 | priority: P0 | added: 2026-06-04
+- [ ] [UX/발견] **F2 트라이브 픽 필터 + 영업중·24시 토글** — 사우너픽/탕러픽/찜질러픽(트라이브 추천·로그집계) + 영업중·24시, 조합 시 실시간 카운트·핀 갱신. 시설칩 필터는 다음 단계. 수요근거: 사우나 추천=최대 미충족 니즈(질문38%). ※"지도 검색 흐름 개선"과 연계 | priority: P1 | added: 2026-06-04
+- [ ] [기능] **F3 방문지 비교 → 개인 점수·인생 랭킹** — 둘씩 비교로 개인점수(0~10) 자동정렬(Beli식), 비교 누적=내 사우나 랭킹, 공개·비교→한 탭 SA리스트화(큐레이터 전환). 선행: 로그/스키마 재검토 | priority: P2 | added: 2026-06-04
+- [ ] [게임화/수익화] **F4 사우나 도장판** — 방문(체크인)=트라이브 무드 도장, 월별·시즌 테마 스킨 꾸미기, 완성 시 사우나펫 아이템(때수건·식혜·맥반석란)+경품 추첨(브랜드 스폰서=제휴 수익화). ※"사우나 펫"·"칭호"와 리워드 통합 검토 | priority: P2 | added: 2026-06-04
+- [ ] [UX] **F5 히스토리 캘린더 뷰 재설계** — 캘린더↔리스트 토글·KPI·인사이트·최근기록은 유지, '달력' 부분(주간 스트립/월 그리드)만 재설계 | priority: P2 | added: 2026-06-04
+- [ ] [기능] **F6 저장 = 큐레이션(자동 리스트화)** — 저장 쌓이면 테마 자동감지→리스트화 제안(노천탕·24시·도쿄…)+이름 추천→한 탭 생성, 공개 시 구독 유도. 콜드 공백은 FEATURED 선충전. ※"큐레이션 리스트 시드"=콜드공백, "구독 리스트 지도" 연계. **완전 후순위** | priority: P3 | added: 2026-06-04
+
+<!-- 🛠 어드민 페이지 — 스코핑 먼저 -->
+- [ ] [기능/인프라] **어드민 페이지 구축** — 현재 place 등록·교정이 스크립트(katalk-*)로만 가능하고 큐레이션 is_featured 관리 UI도 없음 → 어드민 페이지 필요. **①구성·기능 스코핑 먼저(확인 필요)**: 후보 = 장소 등록/편집·병합 리뷰, place_sources/온도/시설 교정, is_featured 큐레이션 리스트 관리, 신고("다른 장소"/"폐업") 큐·폐업 배지, 수동 등록 리뷰 큐, 통계 대시보드. → ②구축. ※기존 "어드민 도구(P2)" 흡수. 큐레이션 시드(P0)·F6 운영의 기반. 스코핑: `docs/plans/PLAN_admin_page_scope.md` | priority: P1 | added: 2026-06-04
+
+- [ ] [데이터] resort-spa 재분류 일괄 검토 — `PHASE_LOG.md` 메모의 워터파크/메가 데이온천 후보 15곳(아쿠아필드 고양/안성/하남·스파랜드류·이천 테르메덴·Therme Erding 등) 중 현재 public-bath/hotel-spa 잔존분을 026 정의에 맞춰 resort-spa로 전환 검토 | priority: P2 | added: 2026-06-04
+- [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
+
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
-- [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등) | priority: P0 | added: 2026-03-23
+- [ ] [콘텐츠] 큐레이션 리스트 시드 — 어드민 is_featured 리스트 5~8개 생성 (노천탕/24시/세신 등). ※F6 자동 리스트화의 콜드공백 선충전 역할 | priority: P0 | added: 2026-03-23
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [UX] 뉴비 유저 사우나 용어 설명 팝업 — 처음 보는 유저를 위해 사우나 용어(아우프구스/세신/토토노이/노천탕/한증막/온탕/열탕/냉탕/급냉탕/건식/습식 등) 클릭 시 설명 팝오버. 트리거 후보: 로그 폼 라벨 옆 ⓘ 아이콘 / 장소 상세 시설 칩 클릭 / 온보딩 첫 진입 시 1회 가이드. 용어 사전 단일 소스(content.ts에 GLOSSARY 상수) | priority: P1 | added: 2026-04-30
@@ -17,9 +37,10 @@
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
+- [ ] [UX] 장소 상세 '시설 정보' 표시 순서 재검토 — 상세 페이지 시설 정보 섹션의 항목 노출 순서가 사용자 정보 우선순위에 맞는지 점검·재배치 (예: 핵심 시설/탕 구분/부대시설 그룹핑·정렬) | priority: P2 | added: 2026-06-04
 - [ ] [UX] 지도 검색 흐름 개선 (대작업) — 현재 지도뷰 검색이 불편: 상단 검색바가 이미 로드된 장소만 이름/주소로 클라이언트 필터링하고 지도는 결과로 이동/줌하지 않음, 지역·주소 검색·자동완성 없음. 개선 방향: ① 장소명/지역/주소 검색 시 지도 자동 센터링+줌 & 결과 마커 강조 ② "이 지역에서 검색"(지도 이동 시 현재 bounds 기준 재조회) 패턴 ③ 검색 자동완성(장소/지역). 기본 뷰가 지도로 바뀌면서(2026-06-03) 검색 진입 빈도↑ → 우선순위 상향 검토 | priority: P2 | added: 2026-06-03
 - [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
-- [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지 | priority: P2 | added: 2026-03-02
+- [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지. ⚠️"어드민 페이지 구축"으로 통합 — 거기서 스코핑 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
 - [ ] [디자인] UI 최종 검증 — Phase 11 | priority: P2 | added: 2026-02-28
 - [ ] [리팩토링] safeParse 패턴 재검토 — 상세: `REVIEW_safeParse_errors.md` | priority: P2 | added: 2026-03-04
@@ -28,18 +49,27 @@
 
 <!-- P3 — 장기 -->
 - [ ] [성능] 지도뷰 마커 명령형화(#3) — 현재 모든 장소가 @vis.gl AdvancedMarker(React 컴포넌트)로 마운트돼 줌아웃(전국 보기)·첫 진입 시 마운트 총량이 큼. 비저장(일반) 핀을 markerclusterer 네이티브 마커(순수 DOM, createClusterElement 방식)로 그리고 선택/저장 등 인터랙티브한 소수만 React 마커로 유지하면 reconcile 대상이 238→수 개로 감소. #1(메모이제이션)·#2(뷰포트 컬링)으로 클릭·팬 비용은 해결됐고, 이건 줌아웃 마운트 총량 근본해결용 | priority: P3 | added: 2026-06-02
-- [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (참고용 한글본: `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md`) / v1 초안 deprecated: `docs/plans/archive/PLAN_sauna_pet.md` | priority: P3 | added: 2026-05-18
-- [ ] [기능] 내 루틴 찾아가기 (Routine Fit) — 수요 근거: 먼데이사우나 톡방에서 루틴 화제의 26%가 "스탠다드가 뭐예요?/13도 몇분?" 식 *기준·캘리브레이션 질문*(자랑·공유 아님). 분석: `docs/research/katalk-20260519/topic-analysis.md`. **소셜이 아니라 self-discovery 루프**로 설계. 입력변수(HEAT/ICE/PAUSE/REPEAT)+결과변수(토토노우·만족도·또갈래요)가 이미 스키마에 있음. 단계: ① **콜드스타트**(입문자용 기본 루틴 템플릿, 크로스유저 밀도 불필요 → 지금도 가능, P2) → ② **개인 수렴**(내 로그 기반 "고만족 세션 패턴" 피드백, 내 로그 수십개면 됨 → 중기, P3) → ③ **크로스유저/장소 평균**(유저 수백+ 게이트 → 장기, P3). 진짜 "옵티마이제이션"은 ②③의 개인화 추천 = 기록앱→루틴코치 전환점 | priority: P3 | added: 2026-05-30
+- [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (참고용 한글본: `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md`) / v1 초안 deprecated: `docs/plans/archive/PLAN_sauna_pet.md`. ⚠️리워드(아이템·경품) 획득 경로는 F4 사우나 도장판과 통합 검토 | priority: P3 | added: 2026-05-18
+- [ ] [기능] 내 루틴 찾아가기 (Routine Fit) — 수요 근거: 먼데이사우나 톡방에서 루틴 화제의 26%가 "스탠다드가 뭐예요?/13도 몇분?" 식 *기준·캘리브레이션 질문*(자랑·공유 아님). 분석: `docs/research/katalk-20260519/topic-analysis.md`. **소셜이 아니라 self-discovery 루프**로 설계. 입력변수(HEAT/ICE/PAUSE/REPEAT)+결과변수(토토노우·만족도·또갈래요)가 이미 스키마에 있음. 단계: ① **콜드스타트**(입문자용 기본 루틴 템플릿, 크로스유저 밀도 불필요 → 지금도 가능, P2) → ② **개인 수렴**(내 로그 기반 "고만족 세션 패턴" 피드백, 내 로그 수십개면 됨 → 중기, P3) → ③ **크로스유저/장소 평균**(유저 수백+ 게이트 → 장기, P3). 진짜 "옵티마이제이션"은 ②③의 개인화 추천 = 기록앱→루틴코치 전환점. ⚠️①콜드스타트(입문 루틴 템플릿)는 F1로 흡수 — 본 항목은 ②개인수렴·③크로스유저만 잔존 | priority: P3 | added: 2026-05-30
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
 - [ ] [기능] API 카테고리→시설유형 자동매핑 — 유저 인풋 보조. 상세: `PLAN_venue_type_auto_mapping.md` | priority: P3 | added: 2026-03-20
-- [ ] [데이터] 시설 태그 잔여 보강 — 4건(유림탕/유진/주신/필례) 유저 기여로 보완 | priority: P3 | added: 2026-03-21
+- [ ] [기능/데이터] 유저 시설 기여·요청 플로우 — 장소 상세 "시설 추가/수정 제안" → 어드민 검수 큐 유입 → 반영 시 recognition(이중가치 루프). 어드민 A 리포트의 "요청 시설 집계"·완성도 개선의 데이터 소스. 우선 잔여 4건(유림탕/유진/주신/필례)도 이 경로로 흡수. 스코프: `docs/plans/PLAN_admin_page_scope.md` A·D | priority: P3 | added: 2026-03-21
 - [ ] [인프라] PWA 오프라인 + 동기화 | priority: P3 | added: 2026-02-27
 - [ ] [기능] 커머스 — 특가/한정 공구 | priority: P3 | added: 2026-02-28
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
 
+### 2026-06-04
+- [x] [데이터] 카톡 DB Sync **Phase 4 완료 (국내 40 + 해외 16)** — (1) **국내 NEW 40건 등록**(places 256→296, naver+mapx_mapy, 어드민 logs/deep_logs. NEW 48→실신규 40: −5 silent중복 프록시미티검출 −3 좌표병합. 온도위반0·중복0) + enrich(NULL보강6·신규로그4·facilities/memo)·깨진 facilities 42곳·jjim Phase5·deep_log memo 손상 7건 (2) **해외 신규 16건 등록**(places 296→**312**, source=google·external_id=place_id·coordinate_source=google, cc JP14/US1/HK1. 23건 중 7건은 기존 시드라 제외). **핸드오프 전제 교정 3건**: ①7건 이미존재(시드)→신규16 ②`hotel-spa`는 026서 폐기→`hotel-premium`(INSERT CHECK 회피) ③16건 시설·온도·정식명 사용자 전수검토 반영(코코로노=Hotel Furukawa, 아리마/fuua=resort-spa 재분류, 아리마 건식94 enrich). 산출: `katalk-overseas-register.mjs`·`overseas-register-dryrun-20260604.md`·`overseas-existing7-verify-20260604.md` | priority: P1 | added: 2026-06-02 | done: 2026-06-04
+- [x] [정리] katalk 데이터 동기화 산출물 대청소 — "검수된 최종 품질보장본만 잔존" 기준. 완료 phase 일회성/중간 산출물 77삭제(git 복구가능), katalk 스크립트 32→6(merge-flat·master-reference·db-full-audit·register류), research 디렉토리 ~62→15(raw·chunk·flat·최종등록입력·decisions·README). 핸드오프 3+PLAN_phase4 archive, 와이어프레임 7 archive. **`PHASE_LOG.md` 신설**(수치·결론·교훈·미적용항목 통합 — resort-spa 재분류 후보 15곳·DB 잔여 플래그 등 메모 보존). README/PHASE_LOG 참조 정합성 정리 | priority: P2 | done: 2026-06-04
+
+### 2026-06-03
+- [x] [기능+UX] 탐색(사우나 찾기) 지도뷰 전면 개편 — (1) 탭명 '탐색'→'사우나 찾기', 기본 뷰 list→map, 위치 없을 때 남산공원(N서울타워) 기준 뷰 (2) 핀 재디자인: 비선택 심플 물방울 핀 / 선택 확대+사-피 로고 증기(BMP→potrace 벡터, 14px)+은은한 그림자 / 찜 머리중앙 미니 하트 / 비선택·클러스터 그림자 제거 (3) 클러스터: radius 40·maxZoom 15 튜닝, 빨강채움+흰숫자 30px, 클릭 시 getBoundsZoom+moveCamera rAF로 한 번에 자연 줌인(250ms, maxZoom+1 캡 → 딱 분리될 만큼) (4) 선택 마커가 하단 정보카드에 가리지 않게 PanToSelected, 줌 컨트롤 제거. 시안: `docs/wireframes/MOCK_map_pins_24h.html`. 선택+찜 동시 표시(하트 배지)는 보류 | priority: P2 | done: 2026-06-03
+- [x] [데이터] DB 품질 검수 + 교정 — 기등록 데이터 정합성 점검. (1) **마스터 매칭 파일 신설** `docs/research/MASTER_place_matching_reference.md`(255곳, DB정식명↔place_id↔주소↔카톡표기↔노션표기, 재생성가능 `scripts/katalk-master-reference.mjs`) — 향후 검수 시 원본↔정식명 조회용 (2) **카톡/노션 원본 대조 검수**(`katalk-source-crossaudit-20260603.md`, 노션 160블록 파싱) (3) **온도 교정**: 클럽케이(건84→95/습68→56/열+42)·봉일스파랜드(건99→95/습54→69)·할매탕(냉10→24)·아쿠아필드(습70→45)·북한산온천 비젠(온30/열40 추가) — 전부 노션/카톡/블로그 원본 확인 후 (4) **facilities/이름**: 그린대중목욕탕(그린사우나→정식명·jjimjil오태깅 제거, Naver 옛 찜질방 리스팅 오등록)·북한산온천(jjimjil제거+parking/탕/사우나 추가) (5) **검증만(정상)**: C 이름변경 6건 전부 DB=현재 Naver정식명 일치, jjimjilbang 67곳 대부분 정상(그린/북한산만 오태깅). 한계: 크로스오딧 파서가 노션 다중값/범위에서 오탐 → 개별 원본확인으로 걸름 | priority: P1 | done: 2026-06-03
+
 ### 2026-06-02
+- [x] [데이터] 카톡 DB Sync Phase 1~3 완료 — (1) **통합 CSV 생성**(144 국내행, chunk2/4 재정규화 + chunk1/3/5 칸밀림 8건 교정: 건식↔습식/온탕↔열탕 추출오류) (2) **DB 크로스체크**(MATCHED 40/AMBIGUOUS 16 전건확정/NEW 63, region=발화자noise 판명) (3) **facility_type 7종 확장**(026·027: `hotel-spa`→`hotel-premium` 리네임 + **`resort-spa` 신설**, 럭셔리=premium·캐주얼메가/워터파크=resort-spa·불가마효소=special) (4) **DB 전수검수 255곳**(Google+Naver 대조, country/주소/이름 오류 0) (5) **city 보강 123건**(028: Google 영문 locality, KR광역시 admin1, **도쿄 23특별구→'Tokyo' 룰** address-builder 반영) (6) **트리니티스파 제거**(마사지샵) (7) **온도 sanity 검수**(229로그, 실오류 2건만: 할매탕 냉10→24·아쿠아필드 습70→45 교정. 나머지는 Notion출처/표시온도/다른시점) (8) **아라고나이트** manual→google 업그레이드 (9) **enrich**: 어드민로그 22개 신규(UPDATE보강7+INSERT 5/19로그19+그룹C3, 온도범위검증·중복가드, 기존 시드값 보존). 마이그레이션 026·027·028 적용됨. 핸드오프 §11. Phase4(NEW 등록)는 In Progress | priority: P1 | added: 2026-05-29 | done: 2026-06-02
 - [x] [기능+UX] 탐색·tribe 정렬 UX 개편 — 정렬 동적 기본값(위치 있음→가까운 순 / 없음→추천 순, 권한 확정 후 1회 자동 선택, 사용자 수동 변경 시 덮어쓰지 않음 override 추적), 정렬 탭 '가까운' 최좌측, **인기순 탭 제거**(가까운/추천만, 탐색·tribe 공유 FilterControls). tribe(PICKS)에 위치 배선 신규 추가(useUserLocation·distanceMap·nearby 정렬 분기·granted 자동 위치획득·거리 라벨) — 기존엔 tribe '가까운' 탭이 동작 안 하던 죽은 탭이었음. granted면 프롬프트 없이 즉시 위치 반환, 미허용은 자동 프롬프트 안 띄움(iOS 이슈 회피) (b751c9a, f5b2fff, 5bd3ac2) | priority: P1 | done: 2026-06-02
 - [x] [버그] 스토리 카드 export 폰트 폴백 회귀 — next/font 전환 후 캔버스가 literal "Oswald"를 참조하나 해시 패밀리명(__Oswald_xxxx)과 불일치해 export 시 시스템 폰트로 폴백되던 회귀. 런타임에 `--font-oswald`를 읽어 프리뷰와 동일 페이스를 캔버스에 적용, 사용 weight 멱등 프리로드(추가 다운로드 없음) 후 렌더 (876a2db) | priority: P1 | done: 2026-06-02
 - [x] [버그] 로딩 시 아이콘 폰트 FOUT — 웹폰트 로드 전 ligature 원본 글자("progress_activity")가 노출돼 스피너 대신 텍스트가 도는 현상. ContentLoader를 순수 CSS 원형 스피너로 교체 + Material Symbols `display=swap`→`block` + preconnect (8766515) | priority: P2 | done: 2026-06-02

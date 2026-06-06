@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사-피 구현 스케치 (사-피 디자인 적용) · 2026-06-03</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root{
+    /* 사-피 토큰 */
+    --bg:#efeae4; --card:#faf8f6; --line:#e2deda; --tx:#2a2222; --mut:#726e6e; --dim:#a8a29e;
+    --primary:#cc1a1a; --primary-light:#fde8e8; --accent:#d44040;
+    --bather:#3B82F6; --saunner:#F97316; --jimi:#22C55E;
+    --radius:0.75rem;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:"Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;font-weight:500;line-height:1.55;padding:26px 18px 70px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1140px;margin:0 auto}
+  .font-h{font-family:"Oswald",sans-serif}
+  h1{font-size:23px;font-weight:800;letter-spacing:-.4px}
+  .sub{color:var(--mut);font-size:12.5px;margin:5px 0 18px}
+  .material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;display:inline-block;white-space:nowrap;vertical-align:middle}
+
+  /* 페르소나 헤더 */
+  .persona{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px}
+  @media(max-width:760px){.persona{grid-template-columns:1fr}}
+  .pcardx{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .pcardx h3{font-size:15px;font-weight:800;margin-bottom:3px}
+  .pcardx.b{border-top:3px solid var(--bather)} .pcardx.s{border-top:3px solid var(--saunner)} .pcardx.j{border-top:3px solid var(--jimi)}
+  .pcardx .vibe{font-size:12px;color:var(--mut)}
+  .pcardx .log{font-size:11.5px;color:var(--dim);margin-top:7px;border-top:1px dashed var(--line);padding-top:7px}
+  .pcardx .log b{color:var(--tx)}
+  .seg{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0 28px;font-size:12px;color:var(--mut)}
+  .seg .s{background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+  .seg .s b{color:var(--tx)}
+  /* 참여 피라미드 */
+  .pyr-note{font-size:12.5px;font-weight:800;color:#44403c;margin:2px 0 9px}
+  .pyr-note span{font-weight:500;color:var(--dim);font-size:11px;margin-left:6px}
+  .pyramid{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:11px}
+  .tier{border-radius:9px;padding:8px 16px;text-align:center;color:#fff;width:var(--w);min-width:300px;box-shadow:0 2px 8px -3px rgba(42,34,34,.25)}
+  .tier .nm{font-weight:800;font-size:13.5px}
+  .tier .nm .pc{font-weight:600;opacity:.88;font-size:11px;margin-left:6px}
+  .tier .ds{font-size:11px;opacity:.94;margin-top:1px;line-height:1.4}
+  .tribes-mini{font-size:12px;color:var(--mut);margin-bottom:26px}
+  .tribes-mini b{color:var(--tx)}
+  /* 시장 수요 패널 */
+  .market{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin:6px 0 16px}
+  .valuebox{position:relative;background:linear-gradient(135deg,#f5f0ff,#eadfff);border:1.5px solid #d6c6f5;border-radius:11px;padding:10px 14px 10px 15px;margin-top:11px}
+  .valuebox .vtop{font-size:12.5px;font-weight:800;color:#7c3aed;margin-bottom:5px}
+  .valuebox .vmain{font-size:15.5px;font-weight:800;color:#2a2222;margin-bottom:5px}
+  .valuebox .vsub{font-size:11.5px;color:#5f5180;line-height:1.55}
+  .valuebox .vsub b{color:#4c2d8f}
+  /* 사우나 루틴 → 가치 박스 연결 화살표 */
+  .routine-arrow{position:absolute;left:5px;width:18px;pointer-events:none;z-index:3}
+  .routine-arrow .ln{position:absolute;left:8px;top:0;bottom:11px;border-left:2px dashed var(--primary)}
+  .routine-arrow .hd{position:absolute;left:8px;bottom:0;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid var(--primary)}
+  .routine-arrow .lbl{position:absolute;left:20px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9px;font-weight:800;color:var(--primary);white-space:nowrap;background:var(--card);padding:3px 0}
+  .market h3{font-size:15px;font-weight:800;color:#2a2222;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .market h3 .src{font-size:10.5px;color:var(--dim);font-weight:500}
+  .market .explain{font-size:12px;color:var(--mut);background:#fbf6f1;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin:9px 0 6px;line-height:1.5}
+  .market .explain b{color:#2a2222}
+  .mrow{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:center;padding:9px 2px;border-top:1px solid var(--line)}
+  @media(max-width:640px){.mrow{grid-template-columns:1fr;gap:6px}}
+  .mrow .mname{font-size:12.5px;font-weight:800;color:#2a2222;display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+  .mrow .cnt{font-size:10.5px;color:var(--mut);font-weight:700}
+  .mrow .qb{font-size:9.5px;font-weight:800;border-radius:5px;padding:1px 6px;color:#fff}
+  .mrow .hot{font-size:9px;font-weight:800;color:#fff;background:var(--primary);border-radius:5px;padding:1px 6px}
+  .mrow .bar{height:8px;border-radius:4px;background:#ece4dc;overflow:hidden}
+  .mrow .bar i{display:block;height:100%;border-radius:4px}
+  .mrow .ex{font-size:11px;color:var(--mut);line-height:1.5;border-left:2px solid #e2deda;padding-left:10px}
+  .mrow .ex .q{display:block}
+  .mrow .ex .q b{color:#57534e;font-weight:600}
+  .market .concl{background:var(--primary-light);border:1px solid #f0c2c2;border-radius:11px;padding:15px 17px;margin-top:13px;font-size:14.5px;color:#8a2020;font-weight:700;line-height:1.55}
+  .market .concl b{color:var(--primary)}
+  /* 추천 유발 도표 (좌 피라미드 / 우 전략) */
+  .diag{margin:4px 0 13px}
+  .diag-heads{display:grid;grid-template-columns:1fr 1fr 50px;gap:16px;margin-bottom:10px;align-items:end}
+  .diag-heads .lh{font-size:12px;font-weight:800;color:#44403c}
+  .diag-heads .lh span{font-weight:500;color:var(--dim);font-size:10px;margin-left:5px}
+  .diag-heads .rh{font-size:14px;font-weight:800;color:var(--primary)}
+  .diag-body{display:grid;grid-template-columns:1fr 1fr 50px;column-gap:16px;row-gap:7px}
+  /* 유도 화살표 레일 (아래 박스 → 위 박스, 한 칸씩) */
+  .updo{grid-column:3;grid-row:1 / span 3;display:flex;gap:4px;align-items:stretch;justify-content:center;padding:6px 0}
+  .updo .arrows{display:flex;flex-direction:column;gap:14px;width:14px}
+  .updo .uarr{flex:1;width:2.5px;margin:0 auto;background:var(--primary);position:relative;border-radius:2px;min-height:30px}
+  .updo .uarr::before{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--primary)}
+  .updo .updo-lbl{writing-mode:vertical-rl;font-size:10.5px;font-weight:800;color:var(--primary);letter-spacing:2px;align-self:center;white-space:nowrap}
+  .pyr-cell{display:flex;flex-direction:column;justify-content:center;gap:5px}
+  .pband{border-radius:9px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 10px;align-self:center;box-shadow:0 2px 8px -3px rgba(42,34,34,.3);white-space:nowrap}
+  .pband .nmrow{display:flex;align-items:baseline;gap:5px}
+  .pband b{font-size:12.5px;font-weight:800}
+  .pband small{font-size:10px;opacity:.92;font-weight:600}
+  .pband .need{font-size:9px;opacity:.86;font-weight:600}
+  .phase{border:1px solid var(--line);border-left-width:4px;border-radius:10px;background:var(--card);padding:10px 13px;display:flex;flex-direction:column;justify-content:center}
+  .phase .ptag{align-self:flex-start;font-size:9px;font-weight:800;color:#fff;border-radius:5px;padding:2px 7px;margin-bottom:5px}
+  .phase .ptt{font-size:13.5px;font-weight:800;color:#2a2222;letter-spacing:-.2px}
+  .phase .pdd{font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45}
+  .phase .pdd b{color:#2a2222}
+  .phase .pline{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .phase .step{font-size:9px;font-weight:800;color:#fff;background:var(--primary);border-radius:5px;padding:2px 7px;flex:0 0 auto}
+  .phase .pgrp{font-size:11px;font-weight:800}
+  .scope{display:flex;gap:3px;margin-bottom:8px}
+  .scope .sg{height:7px;flex:1;border-radius:3px;background:#e7e1da}
+  @media(max-width:680px){.diag-heads,.diag-body{grid-template-columns:1fr}.diag-heads .rh{margin-top:8px}.updo{display:none}}
+  /* 사-피 현재 (Live) 섹션 */
+  .current{margin:18px 0 4px}
+  .current .ch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .current .ch h3{font-size:16px;font-weight:800;color:#2a2222}
+  .current .livelink{font-size:11.5px;font-weight:700;color:#2563eb;text-decoration:none;border:1px solid #cdd9ef;background:#eef3fc;border-radius:7px;padding:3px 10px}
+  .current .livelink:hover{background:#dde8fa}
+  .current .cdesc{font-size:12.5px;color:var(--mut);margin-bottom:12px}
+  .shots{display:flex;gap:5px;overflow-x:auto;padding-bottom:9px;align-items:stretch}
+  .shots figure{flex:0 0 auto;width:82px;display:flex;flex-direction:column}
+  .shots img{width:82px;border-radius:8px;border:1px solid var(--line);background:#fff;display:block;box-shadow:0 4px 12px -7px rgba(42,34,34,.45)}
+  .shots figcaption{font-size:9px;color:var(--mut);text-align:center;margin-top:5px;line-height:1.3;font-weight:700}
+  .shots figcaption b{color:#2a2222}
+  .shots .gtag{flex:0 0 auto;writing-mode:vertical-rl;font-size:10.5px;font-weight:800;color:#fff;border-radius:7px;padding:7px 4px;display:flex;align-items:center;justify-content:center;letter-spacing:1px;margin-bottom:24px}
+  .shots .gtag.g1{background:#2563eb} .shots .gtag.g2{background:#cc1a1a} .shots .gtag.g3{background:#7c3aed} .shots .gtag.g4{background:#b45309}
+  .shots .farrow{flex:0 0 auto;align-self:center;font-size:19px;color:#bbb2a8;font-weight:800;margin-bottom:24px;padding:0 1px}
+  .gdescs{display:flex;flex-direction:column;gap:5px;margin-top:11px}
+  .gdescs .gd{font-size:12px;color:var(--mut);line-height:1.45}
+  .gdescs .gd b{color:#2a2222}
+  .gdescs .gl{display:inline-block;font-size:10px;font-weight:800;color:#fff;border-radius:5px;padding:2px 7px;margin-right:7px}
+  .gdescs .gl.g1{background:#2563eb} .gdescs .gl.g2{background:#cc1a1a} .gdescs .gl.g4{background:#b45309}
+  /* 제안 기능 타이틀 */
+  .proposed-title{font-size:21px;font-weight:800;color:#2a2222;margin:24px 0 3px;display:flex;align-items:center;gap:8px;border-top:2px solid var(--line);padding-top:20px;letter-spacing:-.3px}
+  .proposed-sub{font-size:12.5px;color:var(--mut);margin-bottom:4px}
+
+  /* 씬 */
+  .scene{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px -10px rgba(42,34,34,.18)}
+  @media(max-width:820px){.scene{grid-template-columns:1fr}}
+  .phones{display:flex;gap:14px}
+  .scene-body h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:5px}
+  .tagrow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+  .tg{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:6px;border:1px solid var(--line);color:var(--mut);background:#fff}
+  .tg.new{color:#fff;background:var(--primary);border-color:var(--primary)}
+  .tg.p0{color:var(--primary);border-color:#f0c2c2;background:var(--primary-light)}
+  .tg.p1{color:#b45309;border-color:#f5d9a8;background:#fdf3e3}
+  .who{font-size:14px;color:var(--mut);margin-bottom:13px}
+  .who b{color:var(--tx)}
+  .how{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .how li{font-size:14.5px;color:var(--tx);padding-left:24px;position:relative}
+  .how li .material-symbols-outlined{position:absolute;left:0;top:1px;font-size:18px;color:var(--primary)}
+  .how li b{color:var(--primary)}
+  .from{font-size:12.5px;color:var(--mut);margin-top:14px;border-top:1px solid var(--line);padding-top:11px}
+  .from b{color:var(--tx)}
+  .idea{background:var(--primary-light);border:1px solid #f0c2c2;border-radius:10px;padding:11px 13px;margin-top:13px;font-size:13px;color:#8a2020}
+  .idea b{color:var(--primary)}
+
+  /* ===== 사-피 폰 ===== */
+  .phone{width:286px;background:linear-gradient(135deg,#f5f2ef 0%,#ede8e3 100%);border-radius:30px;overflow:hidden;border:1px solid #e2deda;box-shadow:0 14px 40px -12px rgba(42,34,34,.45)}
+  .ph-head{padding:16px 17px 6px;display:flex;align-items:baseline;justify-content:space-between}
+  .ph-head .ttl{font-size:17px;font-weight:800;color:#292524}
+  .ph-head .cancel{font-size:11px;color:var(--primary);font-weight:600}
+  .ph-meta{padding:0 17px 10px;display:flex;align-items:center;gap:6px;color:#8a857f;font-size:11px}
+  .ph-meta .material-symbols-outlined{font-size:14px}
+  .ph-meta u{text-decoration:underline;text-decoration-color:#d6d3d1;text-underline-offset:2px}
+  .ph-body{padding:0 14px 12px}
+  .gcard{background:rgba(255,255,255,.62);backdrop-filter:blur(10px);border:.5px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 3px 12px -3px rgba(42,34,34,.10);padding:14px;margin-bottom:11px}
+  .tribepill{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#57534e;margin:2px 0 11px;padding:0 2px}
+  .tribepill .material-symbols-outlined{font-size:17px;color:var(--primary)}
+  .secq{font-size:13px;font-weight:800;color:#44403c;margin:2px 0 9px;display:flex;align-items:center;gap:5px}
+
+  /* 블록 그리드 */
+  .blocks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .blk{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center;font-size:11.5px;font-weight:700;color:#57534e;position:relative}
+  .blk .e{font-size:24px;display:block;margin-bottom:4px;line-height:1}
+  /* 진입 세그먼트 토글 */
+  .segtoggle{display:flex;background:#ece4dc;border-radius:11px;padding:3px;margin-bottom:12px}
+  .segtoggle .opt{flex:1;text-align:center;font-size:12px;font-weight:800;padding:8px;border-radius:8px;color:#8a857f;display:flex;align-items:center;justify-content:center;gap:4px}
+  .segtoggle .opt.on{background:#fff;color:var(--primary);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .segtoggle .opt .material-symbols-outlined{font-size:16px}
+  /* 루틴 넘버링 스텝 */
+  .steps{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:3px}
+  .steps .st{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--mut);font-weight:600}
+  .steps .num{width:14px;height:14px;border-radius:50%;background:#efe7df;color:#78716c;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .blk.on{border-color:var(--saunner);background:#fff7f0;color:#9a3412}
+  .blk.on.b{border-color:var(--bather);background:#eff6ff;color:#1e40af}
+  .blk.on.j{border-color:var(--jimi);background:#f0fdf4;color:#166534}
+  .blk .chk{position:absolute;top:5px;right:6px;font-size:13px;color:var(--saunner)}
+  .blk .sub{display:block;font-size:9.5px;font-weight:600;color:var(--saunner);margin-top:2px}
+  .blk.add{border-style:dashed;color:var(--dim)}
+  .blk .ord{position:absolute;top:5px;right:6px;width:17px;height:17px;border-radius:50%;background:var(--saunner);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .orderline{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--mut);font-weight:600}
+  .orderline .material-symbols-outlined{font-size:14px;color:#c5c0ba}
+  .orderline b{color:#9a3412}
+  .rt-label{font-size:11px;font-weight:800;color:#8a857f;margin:3px 2px 8px;display:flex;justify-content:space-between;align-items:center}
+  .rt-label span{font-weight:600;color:#a8a29e;font-size:10px}
+  .rt.rec{background:#fffaf5;border-color:#f3e3d2}
+  .rt .tag{display:inline-block;font-size:8.5px;font-weight:800;color:var(--saunner);background:#fff0e6;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+
+  /* 칩 행 (어땠어 / 또갈래요) */
+  .chiprow{display:flex;gap:7px;flex-wrap:wrap}
+  .ch{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700;color:#78716c}
+  .ch.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .routine-chip{display:flex;align-items:center;gap:7px;background:var(--primary-light);border:1px solid #f3cdcd;border-radius:11px;padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:10px}
+  .routine-chip .material-symbols-outlined{font-size:17px}
+
+  /* CTA */
+  .cta{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;font-weight:700;font-size:14.5px;color:#fff;background:var(--primary);box-shadow:0 8px 22px -6px rgba(204,26,26,.45);margin-top:4px}
+  .cta.sub{background:#f0eeec;color:#57534e;box-shadow:none;margin-top:9px;display:flex;align-items:center;justify-content:center;gap:6px}
+  .cta.sub .material-symbols-outlined{font-size:18px}
+  .hint{font-size:10.5px;color:#a8a29e;text-align:center;margin-top:9px}
+  .addbtn{width:100%;background:var(--primary-light);border-radius:12px;padding:13px;text-align:center;color:var(--primary);font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px}
+  .addbtn .material-symbols-outlined{font-size:20px}
+
+  /* 루틴 저장 카드 */
+  .rt{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:9px}
+  .rt .ic{width:38px;height:38px;border-radius:10px;background:#fff7f0;display:flex;align-items:center;justify-content:center;font-size:19px}
+  .rt .nm{font-weight:800;font-size:13.5px}
+  .rt .ds{font-size:10.5px;color:var(--mut)}
+  .rt .go{margin-left:auto;font-size:11px;font-weight:800;color:var(--primary)}
+
+  /* 지도 */
+  .map{height:178px;border-radius:13px;background:
+      radial-gradient(circle at 22% 32%,#dfeaf6,transparent 42%),
+      radial-gradient(circle at 72% 62%,#e7f3ea,transparent 46%),#e9edf2;
+      position:relative;border:1px solid var(--line);overflow:hidden;margin-top:9px}
+  .pin{position:absolute;font-size:18px}
+  .map .rc{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);background:#2a2222;color:#fff;font-size:11px;font-weight:800;padding:5px 13px;border-radius:20px;white-space:nowrap}
+  .fchips{display:flex;gap:6px;overflow:hidden;padding:2px}
+  .fchip{flex:0 0 auto;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;background:#fff;border:1px solid var(--line);color:#57534e}
+  .fchip.on{background:var(--saunner);border-color:var(--saunner);color:#fff}
+
+  /* 랭킹 */
+  .rk{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .rk .r{font-family:Oswald;font-size:17px;font-weight:700;width:18px;color:var(--dim)}
+  .rk .nm{flex:1;font-weight:700;font-size:13px}
+  .rk .sc{font-family:Oswald;font-weight:700;font-size:18px;color:var(--primary)}
+  .vs{background:var(--primary-light);border:1px dashed #e6a5a5;border-radius:12px;padding:11px;text-align:center;font-size:12.5px;font-weight:700;color:#8a2020;margin-top:3px}
+  .vs .opt{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 14px;margin:7px 5px 0;font-weight:800;color:#44403c}
+
+  /* 저장→리스트 */
+  .saved{display:flex;gap:7px;margin-bottom:11px}
+  .saved .th{width:50px;height:50px;border-radius:11px;background:#efe7df;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .suggest{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px}
+  .suggest .t{font-weight:800;font-size:13.5px}
+  .suggest .d{font-size:11.5px;color:var(--mut);margin:4px 0 10px}
+  .listname{background:#fbf6f1;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-weight:800;font-size:13px;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+
+  /* 꾸미는 캘린더 */
+  .cal-skin{border-radius:13px;padding:13px;background:linear-gradient(180deg,#e7efff 0%,#f3e9ff 100%);border:1px solid var(--line)}
+  .cal-h{text-align:center;font-family:Oswald;font-weight:700;font-size:14px;color:#44403c;margin-bottom:9px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .cal-grid .d{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(255,255,255,.45)}
+  .cal-grid .d.e{background:transparent}
+  .themebar{display:flex;gap:7px;margin-top:10px}
+  .themebar .tb{flex:1;height:34px;border-radius:9px;border:1px solid var(--line)}
+  .tb1{background:linear-gradient(135deg,#bfe3ff,#7fc4f0)} .tb2{background:linear-gradient(135deg,#ffd9c2,#ffb38a)} .tb3{background:linear-gradient(135deg,#d9f7df,#9fe0ad);position:relative}
+  .tb3::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#166534;font-weight:800;font-size:14px}
+
+  /* SA-리스트 정복 게임보드 */
+  .progress{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:11px}
+  .progress .pl{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:800;margin-bottom:8px;color:#44403c}
+  .progress .pl .pct{font-family:Oswald;color:var(--primary);font-size:15px}
+  .progress .bar{height:9px;border-radius:5px;background:#efe7df;overflow:hidden}
+  .progress .bar i{display:block;height:100%;width:33%;background:var(--primary);border-radius:5px}
+  .lp{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 11px;margin-bottom:7px}
+  .lp .stamp{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .lp .stamp .material-symbols-outlined{font-size:19px}
+  .lp .stamp.done{background:#fde8e8;color:var(--primary)}
+  .lp .stamp.todo{background:#f3f0ec;color:#c5c0ba;border:1.5px dashed #d6d3d1}
+  .lp .nm{flex:1;font-weight:700;font-size:13px}
+  .lp .nm.todo{color:#a8a29e}
+  .lp .go{font-size:11px;font-weight:800;color:var(--primary)}
+  .twobtn{display:flex;gap:8px;margin-top:4px}
+  .twobtn a{flex:1;text-align:center;font-size:12px;font-weight:800;padding:11px 6px;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:5px}
+  .twobtn a .material-symbols-outlined{font-size:16px}
+  .twobtn .blend{background:var(--primary);color:#fff;box-shadow:0 6px 16px -6px rgba(204,26,26,.45)}
+  .twobtn .collab{background:#f0eeec;color:#57534e}
+
+  /* 카페 쿠폰식 스탬프 카드 — 귀여운 파스텔 테마 */
+  .stampcard{position:relative;background:linear-gradient(170deg,#fff4ef 0%,#ffe7ee 55%,#f6ebff 100%);border:2px solid #fff;border-radius:22px;padding:14px 15px 14px;box-shadow:0 8px 22px -10px rgba(180,90,110,.35),inset 0 0 0 1px rgba(255,255,255,.6);overflow:hidden}
+  .stampcard::after{content:'';position:absolute;left:0;right:0;bottom:0;height:36px;background:radial-gradient(120% 100% at 50% 120%,#ffd2e2 0%,transparent 70%);pointer-events:none}
+  .stampcard .theme{font-size:9.5px;font-weight:800;letter-spacing:.6px;color:#c0699a;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+  .stampcard .theme .material-symbols-outlined{font-size:13px}
+  .stampcard .sh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+  .stampcard .sh .t{font-weight:800;font-size:14px;color:#5a3a44}
+  .stampcard .sh .c{font-family:Oswald;font-size:15px;font-weight:700;color:var(--primary)}
+  .stampcard .pmsg{font-size:11px;color:#a87f8c;margin-bottom:12px}
+  .sgrid{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .slot{aspect-ratio:1;border-radius:50%;border:2px dashed #f0d9e0;display:flex;align-items:center;justify-content:center;color:#cdbcc4;font-size:11px;font-weight:800}
+  .slot.s{border:none;box-shadow:0 3px 7px -2px rgba(0,0,0,.16),0 0 0 3px rgba(255,255,255,.85)}
+  .slot.s .material-symbols-outlined{font-size:23px}
+  .slot.s1{background:#ffe1cf;color:#e8702f;transform:rotate(-9deg)}
+  .slot.s2{background:#d6e8ff;color:#3b82f6;transform:rotate(7deg)}
+  .slot.s3{background:#d6f5e0;color:#1aa352;transform:rotate(-5deg)}
+  .slot.gift{border:2px solid #ff9ebb;color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(255,158,187,.25)}
+  .slot.gift .material-symbols-outlined{font-size:21px}
+  .reward{position:relative;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.78);border:1.5px solid #ffd2e0;border-radius:14px;padding:11px;margin-top:13px}
+  .reward .g{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#ffd9e6,#ffc2d4);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .reward .g .material-symbols-outlined{font-size:20px;color:#cc1a1a}
+  .reward .rt{font-weight:800;font-size:12.5px;color:#a83a5a}
+  .reward .rs{font-size:10px;color:#c08a9a;margin-top:1px}
+
+  /* 타임라인 블러 placeholder (레퍼런스 미정) */
+  .blurph{position:relative;height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#fff}
+  .blurph .fake{position:absolute;inset:0;padding:15px;filter:blur(5px);opacity:.5}
+  .blurph .fake .row{display:flex;gap:10px;margin-bottom:15px}
+  .blurph .fake .dot{width:34px;height:34px;border-radius:50%;background:#e2deda;flex:0 0 auto}
+  .blurph .fake .ln{flex:1}
+  .blurph .fake .b1{height:11px;width:55%;background:#e2deda;border-radius:4px;margin-bottom:7px}
+  .blurph .fake .b2{height:9px;width:88%;background:#ece8e4;border-radius:4px;margin-bottom:5px}
+  .blurph .fake .b3{height:9px;width:70%;background:#ece8e4;border-radius:4px}
+  .blurph .q{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:rgba(245,242,239,.4)}
+  .blurph .q .qmark{width:54px;height:54px;border-radius:50%;background:#fff;border:2px dashed #d6d3d1;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#a8a29e}
+  .blurph .q .qt{font-size:12.5px;font-weight:800;color:#78716c}
+  .blurph .q .qs{font-size:10.5px;color:#a8a29e}
+
+  /* 히스토리 실제 UI 재현 (코드 기반) */
+  .hist-head{display:flex;align-items:center;justify-content:space-between;padding:15px 15px 9px}
+  .hist-title{font-family:Oswald,sans-serif;font-style:italic;font-weight:800;font-size:25px;color:#292524;letter-spacing:-.5px}
+  .vtoggle{display:flex;background:rgba(231,227,222,.7);border-radius:9px;padding:2px}
+  .vtoggle .v{width:30px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:#a8a29e}
+  .vtoggle .v .material-symbols-outlined{font-size:16px}
+  .vtoggle .v.on{background:rgba(255,255,255,.85);box-shadow:0 1px 3px rgba(0,0,0,.08);color:#57534e}
+  .tchips{display:flex;gap:5px;padding:0 12px 11px;flex-wrap:nowrap}
+  .tchip{font-size:9.5px;font-weight:700;padding:4px 7px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#78716c;white-space:nowrap}
+  .kpihead{display:grid;grid-template-columns:2fr 1fr;gap:8px;padding:0 2px;margin-bottom:7px}
+  .kpihead span{font-size:11px;font-weight:800;color:#78716c}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
+  .kpi{background:rgba(255,255,255,.62);border:.5px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 3px 12px -3px rgba(42,34,34,.10);padding:10px 9px}
+  .kpi .kl{font-size:9px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi .kn{font-family:Oswald,sans-serif;font-size:22px;font-weight:600;color:#292524;line-height:1}
+  .kpi .kn small{font-size:12px;color:#a8a29e;font-weight:400}
+  .histcal-wrap{position:relative;border-radius:14px;overflow:hidden;margin-bottom:11px}
+  .histcal{background:rgba(255,255,255,.62);border:.5px solid rgba(255,255,255,.85);box-shadow:0 3px 12px -3px rgba(42,34,34,.10);padding:11px 13px 5px}
+  .histcal .cnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .histcal .cnav .ml{display:flex;align-items:center;gap:5px;font-weight:800;font-size:13.5px;color:#57534e}
+  .histcal .cnav .ml .material-symbols-outlined{font-size:17px;color:#a8a29e}
+  .histcal .cnav .today{font-size:11px;font-weight:700;color:var(--primary)}
+  .histcal .wk{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+  .histcal .wk span{text-align:center;font-size:10px;font-weight:600;color:#a8a29e;padding:2px 0}
+  .histcal .wk span.we{color:#78716c;font-weight:700}
+  .histcal .days{display:grid;grid-template-columns:repeat(7,1fr)}
+  .histcal .day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:8px}
+  .histcal .day .dn{font-size:13px;color:#57534e}
+  .histcal .day.today .dn{color:var(--primary);font-weight:800}
+  .histcal .day.sel{background:var(--primary-light)}
+  .histcal .dot{width:6px;height:6px;border-radius:50%}
+  .histcal .ring{width:12px;height:12px;border-radius:50%;border:1.5px solid;position:relative}
+  .histcal .ring i{width:5px;height:5px;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+  .histcal .exp{display:flex;justify-content:center;padding-top:3px}
+  .histcal .exp .material-symbols-outlined{font-size:19px;color:var(--primary)}
+  .blur-on{filter:blur(4.5px);opacity:.9;pointer-events:none}
+  .histcal-q{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+  .histcal-q .qm{width:46px;height:46px;border-radius:50%;background:#fff;border:2px dashed #cfc7be;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#a8a29e;box-shadow:0 3px 10px -3px rgba(0,0,0,.2)}
+  .histcal-q .ql{font-size:11px;font-weight:800;color:#78716c;background:rgba(255,255,255,.9);padding:3px 10px;border-radius:8px;box-shadow:0 2px 6px -2px rgba(0,0,0,.15)}
+  .ptoggle{display:flex;justify-content:center}
+  .ptoggle .pp{display:flex;background:rgba(231,227,222,.7);border-radius:9px;padding:2px}
+  .ptoggle .pp span{font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 15px;border-radius:7px;color:#a8a29e}
+  .ptoggle .pp span.on{background:rgba(255,255,255,.85);box-shadow:0 1px 3px rgba(0,0,0,.08);color:#57534e}
+  /* 인사이트 카드 (히트링 + 메트릭) */
+  .insight{display:flex;align-items:center;gap:13px;background:rgba(255,255,255,.62);border:.5px solid rgba(255,255,255,.85);box-shadow:0 3px 12px -3px rgba(42,34,34,.10);border-radius:14px;padding:13px;margin:11px 0}
+  .ring-area{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto}
+  .heatring{position:relative;width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--saunner) 62%, #e9e1d8 0)}
+  .heatring .hi{position:absolute;inset:9px;border-radius:50%;background:#fbf8f5;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .heatring .hi b{font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:#292524;line-height:1}
+  .heatring .hi small{font-size:9px;color:#a8a29e;margin-top:1px}
+  .ring-lbl{font-size:7.5px;font-weight:700;letter-spacing:1px;color:#a8a29e;text-align:center;line-height:1.3}
+  .ins-metrics{flex:1;display:flex;flex-direction:column;gap:13px}
+  .ins-metrics .ml{font-size:9px;font-weight:700;color:#78716c;letter-spacing:.2px;display:flex;align-items:center;gap:5px;margin-bottom:2px}
+  .ins-metrics .ml .tog{display:inline-flex;background:#e7e1da;border-radius:5px;padding:1px}
+  .ins-metrics .ml .tog b{font-size:8px;font-weight:800;padding:1px 5px;border-radius:4px;color:#a8a29e}
+  .ins-metrics .ml .tog b.on{background:#fff;color:#44403c;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .ins-metrics .mv{font-family:Oswald,sans-serif;font-size:21px;font-weight:600;color:#292524;line-height:1}
+  /* 최근 기록 카드 */
+  .reclabel{font-size:12.5px;font-weight:800;color:#57534e;padding:0 2px;margin-bottom:7px}
+  .reccard{background:rgba(255,255,255,.62);border:.5px solid rgba(255,255,255,.85);box-shadow:0 3px 12px -3px rgba(42,34,34,.10);border-radius:13px;padding:11px}
+  .reccard .r1{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+  .reccard .r1 .pn{font-size:13px;font-weight:600;color:#44403c}
+  .reccard .r1 .rt{display:flex;align-items:center;gap:5px;font-size:13px}
+  .reccard .r1 .rt .dt{width:6px;height:6px;border-radius:50%;background:#a8a29e}
+  .reccard .r2{font-size:11px;color:#a8a29e;margin-bottom:8px}
+  .reccard .r3{display:flex;align-items:center;justify-content:space-between}
+  .reccard .sb{font-size:10px;font-weight:800;color:var(--saunner);background:#fff7f0;border:1px solid #f5d9c4;border-radius:7px;padding:2px 8px}
+  .reccard .dd{font-size:10.5px;color:#a8a29e}
+
+  /* 탐색(EXPLORE) 지도 실제 UI 재현 */
+  .exp-head{font-family:Oswald,sans-serif;font-style:italic;font-weight:800;font-size:25px;color:#292524;letter-spacing:-.5px;padding:15px 15px 11px}
+  .exp-search{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:.5px solid rgba(255,255,255,.8);box-shadow:0 2px 8px -2px rgba(42,34,34,.10);border-radius:12px;padding:10px 13px;margin-bottom:10px}
+  .exp-search .material-symbols-outlined{font-size:19px;color:#a8a29e}
+  .exp-search .ph{font-size:12.5px;color:#a8a29e}
+  .exp-vtoggle{display:flex;background:#ece4dc;border-radius:12px;padding:4px;margin-bottom:10px}
+  .exp-vtoggle .vm{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:600;padding:7px;border-radius:8px;color:#78716c}
+  .exp-vtoggle .vm .material-symbols-outlined{font-size:16px}
+  .exp-vtoggle .vm.on{background:#fff;color:#44403c;box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:700}
+  .exp-filters{display:flex;align-items:center;gap:5px;margin-bottom:10px;flex-wrap:nowrap;overflow:hidden}
+  .exp-filters .fbtn{display:flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:#57534e;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 9px;flex:0 0 auto}
+  .exp-filters .fbtn .material-symbols-outlined{font-size:14px}
+  .exp-filters .fchip{font-size:10px;font-weight:700;padding:5px 8px;border-radius:20px;background:#fff;border:1px solid var(--line);color:#57534e;white-space:nowrap;flex:0 0 auto}
+  .exp-filters .fchip.on{background:var(--saunner);border-color:var(--saunner);color:#fff}
+  .exp-map{position:relative;height:288px;border-radius:14px;overflow:hidden;border:.5px solid rgba(255,255,255,.85);box-shadow:0 3px 12px -3px rgba(42,34,34,.10);background:radial-gradient(circle at 25% 28%,#e2ecdb,transparent 42%),radial-gradient(circle at 72% 64%,#dfe9f4,transparent 46%),#eceae5}
+  .exp-map .myloc{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 2px 6px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:#57534e}
+  .exp-map .myloc .material-symbols-outlined{font-size:18px}
+  .dpin{position:absolute;width:24px;height:24px;transform:translate(-50%,-100%)}
+  .dpin i{position:absolute;inset:0;border-radius:50% 50% 50% 0;background:var(--primary);border:2.5px solid #fff;transform:rotate(-45deg)}
+  .dpin .c{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);color:#fff;z-index:1;display:flex}
+  .dpin .c .material-symbols-outlined{font-size:11px;font-variation-settings:'FILL' 1}
+  .dpin.sel{width:33px;height:33px}
+  .dpin.sel i{border-width:3px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+  .clus{position:absolute;width:30px;height:30px;border-radius:50%;background:var(--primary);border:2px solid #fff;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .uloc{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--bather);border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 7px rgba(59,130,246,.16),0 3px 8px rgba(59,130,246,.3)}
+  .exp-placecard{background:rgba(255,255,255,.72);backdrop-filter:blur(8px);border:.5px solid rgba(255,255,255,.85);box-shadow:0 8px 20px -6px rgba(42,34,34,.28);border-radius:13px;padding:11px 12px;margin:-46px 6px 0;position:relative;z-index:2}
+  .exp-placecard .ph1{display:flex;align-items:center;gap:6px}
+  .exp-placecard .pn{font-size:13px;font-weight:600;color:#44403c}
+  .exp-placecard .b24{font-size:9px;font-weight:700;color:var(--primary);background:var(--primary-light);border-radius:20px;padding:1px 6px}
+  .exp-placecard .bm{margin-left:auto;color:var(--primary);display:flex}
+  .exp-placecard .bm .material-symbols-outlined{font-size:18px;font-variation-settings:'FILL' 1}
+  .exp-placecard .ad{font-size:11px;color:#a8a29e;margin-top:3px}
+
+  /* 나의 평균 루틴 카드 */
+  .routinecard{background:rgba(255,255,255,.62);border:.5px solid rgba(255,255,255,.85);box-shadow:0 3px 12px -3px rgba(42,34,34,.10);border-radius:14px;padding:13px;margin-top:11px}
+  .routinecard .rt-title{font-size:11px;font-weight:800;color:#78716c;text-align:center;margin-bottom:11px}
+  .rt-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .rt-slots .slot4{display:flex;flex-direction:column;align-items:center;gap:5px}
+  .rt-slots .ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--saunner);color:#fff}
+  .rt-slots .ic .material-symbols-outlined{font-size:22px;font-variation-settings:'FILL' 1}
+  .rt-slots .vv{font-family:Oswald,sans-serif;font-size:15px;font-weight:600;color:var(--saunner);line-height:1}
+  .rt-slots .ll{font-size:8px;font-weight:600;letter-spacing:1px;color:#a8a29e}
+
+  /* 하단 네비 */
+  .ph-nav{display:flex;align-items:flex-end;justify-content:space-around;padding:9px 14px 12px;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);border-top:.5px solid rgba(255,255,255,.7);position:relative;margin-top:4px}
+  .ph-nav .it{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:#a8a29e;min-width:42px}
+  .ph-nav .it.on{color:var(--primary);font-weight:800}
+  .ph-nav .it .material-symbols-outlined{font-size:21px}
+  .ph-nav .home{width:50px;height:50px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 4px 16px rgba(204,26,26,.35)}
+  .ph-nav .home .material-symbols-outlined{font-size:25px}
+
+  .foot{font-size:11px;color:var(--mut);border-top:1px solid var(--line);padding-top:14px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="font-h" style="font-family:'Oswald','Noto Sans KR'">🧖 사-피 구현 스케치 — 페르소나 → 화면</h1>
+  <div class="sub">2026-06-03 · <b>사-피 실제 디자인 적용</b>(베이지·레드·트라이브색·글래스·Oswald) · 하루콩 블록/꾸미기 벤치마크 반영 · 와이어프레임은 방향 스케치</div>
+
+  <!-- 시장 수요 (먼데이사우나 톡방 분석) -->
+  <div class="market">
+    <h3>📊 시장 수요영역 분석 <span class="src">먼데이사우나 톡방 실발화 10,273건 분석 (2026-05)</span></h3>
+    <div class="explain"><b>질문 비율</b> = 그 주제 글 중 <b>'물어보는' 비율</b>. 높을수록 → 아직 답이 없어 계속 묻는 = <b>미충족 니즈(당김)</b>. 낮을수록 → 사람들이 알아서 내놓는 = 공급.</div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">📝 리뷰 합계 <span class="cnt">1,038건</span> <span class="hot" style="background:#2a2222">1위 · 최다 볼륨</span> <span class="qb" style="background:#a8a29e">질문 19%</span></div>
+        <div class="bar"><i style="width:100%;background:#8a857f"></i></div>
+      </div>
+      <div class="ex" style="color:var(--dim)"><span class="q">단순 + 상세 리뷰의 합계</span><span class="q">↓ 아래로 나눠서 표시</span></div>
+    </div>
+    <div class="mrow" style="border-top:none;padding-top:4px">
+      <div>
+        <div class="mname">↳ 단순 리뷰 <span class="cnt">556건 · 다녀왔어요</span> <span class="qb" style="background:#a8a29e">질문 16%</span></div>
+        <div class="bar"><i style="width:54%;background:#cbb8b0"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"○○사우나 다녀왔어요~ 좋네요"</b></span><span class="q"><b>"오늘 사우나 굿이었습니다👍"</b></span></div>
+    </div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">↳ 상세 리뷰 <span class="cnt">482건 · 시설·온도</span> <span class="qb" style="background:#c08a3a">질문 21%</span></div>
+        <div class="bar"><i style="width:46%;background:#cbb8b0"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"냉탕 14도, 건식 90도 바삭바삭👍"</b></span><span class="q"><b>"노천탕 2개·세신 굿·24시 운영"</b></span></div>
+    </div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">🔥 사우나 추천 <span class="cnt">722건</span> <span class="qb" style="background:#cc1a1a">질문 38%</span> <span class="hot">최대 니즈</span></div>
+        <div class="bar"><i style="width:70%;background:#cc1a1a"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"이번 주말 어디 가지? 노천 되는 곳ㅠ"</b></span><span class="q"><b>"광교 근처 24시 사우나 추천 좀요!"</b></span></div>
+    </div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">💬 경험담 <span class="cnt">628건</span> <span class="qb" style="background:#a8a29e">질문 16%</span></div>
+        <div class="bar"><i style="width:61%;background:#cbb8b0"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"오늘 사우나 매너 실종... 한숨"</b></span><span class="q"><b>"토토노우 제대로 왔다 진짜"</b></span></div>
+    </div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">🧢 사우나 용품 <span class="cnt">432건</span> <span class="qb" style="background:#d97706">질문 22%</span></div>
+        <div class="bar"><i style="width:42%;background:#e0a35a"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"사우나 모자 어디서 사요?"</b></span><span class="q"><b>"방석 브랜드 추천 부탁드려요"</b></span></div>
+    </div>
+
+    <div class="mrow">
+      <div>
+        <div class="mname">💰 가격 팁 <span class="cnt">363건</span> <span class="qb" style="background:#d97706">질문 24%</span></div>
+        <div class="bar"><i style="width:35%;background:#e0a35a"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"회원권이 이득일까요?"</b></span><span class="q"><b>"쿠폰/할인 정보 공유해요"</b></span></div>
+    </div>
+
+    <div class="mrow" id="m-routine">
+      <div>
+        <div class="mname">⏱ 사우나 루틴 <span class="cnt">296건</span> <span class="qb" style="background:#7c3aed">질문 26%</span></div>
+        <div class="bar"><i style="width:29%;background:#9168e8"></i></div>
+      </div>
+      <div class="ex"><span class="q"><b>"보통 몇 분씩 들어가세요?"</b></span><span class="q"><b>"토토노우 잘 오는 루틴 있나요?"</b></span></div>
+    </div>
+
+    <div class="concl">👉 결론: <b>'리뷰'</b>는 가장 자리잡은 정보공유 형태 — 그중 <b>세부 내용</b>(시설/온도 = 경험 퀄리티의 지표)에 대한 니즈가 좀 더 있음(21% &gt; 16%). 하지만 사실상 <b>'사우나 추천'(질문 38%)이 현재 가장 큰 미충족 니즈!</b> → 사-피는 <b>리뷰 + 사우나 추천까지</b> 커버.</div>
+
+    <div class="valuebox" id="m-value">
+      <div class="vtop">+ '사-피'가 전하고자 하는 고유의 가치: <b style="color:#2a2222;font-size:14px">"최고의 사우나 경험을 했으면!"</b></div>
+      <div class="vsub"><b>루틴에 따른 사우나</b>를 했을 때 맛보는 <b>최상의 휴식과 회복</b>. 더 많은 사람들이 좋은 장소에서 <b>'사우나 루틴'</b>을 알아가고 경험하며 느껴봤으면 좋겠다! <b style="color:#7c3aed">(질문 비중 2위!)</b></div>
+    </div>
+  </div>
+
+  <!-- 추천 유발 도표 (좌: 참여 피라미드 / 우: 추천 유발 방법) -->
+  <div class="diag">
+    <div class="diag-heads">
+      <div class="lh">행동 세그먼트 · 참여 피라미드<span>먼데이 톡방 + 90-9-1·동기 심리</span></div>
+      <div class="rh">🔥 사우나 추천을 최대치로 돌리기 대작전!</div>
+    </div>
+    <div class="diag-body">
+      <!-- STEP 1: 사플루언서 + 큐레이터 -->
+      <div class="pyr-cell">
+        <div class="pband" style="background:#8c1414;width:54%"><div class="nmrow"><b>사플루언서</b><small>&lt;1%</small></div><span class="need">영향력·인정</span></div>
+        <div class="pband" style="background:#a81a1a;width:68%"><div class="nmrow"><b>큐레이터</b><small>1~8%</small></div><span class="need">취향·전문성 표현</span></div>
+      </div>
+      <div class="phase" style="border-left-color:#a81a1a">
+        <div class="pline"><span class="step">HEAVY</span><span class="pgrp" style="color:#a81a1a">사플루언서 · 큐레이터까지</span></div>
+        <div class="scope"><span class="sg" style="background:#8c1414"></span><span class="sg" style="background:#a81a1a"></span><span class="sg"></span><span class="sg"></span><span class="sg"></span></div>
+        <div class="ptt">핵심 관심 테마 추천 사우나 컨텐츠 생성</div>
+        <div class="pdd">사-리스트 <b>매거진·피드 협업</b>으로 featured 콘텐츠를 만든다</div>
+      </div>
+      <!-- STEP 2: + 기록러 (누적) -->
+      <div class="pyr-cell">
+        <div class="pband" style="background:#cc1a1a;width:81%"><div class="nmrow"><b>기록러</b><small>15~35%</small></div><span class="need">경험 회고·자기효능감</span></div>
+      </div>
+      <div class="phase" style="border-left-color:#cc1a1a">
+        <div class="pline"><span class="step">MID</span><span class="pgrp" style="color:#cc1a1a">+ 기록러까지 (누적)</span></div>
+        <div class="scope"><span class="sg" style="background:#8c1414"></span><span class="sg" style="background:#a81a1a"></span><span class="sg" style="background:#cc1a1a"></span><span class="sg"></span><span class="sg"></span></div>
+        <div class="ptt">방문기록 기반 추가 좋은 사우나 데이터 수집</div>
+        <div class="pdd">기록이 쌓이는 <b>만족감·최적화·자기효능감</b> 가치 → 본격 기록·정보 수집. 로그 니즈는 <b>사우나일기 베타유저 150 모집</b>으로 증명.</div>
+      </div>
+      <!-- STEP 3: + 찜러 · 눈팅러 (전체) -->
+      <div class="pyr-cell">
+        <div class="pband" style="background:#d65a4a;width:91%"><div class="nmrow"><b>찜러</b><small>15~30%</small></div><span class="need">갈 곳 모으기</span></div>
+        <div class="pband" style="background:#d97a6e;width:100%"><div class="nmrow"><b>눈팅러</b><small>70~85%</small></div><span class="need">"어디 가지?" 정보 소비</span></div>
+      </div>
+      <div class="phase" style="border-left-color:#d97a6e">
+        <div class="pline"><span class="step">MASS</span><span class="pgrp" style="color:#c2604f">+ 찜러 · 눈팅러까지 (전체)</span></div>
+        <div class="scope"><span class="sg" style="background:#8c1414"></span><span class="sg" style="background:#a81a1a"></span><span class="sg" style="background:#cc1a1a"></span><span class="sg" style="background:#d65a4a"></span><span class="sg" style="background:#d97a6e"></span></div>
+        <div class="ptt">+ 사우나 발견·공유·방문 유도</div>
+        <div class="pdd"><b>좋은 사우나를 퍼다 나른다</b> — 디스커버리·공유로 방문을 유도하고, <b>추가 유입을 일으킨다!</b></div>
+      </div>
+      <!-- 유도 화살표: 아래(Mass) → 위(Heavy) 한 칸씩 -->
+      <div class="updo">
+        <div class="arrows"><span class="uarr"></span><span class="uarr"></span></div>
+        <span class="updo-lbl">유도하기!</span>
+      </div>
+    </div>
+  </div>
+  <div class="tribes-mini">기록 트라이브(숏로그 타입): <b>🛁 목욕파</b> 온탕·세신 · <b>🔥 사우나파</b> 사우나→냉탕·토토노우 · <b>🥚 찜질파</b> 한증막·매점</div>
+
+  <!-- 사-피 현재 (Live) -->
+  <div class="current">
+    <div class="ch">
+      <h3>🧖 사-피 현재 (Live)</h3>
+      <a class="livelink" href="https://sapisauna.vercel.app" target="_blank" rel="noopener">sapisauna.vercel.app ↗</a>
+    </div>
+    <div class="cdesc"><b>페르소나(트라이브)</b> 설정 → <b>발견</b>(탐색 + 큐레이션·사-리스트) → 다녀와서 <b>기록·회고</b>. (클로즈드 알파)</div>
+    <div class="shots">
+      <span class="gtag g4">👤 페르소나</span>
+      <figure><img src="competitive-assets/sapi-tribe.png"><figcaption><b>트라이브</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-titles.png"><figcaption><b>칭호</b></figcaption></figure>      <span class="gtag g1">🔍 발견 (탐색·큐레이션)</span>
+      <figure><img src="competitive-assets/sapi-explore.png"><figcaption><b>탐색</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-report.png"><figcaption><b>장소·리포트</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-salist.png"><figcaption><b>사-리스트</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-picks.png"><figcaption><b>트라이브 픽</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-listdetail.png"><figcaption><b>리스트 상세</b></figcaption></figure>      <span class="gtag g2">✍️ 기록·회고</span>
+      <figure><img src="competitive-assets/sapi-log.png"><figcaption><b>기록 입력</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-story.png"><figcaption><b>스토리</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-record.png"><figcaption><b>기록 상세</b></figcaption></figure>
+      <figure><img src="competitive-assets/sapi-history.png"><figcaption><b>내 기록</b></figcaption></figure>
+    </div>
+    <div class="gdescs">
+      <div class="gd"><span class="gl g4">👤 페르소나</span>트라이브(목욕·사우나·찜질)로 <b>내 사우나 정체성을 설정</b>(기록·추천 트라이브별 맞춤) + 활동(행동 보상)에 따라 <b>'칭호' 획득</b> 게이미피케이션.</div>
+      <div class="gd"><span class="gl g1">🔍 발견</span>지도·검색에 <b>사-리스트(추천·테마 큐레이션)</b>를 더해 갈 만한 사우나를 찾는다.</div>
+      <div class="gd"><span class="gl g2">✍️ 기록·회고</span>트라이브별 온도·루틴 기록 → <b>스토리 카드 공유</b> → 캘린더·통계로 회고.</div>
+    </div>
+  </div>
+
+  <!-- 제안 기능 타이틀 -->
+  <div class="proposed-title">🧪 제안 기능</div>
+  <div class="proposed-sub">아래는 위 시장 수요·페르소나 분석에 기반한 <b>신규/개선 제안</b> 와이어프레임(방향 스케치).</div>
+
+  <!-- ===== SCENE 1: 빠른 기록 블록 + 나만의 루틴 ===== -->
+  <div class="scene">
+    <div class="phones">
+      <!-- 폰 A: 빠른 기록 -->
+      <div class="phone">
+        <div class="ph-head"><span class="ttl">스파랜드 센텀</span><span class="cancel">취소</span></div>
+        <div class="ph-meta"><span class="material-symbols-outlined">calendar_today</span><u>오늘</u><span>·</span><span class="material-symbols-outlined">schedule</span><u>오후 8시</u></div>
+        <div class="ph-body">
+          <div class="tribepill">🔥 사우나파 <span class="material-symbols-outlined">expand_more</span></div>
+          <div class="segtoggle">
+            <span class="opt on"><span class="material-symbols-outlined">bolt</span>빠른 기록</span>
+            <span class="opt"><span class="material-symbols-outlined">tune</span>상세 기록</span>
+          </div>
+          <div class="gcard">
+            <div class="secq">오늘 뭐 했어요? <span style="font-weight:500;color:#a8a29e;font-size:11px">누른 순서가 루틴이 돼요</span></div>
+            <div class="blocks">
+              <div class="blk on"><span class="ord">1</span><span class="e material-symbols-outlined">local_fire_department</span>건식</div>
+              <div class="blk"><span class="e material-symbols-outlined">humidity_high</span>습식</div>
+              <div class="blk on"><span class="ord">2</span><span class="e material-symbols-outlined">ac_unit</span>냉탕</div>
+              <div class="blk"><span class="e material-symbols-outlined">hot_tub</span>온탕</div>
+              <div class="blk on"><span class="ord">3</span><span class="e material-symbols-outlined">self_improvement</span>휴식</div>
+              <div class="blk add"><span class="e material-symbols-outlined">add</span>추가</div>
+            </div>
+            <div class="orderline">이 순서로 저장 · <b>1 건식</b><span class="material-symbols-outlined">arrow_right_alt</span><b>2 냉탕</b><span class="material-symbols-outlined">arrow_right_alt</span><b>3 휴식</b></div>
+          </div>
+          <div class="gcard" style="padding:12px 14px">
+            <div class="secq">어땠어요?</div>
+            <div class="chiprow"><span class="ch">별로</span><span class="ch">보통</span><span class="ch">좋아</span><span class="ch on">최고</span></div>
+          </div>
+          <a class="cta">기록 완료</a>
+          <div class="hint">탭만 해도 끝 · 온도는 블록 한 번 더 눌러 추가</div>
+        </div>
+      </div>
+      <!-- 폰 B: 나만의 루틴 -->
+      <div class="phone">
+        <div class="ph-head"><span class="ttl">나만의 루틴</span><span class="cancel">편집</span></div>
+        <div class="ph-meta">자주 하는 조합을 한 번에 불러와요</div>
+        <div class="ph-body">
+          <div class="routine-chip"><span class="material-symbols-outlined">bolt</span>지금 이 기록을 '내 루틴'으로 저장</div>
+          <div class="rt-label">내 루틴</div>
+          <div class="rt"><span class="ic"><span class="material-symbols-outlined">local_fire_department</span></span><div><div class="nm">퇴근 사우나</div><div class="steps"><span class="st"><span class="num">1</span>건식</span><span class="st"><span class="num">2</span>냉탕</span><span class="st"><span class="num">3</span>휴식</span></div></div><span class="go">불러오기</span></div>
+          <div class="rt"><span class="ic"><span class="material-symbols-outlined">hot_tub</span></span><div><div class="nm">주말 목욕</div><div class="steps"><span class="st"><span class="num">1</span>온탕</span><span class="st"><span class="num">2</span>세신</span><span class="st"><span class="num">3</span>냉탕</span></div></div><span class="go">불러오기</span></div>
+          <div class="rt-label">추천 루틴 <span>트라이브 맞춤 · 입문</span></div>
+          <div class="rt rec"><span class="ic"><span class="material-symbols-outlined">local_fire_department</span></span><div><div class="nm">토토노우 입문<span class="tag">사우너</span></div><div class="steps"><span class="st"><span class="num">1</span>건식</span><span class="st"><span class="num">2</span>냉탕</span><span class="st"><span class="num">3</span>휴식 ×3</span></div></div><span class="go">써보기</span></div>
+          <div class="rt rec"><span class="ic"><span class="material-symbols-outlined">outdoor_grill</span></span><div><div class="nm">찜질 풀코스<span class="tag" style="color:var(--jimi);background:#e9faef">찜질</span></div><div class="steps"><span class="st"><span class="num">1</span>한증막</span><span class="st"><span class="num">2</span>매점</span><span class="st"><span class="num">3</span>수면</span></div></div><span class="go">써보기</span></div>
+          <div class="addbtn"><span class="material-symbols-outlined">add</span>새 루틴 만들기</div>
+          <div class="hint">불러오면 블록이 미리 채워진 채로 시작</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg new">NEW</span><span class="tg">기능1 게이미피케이션</span><span class="tg p0">P0</span></div>
+      <h2>빠른 기록 = 블록 탭 (+ 어땠어 + 나만의 루틴)</h2>
+      <div class="who">👤 <b>기록러 · 모든 트라이브</b> — 단순 발도장은 데이터 가치 0. 대신 <b>"오늘 뭘 했나(사우나·온탕·냉탕…)"와 "어땠나"</b>는 탭만으로 남기고, 온도·세트는 원하는 사람만. 마찰은 0에 가깝게, 데이터는 남게.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">touch_app</span><b>블록 탭 = 기록.</b> 누른 순서대로 숫자가 붙어 <b>그게 곧 루틴 순서(1건식→2냉탕→3휴식)</b></li>
+        <li><span class="material-symbols-outlined">layers</span><b>트라이브가 기본 블록 세트를 결정.</b> 사우나파=건식·습식·냉탕·휴식 / 목욕파=온탕·냉탕·세신 / 찜질파=한증막·매점·수면</li>
+        <li><span class="material-symbols-outlined">bolt</span>빠른기록은 <b>온도 없이 '뭐 했나'만</b> — 온도·세트는 ✍️상세 토글에서 (마찰 분리)</li>
+        <li><span class="material-symbols-outlined">recommend</span><b>나만의 루틴 + 추천 루틴</b> — 내 루틴 저장/불러오기 + 트라이브 맞춤 입문 루틴("토토노우 입문")을 써보기로 제공</li>
+      </ul>
+      <div class="from"><b>출처 무브:</b> 하루콩 블록/감정 탭 기록 + 모두의 원탭 진입 — 사-피는 트라이브 블록으로 "쉬움 × 의미 있는 데이터"를 동시에</div>
+      <div class="idea">⚖️ <b>진입 방식(내 제안):</b> 기록 전 "퀵/상세" <b>강제 선택 화면은 마찰</b>(결정 1개 추가). 대신 화면 상단 <b>⚡빠른 | ✍️상세 세그먼트 토글</b> + 기본값을 <b>트라이브·직전 선택으로 기억</b>(사우너=상세 우선, 목욕/찜질=빠른 우선). 게이트 없이 "선택" 성립. 블록↔슬라이더는 같은 컬럼(sauna_temp·totono…) 공유.</div>
+    </div>
+  </div>
+
+  <!-- ===== SCENE 2: 시설칩 지도 ===== -->
+  <div class="scene">
+    <div class="phones">
+      <div class="phone">
+        <div class="exp-head">EXPLORE</div>
+        <div class="ph-body" style="padding-top:0">
+          <div class="exp-search"><span class="material-symbols-outlined">search</span><span class="ph">사우나 · 지역 검색</span></div>
+          <div class="exp-vtoggle">
+            <span class="vm"><span class="material-symbols-outlined">view_list</span>리스트</span>
+            <span class="vm on"><span class="material-symbols-outlined">map</span>지도</span>
+          </div>
+          <div class="exp-filters">
+            <span class="fbtn"><span class="material-symbols-outlined">tune</span>필터</span>
+            <span class="fchip on">🔥 사우너픽</span><span class="fchip">🛁 탕러픽</span><span class="fchip">● 영업중</span><span class="fchip">24H</span>
+          </div>
+          <div class="exp-map">
+            <button class="myloc"><span class="material-symbols-outlined">my_location</span></button>
+            <span class="clus" style="left:28%;top:30%">5</span>
+            <span class="dpin" style="left:55%;top:27%"><i></i></span>
+            <span class="dpin" style="left:70%;top:45%"><i></i><span class="c"><span class="material-symbols-outlined">favorite</span></span></span>
+            <span class="dpin sel" style="left:45%;top:56%"><i></i></span>
+            <span class="dpin" style="left:80%;top:64%"><i></i></span>
+            <span class="dpin" style="left:36%;top:74%"><i></i><span class="c"><span class="material-symbols-outlined">favorite</span></span></span>
+            <span class="uloc" style="left:60%;top:76%"></span>
+          </div>
+          <div class="exp-placecard">
+            <div class="ph1"><span class="pn">허심청</span><span class="b24">24H</span><span class="bm"><span class="material-symbols-outlined">bookmark_heart</span></span></div>
+            <div class="ad">부산 동래구 온천장로 23 · 350m</div>
+          </div>
+        </div>
+        <div class="ph-nav">
+          <div class="it on"><span class="material-symbols-outlined">map</span>탐색</div>
+          <div class="it"><span class="material-symbols-outlined">calendar_month</span>내기록</div>
+          <div class="home"><span class="material-symbols-outlined">home</span></div>
+          <div class="it"><span class="material-symbols-outlined">bookmarks</span>SA-리스트</div>
+          <div class="it"><span class="material-symbols-outlined">person</span>마이</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg">기능2a 지도</span><span class="tg p0">P0</span></div>
+      <h2>지금은 '트라이브 픽'으로 거른다 (시설칩은 다음 단계)</h2>
+      <div class="who">👤 <b>눈팅러 · 사우나파</b> — 세부 시설칩(노천·100°+)은 <b>아직 DB 분포가 얕아</b> 필터링이 빈약. 대신 <b>사우너픽·탕러픽·찜질러픽</b>(트라이브가 고르고 기록한 곳)으로 거르면 지금도 의미 있는 분포가 나온다.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">groups</span><b>트라이브 픽 필터</b> — 사우너픽 / 탕러픽 / 찜질러픽 (트라이브 추천·로그 집계 기반)</li>
+        <li><span class="material-symbols-outlined">schedule</span><b>영업중 · 24시 토글</b>(외부 위임) — 지금 바로 갈 수 있는 곳</li>
+        <li><span class="material-symbols-outlined">pin_drop</span>조합 시 <b>"사우너픽 · 영업중 18곳"</b> 실시간 카운트 + 핀 갱신</li>
+      </ul>
+      <div class="from"><b>출처 무브:</b> 이키타이 시설 스키마(목표) + 사우나데이 영업중 — 단 지금은 픽 필터로 분포 확보 먼저</div>
+      <div class="idea">📌 <b>메모(나중):</b> DB 밀도가 쌓이면 <b>"노출할 퀵 시설칩 3개" 유저 커스텀</b> 도입(예: 노천·냉탕·타투만 보이게). 지금은 데이터 부족으로 보류.</div>
+    </div>
+  </div>
+
+  <!-- ===== SCENE 3: 내 인생 사우나 Top ===== -->
+  <div class="scene">
+    <div class="phones">
+      <div class="phone">
+        <div class="ph-head"><span class="ttl">내 인생 사우나 Top</span></div>
+        <div class="ph-body" style="padding-top:8px">
+          <div class="rk"><span class="r">1</span><span class="nm">스파랜드 센텀시티</span><span class="sc">9.4</span></div>
+          <div class="rk"><span class="r">2</span><span class="nm">허심청</span><span class="sc">8.9</span></div>
+          <div class="rk"><span class="r">3</span><span class="nm">아쿠아필드 하남</span><span class="sc">8.1</span></div>
+          <div class="vs">방금 기록한 곳, 어디가 더 좋았어?
+            <div><span class="opt">스파랜드</span> vs <span class="opt">허심청</span></div>
+          </div>
+          <div class="hint">비교 3번이면 점수가 정렬돼요 · 공유하면 SA-리스트로</div>
+        </div>
+        <div class="ph-nav">
+          <div class="it"><span class="material-symbols-outlined">map</span>탐색</div>
+          <div class="it on"><span class="material-symbols-outlined">calendar_month</span>내기록</div>
+          <div class="home"><span class="material-symbols-outlined">home</span></div>
+          <div class="it"><span class="material-symbols-outlined">bookmarks</span>SA-리스트</div>
+          <div class="it"><span class="material-symbols-outlined">person</span>마이</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg">기능1 게이미피케이션</span><span class="tg p1">P1</span></div>
+      <h2>기록을 '점수·순위'로 되돌려준다</h2>
+      <div class="who">👤 <b>기록러 → 큐레이터</b> — 방문할수록 <b>나만의 사우나 랭킹(명예의 전당)이 계속 쌓이고</b>, 그게 결과물이라 더 가고 싶어진다. 완성된 Top은 <b>친구에게 공개</b>까지.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">swap_horiz</span>방문지 <b>둘씩 비교</b> → 개인 점수(0~10) 자동 정렬 (Beli식)</li>
+        <li><span class="material-symbols-outlined">trending_up</span>비교가 쌓일수록 <b>"내 인생 사우나 랭킹"이 누적</b> — 마찰 없이 갱신</li>
+        <li><span class="material-symbols-outlined">ios_share</span><b>친구에게 공개·비교</b> 가능 → 한 탭으로 SA-리스트화(큐레이터 전환)</li>
+      </ul>
+      <div class="from"><b>출처 무브:</b> Beli 비교 랭킹·친구 리더보드 + 모두의 랭킹 — 사-피는 "개인 랭킹 누적 → 친구 공개"로 연결</div>
+    </div>
+  </div>
+
+  <!-- ===== SCENE 4: 사우나 도장판 (달력 비주얼 = 도장판, 꾸미기 × 리워드 × 수익화) ===== -->
+  <div class="scene">
+    <div class="phones">
+      <div class="phone">
+        <div class="ph-head"><span class="ttl">사우나 도장판</span><span class="cancel">7월</span></div>
+        <div class="ph-meta"><span class="material-symbols-outlined">how_to_reg</span>방문할 때마다 도장이 찍혀요</div>
+        <div class="ph-body" style="padding-top:8px">
+          <div class="cal-skin">
+            <div class="cal-h">이번 달 도장판 · 여름 노천 테마</div>
+            <div class="cal-grid">
+              <div class="d e"></div><div class="d">🔥</div><div class="d">🛁</div><div class="d">🥚</div><div class="d">🔥</div><div class="d e"></div><div class="d e"></div>
+              <div class="d">🔥</div><div class="d e"></div><div class="d">🛁</div><div class="d">🔥</div><div class="d e"></div><div class="d">🔥</div><div class="d e"></div>
+              <div class="d e"></div><div class="d">🥚</div><div class="d">🔥</div><div class="d e"></div><div class="d">🛁</div><div class="d">🔥</div><div class="d e"></div>
+            </div>
+          </div>
+          <div class="reward">
+            <span class="g"><span class="material-symbols-outlined">redeem</span></span>
+            <div><div class="rt">다 채우면 사우나펫 아이템 + 경품 추첨</div><div class="rs">이번 달 특별 경품 · sponsored by 사사사 사우나</div></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#8a857f;margin:11px 2px 6px">도장판 테마 꾸미기</div>
+          <div class="themebar"><div class="tb tb1"></div><div class="tb tb2"></div><div class="tb tb3"></div></div>
+          <div class="hint">방문할수록 도장·시즌 테마·사우나펫 아이템 해금</div>
+        </div>
+        <div class="ph-nav">
+          <div class="it"><span class="material-symbols-outlined">map</span>탐색</div>
+          <div class="it"><span class="material-symbols-outlined">calendar_month</span>내기록</div>
+          <div class="home"><span class="material-symbols-outlined">home</span></div>
+          <div class="it"><span class="material-symbols-outlined">bookmarks</span>SA-리스트</div>
+          <div class="it on"><span class="material-symbols-outlined">person</span>마이</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg new">NEW · 아이디어</span><span class="tg">리텐션 × 수익화 × 꾸미기</span><span class="tg p1">P1</span></div>
+      <h2>사우나 도장판 — 방문이 도장이 되고, 도장판을 꾸미고, 채우면 리워드</h2>
+      <div class="who">👤 <b>모든 트라이브 · 기록러/눈팅러</b> — 카페 쿠폰 + 하루콩식 꾸미는 재미를 합쳤다. 방문(체크인)이 <b>귀여운 도장</b>이 되고, 도장판 자체를 시즌 테마로 <b>꾸미며</b>, 다 채우면 <b>사우나펫 아이템·경품.</b> 혼자 써도 쌓여 콜드스타트에 강하다.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">approval</span>방문(체크인)마다 <b>트라이브 무드 도장</b>(불/물/한증막) — 그 달의 도장판이 곧 내 기록</li>
+        <li><span class="material-symbols-outlined">palette</span><b>캘린더 꾸미기 대신 '도장판 꾸미기'</b> — 월별·시즌 테마 스킨(여름 노천·겨울 등) 해금</li>
+        <li><span class="material-symbols-outlined">pets</span>다 채우면 <b>사우나펫 아이템</b>(때수건·식혜·맥반석계란) + 이번 달 경품 추첨</li>
+        <li><span class="material-symbols-outlined">handshake</span><b>이번 달 특별 경품을 브랜드가 스폰서</b> → 제휴 수익화(모두의 제휴 모델) + 유저 재미</li>
+      </ul>
+      <div class="from"><b>출처 무브:</b> 하루콩 꾸미는 캘린더 + 카페 쿠폰 적립 + 이키타이 톤투 추첨 + 모두의 제휴·광고 + 사우나펫 로드맵</div>
+      <div class="idea">🤔 <b>고려 포인트 — 도장판 ↔ 히스토리 뷰를 합칠지?</b> 둘 다 <b>월간 달력 비주얼</b> 기반(도장판=꾸미기·리워드 / 히스토리=기록 분포). 재설계 중인 <b>히스토리 캘린더(SCENE 5)를 도장판으로 통합</b>하는 안을 검토. ⏭ 친구 블렌드·공동 리스트(Spotify Blend)는 소셜 밀도 후.</div>
+    </div>
+  </div>
+
+  <!-- ===== SCENE 5: 히스토리 캘린더 뷰 — 달력 부분만 블러 (실제 UI 재현) ===== -->
+  <div class="scene">
+    <div class="phones">
+      <div class="phone">
+        <div class="hist-head">
+          <span class="hist-title">HISTORY</span>
+          <div class="vtoggle"><span class="v on"><span class="material-symbols-outlined">calendar_month</span></span><span class="v"><span class="material-symbols-outlined">list</span></span></div>
+        </div>
+        <div class="tchips">
+          <span class="tchip" style="border-color:var(--saunner);border-width:1.5px;color:#9a3412;background:#fff7f0">🔥 사우나파</span>
+          <span class="tchip">🛁 목욕파</span>
+          <span class="tchip">🥚 찜질파</span>
+          <span class="tchip">전체</span>
+        </div>
+        <div class="ph-body" style="padding-top:0">
+          <div class="kpihead"><span>이번 달 요약</span><span>총 기록</span></div>
+          <div class="kpis">
+            <div class="kpi"><div class="kl" style="color:var(--saunner)">기록한 날</div><div class="kn">12<small>/31</small></div></div>
+            <div class="kpi"><div class="kl" style="color:var(--saunner)">다녀온 곳</div><div class="kn">08</div></div>
+            <div class="kpi"><div class="kl" style="color:var(--saunner)">SAUNNER</div><div class="kn">47</div></div>
+          </div>
+          <div class="histcal-wrap">
+            <div class="histcal blur-on">
+              <div class="cnav"><div class="ml"><span class="material-symbols-outlined">chevron_left</span>2026년 7월<span class="material-symbols-outlined">chevron_right</span></div><span class="today">오늘</span></div>
+              <div class="wk"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="we">토</span><span class="we">일</span></div>
+              <div class="days">
+                <div class="day"><span class="dn">7</span><span class="dot" style="background:var(--saunner)"></span></div>
+                <div class="day"><span class="dn">8</span></div>
+                <div class="day sel today"><span class="dn">9</span><span class="ring" style="border-color:var(--saunner)"><i style="background:var(--saunner)"></i></span></div>
+                <div class="day"><span class="dn">10</span><span class="dot" style="background:var(--bather)"></span></div>
+                <div class="day"><span class="dn">11</span></div>
+                <div class="day"><span class="dn">12</span><span class="dot" style="background:var(--saunner)"></span></div>
+                <div class="day"><span class="dn">13</span></div>
+              </div>
+              <div class="exp"><span class="material-symbols-outlined">expand_more</span></div>
+            </div>
+            <div class="histcal-q"><div class="qm">?</div><div class="ql">달력 → 재설계 검토</div></div>
+          </div>
+          <div class="ptoggle"><div class="pp"><span class="on">WEEK</span><span>MONTH</span></div></div>
+          <div class="insight">
+            <div class="ring-area">
+              <div class="heatring"><div class="hi"><b>57</b><small>min</small></div></div>
+              <div class="ring-lbl">WEEKLY HEAT<br>EXPOSURE</div>
+            </div>
+            <div class="ins-metrics">
+              <div><div class="ml">평균 온도차 <span class="tog"><b class="on">건식</b><b>습식</b></span></div><div class="mv">32°C</div></div>
+              <div><div class="ml">토토노이 점수</div><div class="mv" style="color:var(--saunner)">4/5</div></div>
+            </div>
+          </div>
+          <div class="routinecard">
+            <div class="rt-title">나의 평균 루틴</div>
+            <div class="rt-slots">
+              <div class="slot4"><div class="ic"><span class="material-symbols-outlined">sauna</span></div><div class="vv">12m</div><div class="ll">HOT</div></div>
+              <div class="slot4"><div class="ic"><span class="material-symbols-outlined">ac_unit</span></div><div class="vv">60s</div><div class="ll">ICE</div></div>
+              <div class="slot4"><div class="ic"><span class="material-symbols-outlined">airline_seat_recline_extra</span></div><div class="vv">8m</div><div class="ll">REST</div></div>
+              <div class="slot4"><div class="ic"><span class="material-symbols-outlined">loop</span></div><div class="vv">x3</div><div class="ll">REPEAT</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ph-nav">
+          <div class="it"><span class="material-symbols-outlined">map</span>탐색</div>
+          <div class="it on"><span class="material-symbols-outlined">calendar_month</span>내기록</div>
+          <div class="home"><span class="material-symbols-outlined">home</span></div>
+          <div class="it"><span class="material-symbols-outlined">bookmarks</span>SA-리스트</div>
+          <div class="it"><span class="material-symbols-outlined">person</span>마이</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg new">NEW · 아이디어</span><span class="tg">기능1 히스토리</span><span class="tg" style="color:#7dd3fc;border-color:#2a6f8e;background:#13242e">🔎 레퍼런스 필요</span></div>
+      <h2>히스토리 캘린더 뷰 — '달력'을 재설계 (리스트 뷰는 유지)</h2>
+      <div class="who">👤 <b>기록러</b> — 현재 히스토리는 <b>캘린더 뷰 / 리스트 뷰</b> 토글 구조(실제 UI 그대로). <b>리스트 뷰는 유지</b>하고, 캘린더 뷰의 <b>'달력' 부분만</b> 재설계 검토 중 — "달력이 달력이 아니게" (타임라인/피드형 등). KPI·기간토글·인사이트·최근기록은 그대로.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">toggle_on</span><b>캘린더 ↔ 리스트 뷰 토글 유지</b> (우상단 아이콘, 실제 UI)</li>
+        <li><span class="material-symbols-outlined">blur_on</span><b>'달력' 부분만 재설계 대상</b>(블러) — 주간 스트립/월 그리드를 어떤 형태로 바꿀지 검토</li>
+        <li><span class="material-symbols-outlined">check_circle</span>KPI(기록한 날·다녀온 곳·역대) · WEEK/MONTH · 인사이트 · 최근기록은 <b>그대로</b></li>
+      </ul>
+      <div class="from"><b>레퍼런스 후보(검토 필요):</b> 사사사 일기 피드 · 이키타이 사활 피드 · Strava 활동 피드 · Letterboxd 다이어리</div>
+      <div class="idea">🔎 <b>레퍼런스 필요:</b> 달력 자리를 무엇으로 바꿀지 <b>비주얼 미정(블러)</b>. 위 후보를 훑어 사-피 톤의 형태를 확정해야 함. 🤔 <b>고려 포인트:</b> 이 자리를 <b>도장판(SCENE 4)과 합칠지</b>도 함께 검토.</div>
+    </div>
+  </div>
+
+  <!-- ===== SCENE 6: 저장 = 큐레이션 (후순위 · DB 퀄 향상 후) ===== -->
+  <div class="scene" style="opacity:.55;filter:grayscale(.45)">
+    <div class="phones">
+      <div class="phone">
+        <div class="ph-head"><span class="ttl">SA-리스트</span></div>
+        <div class="ph-body" style="padding-top:8px">
+          <div style="font-size:11.5px;font-weight:700;color:#a8a29e;margin-bottom:9px">최근 저장한 곳 5</div>
+          <div class="saved"><span class="th">♨️</span><span class="th">🧖</span><span class="th">🌿</span><span class="th">♨️</span><span class="th">🛁</span></div>
+          <div class="suggest">
+            <div class="t">✨ 5곳이나 모았네요 — 리스트로 묶을까요?</div>
+            <div class="d">저장한 곳에 '노천탕'이 많아요. 추천 이름:</div>
+            <div class="listname">♨️ 수도권 노천탕 투어</div>
+            <a class="cta" style="margin-top:0;font-size:13px;padding:11px">리스트 만들기 · 공개하면 구독 받기</a>
+          </div>
+          <div class="hint">만들 필요 없이, 모으면 리스트가 됩니다</div>
+        </div>
+        <div class="ph-nav">
+          <div class="it"><span class="material-symbols-outlined">map</span>탐색</div>
+          <div class="it"><span class="material-symbols-outlined">calendar_month</span>내기록</div>
+          <div class="home"><span class="material-symbols-outlined">home</span></div>
+          <div class="it on"><span class="material-symbols-outlined">bookmarks</span>SA-리스트</div>
+          <div class="it"><span class="material-symbols-outlined">person</span>마이</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="tagrow"><span class="tg">기능2b 큐레이션</span><span class="tg" style="color:#8a857f;border-color:#d6d3d1;background:#f0eeec">⏸ 후순위</span></div>
+      <h2>'저장 = 큐레이션' — 만들 필요 없이 리스트가 된다</h2>
+      <div class="who">👤 <b>찜러 → 큐레이터</b> — 대다수는 "리스트 만들기"가 부담. 인스타식 저장만 하다 보면 자동으로 테마 리스트가 제안된다.</div>
+      <ul class="how">
+        <li><span class="material-symbols-outlined">auto_awesome</span>저장이 쌓이면 <b>테마 감지 후 리스트화 자동 제안</b>(노천탕·24시·도쿄…)</li>
+        <li><span class="material-symbols-outlined">drive_file_rename_outline</span>이름까지 추천 → 한 탭 생성, 공개 시 <b>구독</b> 유도</li>
+        <li><span class="material-symbols-outlined">workspace_premium</span>콜드 공백은 <b>SA-PI FEATURED "전국 노천탕 Top"</b>으로 먼저 채움</li>
+      </ul>
+      <div class="from"><b>출처 무브:</b> 핀터레스트 "저장=큐레이션" + 다이닝코드 Top리스트 — 사우나데이가 비워둔 '진짜 큐레이션' 선점</div>
+      <div class="idea">⏸ <b>후순위 — DB 퀄리티 높인 후:</b> 자동 테마 감지·추천은 <b>장소 DB 품질(시설칩·태그 정확도)에 크게 의존</b>. <b>DB 퀄을 끌어올린 다음</b> 착수한다. 그 전엔 SCENE 4 도장판으로 SA-리스트/방문을 살린다.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    디자인 토큰·트라이브 색·숏로그 구조 출처: 사-피 코드베이스(globals.css · log/page.tsx · bottom-nav.tsx · story-colors.ts) · 페르소나: docs/po/SAPI_OVERVIEW_KR.md.
+    벤치마크 근거: feature-benchmark.html · 하루콩(블록 기록·꾸미는 캘린더) 화면 참고. 와이어프레임은 구현 방향 스케치(실제 디자인 아님).
+  </div>
+</div>
+</body>
+</html>

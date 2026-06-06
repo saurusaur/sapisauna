@@ -9,11 +9,17 @@
 import { useRouter } from 'next/navigation'
 import type { SaList } from '@/types'
 import { listBgColor } from '@/lib/utils'
+import { MESSAGES } from '@/constants/content'
 import FeaturedSaListCard from './featured-sa-list-card'
+
+// home variant 높낮이 스태거 패턴(각도 0·겹침 없음, 높이만 차이 — 재미있게 크게)
+const HOME_STAGGER = [0, 30, 12, 38, 18]
 
 interface Props {
   lists: SaList[]
   compact?: boolean
+  /** home variant — "SA-PI FEATURED" 섹션: 각도 똑바로·겹침 없음·높낮이 차이만, 이모지 없음 */
+  home?: boolean
   /** 섹션 헤더 타이틀 커스텀 (기본 "SA-PI FEATURED") */
   title?: string
   /** 섹션 헤더 아래 서브 설명 노출 여부 (기본 true) */
@@ -29,6 +35,7 @@ interface Props {
 export default function FeaturedSaListCarousel({
   lists,
   compact = false,
+  home = false,
   title = 'SA-PI FEATURED',
   showSubtitle = true,
   showDiscoveryLink,
@@ -38,6 +45,46 @@ export default function FeaturedSaListCarousel({
 }: Props) {
   const router = useRouter()
   if (lists.length === 0) return null
+
+  // ── home variant: 각도 똑바로 + 카드 간 겹침 없음(간격) + 높낮이 차이만 ──
+  if (home) {
+    return (
+      <section>
+        <h2 className="text-[23px] font-extrabold italic font-heading tracking-wide text-[#2a2222]">
+          {MESSAGES.HOME.FEATURED_HEADING}
+        </h2>
+        <p className="text-xs text-stone-500 font-medium mt-1 mb-4">{MESSAGES.HOME.FEATURED_SUBTITLE}</p>
+
+        {/* -mx-5: 섹션 px-5 상쇄 → 풀블리드 스크롤 */}
+        <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-9 pt-1">
+          {lists.map((list, i) => {
+            const handle = list.owner_nickname ? list.owner_nickname.toUpperCase() : ''
+            return (
+              <button
+                key={list.id}
+                type="button"
+                onClick={() => router.push(`/sa-list/${list.id}`)}
+                className="flex-shrink-0 w-[146px] h-[172px] rounded-[20px] p-4 flex flex-col text-left text-white active:scale-[0.97] transition-transform"
+                style={{
+                  backgroundColor: listBgColor(list.cover_hue),
+                  marginTop: HOME_STAGGER[i % HOME_STAGGER.length],
+                  boxShadow: '0 10px 24px -8px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 1px rgba(255,255,255,0.12)',
+                }}
+              >
+                <p className="text-[19px] font-extrabold leading-[1.2] line-clamp-3 drop-shadow-sm">{list.title}</p>
+                {list.description && (
+                  <p className="text-[12px] leading-relaxed text-white/90 mt-2 line-clamp-3 drop-shadow-sm">{list.description}</p>
+                )}
+                <p className="mt-auto pt-2 text-[11px] text-white/85 uppercase tracking-wide">
+                  {handle}{handle ? ' · ' : ''}{list.place_count}곳
+                </p>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+    )
+  }
 
   const showLink = showDiscoveryLink ?? compact
   // compact 모드는 홈(main p-4 컨텍스트)용 — 내부 px-4로 정렬 맞춤

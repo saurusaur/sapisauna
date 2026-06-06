@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>지도 마커 디자인 시안 v4 — Sauna Log</title>
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+  :root {
+    --primary:#cc1a1a; --primary-light:#fde8e8; --bather:#3B82F6;
+    --stone-700:#44403c; --stone-500:#78716c; --stone-400:#a8a29e; --stone-300:#d6d3d1; --stone-200:#e7e5e4;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo",sans-serif;
+         background:#faf8f6; color:var(--stone-700); padding:24px 16px 80px; line-height:1.5; }
+  .wrap { max-width:980px; margin:0 auto; }
+  h1 { font-size:24px; font-style:italic; font-weight:800; letter-spacing:-.5px; margin:0 0 4px; }
+  .v { display:inline-block; font-size:11px;font-weight:800;color:#fff;background:var(--stone-400);padding:1px 7px;border-radius:999px; }
+  .sub { color:var(--stone-500); font-size:13px; margin-bottom:8px; }
+  h2 { font-size:16px; font-weight:800; margin:34px 0 4px; display:flex; align-items:center; gap:8px; }
+  h2 .tag { font-size:11px; font-weight:700; color:#fff; background:var(--primary); padding:2px 8px; border-radius:999px; }
+  h2 .ok { background:var(--bather); }
+  .desc { color:var(--stone-500); font-size:13px; margin:0 0 16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:14px; }
+  .card { background:#fff; border:1px solid var(--stone-200); border-radius:16px; padding:16px; position:relative; }
+  .card.rec { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+  .card.chosen { border-color:var(--bather); box-shadow:0 0 0 3px #dbeafe; }
+  .card .badge-rec { position:absolute; top:-9px; left:14px; font-size:10px; font-weight:800; color:#fff; background:var(--primary); padding:2px 8px; border-radius:999px; }
+  .card .badge-ok { position:absolute; top:-9px; left:14px; font-size:10px; font-weight:800; color:#fff; background:var(--bather); padding:2px 8px; border-radius:999px; }
+  .card h3 { font-size:13px; font-weight:800; margin:0 0 2px; }
+  .card p { font-size:11.5px; color:var(--stone-500); margin:0; min-height:34px; }
+  .stage { height:108px; border-radius:12px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:22px; position:relative; overflow:hidden; }
+  .stage + .stage { margin-top:8px; }
+  .stage.light { background:
+      linear-gradient(0deg, rgba(0,0,0,.04) 1px, transparent 1px) 0 0/100% 26px,
+      linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px) 0 0/26px 100%, #e9eef0; }
+  .stage.light::before { content:""; position:absolute; left:-10%; top:62%; width:120%; height:13px; background:#fff; transform:rotate(-8deg); opacity:.8; }
+  .stage.dark { background:
+      linear-gradient(0deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/100% 26px,
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/26px 100%, #3a3f44; }
+  .stage .cap { position:absolute; bottom:5px; right:8px; font-size:10px; color:var(--stone-400); }
+  .stage.dark .cap { color:#cbd5e1; }
+  .tiny { font-size:10px; color:var(--stone-400); }
+  .ms { font-family:"Material Symbols Outlined"; line-height:1; display:inline-block; }
+  .fill { font-variation-settings:"FILL" 1; }
+  .arrow { color:var(--stone-300); font-size:18px; }
+
+  /* 나 마커 */
+  .me { display:inline-block; width:18px; height:18px; border-radius:50%; background:var(--bather); border:3px solid #fff;
+        box-shadow:0 0 0 8px rgba(59,130,246,.16),0 4px 12px rgba(59,130,246,.24); position:relative; }
+  .me.pulse::after { content:""; position:absolute; inset:-3px; border-radius:50%; box-shadow:0 0 0 2px rgba(59,130,246,.5); animation:pulse 1.8s ease-out infinite; }
+  @keyframes pulse { 0%{transform:scale(1);opacity:.9} 100%{transform:scale(2.6);opacity:0} }
+
+  /* ===== 사우나 핀: [도형 + 아이콘 오버레이] → 아이콘이 '머리 중앙'에 ===== */
+  .pin { position:relative; width:30px; height:30px; display:inline-block; vertical-align:middle; }
+  .pin .shape { position:absolute; inset:0; border-radius:50% 50% 50% 0;
+    background:var(--primary); border:2.5px solid #fff; transform:rotate(-45deg);
+    box-shadow:0 2px 8px rgba(0,0,0,.24); }
+  /* 머리 중심 = 도형의 기하학적 중심. 꼬리 때문에 시각적으로 살짝 낮아 보이는 것만 2px 보정 */
+  .pin .ico { position:absolute; left:0; right:0; top:0; bottom:2px; display:grid; place-items:center; }
+  .pin .ico .ms { color:#fff; font-size:16px; }
+  .pin .ico .wv { width:17px; height:17px; }
+  .wv path { fill:none; stroke:#fff; stroke-linecap:round; }
+  .pin .ico .hv { width:16px; height:16px; }
+  .hv path { fill:#fff; }
+
+  /* 재밌는 '나' 마커 변형 */
+  .me-badge { --ring: var(--bather); display:inline-grid; place-items:center; width:32px; height:32px; border-radius:50%;
+    background:#fff; border:2.5px solid var(--ring); box-shadow:0 2px 8px rgba(0,0,0,.22); font-size:17px; position:relative; }
+  .me-badge.pulse::after { content:""; position:absolute; inset:-4px; border-radius:50%; box-shadow:0 0 0 2px var(--ring); animation:pulse 1.8s ease-out infinite; }
+  .heading { position:relative; display:inline-block; }
+  .heading .cone { position:absolute; left:50%; bottom:13px; transform:translateX(-50%); width:0; height:0;
+    border-left:10px solid transparent; border-right:10px solid transparent; border-bottom:16px solid rgba(59,130,246,.4); }
+
+  .pin.sel { width:38px; height:38px; }
+  .pin.sel .shape { box-shadow:0 4px 14px rgba(0,0,0,.35); border-width:3px; }
+  .pin.sel .ico { bottom:3px; }
+  .pin.sel .ico .ms { font-size:21px; }
+  .pin.sel .ico .wv { width:22px; height:22px; }
+  .pin.sel .ico .hv { width:19px; height:19px; }
+
+  .pin.sm { width:21px; height:21px; }
+  .pin.sm .shape { border-width:2px; }
+  .pin.sm .ico { bottom:1px; }
+  .pin.sm .ico .ms { font-size:11px; }
+  .pin.sm .ico .wv { width:12px; height:12px; }
+  .pin.sm .ico .hv { width:11px; height:11px; }
+
+  /* 클러스터 */
+  .cluster { width:38px; height:38px; border-radius:50%; border:3px solid #fff; display:grid; place-items:center; font-weight:800; font-size:13px; box-shadow:0 4px 12px rgba(0,0,0,.28); }
+  .cluster.ring { background:#fff; color:var(--primary); border:3px solid var(--primary); box-shadow:0 0 0 4px rgba(204,26,26,.18),0 4px 12px rgba(0,0,0,.22); }
+  .cluster.ring.lg { width:46px; height:46px; font-size:15px; }
+
+  .scene { height:330px; border-radius:18px; position:relative; overflow:hidden;
+    background: linear-gradient(0deg, rgba(0,0,0,.035) 1px, transparent 1px) 0 0/100% 34px, linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px) 0 0/34px 100%, #e9eef0; border:1px solid var(--stone-200); }
+  .scene .road { position:absolute; background:#fff; opacity:.85; }
+  .abs { position:absolute; }
+  .legend { display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--stone-500); margin-top:10px; align-items:center; }
+  .legend span.item { display:inline-flex; align-items:center; gap:6px; }
+  .note { background:#fff; border:1px solid var(--stone-200); border-radius:12px; padding:12px 14px; font-size:12.5px; color:var(--stone-500); margin-top:12px; }
+  .note b { color:var(--stone-700); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>지도 마커 디자인 시안 <span class="v">v4</span></h1>
+  <div class="sub">김(웨이브) 사이즈↑ · 하트/김을 핀 <b>머리 중앙</b>으로 위치 보정(꼬리 쏠림 제거). 실측 크기, light/dark.</div>
+
+  <!-- 나 -->
+  <h2><span class="tag">A</span> '나' 마커 — 유저 개인화 (profile_emoji + profile_hue)</h2>
+  <p class="desc">유저 데이터에 이미 있는 <b>profile_emoji</b>(개인 이모지) + <b>profile_hue</b>(개인 색)로 완전 개인화. 미설정 시 파란 점 폴백.</p>
+  <div class="grid">
+    <div class="card rec">
+      <span class="badge-rec">추천</span>
+      <div class="stage light">
+        <span class="me-badge pulse" style="--ring:#cc1a1a">🧖</span>
+        <span class="me-badge pulse" style="--ring:#16a34a;font-size:18px">🦦</span>
+        <span class="me-badge pulse" style="--ring:#7c3aed">😎</span>
+        <span class="cap">light</span>
+      </div>
+      <div class="stage dark">
+        <span class="me-badge pulse" style="--ring:#f59e0b">🔥</span>
+        <span class="me-badge pulse" style="--ring:#0ea5e9">🐧</span>
+        <span class="cap">dark</span>
+      </div>
+      <h3>내 이모지 + 내 색 링</h3>
+      <p>흰 원에 유저의 profile_emoji, 링·펄스는 profile_hue 색. 유저마다 다른 '나'. 단일 마커라 사우나 핀과 안 헷갈림.</p>
+    </div>
+    <div class="card">
+      <div class="stage light"><span class="me pulse"></span><span class="cap">폴백</span></div>
+      <h3>폴백 — 파란 점</h3>
+      <p>profile_emoji 미설정 유저는 기존 구글식 파란 점.</p>
+    </div>
+    <div class="card">
+      <div class="stage light"><span class="heading"><span class="cone"></span><span class="me pulse"></span></span><span class="cap">옵션</span></div>
+      <h3>+ 방향 콘 (옵션)</h3>
+      <p>이동 중 방향감(내비 느낌). 이모지 배지에도 얹을 수 있음.</p>
+    </div>
+  </div>
+
+  <!-- 사우나 -->
+  <h2><span class="tag">B</span> 사우나 마커 — 클래식 핀 + 김(크게) / 하트 중앙</h2>
+  <p class="desc">일반=김 3줄 / 저장=하트 / 선택강조. 아이콘이 둥근 머리 중앙에 오도록 보정됨.</p>
+  <div class="grid">
+    <div class="card rec">
+      <span class="badge-rec">메인</span>
+      <div class="stage light">
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span>
+        <span class="arrow">→</span>
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="hv" viewBox="0 -2 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></span>
+        <span class="arrow">→</span>
+        <span class="pin sel"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span>
+        <span class="cap">light</span>
+      </div>
+      <div class="stage dark">
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span>
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="hv" viewBox="0 -2 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></span>
+        <span class="cap">dark</span>
+      </div>
+      <h3>일반 = 김 3줄(크게) / 저장 = 하트</h3>
+      <p>김 17px·굵기 2.4. 하트·김 모두 머리 중앙 정렬.</p>
+    </div>
+
+    <div class="card">
+      <div class="stage light">
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.8"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span>
+        <span class="tiny">굵게 2.8</span>
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.0"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span>
+        <span class="tiny">얇게 2.0</span>
+        <span class="cap">굵기</span>
+      </div>
+      <h3>웨이브 굵기 후보</h3>
+      <p>2.4 기준. 더 두껍게(2.8) / 얇게(2.0) 비교.</p>
+    </div>
+
+    <div class="card">
+      <div class="stage light">
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M8 18c1.6-1.6 1.6-3.4 0-5s-1.6-3.4 0-5"/><path d="M12 19c1.6-1.6 1.6-3.4 0-5s-1.6-3.4 0-5"/><path d="M16 18c1.6-1.6 1.6-3.4 0-5s-1.6-3.4 0-5"/></svg></span></span>
+        <span class="tiny">촘촘</span>
+        <span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M6 19c2.6-2 2.6-4.6 0-6.6s-2.6-4.6 0-6.6"/><path d="M12 20c2.6-2 2.6-4.6 0-6.6s-2.6-4.6 0-6.6"/><path d="M18 19c2.6-2 2.6-4.6 0-6.6s-2.6-4.6 0-6.6"/></svg></span></span>
+        <span class="tiny">출렁</span>
+        <span class="cap">진폭</span>
+      </div>
+      <h3>웨이브 진폭 후보</h3>
+      <p>촘촘(차분) vs 출렁(김 느낌↑).</p>
+    </div>
+  </div>
+
+  <!-- 클러스터 -->
+  <h2><span class="tag ok">C</span> 클러스터 — 링형+숫자 확정</h2>
+  <div class="grid">
+    <div class="card chosen">
+      <span class="badge-ok">확정</span>
+      <div class="stage light"><span class="cluster ring">12</span><span class="cluster ring lg">48</span><span class="cap">light</span></div>
+      <h3>링형(도넛) + 숫자</h3>
+      <p>흰 바탕 + 빨강 링 + 빨강 숫자.</p>
+    </div>
+  </div>
+
+  <!-- 미니맵 -->
+  <h2><span class="tag">★</span> 추천 조합 — 실제 지도 장면</h2>
+  <div class="scene">
+    <div class="road" style="left:-5%;top:30%;width:110%;height:16px;transform:rotate(-6deg)"></div>
+    <div class="road" style="left:22%;top:-5%;width:14px;height:110%;transform:rotate(7deg)"></div>
+    <div class="road" style="left:60%;top:-5%;width:12px;height:110%;transform:rotate(-3deg)"></div>
+    <span class="abs" style="left:30%;top:64%"><span class="me pulse"></span></span>
+    <span class="abs" style="left:46%;top:40%"><span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span></span>
+    <span class="abs" style="left:62%;top:56%"><span class="pin"><span class="shape"></span><span class="ico"><svg class="hv" viewBox="0 -2 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></span></span>
+    <span class="abs" style="left:74%;top:30%"><span class="pin sel"><span class="shape"></span><span class="ico"><svg class="hv" viewBox="0 -2 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></span></span>
+    <span class="abs" style="left:40%;top:77%"><span class="pin"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.4"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span></span>
+    <span class="abs" style="left:17%;top:24%"><span class="cluster ring">12</span></span>
+    <span class="abs" style="left:84%;top:70%"><span class="cluster ring lg">31</span></span>
+  </div>
+  <div class="legend">
+    <span class="item"><span class="me" style="position:relative;box-shadow:none;width:14px;height:14px"></span> 나</span>
+    <span class="item"><span class="pin sm"><span class="shape"></span><span class="ico"><svg class="wv" viewBox="0 0 24 24" stroke-width="2.6"><path d="M7 18c2-2 2-4 0-6s-2-4 0-6"/><path d="M12 19c2-2 2-4 0-6s-2-4 0-6"/><path d="M17 18c2-2 2-4 0-6s-2-4 0-6"/></svg></span></span> 사우나</span>
+    <span class="item"><span class="pin sm"><span class="shape"></span><span class="ico"><svg class="hv" viewBox="0 -2 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span></span> 저장됨</span>
+    <span class="item"><span class="cluster ring" style="width:24px;height:24px;font-size:10px;box-shadow:none">n</span> 클러스터</span>
+  </div>
+
+  <div class="note">
+    <b>변경:</b> 김 17px로 키움 + 핀 머리 중앙 정렬(<code>bottom inset</code>으로 꼬리 쏠림 제거). 김/하트가 같은 자리·비슷한 무게로 보이는지, <b>굵기(2.0/2.4/2.8)·진폭(촘촘/출렁)</b> 조합 골라주세요.
+  </div>
+</div>
+</body>
+</html>

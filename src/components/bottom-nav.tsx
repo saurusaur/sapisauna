@@ -59,11 +59,12 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto">
-      {/* Glass 배경 */}
+      {/* Glass 배경 — 상단 라운드 처리 */}
       <div className="absolute inset-0 backdrop-blur-xl"
         style={{
           background: 'hsl(var(--glass))',
           borderTop: '0.5px solid hsl(var(--glass-border))',
+          borderRadius: '26px 26px 0 0',
           boxShadow: '0 -4px 16px rgba(0,0,0,0.06), 0 -12px 40px rgba(0,0,0,0.04)',
         }}
       />

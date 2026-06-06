@@ -1,22 +1,20 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MESSAGES } from '@/constants/content'
 import BottomNav from '@/components/bottom-nav'
-import { useUserLogs, useCommunityFeed } from '@/hooks/use-logs'
 import { useFeaturedPublicLists } from '@/hooks/use-lists'
-import { useUser } from '@/contexts/user-context'
+import { useUserLogs } from '@/hooks/use-logs'
 import { useAuth } from '@/contexts/auth-context'
-import RecordCard from '@/components/features/record-card'
-import UserLogCard from '@/components/features/user-log-card'
-import DataState from '@/components/ui/data-state'
-import ContentLoader from '@/components/ui/content-loader'
 import ProfileCard from '@/components/features/profile-card'
-import { useLoginPrompt } from '@/hooks/use-login-prompt'
-import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import TribePicksCard from '@/components/features/tribe-picks-card'
 import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
+import SaunaStamp from '@/components/svg/sauna-stamp'
+import { useLoginPrompt } from '@/hooks/use-login-prompt'
+import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import { MESSAGES } from '@/constants/content'
+
+const HOME = MESSAGES.HOME
 
 function getTodayKey(): string {
   const now = new Date()
@@ -25,139 +23,110 @@ function getTodayKey(): string {
 
 export default function Home() {
   const router = useRouter()
-  const { primaryTribe } = useUser()
   const { user: authUser } = useAuth()
-  const { data: userLogs, loading, error } = useUserLogs()
-  const { data: communityLogs, loading: communityLoading } = useCommunityFeed(10)
   const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
-
-  // Z3: 페이지 로딩 게이트 — 헤더·네비는 유지하고 main 영역만 스피너
-  const allLoading = loading || communityLoading || featuredLoading
-
-  const todayKey = getTodayKey()
-
-  const todayLogs = useMemo(
-    () => userLogs.filter((log) => log.date.slice(0, 10) === todayKey),
-    [userLogs, todayKey]
-  )
-
+  const { data: userLogs } = useUserLogs()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
 
-  const hasTodayRecord = todayLogs.length > 0
-  const emptyMessage = MESSAGES.HOME.EMPTY_RECORD[primaryTribe] || MESSAGES.HOME.NO_RECORDS
+  // CTA(포스트잇) 상태 적응형
+  const hasRecords = userLogs.length > 0
+  const recordedToday = userLogs.some((l) => l.date.slice(0, 10) === getTodayKey())
+  // 노출: 비로그인=항상 / 로그인=오늘 미기록일 때
+  const showCta = authUser ? !recordedToday : true
+  // 문구: 로그인+기록 있음="오늘도", 그 외="사우나"
+  const ctaWord = authUser && hasRecords ? HOME.CTA_PREFIX_RETURNING : HOME.CTA_PREFIX_NEW
+
+  // 사-첵 팝: 페이지(데이터 포함) 로딩 완료 후 1회만 재생
+  const [popReady, setPopReady] = useState(false)
+  useEffect(() => {
+    if (featuredLoading || popReady) return
+    const t = setTimeout(() => setPopReady(true), 150)
+    return () => clearTimeout(t)
+  }, [featuredLoading, popReady])
+
+  const handleRecord = () => {
+    if (!authUser) {
+      requireAuth()
+      return
+    }
+    localStorage.setItem('selectedRecordDate', getTodayKey())
+    router.push('/place')
+  }
 
   return (
-    <div className="min-h-dvh pb-20 bath-tile-bg">
-      {/* 헤더 */}
-      <header className="p-5 pt-8">
-        <h1 className="text-3xl font-extrabold italic font-heading">
-          HELLO{' '}
-          <span style={{ color: 'var(--color-primary)' }}>SA-PIEN</span>
+    <div className="relative min-h-dvh pb-24 bath-tile-bg overflow-hidden">
+      {/* ── 상단 레드 영역 + 살짝 곡선 ── */}
+      <div className="absolute top-0 left-0 right-0 h-[286px] z-0" style={{ backgroundColor: 'var(--color-primary)' }} />
+      <div className="absolute left-0 right-0 z-0 leading-none" style={{ top: '278px' }} aria-hidden>
+        <svg viewBox="0 0 393 34" preserveAspectRatio="none" className="block w-full h-[34px]">
+          <path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill="var(--color-primary)" />
+        </svg>
+      </div>
+
+      {/* ── 헤더 ── */}
+      <header className="relative z-[3] px-6 pt-8 pb-2">
+        <h1 className="text-[40px] leading-none italic font-heading text-white">
+          <span className="font-medium">{HOME.HERO_HELLO}</span>{' '}
+          <span className="font-bold">{HOME.HERO_BRAND}</span>
         </h1>
+        <p className="text-white/90 text-sm font-medium mt-2.5">{HOME.HERO_SUBTITLE}</p>
       </header>
 
-      <main className="p-4 space-y-6">
-        {allLoading ? (
-          <ContentLoader />
-        ) : (
-          <>
-            {/* 프로필 카드 */}
-            <ProfileCard />
+      {/* ── 스탬프 카드 슬롯 (프로필 카드 + 도장 + 사-첵 CTA) ── */}
+      <div className="relative z-[5] mx-4 mt-6 h-[214px]">
+        {/* 유저(스탬프) 카드 — 살짝 기울임 */}
+        <div className="absolute left-0 top-1.5 w-[78%] origin-center" style={{ transform: 'rotate(-3.5deg)' }}>
+          <ProfileCard />
+        </div>
 
-            {/* 오늘의 기록 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-sm font-bold text-stone-600">{MESSAGES.HOME.TODAY_HEADING}</h2>
-                {authUser && (
-                  <button
-                    onClick={() => router.push('/history')}
-                    className="text-xs font-medium hover:opacity-70 transition-colors flex items-center gap-0.5"
-                    style={{ color: 'var(--color-accent)' }}
-                  >
-                    {MESSAGES.HOME.VIEW_ALL}
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>chevron_right</span>
-                  </button>
-                )}
-              </div>
+        {/* 흰 도장 — 헤더↔사첵 사이, 사첵 위쪽 레드에 걸치게 (우측 살짝 클립) */}
+        <SaunaStamp
+          color="#ffffff"
+          steamRotate={-40}
+          className="absolute w-[78px] h-[78px]"
+          style={{ right: '-10px', top: '-72px', transform: 'rotate(16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
+        />
 
-              {!authUser ? null : todayLogs.length === 0 ? (
-                <div className="rounded-xl py-6 flex flex-col items-center justify-center text-center">
-                  <p className="text-stone-400 text-sm">{emptyMessage}</p>
-                </div>
-              ) : todayLogs.length === 1 ? (
-                <RecordCard
-                  log={todayLogs[0]}
-                  onClick={() => router.push(`/history/${todayLogs[0].id}`)}
-                />
-              ) : (
-                <div
-                  className="flex gap-3 snap-x snap-mandatory"
-                  style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
-                >
-                  {todayLogs.map((log) => (
-                    <div key={log.id} className="min-w-[85%] snap-start flex-shrink-0">
-                      <RecordCard
-                        log={log}
-                        onClick={() => router.push(`/history/${log.id}`)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        {/* 블루 도장 — 카드 하단 캔버스 (체크인 데코) */}
+        <SaunaStamp
+          color="var(--color-bather)"
+          steamRotate={15}
+          className="absolute w-[46px] h-[46px]"
+          style={{ left: '9%', top: '116px', transform: 'rotate(-16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
+        />
 
-            {/* 기록하기 CTA */}
-            <button
-              onClick={() => {
-                if (!authUser) {
-                  requireAuth()
-                  return
-                }
-                localStorage.setItem('selectedRecordDate', todayKey)
-                router.push('/place')
-              }}
-              className="btn-primary"
-            >
-              {authUser ? MESSAGES.HOME.CTA_BUTTON : '오늘 사우나 기록하기'}
-            </button>
-
-            {/* TRIBE PICKS — 비로그인 전용 */}
-            {!authUser && <TribePicksCard />}
-
-            {/* SA-PI FEATURED — 로그인/비로그인 공통 컴팩트 캐러셀
-                -mx-4: main padding(p-4=16px) 상쇄 → 컴포넌트 내부 px-4가 다른 섹션과 정렬 일치 */}
-            <div className="-mx-4">
-              <FeaturedSaListCarousel
-                lists={featuredLists}
-                compact
-                showSubtitle={false}
-                title="이런 사우나는 어때요?"
-              />
-            </div>
-
-            {/* 사-피엔스의 흔적 */}
-            {communityLogs.length === 0 ? null : (
-              <div>
-                <h2 className="text-sm font-bold text-stone-600 mb-2">{MESSAGES.HOME.COMMUNITY_HEADING}</h2>
-                <div
-                  className="flex gap-3 snap-x snap-mandatory"
-                  style={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}
-                >
-                  {communityLogs.map((log) => (
-                    <div key={log.id} className="min-w-[260px] max-w-[300px] snap-start flex-shrink-0">
-                      <UserLogCard
-                        log={log}
-                        showPlace
-                        compact
-                        onClick={() => router.push(`/explore/${log.place_id}`)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+        {/* 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(로딩 후 1회) */}
+        {/* 도장(right 기준)과 동일하게 right 앵커 → 화면 폭 무관하게 도장 옆 고정(분리 방지), 오른쪽 ~14px만 도장 뒤로 */}
+        {popReady && showCta && (
+          <div className="cta-postit is-play" style={{ right: '170px', top: '174px' }} aria-hidden="true">
+            {ctaWord} <b>{HOME.CTA_SUFFIX}</b>
+          </div>
         )}
+
+        {/* 사-첵 CTA — 기록하기 진입(엄지존, 오른쪽 일부 크롭, 움찔+호버/누름 애니메이션) */}
+        <button
+          type="button"
+          onClick={handleRecord}
+          aria-label="사우나 기록하기"
+          className="group absolute z-[4]"
+          style={{ right: '-32px', top: '56px', width: '212px', height: '212px', transform: 'rotate(10deg)' }}
+        >
+          <div className={`w-full h-full ${popReady ? 'sachek-nudge' : ''}`}>
+            <div
+              className="w-full h-full rounded-full overflow-hidden transition-transform duration-200 group-hover:scale-[1.05] group-active:scale-95"
+              style={{ boxShadow: '0 14px 32px -10px rgba(204,26,26,0.4), 0 5px 14px -5px rgba(0,0,0,0.12)' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* ── 섹션 ── */}
+      <main className="relative z-[1] px-5 pt-5 space-y-8">
+        <TribePicksCard />
+        <FeaturedSaListCarousel lists={featuredLists} home />
       </main>
 
       <BottomNav />

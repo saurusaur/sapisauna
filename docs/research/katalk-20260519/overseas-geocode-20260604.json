@@ -1,0 +1,319 @@
+[
+ {
+  "tag": "나미하노유",
+  "pid": "ChIJtYA3dfGRQTURBG0df0WDEWY",
+  "name": "Minato Onsen NAMIHA NO YU",
+  "name_lang": "en",
+  "road": "13-1 Chikkōhonmachi, Hakata Ward, Fukuoka, 812-0021, Japan",
+  "lat": 33.603893899999996,
+  "lng": 130.3982115,
+  "city": "Fukuoka",
+  "admin1": "Fukuoka",
+  "country_code": "JP",
+  "types": [
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "쓰루가메유",
+  "pid": "ChIJ78VulL2RQTURnqhAovm6orw",
+  "name": "Tsurukame-yu",
+  "name_lang": "en",
+  "road": "2-chōme-13-9 Sumiyoshi, Hakata Ward, Fukuoka, 812-0018, Japan",
+  "lat": 33.5865578,
+  "lng": 130.411892,
+  "city": "Fukuoka",
+  "admin1": "Fukuoka",
+  "country_code": "JP",
+  "types": [
+   "tourist_attraction",
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "세이류온천",
+  "pid": "ChIJb3BiRjyWQTUR8hgJtgmS6SM",
+  "name": "源泉野天風呂 那珂川清滝",
+  "name_lang": "en",
+  "road": "326 Nameri, Nakagawa, Fukuoka 811-1236, Japan",
+  "lat": 33.4726249,
+  "lng": 130.4140383,
+  "city": "Nakagawa",
+  "admin1": "Fukuoka",
+  "country_code": "JP",
+  "types": [
+   "banquet_hall",
+   "public_bath",
+   "spa",
+   "event_venue",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "코코로노",
+  "pid": "ChIJqV7Vu2NkdV8Ruvk2lW5vjWc",
+  "name": "Hotel Furukawa",
+  "name_lang": "en",
+  "road": "289-3 Kojōhama, Shiraoi, Shiraoi District, Hokkaido 059-0641, Japan",
+  "lat": 42.4545789,
+  "lng": 141.2046111,
+  "city": "Shiraoi",
+  "admin1": "Hokkaido",
+  "country_code": "JP",
+  "types": [
+   "japanese_inn",
+   "resort_hotel",
+   "hotel",
+   "lodging",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "코노스미카",
+  "pid": "ChIJmVRU6GPjn18RTwGipnd8nXw",
+  "name": "The Lake Suite Ko No Sumika",
+  "name_lang": "en",
+  "road": "7-1 Tōyakoonsen, Sobetsu, Usu District, Hokkaido 049-5731, Japan",
+  "lat": 42.565523999999996,
+  "lng": 140.8331724,
+  "city": "Sobetsu",
+  "admin1": "Hokkaido",
+  "country_code": "JP",
+  "types": [
+   "hotel",
+   "japanese_inn",
+   "public_bath",
+   "lodging",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "토토켄",
+  "pid": "ChIJ18MimQWJGGAR4CZsF4oew6w",
+  "name": "Totoken Nihonbashi Hamacho",
+  "name_lang": "en",
+  "road": "Japan, 〒103-0007 Tokyo, Chuo City, Nihonbashihamachō, 3-chōme−9−７ 宮崎ビル",
+  "lat": 35.683726,
+  "lng": 139.789163,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "sauna",
+   "public_bath",
+   "spa",
+   "health",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "이나리유",
+  "pid": "ChIJizJFXmSNGGAR6wH0thtct5A",
+  "name": "Inariyu",
+  "name_lang": "en",
+  "road": "1-chōme-9-17 Kamiikebukuro, Toshima City, Tokyo 170-0012, Japan",
+  "lat": 35.7346293,
+  "lng": 139.7190427,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "마에다유",
+  "pid": "ChIJVVOESaGSGGARuRAPYMZ4gKo",
+  "name": "Maeda-yu",
+  "name_lang": "en",
+  "road": "4-chōme-12-25 Ikebukuro, Toshima City, Tokyo 171-0014, Japan",
+  "lat": 35.7389686,
+  "lng": 139.7070032,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "우메유",
+  "pid": "ChIJmS92XhSMGGARdZKYOzcqsDI",
+  "name": "Umenoyu",
+  "name_lang": "en",
+  "road": "2-chōme-8-2 Kanda Jinbōchō, Chiyoda City, Tokyo 101-0051, Japan",
+  "lat": 35.6966536,
+  "lng": 139.755267,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "하기노유",
+  "pid": "ChIJIWPdM4GOGGAROBg4zlnJUXA",
+  "name": "Haginoyu",
+  "name_lang": "en",
+  "road": "Thermae Domus Negishi, 2-chōme-13-13 Negishi, Taito City, Tokyo 110-0003, Japan",
+  "lat": 35.724309999999996,
+  "lng": 139.77773,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "tourist_attraction",
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "fuua",
+  "pid": "ChIJx4Zhi6G_GWARq0cYKDEXR4M",
+  "name": "Ocean Spa Fuua",
+  "name_lang": "en",
+  "road": "10-1 Wadahamaminamichō, Atami, Shizuoka 413-8626, Japan",
+  "lat": 35.0883904,
+  "lng": 139.0796452,
+  "city": "Atami",
+  "admin1": "Shizuoka",
+  "country_code": "JP",
+  "types": [
+   "resort_hotel",
+   "hotel",
+   "public_bath",
+   "massage_spa",
+   "spa",
+   "lodging",
+   "massage",
+   "point_of_interest",
+   "service",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "카마타온센",
+  "pid": "ChIJbZkvPfZgGGARH51c9E8goxc",
+  "name": "Kamata Onsen",
+  "name_lang": "en",
+  "road": "2-chōme-23-2 Kamatahonchō, Ota City, Tokyo 144-0053, Japan",
+  "lat": 35.5558937,
+  "lng": 139.7180577,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "public_bath",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "91도사우나",
+  "pid": "ChIJX4yhDQCLGGARvRZ2x_HUhR4",
+  "name": "91° SAUNA",
+  "name_lang": "ja",
+  "road": "Japan, 〒104-0061 Tokyo, Chuo City, Ginza, 7-chōme−3−６ 銀座髙木ビル 11F 12F（SALON 91°内",
+  "lat": 35.6703567,
+  "lng": 139.7606524,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "sauna",
+   "public_bath",
+   "spa",
+   "health",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "아만도쿄",
+  "pid": "ChIJfV9KdPiLGGARn4ma2GUEoJo",
+  "name": "Aman Tokyo",
+  "name_lang": "en",
+  "road": "The Otemachi Tower, 1-chōme-5-6 Ōtemachi, Chiyoda City, Tokyo 100-0004, Japan",
+  "lat": 35.6854887,
+  "lng": 139.7655445,
+  "city": "Tokyo",
+  "admin1": "Tokyo",
+  "country_code": "JP",
+  "types": [
+   "hotel",
+   "lodging",
+   "point_of_interest",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "메도우드",
+  "pid": "ChIJNcxd_wxahIARa5OuTiYaI3E",
+  "name": "Meadowood Napa Valley",
+  "name_lang": "en",
+  "road": "900 Meadowood Ln, St Helena, CA 94574, USA",
+  "lat": 38.520885199999995,
+  "lng": -122.4636024,
+  "city": "St. Helena",
+  "admin1": "California",
+  "country_code": "US",
+  "types": [
+   "hotel",
+   "wedding_venue",
+   "spa",
+   "lodging",
+   "event_venue",
+   "point_of_interest",
+   "service",
+   "establishment"
+  ]
+ },
+ {
+  "tag": "홍콩리젠트",
+  "pid": "ChIJAAAAAOwABDQRP_PjmMCBYQo",
+  "name": "Regent Hong Kong",
+  "name_lang": "en",
+  "road": "18 Salisbury Rd, Tsim Sha Tsui, Hong Kong",
+  "lat": 22.2934362,
+  "lng": 114.1739346,
+  "city": null,
+  "admin1": "Kowloon",
+  "country_code": "HK",
+  "types": [
+   "hotel",
+   "cake_shop",
+   "western_restaurant",
+   "cafe",
+   "cantonese_restaurant",
+   "steak_house",
+   "japanese_restaurant",
+   "bakery",
+   "lodging",
+   "chinese_restaurant",
+   "wholesaler",
+   "restaurant",
+   "point_of_interest",
+   "food_store",
+   "food",
+   "manufacturer",
+   "store",
+   "establishment"
+  ]
+ }
+]

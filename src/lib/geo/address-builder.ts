@@ -34,7 +34,11 @@ export function resolveAddress(
     components.find(c => c.types.includes(type))?.short_name
 
   const country_code = (getShort('country') ?? '').toUpperCase()
-  const city = getLong('locality') ?? getLong('postal_town') ?? null
+  const admin1Early = getLong('administrative_area_level_1')
+  let city = getLong('locality') ?? getLong('postal_town') ?? null
+  // 일본 도쿄 23특별구 보정: Google이 locality를 구(예: "Minato City")로 반환하므로
+  // 도도부현(admin1)이 Tokyo면 city를 'Tokyo'로 롤업한다. (오사카/교토 등은 영향 없음)
+  if (country_code === 'JP' && admin1Early === 'Tokyo') city = 'Tokyo'
 
   const parts: string[] = []
   const seen = new Set<string>()
