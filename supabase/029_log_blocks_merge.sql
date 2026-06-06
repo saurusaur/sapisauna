@@ -13,9 +13,15 @@
 --
 -- ADMIN_USER_ID = 23c431c3-9b23-4779-bb27-13472e58090a (통계 시드, 블록 백필 제외)
 -- ⚠️ 적용 전 백업 + select('*').limit(1)로 컬럼 최종 확인
--- ⚠️ 매점 = block_type 'snack' (food 아님; 식당 'restaurant'와 짝). 이전 029 버전을 이미 돌려
---    food_score/food_memo 를 만들었다면: alter table logs drop column if exists food_score, drop column if exists food_memo; 후 재실행.
+-- ⚠️ 매점 = block_type 'snack' (food 아님; 식당 'restaurant'와 짝).
 --    places.facilities 의 'food'→'snack' 태그 치환 + PLACE_SPECS food→snack 은 **코드 배치와 함께**(라벨 일관 위해 029에서 안 건드림).
+-- ⚠️ 세신/마사지 분리: scrub_score/cost(세신) + massage_score/cost(마사지) 별도 집계. 세신 종류 scrub_type('basic'|'withmassage'=마사지세신). 구 scrub_types(배열)·food_* 폐기.
+-- ──────────────────────────────────────────────────────────────────
+-- 🔁 이미 이전 버전 029를 적용했다면, 재실행 전에 ↓ 한 번 실행(코드 컷오버 전이라 log_blocks는 전부 029 합성본 → 안전):
+--    alter table logs drop column if exists scrub_types;
+--    alter table logs drop column if exists food_score, drop column if exists food_memo;   -- (이전 food_* 버전 돌렸을 때만)
+--    delete from log_blocks;   -- 합성본 전체 삭제 → 재실행이 세신/마사지 분리 규칙으로 깨끗이 재생성
+-- ──────────────────────────────────────────────────────────────────
 -- =====================================================================
 
 begin;
@@ -44,9 +50,11 @@ alter table logs
   add column if not exists cost                  int,
   add column if not exists currency              text default 'KRW',
   add column if not exists memo                  text,
-  add column if not exists scrub_types           text[] default '{}',
-  add column if not exists scrub_cost            int,
   add column if not exists scrub_score           int,    -- 세신 만족도 (구 deep_logs.scrub_satisfaction)
+  add column if not exists scrub_cost            int,    -- 세신 가격
+  add column if not exists scrub_type            text,   -- 세신 종류: 'basic'(일반) | 'withmassage'(마사지세신=세신+마사지)
+  add column if not exists massage_score         int,    -- 마사지 만족도 (세신과 별개 집계)
+  add column if not exists massage_cost          int,    -- 마사지 가격
   add column if not exists snack_score           int,    -- 매점 음식만족도 (구 deep_logs.store_score)
   add column if not exists snack_memo            text,   -- 매점 추천메뉴 (구 deep_logs.store_memo)
   add column if not exists restaurant_score      int,    -- 식당 음식만족도 (신규, 레거시 없음)
@@ -74,9 +82,13 @@ update logs l set
   cost                = d.cost,
   currency            = coalesce(d.currency, 'KRW'),
   memo                = d.memo,
-  scrub_types         = coalesce(d.scrub_types, '{}'),
-  scrub_cost          = case when d.has_scrub then d.scrub_cost end,
-  scrub_score         = case when d.has_scrub then d.scrub_satisfaction end,
+  -- 세신/마사지 분리(구 scrub_types 배열 라우팅): 둘 다=마사지세신(withmassage), 세신만=basic, 마사지만=standalone
+  scrub_score         = case when d.has_scrub and ('scrub' = any(d.scrub_types) or coalesce(array_length(d.scrub_types,1),0)=0) then d.scrub_satisfaction end,
+  scrub_cost          = case when d.has_scrub and ('scrub' = any(d.scrub_types) or coalesce(array_length(d.scrub_types,1),0)=0) then d.scrub_cost end,
+  scrub_type          = case when d.has_scrub and 'scrub' = any(d.scrub_types) and 'massage' = any(d.scrub_types) then 'withmassage'
+                             when d.has_scrub and ('scrub' = any(d.scrub_types) or coalesce(array_length(d.scrub_types,1),0)=0) then 'basic' end,
+  massage_score       = case when d.has_scrub and 'massage' = any(d.scrub_types) and not ('scrub' = any(d.scrub_types)) then d.scrub_satisfaction end,
+  massage_cost        = case when d.has_scrub and 'massage' = any(d.scrub_types) and not ('scrub' = any(d.scrub_types)) then d.scrub_cost end,
   snack_score         = case when d.has_store then d.store_score end,
   snack_memo          = case when d.has_store then d.store_memo end
 from deep_logs d
@@ -101,6 +113,8 @@ create table if not exists log_blocks (
 );
 create index if not exists idx_log_blocks_log_id on log_blocks(log_id);
 create index if not exists idx_log_blocks_type   on log_blocks(block_type);
+-- 블록 하위종류(예: 세신의 scrub_type 'basic'/'withmassage'). create-if-not-exists는 컬럼 추가 안 하므로 ALTER로.
+alter table log_blocks add column if not exists variant text;
 
 alter table log_blocks enable row level security;
 drop policy if exists log_blocks_read on log_blocks;
@@ -140,7 +154,7 @@ create policy user_routines_write on user_routines for all
 -- STEP 5. log_blocks 백필 — 기존 "유저" 로그 합성 (편집 플로우 필수)
 --   ★ 코드 컷오버 직전 한 번 더 실행 (gap 기간 신규 로그 포함; (log,type) NOT EXISTS로 idempotent)
 --   · 어드민 시드 제외 / 순서=카테고리 캐노니컬 / 신규명 컬럼 사용
---   ⚠️ 합성 규칙 리뷰 필수 (heat_time 사우나 귀속, scrub_types 분기)
+--   ⚠️ 합성 규칙 리뷰 필수 (heat_time 사우나 귀속, 세신/마사지 분리)
 -- ---------------------------------------------------------------------
 insert into log_blocks (log_id, seq, block_type, category, temp, duration_sec)
 select id, 1, 'dry-sauna', 'heat', dry_sauna_temp,
@@ -189,17 +203,15 @@ where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
   and (rest_time is not null or rest_quality is not null)
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'rest');
 
-insert into log_blocks (log_id, seq, block_type, category, score, cost)
-select id, 31, 'scrub', 'beyond', scrub_score, scrub_cost from logs
+insert into log_blocks (log_id, seq, block_type, category, score, cost, variant)
+select id, 31, 'scrub', 'beyond', scrub_score, scrub_cost, scrub_type from logs
 where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
-  and ( 'scrub' = any(scrub_types)
-        or ( coalesce(array_length(scrub_types,1),0) = 0
-             and (scrub_score is not null or scrub_cost is not null) ) )
+  and (scrub_score is not null or scrub_cost is not null or scrub_type is not null)
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'scrub');
 
 insert into log_blocks (log_id, seq, block_type, category, score, cost)
-select id, 32, 'massage', 'beyond', scrub_score, scrub_cost from logs
-where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a' and 'massage' = any(scrub_types)
+select id, 32, 'massage', 'beyond', massage_score, massage_cost from logs
+where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a' and massage_score is not null
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'massage');
 
 insert into log_blocks (log_id, seq, block_type, category, score, memo)

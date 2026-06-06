@@ -27,7 +27,7 @@
 ### A2. `src/types/index.ts`
 - [ ] `deep_log` 중첩 타입 제거 → logs 평탄 필드로 흡수.
 - [ ] `blocks: LogBlock[]` 추가 (id/seq/block_type/category/temp/duration_sec/score/cost/memo/norepeat).
-- [ ] 컬럼명: `sauna_temp→dry_sauna_temp`, `jjim_temp→bulgama_temp`, `pause_time→rest_time`, `store_*→snack_*`, `scrub_satisfaction→scrub_score`, + `very_hot_bath_temp/ice_bath_temp/salt_sauna_temp/open_air_bath_temp/ice_room_temp/restaurant_*`.
+- [ ] 컬럼명: `sauna_temp→dry_sauna_temp`, `jjim_temp→bulgama_temp`, `pause_time→rest_time`, `store_*→snack_*`, `scrub_satisfaction→scrub_score`, **`scrub_types`(배열) 폐기 → `scrub_type`(basic/withmassage)·`massage_score`·`massage_cost` 분리**, + `very_hot_bath_temp/ice_bath_temp/salt_sauna_temp/open_air_bath_temp/ice_room_temp/restaurant_*`. log_blocks에 `variant`.
 - [ ] 제거: `food_eaten`, `has_*`(파생으로 대체).
 
 ### A3. `src/lib/logs-service.ts` (가장 큼 — 꼼꼼히)
@@ -41,7 +41,7 @@
   - `heat_time`(분)=Σheat 사우나 duration_sec/60(**primary 사우나 귀속 규칙**), `ice_time`(초)=Σice duration_sec, `rest_time`(분)=Σrest/60, `repeat`=전역.
   - `primary_sauna_kind` = 메인 사우나 선택값(첫 블록 자동 ❌, B2 참조).
   - score 파생: 수면/휴식 블록→`rest_quality`, scrub/massage→`scrub_score`(+`scrub_cost`), `snack`→`snack_*`, `restaurant`→`restaurant_*`.
-  - `scrub_types` = 블록 존재서 파생(scrub→'scrub', massage→'massage').
+  - 세신/마사지 = 별도 블록·별도 컬럼(scrub_*/massage_*). 세신 종류 `scrub_type`(basic/withmassage=마사지세신)는 `log_blocks.variant`+세션 캐시. `has_scrub`/`has_massage` 파생.
 - [ ] **자동 시설태깅 블록 기준 재작성**: 온도/평가 블록 → `places.facilities` 태그(dry-sauna·…·**snack·restaurant**). 기존 has_* 기준 코드 제거.
 
 ---
@@ -100,7 +100,7 @@
 ## ✅ 완료 후 필수 검증 (반드시 실행 — "다 했다" 금지, 증거로 확인)
 - [ ] `npm run build` / 타입체크 **통과**.
 - [ ] **잔재 grep = 0** (아래 전부 hit 0, 단 029/030 SQL·주석·legacy 설명 제외):
-      `grep -rn "sauna_temp\b\|jjim_temp\|pause_time\|store_score\|store_memo\|has_store\|scrub_satisfaction\|food_eaten\|deep_log\|saveOrUpdateDeepLog\|deep_logs" src`
+      `grep -rn "sauna_temp\b\|jjim_temp\|pause_time\|store_score\|store_memo\|has_store\|scrub_satisfaction\|scrub_types\|food_eaten\|deep_log\|saveOrUpdateDeepLog\|deep_logs" src`
 - [ ] **실제 앱 동작**(verify): 트라이브 전환 → 블록 선택 → 온도·시간(타임라인) → 트라이브품질+또갈래요 저장 → 히스토리 상세 → 스토리 카드 → 장소 평균. 5상태(empty/loading/partial/error/ideal) 확인.
 - [ ] **데이터 확인**: 새 로그 저장 시 `log_blocks` 행 생성 + logs 캐시 컬럼(온도/시간/score) 채워짐. 기존 로그 편집 시 블록 정상 로드.
 - [ ] **하드코딩 점검**: 블록/시설/범위/단위가 컴포넌트에 직접 박힌 곳 없는지(전부 BLOCK_TYPES 경유).
