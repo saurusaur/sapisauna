@@ -44,8 +44,10 @@ alter table logs
   add column if not exists scrub_types           text[] default '{}',
   add column if not exists scrub_cost            int,
   add column if not exists scrub_score           int,    -- 세신 만족도 (구 deep_logs.scrub_satisfaction)
-  add column if not exists food_score            int,    -- 매점 점수 (구 deep_logs.store_score)
-  add column if not exists food_memo             text;   -- 매점 메모 (구 deep_logs.store_memo)
+  add column if not exists food_score            int,    -- 매점 음식만족도 (구 deep_logs.store_score)
+  add column if not exists food_memo             text,   -- 매점 추천메뉴 (구 deep_logs.store_memo)
+  add column if not exists restaurant_score      int,    -- 식당 음식만족도 (신규, 레거시 없음)
+  add column if not exists restaurant_memo       text;   -- 식당 추천메뉴 (신규)
 -- 주: 구 sauna_temp/jjim_temp/pause_time, deep_logs(+has_*/food_eaten)는 030까지 유지.
 
 -- ---------------------------------------------------------------------
@@ -198,7 +200,7 @@ select id, 33, 'food', 'beyond', food_score, food_memo from logs
 where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
   and (food_score is not null or food_memo is not null)
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'food');
--- salt-sauna/open-air/ice-room/aufguss/sleep-room/outdoor·indoor-rest/other = 레거시 없음 → 백필 없음.
+-- salt-sauna/open-air/ice-room/aufguss/sleep-room/outdoor·indoor-rest/restaurant/other = 레거시 없음 → 백필 없음.
 
 commit;
 
