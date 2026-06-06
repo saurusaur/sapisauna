@@ -158,7 +158,6 @@ export default function LogPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [showBackConfirm, setShowBackConfirm] = useState(false)
-  const [showPlaceConfirm, setShowPlaceConfirm] = useState(false)
 
   const deriveBathGender = (ft: string | null, bp: string | null, g?: 'male' | 'female'): BathGender | null => {
     if (ft === 'private-sauna') return g === 'male' ? 'private_male' : g === 'female' ? 'private_female' : 'private'
@@ -326,8 +325,6 @@ export default function LogPage() {
   }
 
   const cancelLog = () => { clearLogSessionAfterSave(); router.back() }
-  const hasInput = picked.length > 0 || !!memo || !!cost || !!companion || !!crowd || cleanliness > 0
-  const goReselectPlace = () => { if (hasInput) setShowPlaceConfirm(true); else router.push('/place') }
 
   const displayDate = recordDate.replace(/-/g, '.')
   const formatHour = (h: number) => h < 12 ? `오전 ${h === 0 ? 12 : h}시` : `오후 ${h === 12 ? 12 : h - 12}시`
@@ -363,80 +360,79 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header className="relative text-white text-center px-7 pt-14 pb-9 z-20" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
+      <header className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
-        {/* 트라이브명 + 바꾸기(스왑) + 선택 버블(오버레이) */}
-        <div className="relative inline-block mt-0.5">
-          <div className="inline-flex items-center justify-center gap-2 text-3xl font-extrabold italic font-heading">
-            {logType.toUpperCase()} <span className="not-italic text-[26px]">{TRIBE_EMOJI_MAP[logType]}</span>
-            <button onClick={() => setPersonaOpen(o => !o)} title="트라이브 바꾸기" className="not-italic w-7 h-7 rounded-full flex items-center justify-center bg-white/25 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 16 }}>swap_horiz</span></button>
-          </div>
-          <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[300px] z-50 transition-all duration-200 origin-top not-italic font-sans ${personaOpen ? 'scale-100 opacity-100' : 'scale-90 opacity-0 pointer-events-none'}`}>
-            <div className="grid grid-cols-3 gap-2 rounded-2xl p-3 shadow-xl" style={{ background: T.card }}>
-              {TRIBE_IDS.map(t => {
-                const on = t === logType
-                return (
-                  <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(0) }}
-                    className={`relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-all active:scale-95 ${on ? 'shadow-lg' : ''}`}
-                    style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.55 }}>
-                    {on && <span className="absolute inset-0 rounded-2xl pointer-events-none z-20" style={{ border: `2.5px solid ${T.card}` }} />}
-                    <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
-                    <span className="absolute text-[40px] leading-none" style={{ right: -6, bottom: -8, transform: 'rotate(-8deg)' }}>{TRIBE_EMOJI_MAP[t]}</span>
-                  </button>
-                )
-              })}
-            </div>
+        {/* 트라이브명 + 바꾸기(스왑) */}
+        <div className="inline-flex items-center justify-center gap-2 text-3xl font-extrabold italic font-heading mt-0.5">
+          {logType.toUpperCase()} <span className="not-italic text-[26px]">{TRIBE_EMOJI_MAP[logType]}</span>
+          <button onClick={() => setPersonaOpen(o => !o)} title="트라이브 바꾸기" className="not-italic w-7 h-7 rounded-full flex items-center justify-center bg-white/25 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 16 }}>swap_horiz</span></button>
+        </div>
+
+        {/* 트라이브 선택 — 컬러 영역 내 인라인 펼침/접힘 (별도 박스 X) */}
+        <div className={`overflow-hidden transition-all duration-300 ${personaOpen ? 'max-h-44 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="grid grid-cols-3 gap-2">
+            {TRIBE_IDS.map(t => {
+              const on = t === logType
+              return (
+                <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(0) }}
+                  className={`relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-all active:scale-95 ${on ? 'shadow-lg' : ''}`}
+                  style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.5 }}>
+                  {on && <span className="absolute inset-0 rounded-2xl pointer-events-none z-20" style={{ border: '2.5px solid #fff' }} />}
+                  <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
+                  <span className="absolute text-[40px] leading-none" style={{ right: -6, bottom: -8, transform: 'rotate(-8deg)' }}>{TRIBE_EMOJI_MAP[t]}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
         <div className="font-bold text-xl mt-4 px-4 break-keep">{placeName}</div>
 
-        {/* 메타 + 작은 연필 + 변경 버블(오버레이) */}
-        <div className="relative inline-flex items-center justify-center gap-1.5 mt-1.5">
+        {/* 메타 + 작은 연필 */}
+        <div className="inline-flex items-center justify-center gap-1.5 mt-1.5">
           <span className="text-xs font-semibold opacity-90">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</span>
           <button onClick={() => setShowChange(s => !s)} title="날짜·시간·탕 변경" className="w-5 h-5 rounded-full flex items-center justify-center bg-white/20 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span></button>
-          <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 transition-all duration-200 origin-top text-stone-700 ${showChange ? 'scale-100 opacity-100' : 'scale-90 opacity-0 pointer-events-none'}`}>
-            <div className="rounded-2xl p-3 shadow-xl text-left w-[284px]" style={{ background: T.card }}>
-              <div className="flex items-center gap-2 text-xs relative">
-                <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-700" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
-                <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-700" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
-                <select value={bathOverride ?? ''} onChange={e => setBathOverride((e.target.value || null) as BathGender | null)} className="rounded-lg px-2 py-1.5 text-xs text-stone-700" style={{ background: T.slot }}>
-                  {BATH_OPTIONS.map(o => <option key={o.label} value={o.value ?? ''}>{o.label}{o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''}</option>)}
-                </select>
+        </div>
 
-                {showDatePicker && (
-                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[260px]" style={{ background: T.card }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <button onClick={() => setCalendarMonth(p => { const d = new Date(p.year, p.month - 1, 1); return { year: d.getFullYear(), month: d.getMonth() } })} className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center"><span className="material-symbols-outlined text-stone-400" style={{ fontSize: 18 }}>chevron_left</span></button>
-                      <span className="text-sm font-semibold text-stone-700">{monthLabel}</span>
-                      <button onClick={() => setCalendarMonth(p => { const d = new Date(p.year, p.month + 1, 1); return { year: d.getFullYear(), month: d.getMonth() } })} className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center"><span className="material-symbols-outlined text-stone-400" style={{ fontSize: 18 }}>chevron_right</span></button>
-                    </div>
-                    <div className="grid grid-cols-7 mb-1">{DAY_HEADERS.map(d => <span key={d} className="text-[10px] text-stone-400 text-center font-medium">{d}</span>)}</div>
-                    <div className="grid grid-cols-7 gap-y-1">
-                      {calendarDays.map((day, i) => {
-                        if (day === null) return <span key={`e-${i}`} />
-                        const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                        const seld = dateStr === recordDate, isToday = dateStr === todayStr
-                        return <button key={day} onClick={() => { setRecordDate(dateStr); setShowDatePicker(false) }} className={`w-7 h-7 mx-auto rounded-full text-xs font-medium flex items-center justify-center ${seld ? 'text-white' : isToday ? 'font-bold text-stone-700 ring-1 ring-stone-300' : 'text-stone-600 hover:bg-stone-100'}`} style={seld ? { background: T.primary } : undefined}>{day}</button>
-                      })}
-                    </div>
-                  </div>
-                )}
-                {showTimePicker && (
-                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[260px]" style={{ background: T.card }}>
-                    <button onClick={() => { setRecordHour(null); setShowTimePicker(false) }} className={`w-full mb-3 py-2 rounded-lg text-xs font-medium ${recordHour === null ? 'text-white' : 'text-stone-500 bg-stone-50'}`} style={recordHour === null ? { background: T.primary } : undefined}>미지정</button>
-                    <p className="text-[10px] text-stone-400 mb-1.5">오전</p>
-                    <div className="grid grid-cols-6 gap-1.5 mb-3">{Array.from({ length: 12 }, (_, h) => <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'text-white' : 'text-stone-600 bg-stone-50'}`} style={recordHour === h ? { background: T.primary } : undefined}>{h === 0 ? '12' : h}</button>)}</div>
-                    <p className="text-[10px] text-stone-400 mb-1.5">오후</p>
-                    <div className="grid grid-cols-6 gap-1.5">{Array.from({ length: 12 }, (_, i) => { const h = i + 12; return <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'text-white' : 'text-stone-600 bg-stone-50'}`} style={recordHour === h ? { background: T.primary } : undefined}>{h === 12 ? '12' : h - 12}</button> })}</div>
-                  </div>
-                )}
-              </div>
-              <button onClick={goReselectPlace} className="mt-2.5 text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
-            </div>
+        {/* 날짜·시간·탕 — 컬러 영역 내 인라인 펼침/접힘 (반투명, 별도 박스 X) */}
+        <div className={`overflow-hidden transition-all duration-300 ${showChange ? 'max-h-[440px] mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="flex items-center justify-center gap-2 text-xs">
+            <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
+            <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
+            <select value={bathOverride ?? ''} onChange={e => setBathOverride((e.target.value || null) as BathGender | null)} className="rounded-lg px-2 py-1.5 text-xs bg-white/20 text-white">
+              {BATH_OPTIONS.map(o => <option key={o.label} value={o.value ?? ''} className="text-stone-700">{o.label}{o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''}</option>)}
+            </select>
           </div>
+
+          {showDatePicker && (
+            <div className="mt-3 mx-auto w-[252px]">
+              <div className="flex items-center justify-between mb-2">
+                <button onClick={() => setCalendarMonth(p => { const d = new Date(p.year, p.month - 1, 1); return { year: d.getFullYear(), month: d.getMonth() } })} className="w-7 h-7 rounded-full flex items-center justify-center active:bg-white/15"><span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_left</span></button>
+                <span className="text-sm font-semibold">{monthLabel}</span>
+                <button onClick={() => setCalendarMonth(p => { const d = new Date(p.year, p.month + 1, 1); return { year: d.getFullYear(), month: d.getMonth() } })} className="w-7 h-7 rounded-full flex items-center justify-center active:bg-white/15"><span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span></button>
+              </div>
+              <div className="grid grid-cols-7 mb-1">{DAY_HEADERS.map(d => <span key={d} className="text-[10px] text-white/60 text-center font-medium">{d}</span>)}</div>
+              <div className="grid grid-cols-7 gap-y-1">
+                {calendarDays.map((day, i) => {
+                  if (day === null) return <span key={`e-${i}`} />
+                  const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                  const seld = dateStr === recordDate, isToday = dateStr === todayStr
+                  return <button key={day} onClick={() => { setRecordDate(dateStr); setShowDatePicker(false) }} className={`w-7 h-7 mx-auto rounded-full text-xs font-medium flex items-center justify-center ${seld ? 'bg-white text-stone-800 font-bold' : isToday ? 'ring-1 ring-white/60 text-white' : 'text-white/85 active:bg-white/15'}`}>{day}</button>
+                })}
+              </div>
+            </div>
+          )}
+          {showTimePicker && (
+            <div className="mt-3 mx-auto w-[252px]">
+              <button onClick={() => { setRecordHour(null); setShowTimePicker(false) }} className={`w-full mb-2 py-2 rounded-lg text-xs font-medium ${recordHour === null ? 'bg-white text-stone-800 font-bold' : 'text-white/80 bg-white/10'}`}>미지정</button>
+              <p className="text-[10px] text-white/60 mb-1.5 text-left">오전</p>
+              <div className="grid grid-cols-6 gap-1.5 mb-3">{Array.from({ length: 12 }, (_, h) => <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{h === 0 ? '12' : h}</button>)}</div>
+              <p className="text-[10px] text-white/60 mb-1.5 text-left">오후</p>
+              <div className="grid grid-cols-6 gap-1.5">{Array.from({ length: 12 }, (_, i) => { const h = i + 12; return <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{h === 12 ? '12' : h - 12}</button> })}</div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -542,22 +538,18 @@ export default function LogPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
-                        <span className="text-base font-bold tabular-nums" style={{ color: T.primary, minWidth: 26, textAlign: 'center' }}>×{repeat}</span>
+                        <span className="text-base font-bold tabular-nums" style={{ color: T.primary, minWidth: 20, textAlign: 'center' }}>{repeat}</span>
                         <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
                         <span className="text-xs font-bold text-stone-500">세트</span>
                       </div>
-                      {/* 조작 범례 — 미니 노드 예시 */}
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <span className="flex items-center gap-1 text-[9px] font-medium text-stone-400 whitespace-nowrap">
-                          <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: T.primary }} />
-                          <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 11 }}>arrow_forward</span>
-                          <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ border: `1.5px dashed ${T.slot2}` }} />
-                          탭하면 1회
-                        </span>
-                        <span className="flex items-center gap-1 text-[9px] font-medium text-stone-400 whitespace-nowrap">
-                          <span className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 9 }}>drag_indicator</span></span>
-                          드래그로 순서 수정
-                        </span>
+                      {/* 조작 범례 — 빨강 '반복' 원 → '탭' 화살표 → 점선 '1회' 원 */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>반복</span>
+                        <div className="flex flex-col items-center leading-none">
+                          <span className="text-[8px] font-bold text-stone-400">탭</span>
+                          <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 18 }}>arrow_right_alt</span>
+                        </div>
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-stone-500 border-2 border-dashed border-stone-400 shrink-0">1회</span>
                       </div>
                     </div>
                   </div>
@@ -635,13 +627,6 @@ export default function LogPage() {
           message={editId ? '편집을 취소할까요?\n변경사항이 저장되지 않습니다.' : '기록을 취소할까요?\n입력한 내용이 사라집니다.'}
           onConfirm={cancelLog}
           onCancel={() => setShowBackConfirm(false)}
-        />
-      )}
-      {showPlaceConfirm && (
-        <ConfirmModal
-          message={'장소를 다시 선택하면\n입력한 내용이 사라져요.'}
-          onConfirm={() => router.push('/place')}
-          onCancel={() => setShowPlaceConfirm(false)}
         />
       )}
 
