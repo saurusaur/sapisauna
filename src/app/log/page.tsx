@@ -363,49 +363,51 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
-        <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></button>
+      <header className="relative text-white text-center px-7 pt-14 pb-9 z-20" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
+        <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
-        <div className="inline-flex items-center justify-center gap-2 text-3xl font-extrabold italic font-heading mt-0.5">
-          {logType.toUpperCase()} <span className="not-italic text-[26px]">{TRIBE_EMOJI_MAP[logType]}</span>
-          <button onClick={() => setPersonaOpen(o => !o)} title="트라이브 바꾸기" className="not-italic w-7 h-7 rounded-full flex items-center justify-center bg-white/25 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 16 }}>swap_horiz</span></button>
-        </div>
-        <div className="font-bold text-xl mt-4 px-4 break-keep">{placeName}</div>
-        <div className="text-xs font-semibold opacity-90 mt-1.5">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</div>
-        <button onClick={() => setShowChange(s => !s)} className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold rounded-full px-3 py-1.5 bg-white/25 transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>변경</button>
-      </header>
 
-      <main className="px-5 pt-4 space-y-6">
-        {/* 트라이브 바꾸기 패널 (홈 TRIBE PICKS 비주얼 통일) */}
-        {personaOpen && (
-          <div className="grid grid-cols-3 gap-2 rounded-2xl p-3" style={{ background: T.card }}>
-            {TRIBE_IDS.map(t => {
-              const on = t === logType
-              return (
-                <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(0) }}
-                  className={`relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-all active:scale-95 ${on ? 'shadow-lg' : ''}`}
-                  style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.55 }}>
-                  {on && <span className="absolute inset-0 rounded-2xl pointer-events-none z-20" style={{ border: `2.5px solid ${T.card}` }} />}
-                  <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
-                  <span className="absolute text-[40px] leading-none" style={{ right: -6, bottom: -8, transform: 'rotate(-8deg)' }}>{TRIBE_EMOJI_MAP[t]}</span>
-                </button>
-              )
-            })}
+        {/* 트라이브명 + 바꾸기(스왑) + 선택 버블(오버레이) */}
+        <div className="relative inline-block mt-0.5">
+          <div className="inline-flex items-center justify-center gap-2 text-3xl font-extrabold italic font-heading">
+            {logType.toUpperCase()} <span className="not-italic text-[26px]">{TRIBE_EMOJI_MAP[logType]}</span>
+            <button onClick={() => setPersonaOpen(o => !o)} title="트라이브 바꾸기" className="not-italic w-7 h-7 rounded-full flex items-center justify-center bg-white/25 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 16 }}>swap_horiz</span></button>
           </div>
-        )}
+          <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[300px] z-50 transition-all duration-200 origin-top not-italic font-sans ${personaOpen ? 'scale-100 opacity-100' : 'scale-90 opacity-0 pointer-events-none'}`}>
+            <div className="grid grid-cols-3 gap-2 rounded-2xl p-3 shadow-xl" style={{ background: T.card }}>
+              {TRIBE_IDS.map(t => {
+                const on = t === logType
+                return (
+                  <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(0) }}
+                    className={`relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-all active:scale-95 ${on ? 'shadow-lg' : ''}`}
+                    style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.55 }}>
+                    {on && <span className="absolute inset-0 rounded-2xl pointer-events-none z-20" style={{ border: `2.5px solid ${T.card}` }} />}
+                    <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
+                    <span className="absolute text-[40px] leading-none" style={{ right: -6, bottom: -8, transform: 'rotate(-8deg)' }}>{TRIBE_EMOJI_MAP[t]}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
 
-        {/* 장소·날짜·시간·탕 변경 패널 */}
-        {showChange && (
-          <div className="rounded-2xl p-4 space-y-2.5" style={{ background: T.card }}>
+        <div className="font-bold text-xl mt-4 px-4 break-keep">{placeName}</div>
+
+        {/* 메타 + 작은 연필 + 변경 버블(오버레이) */}
+        <div className="relative inline-flex items-center justify-center gap-1.5 mt-1.5">
+          <span className="text-xs font-semibold opacity-90">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</span>
+          <button onClick={() => setShowChange(s => !s)} title="날짜·시간·탕 변경" className="w-5 h-5 rounded-full flex items-center justify-center bg-white/20 transition-transform active:scale-90"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span></button>
+          <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 transition-all duration-200 origin-top text-stone-700 ${showChange ? 'scale-100 opacity-100' : 'scale-90 opacity-0 pointer-events-none'}`}>
+            <div className="rounded-2xl p-3 shadow-xl text-left w-[284px]" style={{ background: T.card }}>
               <div className="flex items-center gap-2 text-xs relative">
-                <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
-                <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
-                <select value={bathOverride ?? ''} onChange={e => setBathOverride((e.target.value || null) as BathGender | null)} className="rounded-lg px-2 py-1.5 text-xs" style={{ background: T.slot }}>
+                <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-700" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
+                <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-700" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
+                <select value={bathOverride ?? ''} onChange={e => setBathOverride((e.target.value || null) as BathGender | null)} className="rounded-lg px-2 py-1.5 text-xs text-stone-700" style={{ background: T.slot }}>
                   {BATH_OPTIONS.map(o => <option key={o.label} value={o.value ?? ''}>{o.label}{o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''}</option>)}
                 </select>
 
                 {showDatePicker && (
-                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[280px]" style={{ background: T.card }}>
+                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[260px]" style={{ background: T.card }}>
                     <div className="flex items-center justify-between mb-3">
                       <button onClick={() => setCalendarMonth(p => { const d = new Date(p.year, p.month - 1, 1); return { year: d.getFullYear(), month: d.getMonth() } })} className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center"><span className="material-symbols-outlined text-stone-400" style={{ fontSize: 18 }}>chevron_left</span></button>
                       <span className="text-sm font-semibold text-stone-700">{monthLabel}</span>
@@ -417,13 +419,13 @@ export default function LogPage() {
                         if (day === null) return <span key={`e-${i}`} />
                         const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                         const seld = dateStr === recordDate, isToday = dateStr === todayStr
-                        return <button key={day} onClick={() => { setRecordDate(dateStr); setShowDatePicker(false) }} className={`w-8 h-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center ${seld ? 'text-white' : isToday ? 'font-bold text-stone-700 ring-1 ring-stone-300' : 'text-stone-600 hover:bg-stone-100'}`} style={seld ? { background: T.primary } : undefined}>{day}</button>
+                        return <button key={day} onClick={() => { setRecordDate(dateStr); setShowDatePicker(false) }} className={`w-7 h-7 mx-auto rounded-full text-xs font-medium flex items-center justify-center ${seld ? 'text-white' : isToday ? 'font-bold text-stone-700 ring-1 ring-stone-300' : 'text-stone-600 hover:bg-stone-100'}`} style={seld ? { background: T.primary } : undefined}>{day}</button>
                       })}
                     </div>
                   </div>
                 )}
                 {showTimePicker && (
-                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[280px]" style={{ background: T.card }}>
+                  <div className="absolute top-full left-0 mt-2 rounded-xl shadow-lg z-30 p-4 w-[260px]" style={{ background: T.card }}>
                     <button onClick={() => { setRecordHour(null); setShowTimePicker(false) }} className={`w-full mb-3 py-2 rounded-lg text-xs font-medium ${recordHour === null ? 'text-white' : 'text-stone-500 bg-stone-50'}`} style={recordHour === null ? { background: T.primary } : undefined}>미지정</button>
                     <p className="text-[10px] text-stone-400 mb-1.5">오전</p>
                     <div className="grid grid-cols-6 gap-1.5 mb-3">{Array.from({ length: 12 }, (_, h) => <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'text-white' : 'text-stone-600 bg-stone-50'}`} style={recordHour === h ? { background: T.primary } : undefined}>{h === 0 ? '12' : h}</button>)}</div>
@@ -432,10 +434,13 @@ export default function LogPage() {
                   </div>
                 )}
               </div>
-              <button onClick={goReselectPlace} className="text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
+              <button onClick={goReselectPlace} className="mt-2.5 text-xs font-bold flex items-center gap-1" style={{ color: T.primary }}><span className="material-symbols-outlined" style={{ fontSize: 15 }}>search</span>장소 다시 선택</button>
             </div>
-          )}
+          </div>
+        </div>
+      </header>
 
+      <main className="px-5 pt-4 space-y-6">
         {/* 블록 선택 */}
         <section className="space-y-3">
           <div className="flex items-baseline justify-between">
