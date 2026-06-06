@@ -119,6 +119,8 @@ export default function LogPage() {
 
   // 더자세히
   const [detailOpen, setDetailOpen] = useState(false)
+  const [facTempOpen, setFacTempOpen] = useState(false)
+  const [facTemps, setFacTemps] = useState<Record<string, number>>({})  // 루틴 외 시설 온도(온도만, temp-only 블록)
   const [cleanliness, setCleanliness] = useState(0)
   const [companion, setCompanion] = useState<string | null>(null)
   const [crowd, setCrowd] = useState<string | null>(null)
@@ -252,7 +254,11 @@ export default function LogPage() {
     if (!info.moved) return
     setDragPos({ x: e.clientX, y: e.clientY })  // 고스트가 손가락 따라옴
     const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest('[data-rrow]') as HTMLElement | null
-    setDropIdx(el ? Number(el.dataset.rrow) : null)
+    if (el) { setDropIdx(Number(el.dataset.rrow)); return }
+    // 마지막 행보다 아래면 맨 끝으로
+    const last = document.querySelector(`[data-rrow="${picked.length - 1}"]`)
+    if (last && e.clientY > last.getBoundingClientRect().bottom) setDropIdx(picked.length)
+    else setDropIdx(null)
   }
   const nodePointerUp = (i: number) => (e: React.PointerEvent) => {
     const info = dragInfo.current
@@ -287,10 +293,10 @@ export default function LogPage() {
     const unit = d.durUnit as 'min' | 'sec'
     return dur == null
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
-    : <div className="flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
-        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-        <b className="text-base font-bold font-heading tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
-        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
+    : <div className="flex items-center justify-between h-11">
+        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-7 h-7 rounded-lg text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+        <b className="font-heading tabular-nums text-stone-800 whitespace-nowrap text-center flex-1 px-0.5"><span className="text-base">{unit === 'sec' ? dur : Math.round(dur / 60)}</span><span className="text-[11px] font-sans font-bold ml-px">{unit === 'sec' ? '초' : '분'}</span></b>
+        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-7 h-7 rounded-lg text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
       </div>
   }
 
@@ -312,10 +318,20 @@ export default function LogPage() {
     memo: memo || null,
     repeat: picked.length > 1 && picked.some(p => !p.norepeat) ? repeat : null,
   })
-  const buildBlocks = (): LogBlockInput[] => picked.map(p => {
-    const d = BLOCK_TYPE_MAP[p.catalogId]
-    return { blockType: d.blockType, category: d.blockType === 'other' ? (p.category ?? 'beyond') : d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat }
-  })
+  const buildBlocks = (): LogBlockInput[] => {
+    const main = picked.map(p => {
+      const d = BLOCK_TYPE_MAP[p.catalogId]
+      return { blockType: d.blockType, category: d.blockType === 'other' ? (p.category ?? 'beyond') : d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat }
+    })
+    // 시설 온도(더자세히): 루틴 외 시설을 temp-only·반복제외 블록으로 추가
+    const fac: LogBlockInput[] = Object.entries(facTemps)
+      .filter(([id]) => BLOCK_TYPE_MAP[id] && !isPicked(id))
+      .map(([id, temp]) => {
+        const d = BLOCK_TYPE_MAP[id]
+        return { blockType: d.blockType, category: d.category, variant: d.variant ?? null, temp, durationSec: null, score: null, cost: null, memo: null, norepeat: true }
+      })
+    return [...main, ...fac]
+  }
   const handleSave = async () => {
     if (!placeId) { setSaveError('장소 정보가 없습니다.'); return }
     if (picked.length === 0) { setSaveError('활동을 하나 이상 선택해주세요.'); return }
@@ -447,15 +463,20 @@ export default function LogPage() {
               <div className="grid grid-cols-6 gap-1.5">{Array.from({ length: 12 }, (_, i) => { const h = i + 12; return <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{h === 12 ? '12' : h - 12}</button> })}</div>
             </div>
           )}
-          {showBathPicker && (
-            <div className="mt-3 mx-auto w-[252px] grid grid-cols-3 gap-1.5">
-              {BATH_OPTIONS.map(o => {
-                const sel = (bathOverride ?? null) === o.value
-                const autoSuffix = o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''
-                return <button key={o.label} onClick={() => { setBathOverride(o.value); setShowBathPicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${sel ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{o.label}{autoSuffix}</button>
-              })}
-            </div>
-          )}
+          {showBathPicker && (() => {
+            const autoVal = deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined)
+            // 자동값과 중복되는 명시 옵션은 숨김(자동에 이미 그 값이 표시됨)
+            const opts = BATH_OPTIONS.filter(o => o.value === null || o.value !== autoVal)
+            return (
+              <div className="mt-3 mx-auto w-[252px] grid grid-cols-3 gap-1.5">
+                {opts.map(o => {
+                  const sel = (bathOverride ?? null) === o.value
+                  const autoSuffix = o.value === null ? `(${bathLabel(autoVal)})` : ''
+                  return <button key={o.label} onClick={() => { setBathOverride(o.value); setShowBathPicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${sel ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{o.label}{autoSuffix}</button>
+                })}
+              </div>
+            )
+          })()}
         </div>
       </header>
 
@@ -464,7 +485,7 @@ export default function LogPage() {
         <section className="space-y-3">
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-2">
-              <h2 className="text-base font-bold text-stone-800">오늘 뭐 했어요?</h2>
+              <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
               {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-400 transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
             </div>
             <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
@@ -502,7 +523,7 @@ export default function LogPage() {
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
                   : <>
-                      <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 루틴 순서 변경</span>
+                      <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 순서 변경</span>
                       <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
                     </>}
               </div>
@@ -519,9 +540,11 @@ export default function LogPage() {
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
                   const isOther = d.blockType === 'other'
                   const showDrop = dropIdx === i && dragIdx != null && dragIdx !== i
+                  const showDropEnd = dropIdx === picked.length && i === picked.length - 1 && dragIdx != null && dragIdx !== i
                   return (
-                    <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '52px 1fr 80px' }}>
+                    <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '52px 1fr 86px' }}>
                       {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
+                      {showDropEnd && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ bottom: -12, background: T.primary }} />}
                       {/* 노드 + 라벨 + 연결선 */}
                       <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                         {i < picked.length - 1 && <span className="absolute bg-stone-300" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)' }} />}
@@ -559,6 +582,7 @@ export default function LogPage() {
                   <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr' }}>
                     <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                       <span className="w-10 h-10 rounded-full flex items-center justify-center shadow-md" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 20 }}>repeat</span></span>
+                      <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)' }}>루틴</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -571,7 +595,7 @@ export default function LogPage() {
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>반복</span>
                         <div className="flex flex-col items-center leading-none">
-                          <span className="text-[10px] font-bold text-stone-400">탭</span>
+                          <span className="text-xs font-bold text-stone-400">탭</span>
                           <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 18 }}>arrow_right_alt</span>
                         </div>
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-stone-500 border-2 border-dashed border-stone-400 shrink-0">1회</span>
@@ -592,7 +616,7 @@ export default function LogPage() {
 
         {/* 더 자세히 */}
         <section>
-          <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>더 자세히 (청결·동행·입장료·메모)</button>
+          <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>더 자세히 기록하기</button>
           {detailOpen && (
             <div className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
@@ -635,6 +659,29 @@ export default function LogPage() {
               <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">메모</span>
                 <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+              </div>
+
+              {/* 시설 온도 (선택) — 루틴에 온도 입력 안 한 시설만, 온도만 기록 */}
+              <div className="pt-1" style={{ borderTop: `1px solid ${T.slot}` }}>
+                <button onClick={() => setFacTempOpen(o => !o)} className="flex items-center gap-1 text-xs font-bold text-stone-500 pt-3"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가 <span className="text-[10px] font-medium text-stone-400">루틴에 없는 시설</span></button>
+                {facTempOpen && (
+                  <div className="mt-2.5 space-y-2.5">
+                    {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).map(b => {
+                      const t = facTemps[b.id] ?? null
+                      return (
+                        <div key={b.id} className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr 24px' }}>
+                          <span className="text-xs font-bold text-stone-700">{b.label}</span>
+                          {t == null
+                            ? <button onClick={() => setFacTemps(m => ({ ...m, [b.id]: Math.round((b.tempRange![0] + b.tempRange![1]) / 2) }))} className="h-11 rounded-xl w-full flex items-center px-3 text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋ 온도</button>
+                            : <Slider variant="stamp" label="" value={t} min={b.tempRange![0]} max={b.tempRange![1]} unit="°C" steps={b.tempSteps ?? []} onChange={v => setFacTemps(m => ({ ...m, [b.id]: v }))} />}
+                          {t != null
+                            ? <button onClick={() => setFacTemps(m => { const n = { ...m }; delete n[b.id]; return n })} className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: T.slot }}><span className="material-symbols-outlined text-stone-500" style={{ fontSize: 13 }}>close</span></button>
+                            : <span />}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
