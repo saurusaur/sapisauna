@@ -652,7 +652,7 @@ export const BLOCK_TYPES: BlockTypeDef[] = [
   { id: "aufguss", blockType: "aufguss", label: "아우프구스", icon: "airwave", category: "beyond", durUnit: "min" },
   { id: "sleep-room", blockType: "sleep-room", label: "수면", icon: "airline_seat_flat", category: "beyond", durUnit: null, evalKind: "rest" },
   { id: "scrub", blockType: "scrub", variant: "basic", label: "세신", icon: "spa", category: "beyond", durUnit: null, evalKind: "scrub" },
-  { id: "scrub-withmassage", blockType: "scrub", variant: "withmassage", label: "건강세신", icon: "spa", category: "beyond", durUnit: null, evalKind: "scrub", catalogOnly: true },
+  { id: "scrub-withmassage", blockType: "scrub", variant: "withmassage", label: "마사지세신", icon: "spa", category: "beyond", durUnit: null, evalKind: "scrub", catalogOnly: true },
   { id: "massage", blockType: "massage", label: "마사지", icon: "massage", category: "beyond", durUnit: null, evalKind: "massage" },
   { id: "snack", blockType: "snack", label: "매점", icon: "dining", category: "beyond", durUnit: null, evalKind: "snack" },
   { id: "restaurant", blockType: "restaurant", label: "식당", icon: "restaurant", category: "beyond", durUnit: null, evalKind: "restaurant" },
