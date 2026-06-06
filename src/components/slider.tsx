@@ -65,24 +65,24 @@ export function Slider({
     const sealBtns = (spread?: boolean) => (
       <div className={`flex items-center ${spread ? 'justify-between flex-1' : 'gap-2'} ${inactive ? 'opacity-50' : ''}`}>
         {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="rounded-full relative shrink-0 transition-transform active:scale-90" style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className={`rounded-full relative shrink-0 transition-transform active:scale-90 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
             {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
           </button>
         ))}
       </div>
     )
-    // 라벨 없음(리추얼): 스텝 코멘트를 앞으로, 씰을 끝까지 펼침(온도 바 끝과 정렬)
+    // 라벨 없음(리추얼): 스텝 코멘트를 앞으로(스탬프 문구와 같은 12px 시작점), 씰을 끝까지 펼침(온도 바 끝과 정렬)
     if (!label) {
       return (
         <div className="flex items-center gap-2 h-11">
-          <span className="text-[11px] font-bold shrink-0 text-center" style={{ width: 30, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : '—'}</span>
+          <span className="text-xs font-bold shrink-0 text-left pl-3" style={{ width: 44, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : '—'}</span>
           {sealBtns(true)}
         </div>
       )
     }
     // 라벨 있음(토토노우 등): 이름 | 씰 | 값
     return (
-      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '62px 1fr auto' }}>
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr auto' }}>
         <span className="text-xs font-bold text-stone-700">{label}</span>
         {sealBtns()}
         <span className="text-[11px] font-bold text-right" style={{ minWidth: 40, color: value ? 'var(--color-primary)' : undefined }}>{value ? (descriptor ?? '') : '—'}</span>
@@ -99,10 +99,11 @@ export function Slider({
         onPointerMove={(e) => { if (dragging.current) applyBar(e.clientX) }}
         onPointerUp={() => { dragging.current = false }}>
         <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
-        {descriptor && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold pointer-events-none" style={{ color: 'var(--color-card)' }}>{descriptor}</span>}
+        {descriptor && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold pointer-events-none" style={{ color: 'var(--color-card)' }}>{descriptor}</span>}
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold font-heading pointer-events-none text-stone-800">{value}{unit}</span>
-        <span className="absolute top-1/2 rounded-full pointer-events-none flex items-center justify-center" style={{ left: `${pct}%`, width: 15, height: 15, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-card)' }}>
-          <span className="rounded-full" style={{ width: 6, height: 6, backgroundColor: 'var(--color-primary)' }} />
+        {/* 핸들 = 평가 씰 동그라미와 동일 그래픽·크기(24px, 빨강+흰 이너링) */}
+        <span className="absolute top-1/2 rounded-full pointer-events-none shadow-md" style={{ left: `${pct}%`, width: 24, height: 24, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-primary)' }}>
+          <span className="absolute rounded-full" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />
         </span>
       </div>
     )

@@ -81,6 +81,15 @@ function makePicked(catalogId: string): Picked {
   return { catalogId, temp: null, durationSec: null, score: null, cost: null, memo: null, norepeat: d.category === 'beyond' && d.blockType !== 'aufguss', category: d.blockType === 'other' ? 'beyond' : undefined }
 }
 
+// ＋시간 처음 누를 때의 블록별 기본 시작값 (8분 일괄 → 블록 특성 반영)
+//  · heat(건식·온탕·한증막 등) 10분 · 냉탕/급냉 60초 · 아이스방 3분 · 휴식계열 7분
+function defaultDurSec(d: BlockTypeDef): number {
+  if (d.durUnit === 'sec') return 60
+  if (d.id === 'ice-room') return 180
+  if (d.category === 'rest') return 420
+  return 600
+}
+
 export default function LogPage() {
   const router = useRouter()
   const { primaryTribe, user } = useUser()
@@ -129,6 +138,7 @@ export default function LogPage() {
   const dragInfo = useRef<{ idx: number; x: number; y: number; moved: boolean } | null>(null)
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [dropIdx, setDropIdx] = useState<number | null>(null)
+  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)  // 손가락 따라오는 고스트 위치
 
   // 날짜·시간
   const now = new Date()
@@ -227,6 +237,7 @@ export default function LogPage() {
     const info = dragInfo.current; if (!info) return
     if (!info.moved && (Math.abs(e.clientY - info.y) > 6 || Math.abs(e.clientX - info.x) > 6)) info.moved = true
     if (!info.moved) return
+    setDragPos({ x: e.clientX, y: e.clientY })  // 고스트가 손가락 따라옴
     const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest('[data-rrow]') as HTMLElement | null
     setDropIdx(el ? Number(el.dataset.rrow) : null)
   }
@@ -237,25 +248,34 @@ export default function LogPage() {
     else if (info && dropIdx != null && dropIdx !== i) {
       setPicked(prev => { const arr = [...prev]; const [it] = arr.splice(i, 1); arr.splice(dropIdx > i ? dropIdx - 1 : dropIdx, 0, it); return arr })
     }
-    dragInfo.current = null; setDragIdx(null); setDropIdx(null)
+    dragInfo.current = null; setDragIdx(null); setDropIdx(null); setDragPos(null)
   }
   const bothSauna = isPicked('dry-sauna') && isPicked('steam-sauna')
 
+  // 모바일: 입력창 포커스 시 키보드에 가리지 않도록 화면 가운데로 스크롤(키보드 애니메이션 후)
+  const scrollIntoCenter = (e: React.FocusEvent<HTMLElement>) => {
+    const el = e.currentTarget
+    setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
+  }
+
   // 리추얼 셀 — 온도·시간 옵셔널(미입력 시 ＋버튼, 입력 후 × 초기화)
   const tempCell = (i: number, d: BlockTypeDef, temp: number | null) => temp == null
-    ? <button onClick={() => updatePicked(i, { temp: Math.round(((d.tempRange![0]) + (d.tempRange![1])) / 2) })} className="h-11 rounded-xl w-full flex items-center px-3 text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>＋ 온도</button>
+    ? <button onClick={() => updatePicked(i, { temp: Math.round(((d.tempRange![0]) + (d.tempRange![1])) / 2) })} className="h-11 rounded-xl w-full flex items-center px-3 text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋ 온도</button>
     : <div className="relative">
         <Slider variant="stamp" label="" value={temp} min={d.tempRange![0]} max={d.tempRange![1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />
         <button onClick={() => updatePicked(i, { temp: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center z-20" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
       </div>
-  const timeCell = (i: number, unit: 'min' | 'sec', dur: number | null) => dur == null
-    ? <button onClick={() => updatePicked(i, { durationSec: unit === 'sec' ? 30 : 480 })} className="h-11 rounded-xl w-full flex items-center justify-center text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>＋시간</button>
+  const timeCell = (i: number, d: BlockTypeDef, dur: number | null) => {
+    const unit = d.durUnit as 'min' | 'sec'
+    return dur == null
+    ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
     : <div className="relative flex items-center justify-center gap-0.5 h-11 rounded-xl" style={{ background: T.slot }}>
-        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-5 rounded-md text-xs" style={{ background: T.card }}>−</button>
-        <b className="text-[11px] tabular-nums text-center text-stone-800" style={{ minWidth: 22 }}>{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
-        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-5 rounded-md text-xs" style={{ background: T.card }}>＋</button>
+        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-6 h-6 rounded-md text-sm transition-transform active:scale-90" style={{ background: T.card }}>−</button>
+        <b className="text-[13px] tabular-nums text-center text-stone-800" style={{ minWidth: 26 }}>{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
+        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-6 h-6 rounded-md text-sm transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
         <button onClick={() => updatePicked(i, { durationSec: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
       </div>
+  }
 
   const buildRecordDate = () => recordHour !== null ? `${recordDate}T${String(recordHour).padStart(2, '0')}:00:00` : `${recordDate}T00:00:00`
   const buildSession = (): LogSessionInput => ({
@@ -273,7 +293,7 @@ export default function LogPage() {
     cost: cost ? Number(cost) : null,
     currency: cost ? currency : null,
     memo: memo || null,
-    repeat: picked.length > 1 ? repeat : null,
+    repeat: picked.length > 1 && picked.some(p => !p.norepeat) ? repeat : null,
   })
   const buildBlocks = (): LogBlockInput[] => picked.map(p => {
     const d = BLOCK_TYPE_MAP[p.catalogId]
@@ -328,9 +348,9 @@ export default function LogPage() {
     const sel = isPicked(catalogId)
     const sz = small ? 46 : 54
     return (
-      <button type="button" onClick={() => togglePick(catalogId)} className="flex flex-col items-center gap-1.5 shrink-0 relative" style={{ width: small ? 50 : undefined }}>
+      <button type="button" onClick={() => togglePick(catalogId)} className="flex flex-col items-center gap-1.5 shrink-0 relative transition-transform active:scale-90" style={{ width: small ? 50 : undefined }}>
         {sel && <span className="absolute -top-1 right-0 w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shadow z-10" style={{ background: T.card, color: T.primary }}>{seqOf(catalogId)}</span>}
-        <span className="rounded-full flex items-center justify-center relative" style={{ width: sz, height: sz, background: sel ? T.primary : T.slot }}>
+        <span className={`rounded-full flex items-center justify-center relative ${sel ? 'shadow-md' : ''}`} style={{ width: sz, height: sz, background: sel ? T.primary : T.slot }}>
           {sel && <span className="absolute rounded-full pointer-events-none" style={{ inset: 5, border: `2px solid ${T.card}` }} />}
           <span className="material-symbols-outlined" style={{ fontSize: 24, color: sel ? T.card : undefined }}>{d.icon}</span>
         </span>
@@ -352,7 +372,7 @@ export default function LogPage() {
             <div className="text-[11px] tracking-widest opacity-85 font-semibold">LOGGING AS</div>
             <div className="text-2xl font-extrabold italic font-heading flex items-center gap-2">{logType.toUpperCase()} <span className="not-italic">{TRIBE_EMOJI_MAP[logType]}</span></div>
           </div>
-          <button onClick={() => setPersonaOpen(o => !o)} className="text-[11px] font-bold rounded-full px-3 py-2 flex items-center gap-1 bg-white/25">
+          <button onClick={() => setPersonaOpen(o => !o)} className="text-[11px] font-bold rounded-full px-3 py-2 flex items-center gap-1 bg-white/25 transition-transform active:scale-95">
             <span className="material-symbols-outlined" style={{ fontSize: 15 }}>swap_horiz</span>바꾸기
           </button>
         </div>
@@ -363,7 +383,7 @@ export default function LogPage() {
               const on = t === logType
               return (
                 <button key={t} onClick={() => { setLogType(t as TribeId); setPersonaOpen(false); setQuality(0) }}
-                  className="relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-opacity shadow-lg"
+                  className={`relative h-16 rounded-2xl overflow-hidden flex flex-col justify-end p-2.5 text-white transition-all active:scale-95 ${on ? 'shadow-lg' : ''}`}
                   style={{ background: TRIBE_COLORS[t], opacity: on ? 1 : 0.55 }}>
                   {on && <span className="absolute inset-0 rounded-2xl pointer-events-none z-20" style={{ border: `2.5px solid ${T.card}` }} />}
                   <span className="font-heading italic font-bold text-sm tracking-wide relative z-10">{t.toUpperCase()}</span>
@@ -384,7 +404,7 @@ export default function LogPage() {
               <div className="font-bold text-[15px] truncate text-stone-800">{placeName}</div>
               <div className="text-[11px] text-stone-500">{displayDate} · {displayTime} · {bathLabel(effectiveBath)}</div>
             </div>
-            <button onClick={() => setShowChange(s => !s)} className="text-[11px] font-bold rounded-full px-3 py-1.5 text-stone-600" style={{ background: T.slot }}>변경</button>
+            <button onClick={() => setShowChange(s => !s)} className="text-[11px] font-bold rounded-full px-3 py-1.5 text-stone-600 transition-transform active:scale-95" style={{ background: T.slot }}>변경</button>
           </div>
 
           {showChange && (
@@ -432,7 +452,7 @@ export default function LogPage() {
         {/* 블록 선택 */}
         <section className="space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-base font-bold text-stone-800">오늘 뭐 했어요? <span className="text-[11px] font-normal text-stone-400">누른 순서가 루틴이 돼요</span></h2>
+            <h2 className="text-base font-bold text-stone-800">오늘 뭐 했어요?</h2>
             <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
           </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
@@ -456,7 +476,7 @@ export default function LogPage() {
         {bothSauna && (
           <div className="flex items-center gap-2 text-sm">
             <span className="font-semibold text-stone-700">{QUICK_LOG.SAUNER.PRIMARY_PROMPT}</span>
-            {(['dry', 'steam'] as const).map(k => <button key={k} onClick={() => setPrimarySaunaKind(k)} className="px-3 py-1 rounded-full text-xs font-bold border text-stone-500" style={primarySaunaKind === k ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{k === 'dry' ? '건식' : '습식'}</button>)}
+            {(['dry', 'steam'] as const).map(k => <button key={k} onClick={() => setPrimarySaunaKind(k)} className={`px-3 py-1 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${primarySaunaKind === k ? 'shadow-md' : ''}`} style={primarySaunaKind === k ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{k === 'dry' ? '건식' : '습식'}</button>)}
           </div>
         )}
 
@@ -469,26 +489,26 @@ export default function LogPage() {
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
                   : <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴 <span className="text-[10px] font-medium text-stone-400">· 노드 탭=반복제외 · 끌어서 순서</span></span>}
               </div>
-              <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0">
+              <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
                 <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
                 <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
               </button>
             </div>
 
             {routineDetail && (
-              <div className="flex flex-col gap-5 pt-1">
+              <div className="rounded-2xl p-4 flex flex-col gap-5" style={{ background: T.card }}>
                 {picked.map((p, i) => {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
                   const isOther = d.blockType === 'other'
                   const showDrop = dropIdx === i && dragIdx != null && dragIdx !== i
                   return (
-                    <div key={i} data-rrow={i} className={`grid items-center gap-3 relative ${dragIdx === i ? 'opacity-40' : ''}`} style={{ gridTemplateColumns: '46px 1fr 84px' }}>
+                    <div key={i} data-rrow={i} className={`grid items-center gap-3 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '56px 1fr 84px' }}>
                       {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
                       {/* 노드 + 라벨 + 연결선 */}
                       <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                         {i < picked.length - 1 && <span className="absolute bg-stone-300" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)' }} />}
-                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=반복 제외 / 끌어서 순서" className="w-10 h-10 rounded-full flex items-center justify-center cursor-grab relative z-10 touch-none select-none" style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
+                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=반복 제외 / 끌어서 순서" className={`w-10 h-10 rounded-full flex items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{d.icon}</span>
                         </span>
                         <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap text-center z-10" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)', maxWidth: 58, overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.label}{p.norepeat ? '·1회' : ''}</span>
@@ -496,34 +516,57 @@ export default function LogPage() {
                       {/* 미들: 기타=카테고리+메모 / 온도 / 평가 / 플레인 */}
                       {isOther
                         ? <div className="flex gap-1.5 items-center">
-                            <select value={p.category ?? 'beyond'} onChange={e => updatePicked(i, { category: e.target.value })} className="h-11 rounded-xl px-2 text-xs font-semibold w-[72px] shrink-0" style={{ background: T.slot }}>
+                            <select value={p.category ?? 'beyond'} onChange={e => updatePicked(i, { category: e.target.value })} className="h-11 rounded-xl pl-2.5 pr-1 text-[11px] font-semibold w-[86px] shrink-0" style={{ background: T.slot }}>
                               <option value="heat">HEAT</option><option value="ice">ICE</option><option value="rest">PAUSE</option><option value="beyond">BEYOND</option>
                             </select>
-                            <input placeholder="뭐 했어요?" value={p.memo ?? ''} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm flex-1 min-w-0" style={{ background: T.slot }} />
+                            <input placeholder="뭐 했어요?" value={p.memo ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm flex-1 min-w-0" style={{ background: T.slot }} />
                           </div>
                         : d.tempRange
                           ? tempCell(i, d, p.temp)
                           : evalSteps
                             ? <Slider variant="seal" label="" value={p.score ?? 0} min={1} max={5} steps={evalSteps} onChange={v => updatePicked(i, { score: v })} />
-                            : <div className="h-11 rounded-xl flex items-center px-3 text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>기록</div>}
+                            : <div className="h-11 rounded-xl flex items-center px-3 text-sm font-semibold text-stone-400" style={{ background: T.slot }}>기록</div>}
                       {/* 오른쪽: 시간 / 가격 / 메모 */}
                       {d.durUnit
-                        ? timeCell(i, d.durUnit, p.durationSec)
+                        ? timeCell(i, d, p.durationSec)
                         : PRICE_BLOCKS.has(d.blockType)
-                          ? <input inputMode="numeric" placeholder="₩" value={p.cost ?? ''} onChange={e => updatePicked(i, { cost: e.target.value ? Number(e.target.value) : null })} className="h-11 rounded-xl px-2 text-sm text-center w-full" style={{ background: T.slot }} />
+                          ? <input inputMode="numeric" placeholder="₩" value={p.cost ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { cost: e.target.value ? Number(e.target.value) : null })} className="h-11 rounded-xl px-2 text-sm text-center w-full" style={{ background: T.slot }} />
                           : MEMO_BLOCKS.has(d.blockType)
-                            ? <input placeholder="메뉴" value={p.memo ?? ''} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm w-full" style={{ background: T.slot }} />
+                            ? <input placeholder="메뉴" value={p.memo ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm w-full" style={{ background: T.slot }} />
                             : <span />}
                     </div>
                   )
                 })}
-                {picked.length > 1 && (
-                  <div className="flex items-center justify-center gap-3 text-sm font-semibold text-stone-500">
-                    <span>반복</span>
-                    <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg" style={{ background: T.card }}>−</button><b>{repeat}</b><button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg" style={{ background: T.card }}>+</button>
-                    <span>세트</span>
-                  </div>
-                )}
+                {/* 반복 요약 스트립 — 빨간(반복) 노드 + 입력된 온도/시간 + 세트 카운터 (1회 노드 제외) */}
+                {(() => {
+                  const rep = picked.filter(p => !p.norepeat)
+                  if (picked.length < 2 || rep.length < 1) return null
+                  return (
+                    <div className="rounded-xl px-2.5 py-2 flex items-center gap-2 mt-1" style={{ background: T.tint }}>
+                      <div className="flex-1 flex flex-wrap items-center gap-1.5 min-w-0">
+                        {rep.map((p, idx) => {
+                          const d = BLOCK_TYPE_MAP[p.catalogId]
+                          const parts: string[] = []
+                          if (p.temp != null) parts.push(`${p.temp}°`)
+                          if (p.durationSec != null) parts.push(d.durUnit === 'sec' ? `${p.durationSec}초` : `${Math.round(p.durationSec / 60)}분`)
+                          return (
+                            <span key={idx} className="flex items-center gap-1 rounded-full pl-0.5 pr-2 py-0.5" style={{ background: T.card }}>
+                              <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>{d.icon}</span></span>
+                              <b className="text-[11px] font-bold text-stone-700 whitespace-nowrap">{parts.length ? parts.join(' ') : d.label}</b>
+                            </span>
+                          )
+                        })}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="text-xs font-bold text-stone-400">×</span>
+                        <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>−</button>
+                        <b className="text-sm tabular-nums text-center" style={{ minWidth: 16, color: T.primary }}>{repeat}</b>
+                        <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
+                        <span className="text-xs font-bold text-stone-500 ml-0.5">세트</span>
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             )}
           </section>
@@ -541,19 +584,19 @@ export default function LogPage() {
           {detailOpen && (
             <div className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">동행</span>
-                <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
+                <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${companion === o.id ? 'shadow-md' : ''}`} style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">혼잡도</span>
-                <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className="px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500" style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
+                <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${crowd === o.id ? 'shadow-md' : ''}`} style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
-              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>
+              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700">입장료</span>
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative shrink-0" ref={currencyRef}>
-                    <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-2 flex items-center gap-0.5 text-sm font-semibold text-stone-700" style={{ background: T.slot }}>
+                    <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-2 flex items-center gap-0.5 text-sm font-semibold text-stone-700 transition-transform active:scale-95" style={{ background: T.slot }}>
                       {currency}<span className="material-symbols-outlined" style={{ fontSize: 16, color: T.primary }}>expand_more</span>
                     </button>
                     {showCurrencyPicker && (
@@ -574,12 +617,12 @@ export default function LogPage() {
                       </div>
                     )}
                   </div>
-                  <input inputMode="numeric" placeholder="금액" value={cost} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
+                  <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">메모</span>
-                <textarea placeholder="오늘의 한 줄 메모" value={memo} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+                <textarea placeholder="오늘의 한 줄 메모" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
               </div>
             </div>
           )}
@@ -605,6 +648,15 @@ export default function LogPage() {
           onConfirm={() => router.push('/place')}
           onCancel={() => setShowPlaceConfirm(false)}
         />
+      )}
+
+      {/* 드래그 고스트 — 손가락(포인터)을 실제로 따라오는 노드 */}
+      {dragIdx != null && dragPos && picked[dragIdx] && (
+        <div className="fixed z-50 pointer-events-none" style={{ left: dragPos.x, top: dragPos.y, transform: 'translate(-50%,-50%) scale(1.1)' }}>
+          <span className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg" style={{ background: T.primary, color: T.card }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].icon}</span>
+          </span>
+        </div>
       )}
     </div>
   )

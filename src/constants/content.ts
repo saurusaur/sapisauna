@@ -714,7 +714,7 @@ export const DEEP_LOG = {
       { id: "empty", label: "쾌적", icon: "hot_tub" },
       { id: "moderate", label: "적당", icon: "bath_private" },
       { id: "busy", label: "북적", icon: "bath_public_large" },
-      { id: "full", label: "자리 없음", icon: "crowdsource" },
+      { id: "full", label: "혼잡", icon: "crowdsource" },
     ],
   },
   CLEANLINESS: {
