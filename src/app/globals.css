@@ -248,3 +248,32 @@ input[type="range"]::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   .sachek-nudge { animation: none; }
 }
+
+/* 홈 사-첵 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(1회) 후 수납 */
+.cta-postit {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--font-noto), 'Noto Sans KR', sans-serif;
+  font-weight: 700;
+  background: #ffe98a;
+  color: #3a2f10;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+  padding: 7px 14px;
+  border-radius: 3px;
+  box-shadow: 0 6px 14px -5px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.14);
+  transform-origin: right center;
+}
+.cta-postit b { color: var(--color-primary); }
+@keyframes cta-nudge {
+  0%   { transform: translateX(120px) rotate(-3deg); opacity: 0; }
+  13%  { transform: translateX(0) rotate(-3deg); opacity: 1; }
+  87%  { transform: translateX(0) rotate(-3deg); opacity: 1; }
+  100% { transform: translateX(120px) rotate(-3deg); opacity: 0; }
+}
+/* 도장 팝(약 0.65s) 이후 시작 → 슬라이드 등장 → 3초 유지 → 수납 (1회) */
+.cta-postit.is-play { animation: cta-nudge 4s ease-in-out .7s both; }
+@media (prefers-reduced-motion: reduce) {
+  .cta-postit.is-play { animation: none; transform: rotate(-3deg); opacity: 1; }
+}

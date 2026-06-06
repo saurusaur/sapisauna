@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNav from '@/components/bottom-nav'
 import { useFeaturedPublicLists } from '@/hooks/use-lists'
+import { useUserLogs } from '@/hooks/use-logs'
 import { useAuth } from '@/contexts/auth-context'
 import ProfileCard from '@/components/features/profile-card'
 import TribePicksCard from '@/components/features/tribe-picks-card'
@@ -21,7 +22,16 @@ export default function Home() {
   const router = useRouter()
   const { user: authUser } = useAuth()
   const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
+  const { data: userLogs } = useUserLogs()
   const { showPrompt, setShowPrompt, requireAuth } = useLoginPrompt()
+
+  // CTA(포스트잇) 상태 적응형
+  const hasRecords = userLogs.length > 0
+  const recordedToday = userLogs.some((l) => l.date.slice(0, 10) === getTodayKey())
+  // 노출: 비로그인=항상 / 로그인=오늘 미기록일 때
+  const showCta = authUser ? !recordedToday : true
+  // 문구: 로그인+기록 있음="오늘도", 그 외="사우나"
+  const ctaWord = authUser && hasRecords ? '오늘도' : '사우나'
 
   // 사-첵 팝: 페이지(데이터 포함) 로딩 완료 후 1회만 재생
   const [popReady, setPopReady] = useState(false)
@@ -82,6 +92,13 @@ export default function Home() {
           style={{ left: '9%', top: '116px', transform: 'rotate(-16deg)', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))' }}
         />
 
+        {/* 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(로딩 후 1회) */}
+        {popReady && showCta && (
+          <div className="cta-postit is-play" style={{ left: '78px', top: '174px' }} aria-hidden="true">
+            {ctaWord} <b>첵!</b>
+          </div>
+        )}
+
         {/* 사-첵 CTA — 기록하기 진입(엄지존, 오른쪽 일부 크롭, 움찔+호버/누름 애니메이션) */}
         <button
           type="button"
@@ -103,7 +120,7 @@ export default function Home() {
       </div>
 
       {/* ── 섹션 ── */}
-      <main className="relative z-[1] px-5 pt-3 space-y-8">
+      <main className="relative z-[1] px-5 pt-5 space-y-8">
         <TribePicksCard />
         <FeaturedSaListCarousel lists={featuredLists} home />
       </main>
