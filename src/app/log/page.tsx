@@ -274,7 +274,7 @@ export default function LogPage() {
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
     : <div className="flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
         <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-        <b className="text-[13px] tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
+        <b className="text-sm font-bold tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
         <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
       </div>
   }
@@ -476,7 +476,6 @@ export default function LogPage() {
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
                   : <>
                       <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴</span>
-                      <span className="text-[10px] font-medium text-stone-400">탭=1회 · 끌어서 순서</span>
                       <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
                     </>}
               </div>
@@ -528,18 +527,33 @@ export default function LogPage() {
                     </div>
                   )
                 })}
-                {/* 반복 세트 행 — 위 리추얼과 동일한 빨강 노드('반복', 이동 불가) + 같은 줄 세트 카운터. 빨강 노드만 반복임을 시각화 */}
+                {/* 반복 세트 행 — 위 리추얼과 동일한 빨강 노드('반복', 이동 불가) + 같은 줄 세트 카운터 + 오른쪽 조작 범례 */}
                 {picked.length > 1 && picked.some(p => !p.norepeat) && (
-                  <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr 80px' }}>
+                  <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr' }}>
                     <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                       <span className="w-10 h-10 rounded-full flex items-center justify-center shadow-md" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 20 }}>repeat</span></span>
                       <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)' }}>반복</span>
                     </div>
-                    <div className="flex items-center gap-2.5" style={{ gridColumn: '2 / 4' }}>
-                      <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
-                      <span className="text-xl font-extrabold tabular-nums" style={{ color: T.primary, minWidth: 32, textAlign: 'center' }}>×{repeat}</span>
-                      <button onClick={() => setRepeat(r => r + 1)} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
-                      <span className="text-sm font-bold text-stone-500">세트</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+                        <span className="text-base font-bold tabular-nums" style={{ color: T.primary, minWidth: 26, textAlign: 'center' }}>×{repeat}</span>
+                        <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
+                        <span className="text-xs font-bold text-stone-500">세트</span>
+                      </div>
+                      {/* 조작 범례 — 미니 노드 예시 */}
+                      <div className="flex flex-col gap-1 shrink-0">
+                        <span className="flex items-center gap-1 text-[9px] font-medium text-stone-400 whitespace-nowrap">
+                          <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: T.primary }} />
+                          <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 11 }}>arrow_forward</span>
+                          <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ border: `1.5px dashed ${T.slot2}` }} />
+                          탭하면 1회
+                        </span>
+                        <span className="flex items-center gap-1 text-[9px] font-medium text-stone-400 whitespace-nowrap">
+                          <span className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 9 }}>drag_indicator</span></span>
+                          드래그로 순서 수정
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -598,7 +612,7 @@ export default function LogPage() {
               </div>
               <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">메모</span>
-                <textarea placeholder="오늘의 한 줄 메모" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+                <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
               </div>
             </div>
           )}

@@ -105,7 +105,7 @@ export function Slider({
         onPointerUp={() => { dragging.current = false }}>
         <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
         {descriptor && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold pointer-events-none" style={{ color: 'var(--color-card)' }}>{descriptor}</span>}
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold font-heading pointer-events-none text-stone-800">{value}{unit}</span>
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold tabular-nums pointer-events-none text-stone-800">{value}{unit}</span>
         {/* 핸들 = 평가 씰 동그라미와 동일 그래픽·크기(24px, 빨강+흰 이너링) */}
         <span className="absolute top-1/2 rounded-full pointer-events-none shadow-md" style={{ left: `${pct}%`, width: 24, height: 24, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-primary)' }}>
           <span className="absolute rounded-full" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />
