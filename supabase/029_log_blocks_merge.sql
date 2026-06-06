@@ -103,8 +103,10 @@ create index if not exists idx_log_blocks_log_id on log_blocks(log_id);
 create index if not exists idx_log_blocks_type   on log_blocks(block_type);
 
 alter table log_blocks enable row level security;
+drop policy if exists log_blocks_read on log_blocks;
 create policy log_blocks_read on log_blocks for select
   using (exists (select 1 from logs l where l.id = log_blocks.log_id));
+drop policy if exists log_blocks_write on log_blocks;
 create policy log_blocks_write on log_blocks for all
   using      (exists (select 1 from logs l where l.id = log_blocks.log_id and l.user_id = auth.uid()))
   with check (exists (select 1 from logs l where l.id = log_blocks.log_id and l.user_id = auth.uid()));
@@ -126,8 +128,10 @@ create table if not exists user_routines (
 create index if not exists idx_user_routines_user on user_routines(user_id);
 
 alter table user_routines enable row level security;
+drop policy if exists user_routines_read on user_routines;
 create policy user_routines_read on user_routines for select
   using (user_id is null or user_id = auth.uid());
+drop policy if exists user_routines_write on user_routines;
 create policy user_routines_write on user_routines for all
   using (user_id = auth.uid()) with check (user_id = auth.uid());
 -- TODO(별도): 트라이브 추천 루틴 시드 INSERT (user_id NULL, is_featured true)
