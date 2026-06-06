@@ -93,8 +93,9 @@ export default function Home() {
         />
 
         {/* 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(로딩 후 1회) */}
+        {/* 도장(right 기준)과 동일하게 right 앵커 → 화면 폭 무관하게 도장 옆 고정(분리 방지), 오른쪽 ~14px만 도장 뒤로 */}
         {popReady && showCta && (
-          <div className="cta-postit is-play" style={{ left: '78px', top: '174px' }} aria-hidden="true">
+          <div className="cta-postit is-play" style={{ right: '166px', top: '174px' }} aria-hidden="true">
             {ctaWord} <b>첵!</b>
           </div>
         )}
