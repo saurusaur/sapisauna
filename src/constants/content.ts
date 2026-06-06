@@ -656,7 +656,7 @@ export const BLOCK_TYPES: BlockTypeDef[] = [
   { id: "snack", blockType: "snack", label: "매점", icon: "dining", category: "beyond", durUnit: null, evalKind: "snack" },
   { id: "restaurant", blockType: "restaurant", label: "식당", icon: "restaurant", category: "beyond", durUnit: null, evalKind: "restaurant" },
   { id: "sleep-room", blockType: "sleep-room", label: "수면", icon: "airline_seat_flat", category: "beyond", durUnit: null, evalKind: "rest" },
-  { id: "aufguss", blockType: "aufguss", label: "아우프구스", icon: "airwave", category: "beyond", durUnit: "min" },
+  { id: "aufguss", blockType: "aufguss", label: "아우프구스", icon: "airwave", category: "beyond", durUnit: "min", cacheCol: "dry_sauna_temp", tempRange: [50, 130], tempSteps: [ { value: 50, label: "미지근" }, { value: 65, label: "따뜻" }, { value: 85, label: "뜨끈" }, { value: 100, label: "후끈" }, { value: 120, label: "지옥" } ] },
   { id: "other", blockType: "other", label: "기타", icon: "more_horiz", category: "beyond", durUnit: "min" },
 ];
 

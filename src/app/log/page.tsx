@@ -258,22 +258,24 @@ export default function LogPage() {
     setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
   }
 
+  // 루틴 입력값(온도·시간·평가·가격·메모·세트) 한 번에 초기화 — 개별 × 대신
+  const resetRoutine = () => {
+    setPicked(prev => prev.map(p => ({ ...p, temp: null, durationSec: null, score: null, cost: null, memo: null })))
+    setRepeat(1)
+  }
+
   // 리추얼 셀 — 온도·시간 옵셔널(미입력 시 ＋버튼, 입력 후 × 초기화)
   const tempCell = (i: number, d: BlockTypeDef, temp: number | null) => temp == null
     ? <button onClick={() => updatePicked(i, { temp: Math.round(((d.tempRange![0]) + (d.tempRange![1])) / 2) })} className="h-11 rounded-xl w-full flex items-center px-3 text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋ 온도</button>
-    : <div className="relative">
-        <Slider variant="stamp" label="" value={temp} min={d.tempRange![0]} max={d.tempRange![1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />
-        <button onClick={() => updatePicked(i, { temp: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center z-20" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
-      </div>
+    : <Slider variant="stamp" label="" value={temp} min={d.tempRange![0]} max={d.tempRange![1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />
   const timeCell = (i: number, d: BlockTypeDef, dur: number | null) => {
     const unit = d.durUnit as 'min' | 'sec'
     return dur == null
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
-    : <div className="relative flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
+    : <div className="flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
         <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>−</button>
         <b className="text-[13px] tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
         <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
-        <button onClick={() => updatePicked(i, { durationSec: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
       </div>
   }
 
@@ -484,10 +486,14 @@ export default function LogPage() {
         {picked.length > 0 && (
           <section className="space-y-3">
             <div className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5" style={{ background: routineDetail ? T.tint : T.slot }}>
-              <div className="flex-1 flex flex-wrap gap-1.5 items-center">
+              <div className="flex-1 flex flex-wrap gap-1.5 items-center min-w-0">
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
-                  : <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴 <span className="text-[10px] font-medium text-stone-400">· 노드 탭=반복제외 · 끌어서 순서</span></span>}
+                  : <>
+                      <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴</span>
+                      <span className="text-[10px] font-medium text-stone-400">탭=1회 · 끌어서 순서</span>
+                      <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
+                    </>}
               </div>
               <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
                 <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
@@ -537,37 +543,15 @@ export default function LogPage() {
                     </div>
                   )
                 })}
-                {/* 반복 요약 — 위: 반복(빨강) 노드(순서대로) / 아래: 입력된 온도·시간. 우측 세트 카운터(2줄). 1회 노드 제외 */}
-                {(() => {
-                  const rep = picked.filter(p => !p.norepeat)
-                  if (picked.length < 2 || rep.length < 1) return null
-                  return (
-                    <div className="rounded-xl px-3 py-2.5 flex items-center gap-3 mt-1" style={{ background: T.tint }}>
-                      <div className="flex-1 flex items-start gap-3 flex-wrap min-w-0">
-                        {rep.map((p, idx) => {
-                          const d = BLOCK_TYPE_MAP[p.catalogId]
-                          const parts: string[] = []
-                          if (p.temp != null) parts.push(`${p.temp}°`)
-                          if (p.durationSec != null) parts.push(d.durUnit === 'sec' ? `${p.durationSec}초` : `${Math.round(p.durationSec / 60)}분`)
-                          return (
-                            <div key={idx} className="flex flex-col items-center gap-1 shrink-0">
-                              <span className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 16 }}>{d.icon}</span></span>
-                              <span className="text-[10px] font-bold tabular-nums whitespace-nowrap text-stone-600 h-3 leading-3">{parts.join(' ')}</span>
-                            </div>
-                          )
-                        })}
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-                        <div className="flex flex-col items-center leading-none" style={{ minWidth: 22 }}>
-                          <b className="text-base tabular-nums" style={{ color: T.primary }}>{repeat}</b>
-                          <span className="text-[9px] font-bold text-stone-400 mt-0.5">세트</span>
-                        </div>
-                        <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
-                      </div>
-                    </div>
-                  )
-                })()}
+                {/* 반복 세트 — 빨강 원 ×N 크게 + 세트. (반복 노드 있을 때만) */}
+                {picked.length > 1 && picked.some(p => !p.norepeat) && (
+                  <div className="flex items-center justify-center gap-3 pt-1">
+                    <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+                    <span className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold tabular-nums" style={{ background: T.tint, color: T.primary }}>×{repeat}</span>
+                    <button onClick={() => setRepeat(r => r + 1)} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
+                    <span className="text-sm font-bold text-stone-500">세트</span>
+                  </div>
+                )}
               </div>
             )}
           </section>

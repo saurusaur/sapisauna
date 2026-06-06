@@ -74,22 +74,22 @@ export function Slider({
         ))}
       </div>
     )
-    // 라벨 없음(리추얼): 좌측 스텝 코멘트(빈 값이면 공백 — '—' 안 보임), 씰을 칸 끝까지 펼침
+    // 라벨 없음(리추얼): 좌측 스텝 코멘트(빈 값이면 공백 — '—' 안 보임, 한 줄 고정), 씰을 칸 끝까지 펼침
     if (!label) {
       return (
         <div className="flex items-center gap-2 h-11">
-          <span className="text-xs font-bold shrink-0 text-left pl-3" style={{ width: 40, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
+          <span className="text-xs font-bold shrink-0 text-left pl-3 whitespace-nowrap overflow-hidden" style={{ width: 40, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
           {sealBtns()}
         </div>
       )
     }
-    // 라벨 있음(수질/또갈래요/청결도): 라벨 | [씰(칸 채움) + 단어(우측 끝)] — 단어 포함해서 입력칸들과 동일 너비로 정렬
+    // 라벨 있음(수질/또갈래요/청결도): 라벨 | [씰(칸 채움) + 단어(우측 끝, 폭 고정·2줄 고정 박스 → 줄바꿈해도 행 안 밀림)]
     return (
       <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
         <span className="text-xs font-bold text-stone-700">{label}</span>
         <div className="flex items-center gap-2 min-w-0">
           {sealBtns()}
-          <span className="text-[11px] font-bold text-right shrink-0" style={{ width: 36, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : ''}</span>
+          <span className="text-[10px] font-bold shrink-0 flex items-center justify-end text-right" style={{ width: 50, height: 26, lineHeight: '12px', wordBreak: 'keep-all', color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : ''}</span>
         </div>
       </div>
     )
