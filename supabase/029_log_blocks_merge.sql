@@ -43,7 +43,7 @@ alter table logs
   add column if not exists memo                  text,
   add column if not exists scrub_types           text[] default '{}',
   add column if not exists scrub_cost            int,
-  add column if not exists scrub_satisfaction    int,
+  add column if not exists scrub_score           int,    -- 세신 만족도 (구 deep_logs.scrub_satisfaction)
   add column if not exists food_score            int,    -- 매점 점수 (구 deep_logs.store_score)
   add column if not exists food_memo             text;   -- 매점 메모 (구 deep_logs.store_memo)
 -- 주: 구 sauna_temp/jjim_temp/pause_time, deep_logs(+has_*/food_eaten)는 030까지 유지.
@@ -71,7 +71,7 @@ update logs l set
   memo                = d.memo,
   scrub_types         = coalesce(d.scrub_types, '{}'),
   scrub_cost          = case when d.has_scrub then d.scrub_cost end,
-  scrub_satisfaction  = case when d.has_scrub then d.scrub_satisfaction end,
+  scrub_score         = case when d.has_scrub then d.scrub_satisfaction end,
   food_score          = case when d.has_store then d.store_score end,
   food_memo           = case when d.has_store then d.store_memo end
 from deep_logs d
@@ -181,15 +181,15 @@ where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'rest');
 
 insert into log_blocks (log_id, seq, block_type, category, score, cost)
-select id, 31, 'scrub', 'beyond', scrub_satisfaction, scrub_cost from logs
+select id, 31, 'scrub', 'beyond', scrub_score, scrub_cost from logs
 where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
   and ( 'scrub' = any(scrub_types)
         or ( coalesce(array_length(scrub_types,1),0) = 0
-             and (scrub_satisfaction is not null or scrub_cost is not null) ) )
+             and (scrub_score is not null or scrub_cost is not null) ) )
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'scrub');
 
 insert into log_blocks (log_id, seq, block_type, category, score, cost)
-select id, 32, 'massage', 'beyond', scrub_satisfaction, scrub_cost from logs
+select id, 32, 'massage', 'beyond', scrub_score, scrub_cost from logs
 where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a' and 'massage' = any(scrub_types)
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'massage');
 
