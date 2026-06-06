@@ -269,10 +269,10 @@ export default function LogPage() {
     const unit = d.durUnit as 'min' | 'sec'
     return dur == null
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
-    : <div className="relative flex items-center justify-center gap-0.5 h-11 rounded-xl" style={{ background: T.slot }}>
-        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-6 h-6 rounded-md text-sm transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-        <b className="text-[13px] tabular-nums text-center text-stone-800" style={{ minWidth: 26 }}>{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
-        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-6 h-6 rounded-md text-sm transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
+    : <div className="relative flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
+        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>−</button>
+        <b className="text-[13px] tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
+        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
         <button onClick={() => updatePicked(i, { durationSec: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
       </div>
   }
@@ -496,14 +496,14 @@ export default function LogPage() {
             </div>
 
             {routineDetail && (
-              <div className="rounded-2xl p-4 flex flex-col gap-5" style={{ background: T.card }}>
+              <div className="flex flex-col gap-5 pt-1">
                 {picked.map((p, i) => {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
                   const isOther = d.blockType === 'other'
                   const showDrop = dropIdx === i && dragIdx != null && dragIdx !== i
                   return (
-                    <div key={i} data-rrow={i} className={`grid items-center gap-3 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '56px 1fr 84px' }}>
+                    <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '52px 1fr 80px' }}>
                       {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
                       {/* 노드 + 라벨 + 연결선 */}
                       <div className="relative flex items-center justify-center" style={{ height: 44 }}>
@@ -532,37 +532,38 @@ export default function LogPage() {
                         : PRICE_BLOCKS.has(d.blockType)
                           ? <input inputMode="numeric" placeholder="₩" value={p.cost ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { cost: e.target.value ? Number(e.target.value) : null })} className="h-11 rounded-xl px-2 text-sm text-center w-full" style={{ background: T.slot }} />
                           : MEMO_BLOCKS.has(d.blockType)
-                            ? <input placeholder="메뉴" value={p.memo ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm w-full" style={{ background: T.slot }} />
+                            ? <input placeholder="추천메뉴" value={p.memo ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2 text-sm text-center w-full" style={{ background: T.slot }} />
                             : <span />}
                     </div>
                   )
                 })}
-                {/* 반복 요약 스트립 — 빨간(반복) 노드 + 입력된 온도/시간 + 세트 카운터 (1회 노드 제외) */}
+                {/* 반복 요약 — 위: 반복(빨강) 노드(순서대로) / 아래: 입력된 온도·시간. 우측 세트 카운터(2줄). 1회 노드 제외 */}
                 {(() => {
                   const rep = picked.filter(p => !p.norepeat)
                   if (picked.length < 2 || rep.length < 1) return null
                   return (
-                    <div className="rounded-xl px-2.5 py-2 flex items-center gap-2 mt-1" style={{ background: T.tint }}>
-                      <div className="flex-1 flex flex-wrap items-center gap-1.5 min-w-0">
+                    <div className="rounded-xl px-3 py-2.5 flex items-center gap-3 mt-1" style={{ background: T.tint }}>
+                      <div className="flex-1 flex items-start gap-3 flex-wrap min-w-0">
                         {rep.map((p, idx) => {
                           const d = BLOCK_TYPE_MAP[p.catalogId]
                           const parts: string[] = []
                           if (p.temp != null) parts.push(`${p.temp}°`)
                           if (p.durationSec != null) parts.push(d.durUnit === 'sec' ? `${p.durationSec}초` : `${Math.round(p.durationSec / 60)}분`)
                           return (
-                            <span key={idx} className="flex items-center gap-1 rounded-full pl-0.5 pr-2 py-0.5" style={{ background: T.card }}>
-                              <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>{d.icon}</span></span>
-                              <b className="text-[11px] font-bold text-stone-700 whitespace-nowrap">{parts.length ? parts.join(' ') : d.label}</b>
-                            </span>
+                            <div key={idx} className="flex flex-col items-center gap-1 shrink-0">
+                              <span className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 16 }}>{d.icon}</span></span>
+                              <span className="text-[10px] font-bold tabular-nums whitespace-nowrap text-stone-600 h-3 leading-3">{parts.join(' ')}</span>
+                            </div>
                           )
                         })}
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="text-xs font-bold text-stone-400">×</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-                        <b className="text-sm tabular-nums text-center" style={{ minWidth: 16, color: T.primary }}>{repeat}</b>
+                        <div className="flex flex-col items-center leading-none" style={{ minWidth: 22 }}>
+                          <b className="text-base tabular-nums" style={{ color: T.primary }}>{repeat}</b>
+                          <span className="text-[9px] font-bold text-stone-400 mt-0.5">세트</span>
+                        </div>
                         <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
-                        <span className="text-xs font-bold text-stone-500 ml-0.5">세트</span>
                       </div>
                     </div>
                   )

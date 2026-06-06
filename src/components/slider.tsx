@@ -62,30 +62,35 @@ export function Slider({
 
   // ── seal variant (도장 씰 평가) ──
   if (variant === 'seal') {
-    const sealBtns = (spread?: boolean) => (
-      <div className={`flex items-center ${spread ? 'justify-between flex-1' : 'gap-2'} ${inactive ? 'opacity-50' : ''}`}>
+    // 라벨 없는 리추얼 씰은 좁은 가운데 칸이라 약간 작게(22), 라벨 있는 평가/더자세히는 24
+    const cs = label ? 24 : 22
+    // 씰은 항상 칸을 가득 채워 펼침(justify-between) → 입력칸들과 동일 너비로 정렬
+    const sealBtns = () => (
+      <div className={`flex items-center justify-between flex-1 min-w-0 ${inactive ? 'opacity-50' : ''}`}>
         {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className={`rounded-full relative shrink-0 transition-transform active:scale-90 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className={`rounded-full relative shrink-0 transition-transform active:scale-90 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: cs, height: cs, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
             {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
           </button>
         ))}
       </div>
     )
-    // 라벨 없음(리추얼): 스텝 코멘트를 앞으로(스탬프 문구와 같은 12px 시작점), 씰을 끝까지 펼침(온도 바 끝과 정렬)
+    // 라벨 없음(리추얼): 좌측 스텝 코멘트(빈 값이면 공백 — '—' 안 보임), 씰을 칸 끝까지 펼침
     if (!label) {
       return (
         <div className="flex items-center gap-2 h-11">
-          <span className="text-xs font-bold shrink-0 text-left pl-3" style={{ width: 44, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : '—'}</span>
-          {sealBtns(true)}
+          <span className="text-xs font-bold shrink-0 text-left pl-3" style={{ width: 40, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
+          {sealBtns()}
         </div>
       )
     }
-    // 라벨 있음(토토노우 등): 이름 | 씰 | 값
+    // 라벨 있음(수질/또갈래요/청결도): 라벨 | [씰(칸 채움) + 단어(우측 끝)] — 단어 포함해서 입력칸들과 동일 너비로 정렬
     return (
-      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr auto' }}>
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
         <span className="text-xs font-bold text-stone-700">{label}</span>
-        {sealBtns()}
-        <span className="text-[11px] font-bold text-right" style={{ minWidth: 40, color: value ? 'var(--color-primary)' : undefined }}>{value ? (descriptor ?? '') : '—'}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          {sealBtns()}
+          <span className="text-[11px] font-bold text-right shrink-0" style={{ width: 36, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : ''}</span>
+        </div>
       </div>
     )
   }
