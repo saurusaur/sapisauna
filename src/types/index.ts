@@ -138,6 +138,22 @@ export interface SliderStep {
   label: string      // 표시할 레이블
 }
 
+// log_blocks 테이블 (블록 = 순서/반복/혼합/평가의 정正)
+export interface LogBlock {
+  id?: string
+  log_id?: string
+  seq: number
+  block_type: string            // BLOCK_TYPES.blockType
+  category: string              // 'heat' | 'ice' | 'rest' | 'beyond'
+  temp?: number | null
+  duration_sec?: number | null
+  score?: number | null         // 평가(세신만족/매점점수/휴식퀄) — 의미는 block_type
+  cost?: number | null          // 세신/마사지 가격
+  memo?: string | null          // 매점/식당 추천메뉴 / 기타
+  variant?: string | null       // 세신 종류 등 서브타입 ('basic' | 'withmassage')
+  norepeat?: boolean
+}
+
 // DB 로그 + 장소 조인 타입
 export interface LogWithPlace {
   id: string
@@ -166,6 +182,31 @@ export interface LogWithPlace {
   sweat_quality?: number
   jjim_temp?: number
   bath_gender?: BathGender
+  // ── 신규 캐시 컬럼 (블록서 파생, 029) — deep_log 평탄화 ──
+  dry_sauna_temp?: number | null
+  bulgama_temp?: number | null
+  rest_time?: number | null
+  very_hot_bath_temp?: number | null
+  ice_bath_temp?: number | null
+  salt_sauna_temp?: number | null
+  open_air_bath_temp?: number | null
+  ice_room_temp?: number | null
+  cleanliness?: number | null
+  crowd?: string | null
+  companion?: string | null
+  cost?: number | null
+  currency?: string | null
+  memo?: string | null
+  scrub_score?: number | null
+  scrub_cost?: number | null
+  scrub_type?: string | null
+  massage_score?: number | null
+  massage_cost?: number | null
+  snack_score?: number | null
+  snack_memo?: string | null
+  restaurant_score?: number | null
+  restaurant_memo?: string | null
+  blocks?: LogBlock[]
   user_nickname?: string
   user_title?: string
   deep_log?: {
