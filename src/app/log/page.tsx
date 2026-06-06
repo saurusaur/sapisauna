@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import countryToCurrency from 'country-to-currency'
 import { Slider } from '@/components/slider'
 import { useUser } from '@/contexts/user-context'
 import type { BathGender, BathPolicy, TribeId } from '@/types'
@@ -15,8 +16,8 @@ import {
   TRIBE_IDS,
   QUICK_LOG,
   DEEP_LOG,
-  PLACE_SPECS,
   type BlockCategory,
+  type BlockTypeDef,
 } from '@/constants/content'
 import {
   insertLogWithBlocks,
@@ -49,8 +50,8 @@ const QUALITY: Record<TribeId, { label: string; steps: { value: number; label: s
 const REVISIT_STEPS = QUICK_LOG.COMMON.REVISIT.steps
 const CLEAN_STEPS = DEEP_LOG.CLEANLINESS.steps
 const REST_STEPS = QUICK_LOG.JIMI.REST_QUALITY.steps
-const SCRUB_STEPS = DEEP_LOG.SCRUB.satisfaction.steps
-const STORE_STEPS = PLACE_SPECS.STORE.rating.steps // 맛없음/아쉬움/평범/맛있음/꿀맛집
+const SCRUB_STEPS = [{ value: 1, label: '별로' }, { value: 2, label: '아쉽' }, { value: 3, label: '만족' }, { value: 4, label: '시원' }, { value: 5, label: '극락' }]
+const STORE_STEPS = [{ value: 1, label: '맛없' }, { value: 2, label: '아쉽' }, { value: 3, label: '평범' }, { value: 4, label: '맛남' }, { value: 5, label: '맛집' }]
 const CATEGORY_ORDER: BlockCategory[] = ['heat', 'ice', 'rest', 'beyond']
 const PRICE_BLOCKS = new Set(['scrub', 'massage'])
 const MEMO_BLOCKS = new Set(['snack', 'restaurant'])
@@ -70,14 +71,14 @@ interface Picked {
   cost: number | null
   memo: string | null
   norepeat: boolean
+  category?: string  // 'other' 블록의 사용자 선택 카테고리
 }
 
 function makePicked(catalogId: string): Picked {
   const d = BLOCK_TYPE_MAP[catalogId]
-  const temp = d.tempRange ? Math.round((d.tempRange[0] + d.tempRange[1]) / 2) : null
-  const durationSec = d.durUnit === 'sec' ? 30 : d.durUnit === 'min' ? 480 : null
+  // 온도·시간은 옵셔널 → 기본 미입력(null). 필요시 입력·초기화.
   // 1회성 활동(beyond: 세신·마사지·매점·식당·수면)은 자동 반복 제외. 아우프구스는 사우나 사이클 일부라 반복 포함.
-  return { catalogId, temp, durationSec, score: null, cost: null, memo: null, norepeat: d.category === 'beyond' && d.blockType !== 'aufguss' }
+  return { catalogId, temp: null, durationSec: null, score: null, cost: null, memo: null, norepeat: d.category === 'beyond' && d.blockType !== 'aufguss', category: d.blockType === 'other' ? 'beyond' : undefined }
 }
 
 export default function LogPage() {
@@ -87,6 +88,7 @@ export default function LogPage() {
   // 장소
   const [placeName, setPlaceName] = useState('장소')
   const [placeId, setPlaceId] = useState<string | null>(null)
+  const [placeCountryCode, setPlaceCountryCode] = useState<string | undefined>(undefined)
   const [facilityType, setFacilityType] = useState<string | null>(null)
   const [bathPolicy, setBathPolicy] = useState<string | null>(null)
   const [bathOverride, setBathOverride] = useState<BathGender | null>(null)
@@ -101,7 +103,6 @@ export default function LogPage() {
   const [routineDetail, setRoutineDetail] = useState(false)
   const [primarySaunaKind, setPrimarySaunaKind] = useState<'dry' | 'steam' | null>(null)
   const [repeat, setRepeat] = useState(1)
-  const dragFrom = useRef<number | null>(null)
 
   // 평가 (0 = 미선택)
   const [revisit, setRevisit] = useState(0)
@@ -115,6 +116,19 @@ export default function LogPage() {
   const [cost, setCost] = useState('')
   const [currency, setCurrency] = useState('KRW')
   const [memo, setMemo] = useState('')
+  // 통화 선택기 (자동감지 + 검색 드롭다운)
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
+  const [currencySearch, setCurrencySearch] = useState('')
+  const currencyRef = useRef<HTMLDivElement>(null)
+  const allCurrencies = useMemo(() => {
+    const pinned = [...DEEP_LOG.COST.pinnedCurrencies] as string[]
+    const rest = Array.from(new Set(Object.values(countryToCurrency as Record<string, string>))).filter(c => !pinned.includes(c)).sort()
+    return { pinned, rest }
+  }, [])
+  // 순서변경 (포인터 드래그)
+  const dragInfo = useRef<{ idx: number; x: number; y: number; moved: boolean } | null>(null)
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [dropIdx, setDropIdx] = useState<number | null>(null)
 
   // 날짜·시간
   const now = new Date()
@@ -154,6 +168,9 @@ export default function LogPage() {
     if (place) {
       setPlaceName(place.name || '')
       if (place.id) setPlaceId(place.id)
+      setPlaceCountryCode(place.countryCode)
+      const mapped = place.countryCode ? (countryToCurrency as Record<string, string>)[place.countryCode] : undefined
+      if (mapped) setCurrency(mapped)
       if (place.facilityType) setFacilityType(place.facilityType)
       if (place.bathPolicy) setBathPolicy(place.bathPolicy)
     } else if (!log) { router.replace('/place'); return }
@@ -185,6 +202,14 @@ export default function LogPage() {
     }
   }, [router, primaryTribe])
 
+  // 통화 드롭다운 외부 클릭 닫기
+  useEffect(() => {
+    if (!showCurrencyPicker) return
+    const handle = (e: MouseEvent) => { if (currencyRef.current && !currencyRef.current.contains(e.target as Node)) { setShowCurrencyPicker(false); setCurrencySearch('') } }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [showCurrencyPicker])
+
   const togglePick = (catalogId: string) => setPicked(prev => {
     const i = prev.findIndex(p => p.catalogId === catalogId)
     return i > -1 ? prev.filter((_, idx) => idx !== i) : [...prev, makePicked(catalogId)]
@@ -192,13 +217,45 @@ export default function LogPage() {
   const isPicked = (catalogId: string) => picked.some(p => p.catalogId === catalogId)
   const seqOf = (catalogId: string) => picked.findIndex(p => p.catalogId === catalogId) + 1
   const updatePicked = (i: number, patch: Partial<Picked>) => setPicked(prev => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
-  const handleDrop = (to: number) => {
-    const from = dragFrom.current
-    if (from == null || from === to) return
-    setPicked(prev => { const arr = [...prev]; const [it] = arr.splice(from, 1); arr.splice(to > from ? to - 1 : to, 0, it); return arr })
-    dragFrom.current = null
+  // 노드 포인터 드래그 = 순서변경 (이동 없으면 탭 = 반복제외). 모바일 터치 지원.
+  const nodePointerDown = (i: number) => (e: React.PointerEvent) => {
+    dragInfo.current = { idx: i, x: e.clientX, y: e.clientY, moved: false }
+    try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId) } catch { /* noop */ }
+    setDragIdx(i)
+  }
+  const nodePointerMove = (e: React.PointerEvent) => {
+    const info = dragInfo.current; if (!info) return
+    if (!info.moved && (Math.abs(e.clientY - info.y) > 6 || Math.abs(e.clientX - info.x) > 6)) info.moved = true
+    if (!info.moved) return
+    const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest('[data-rrow]') as HTMLElement | null
+    setDropIdx(el ? Number(el.dataset.rrow) : null)
+  }
+  const nodePointerUp = (i: number) => (e: React.PointerEvent) => {
+    const info = dragInfo.current
+    try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId) } catch { /* noop */ }
+    if (info && !info.moved) updatePicked(i, { norepeat: !picked[i].norepeat })
+    else if (info && dropIdx != null && dropIdx !== i) {
+      setPicked(prev => { const arr = [...prev]; const [it] = arr.splice(i, 1); arr.splice(dropIdx > i ? dropIdx - 1 : dropIdx, 0, it); return arr })
+    }
+    dragInfo.current = null; setDragIdx(null); setDropIdx(null)
   }
   const bothSauna = isPicked('dry-sauna') && isPicked('steam-sauna')
+
+  // 리추얼 셀 — 온도·시간 옵셔널(미입력 시 ＋버튼, 입력 후 × 초기화)
+  const tempCell = (i: number, d: BlockTypeDef, temp: number | null) => temp == null
+    ? <button onClick={() => updatePicked(i, { temp: Math.round(((d.tempRange![0]) + (d.tempRange![1])) / 2) })} className="h-11 rounded-xl w-full flex items-center px-3 text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>＋ 온도</button>
+    : <div className="relative">
+        <Slider variant="stamp" label="" value={temp} min={d.tempRange![0]} max={d.tempRange![1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />
+        <button onClick={() => updatePicked(i, { temp: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center z-20" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
+      </div>
+  const timeCell = (i: number, unit: 'min' | 'sec', dur: number | null) => dur == null
+    ? <button onClick={() => updatePicked(i, { durationSec: unit === 'sec' ? 30 : 480 })} className="h-11 rounded-xl w-full flex items-center justify-center text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>＋시간</button>
+    : <div className="relative flex items-center justify-center gap-0.5 h-11 rounded-xl" style={{ background: T.slot }}>
+        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-5 rounded-md text-xs" style={{ background: T.card }}>−</button>
+        <b className="text-[11px] tabular-nums text-center text-stone-800" style={{ minWidth: 22 }}>{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
+        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-5 rounded-md text-xs" style={{ background: T.card }}>＋</button>
+        <button onClick={() => updatePicked(i, { durationSec: null })} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: T.slot2 }}><span className="material-symbols-outlined" style={{ fontSize: 11 }}>close</span></button>
+      </div>
 
   const buildRecordDate = () => recordHour !== null ? `${recordDate}T${String(recordHour).padStart(2, '0')}:00:00` : `${recordDate}T00:00:00`
   const buildSession = (): LogSessionInput => ({
@@ -220,7 +277,7 @@ export default function LogPage() {
   })
   const buildBlocks = (): LogBlockInput[] => picked.map(p => {
     const d = BLOCK_TYPE_MAP[p.catalogId]
-    return { blockType: d.blockType, category: d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat }
+    return { blockType: d.blockType, category: d.blockType === 'other' ? (p.category ?? 'beyond') : d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat }
   })
   const handleSave = async () => {
     if (!placeId) { setSaveError('장소 정보가 없습니다.'); return }
@@ -410,7 +467,7 @@ export default function LogPage() {
               <div className="flex-1 flex flex-wrap gap-1.5 items-center">
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
-                  : <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴 <span className="text-[10px] font-medium text-stone-400">· 스탬프 드래그=순서 · 1회=반복제외</span></span>}
+                  : <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴 <span className="text-[10px] font-medium text-stone-400">· 노드 탭=반복제외 · 끌어서 순서</span></span>}
               </div>
               <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0">
                 <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
@@ -423,29 +480,35 @@ export default function LogPage() {
                 {picked.map((p, i) => {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
+                  const isOther = d.blockType === 'other'
+                  const showDrop = dropIdx === i && dragIdx != null && dragIdx !== i
                   return (
-                    <div key={i} className="grid items-center gap-3 relative" style={{ gridTemplateColumns: '46px 1fr 84px' }} onDragOver={e => e.preventDefault()} onDrop={() => handleDrop(i)}>
+                    <div key={i} data-rrow={i} className={`grid items-center gap-3 relative ${dragIdx === i ? 'opacity-40' : ''}`} style={{ gridTemplateColumns: '46px 1fr 84px' }}>
+                      {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
                       {/* 노드 + 라벨 + 연결선 */}
                       <div className="relative flex items-center justify-center" style={{ height: 44 }}>
-                        {i < picked.length - 1 && <span className="absolute w-0.5" style={{ top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)', background: T.slot2 }} />}
-                        <span draggable onDragStart={() => { dragFrom.current = i }} onClick={() => updatePicked(i, { norepeat: !p.norepeat })} title="탭=반복 제외 / 드래그=순서" className="w-10 h-10 rounded-full flex items-center justify-center cursor-grab relative z-10" style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
+                        {i < picked.length - 1 && <span className="absolute bg-stone-300" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)' }} />}
+                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=반복 제외 / 끌어서 순서" className="w-10 h-10 rounded-full flex items-center justify-center cursor-grab relative z-10 touch-none select-none" style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{d.icon}</span>
                         </span>
                         <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap text-center z-10" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)', maxWidth: 58, overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.label}{p.norepeat ? '·1회' : ''}</span>
                       </div>
-                      {/* 온도 / 평가 / 플레인 */}
-                      {d.tempRange
-                        ? <Slider variant="stamp" label="" value={p.temp ?? d.tempRange[0]} min={d.tempRange[0]} max={d.tempRange[1]} unit="°C" steps={d.tempSteps ?? []} onChange={v => updatePicked(i, { temp: v })} />
-                        : evalSteps
-                          ? <Slider variant="seal" label="" value={p.score ?? 0} min={1} max={5} steps={evalSteps} onChange={v => updatePicked(i, { score: v })} />
-                          : <div className="h-11 rounded-xl flex items-center px-3 text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>시간만 기록</div>}
-                      {/* 시간 / 가격 / 메모 */}
-                      {d.durUnit
-                        ? <div className="flex items-center justify-center gap-1 h-11 rounded-xl" style={{ background: T.slot }}>
-                            <button onClick={() => updatePicked(i, { durationSec: Math.max(0, (p.durationSec ?? 0) - (d.durUnit === 'sec' ? 10 : 60)) })} className="w-6 h-6 rounded-md text-sm" style={{ background: T.card }}>−</button>
-                            <b className="text-[11px] text-stone-800 tabular-nums text-center" style={{ minWidth: 24 }}>{d.durUnit === 'sec' ? `${p.durationSec ?? 0}초` : `${Math.round((p.durationSec ?? 0) / 60)}분`}</b>
-                            <button onClick={() => updatePicked(i, { durationSec: (p.durationSec ?? 0) + (d.durUnit === 'sec' ? 10 : 60) })} className="w-6 h-6 rounded-md text-sm" style={{ background: T.card }}>+</button>
+                      {/* 미들: 기타=카테고리+메모 / 온도 / 평가 / 플레인 */}
+                      {isOther
+                        ? <div className="flex gap-1.5 items-center">
+                            <select value={p.category ?? 'beyond'} onChange={e => updatePicked(i, { category: e.target.value })} className="h-11 rounded-xl px-2 text-xs font-semibold w-[72px] shrink-0" style={{ background: T.slot }}>
+                              <option value="heat">HEAT</option><option value="ice">ICE</option><option value="rest">PAUSE</option><option value="beyond">BEYOND</option>
+                            </select>
+                            <input placeholder="뭐 했어요?" value={p.memo ?? ''} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm flex-1 min-w-0" style={{ background: T.slot }} />
                           </div>
+                        : d.tempRange
+                          ? tempCell(i, d, p.temp)
+                          : evalSteps
+                            ? <Slider variant="seal" label="" value={p.score ?? 0} min={1} max={5} steps={evalSteps} onChange={v => updatePicked(i, { score: v })} />
+                            : <div className="h-11 rounded-xl flex items-center px-3 text-[11px] font-semibold text-stone-400" style={{ background: T.slot }}>기록</div>}
+                      {/* 오른쪽: 시간 / 가격 / 메모 */}
+                      {d.durUnit
+                        ? timeCell(i, d.durUnit, p.durationSec)
                         : PRICE_BLOCKS.has(d.blockType)
                           ? <input inputMode="numeric" placeholder="₩" value={p.cost ?? ''} onChange={e => updatePicked(i, { cost: e.target.value ? Number(e.target.value) : null })} className="h-11 rounded-xl px-2 text-sm text-center w-full" style={{ background: T.slot }} />
                           : MEMO_BLOCKS.has(d.blockType)
@@ -488,9 +551,30 @@ export default function LogPage() {
               </div>
               <div className="grid items-center gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700">입장료</span>
-                <div className="flex items-center gap-2">
-                  <input inputMode="numeric" placeholder="금액" value={cost} onChange={e => setCost(e.target.value)} className="flex-1 rounded-lg px-3 py-2 text-sm" style={{ background: T.slot }} />
-                  <input value={currency} onChange={e => setCurrency(e.target.value)} className="w-20 rounded-lg px-3 py-2 text-sm text-center" style={{ background: T.slot }} />
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="relative shrink-0" ref={currencyRef}>
+                    <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-2 flex items-center gap-0.5 text-sm font-semibold text-stone-700" style={{ background: T.slot }}>
+                      {currency}<span className="material-symbols-outlined" style={{ fontSize: 16, color: T.primary }}>expand_more</span>
+                    </button>
+                    {showCurrencyPicker && (
+                      <div className="absolute bottom-full left-0 mb-1.5 rounded-xl shadow-lg z-50 w-[180px] overflow-hidden" style={{ background: T.card }}>
+                        <div className="p-2 border-b border-stone-100">
+                          <input value={currencySearch} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
+                        </div>
+                        <div className="max-h-[200px] overflow-y-auto">
+                          {allCurrencies.pinned.filter(c => !currencySearch || c.includes(currencySearch)).map(c => (
+                            <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); setCurrencySearch('') }} className={`w-full px-4 py-2.5 text-left text-sm hover:bg-stone-50 ${currency === c ? 'font-bold' : 'text-stone-600'}`} style={currency === c ? { color: T.primary } : undefined}>{c}</button>
+                          ))}
+                          {!currencySearch && <div className="border-t border-stone-100" />}
+                          {allCurrencies.rest.filter(c => !currencySearch || c.includes(currencySearch)).map(c => (
+                            <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); setCurrencySearch('') }} className={`w-full px-4 py-2.5 text-left text-sm hover:bg-stone-50 ${currency === c ? 'font-bold' : 'text-stone-600'}`} style={currency === c ? { color: T.primary } : undefined}>{c}</button>
+                          ))}
+                          {currencySearch && allCurrencies.pinned.filter(c => c.includes(currencySearch)).length === 0 && allCurrencies.rest.filter(c => c.includes(currencySearch)).length === 0 && <p className="px-4 py-3 text-xs text-stone-400 text-center">결과 없음</p>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <input inputMode="numeric" placeholder="금액" value={cost} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
               <div className="grid items-start gap-3" style={{ gridTemplateColumns: '62px 1fr' }}>

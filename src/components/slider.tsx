@@ -60,18 +60,31 @@ export function Slider({
     onChange(Math.round(min + p * (max - min)))
   }
 
-  // ── seal variant (도장 씰 평가: 라벨 | 씰 | 값) ──
+  // ── seal variant (도장 씰 평가) ──
   if (variant === 'seal') {
-    return (
-      <div className="grid items-center gap-3" style={{ gridTemplateColumns: label ? '62px 1fr auto' : '1fr auto' }}>
-        {label && <span className="text-xs font-bold text-stone-700">{label}</span>}
-        <div className={`flex gap-2 items-center ${inactive ? 'opacity-50' : ''}`}>
-          {[1, 2, 3, 4, 5].map((v) => (
-            <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="rounded-full relative shrink-0 transition-transform active:scale-90" style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
-              {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
-            </button>
-          ))}
+    const sealBtns = (spread?: boolean) => (
+      <div className={`flex items-center ${spread ? 'justify-between flex-1' : 'gap-2'} ${inactive ? 'opacity-50' : ''}`}>
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="rounded-full relative shrink-0 transition-transform active:scale-90" style={{ width: 24, height: 24, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+            {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
+          </button>
+        ))}
+      </div>
+    )
+    // 라벨 없음(리추얼): 스텝 코멘트를 앞으로, 씰을 끝까지 펼침(온도 바 끝과 정렬)
+    if (!label) {
+      return (
+        <div className="flex items-center gap-2 h-11">
+          <span className="text-[11px] font-bold shrink-0 text-center" style={{ width: 30, color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : '—'}</span>
+          {sealBtns(true)}
         </div>
+      )
+    }
+    // 라벨 있음(토토노우 등): 이름 | 씰 | 값
+    return (
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '62px 1fr auto' }}>
+        <span className="text-xs font-bold text-stone-700">{label}</span>
+        {sealBtns()}
         <span className="text-[11px] font-bold text-right" style={{ minWidth: 40, color: value ? 'var(--color-primary)' : undefined }}>{value ? (descriptor ?? '') : '—'}</span>
       </div>
     )
