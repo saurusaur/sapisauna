@@ -13,6 +13,9 @@
 --
 -- ADMIN_USER_ID = 23c431c3-9b23-4779-bb27-13472e58090a (통계 시드, 블록 백필 제외)
 -- ⚠️ 적용 전 백업 + select('*').limit(1)로 컬럼 최종 확인
+-- ⚠️ 매점 = block_type 'snack' (food 아님; 식당 'restaurant'와 짝). 이전 029 버전을 이미 돌려
+--    food_score/food_memo 를 만들었다면: alter table logs drop column if exists food_score, drop column if exists food_memo; 후 재실행.
+--    places.facilities 의 'food'→'snack' 태그 치환 + PLACE_SPECS food→snack 은 **코드 배치와 함께**(라벨 일관 위해 029에서 안 건드림).
 -- =====================================================================
 
 begin;
@@ -44,8 +47,8 @@ alter table logs
   add column if not exists scrub_types           text[] default '{}',
   add column if not exists scrub_cost            int,
   add column if not exists scrub_score           int,    -- 세신 만족도 (구 deep_logs.scrub_satisfaction)
-  add column if not exists food_score            int,    -- 매점 음식만족도 (구 deep_logs.store_score)
-  add column if not exists food_memo             text,   -- 매점 추천메뉴 (구 deep_logs.store_memo)
+  add column if not exists snack_score           int,    -- 매점 음식만족도 (구 deep_logs.store_score)
+  add column if not exists snack_memo            text,   -- 매점 추천메뉴 (구 deep_logs.store_memo)
   add column if not exists restaurant_score      int,    -- 식당 음식만족도 (신규, 레거시 없음)
   add column if not exists restaurant_memo       text;   -- 식당 추천메뉴 (신규)
 -- 주: 구 sauna_temp/jjim_temp/pause_time, deep_logs(+has_*/food_eaten)는 030까지 유지.
@@ -74,8 +77,8 @@ update logs l set
   scrub_types         = coalesce(d.scrub_types, '{}'),
   scrub_cost          = case when d.has_scrub then d.scrub_cost end,
   scrub_score         = case when d.has_scrub then d.scrub_satisfaction end,
-  food_score          = case when d.has_store then d.store_score end,
-  food_memo           = case when d.has_store then d.store_memo end
+  snack_score         = case when d.has_store then d.store_score end,
+  snack_memo          = case when d.has_store then d.store_memo end
 from deep_logs d
 where d.log_id = l.id;
 
@@ -196,10 +199,10 @@ where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a' and 'massage' = any(scru
   and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'massage');
 
 insert into log_blocks (log_id, seq, block_type, category, score, memo)
-select id, 33, 'food', 'beyond', food_score, food_memo from logs
+select id, 33, 'snack', 'beyond', snack_score, snack_memo from logs
 where user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
-  and (food_score is not null or food_memo is not null)
-  and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'food');
+  and (snack_score is not null or snack_memo is not null)
+  and not exists (select 1 from log_blocks b where b.log_id = logs.id and b.block_type = 'snack');
 -- salt-sauna/open-air/ice-room/aufguss/sleep-room/outdoor·indoor-rest/restaurant/other = 레거시 없음 → 백필 없음.
 
 commit;
