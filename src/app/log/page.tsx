@@ -129,6 +129,7 @@ export default function LogPage() {
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
   const currencyRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
   const allCurrencies = useMemo(() => {
     const pinned = [...DEEP_LOG.COST.pinnedCurrencies] as string[]
     const rest = Array.from(new Set(Object.values(countryToCurrency as Record<string, string>))).filter(c => !pinned.includes(c)).sort()
@@ -148,6 +149,7 @@ export default function LogPage() {
   const [showChange, setShowChange] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showTimePicker, setShowTimePicker] = useState(false)
+  const [showBathPicker, setShowBathPicker] = useState(false)
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const d = new Date(todayStr)
     return { year: d.getFullYear(), month: d.getMonth() }
@@ -219,6 +221,18 @@ export default function LogPage() {
     return () => document.removeEventListener('mousedown', handle)
   }, [showCurrencyPicker])
 
+  // 헤더 트라이브/변경 패널 — 영역 밖 클릭 시 자동 닫기
+  useEffect(() => {
+    if (!personaOpen && !showChange) return
+    const handle = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setPersonaOpen(false); setShowChange(false); setShowDatePicker(false); setShowTimePicker(false); setShowBathPicker(false)
+      }
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [personaOpen, showChange])
+
   const togglePick = (catalogId: string) => setPicked(prev => {
     const i = prev.findIndex(p => p.catalogId === catalogId)
     return i > -1 ? prev.filter((_, idx) => idx !== i) : [...prev, makePicked(catalogId)]
@@ -262,6 +276,8 @@ export default function LogPage() {
     setPicked(prev => prev.map(p => ({ ...p, temp: null, durationSec: null, score: null, cost: null, memo: null })))
     setRepeat(1)
   }
+  // 선택한 활동 전체 해제 ('오늘 뭐 했어요?' 초기화)
+  const resetBlocks = () => { setPicked([]); setRepeat(1); setPrimarySaunaKind(null); setRoutineDetail(false) }
 
   // 리추얼 셀 — 온도·시간 옵셔널(미입력 시 ＋버튼, 입력 후 × 초기화)
   const tempCell = (i: number, d: BlockTypeDef, temp: number | null) => temp == null
@@ -273,7 +289,7 @@ export default function LogPage() {
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
     : <div className="flex items-center justify-center gap-0.5 h-11 rounded-xl px-1" style={{ background: T.slot }}>
         <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>−</button>
-        <b className="text-sm font-bold tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
+        <b className="text-base font-bold font-heading tabular-nums text-center text-stone-800 flex-1 min-w-0">{unit === 'sec' ? `${dur}초` : `${Math.round(dur / 60)}분`}</b>
         <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-5 h-6 rounded-md text-sm shrink-0 transition-transform active:scale-90" style={{ background: T.card }}>＋</button>
       </div>
   }
@@ -360,7 +376,7 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -399,11 +415,9 @@ export default function LogPage() {
         {/* 날짜·시간·탕 — 컬러 영역 내 인라인 펼침/접힘 (반투명, 별도 박스 X) */}
         <div className={`overflow-hidden transition-all duration-300 ${showChange ? 'max-h-[440px] mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="flex items-center justify-center gap-2 text-xs">
-            <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
-            <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
-            <select value={bathOverride ?? ''} onChange={e => setBathOverride((e.target.value || null) as BathGender | null)} className="rounded-lg px-2 py-1.5 text-xs bg-white/20 text-white">
-              {BATH_OPTIONS.map(o => <option key={o.label} value={o.value ?? ''} className="text-stone-700">{o.label}{o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''}</option>)}
-            </select>
+            <button onClick={() => { setShowDatePicker(v => !v); setShowTimePicker(false); setShowBathPicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>{displayDate}</button>
+            <button onClick={() => { setShowTimePicker(v => !v); setShowDatePicker(false); setShowBathPicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>schedule</span>{displayTime}</button>
+            <button onClick={() => { setShowBathPicker(v => !v); setShowDatePicker(false); setShowTimePicker(false) }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 bg-white/20 text-white transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>wc</span>{bathLabel(effectiveBath)}<span className="material-symbols-outlined" style={{ fontSize: 14 }}>expand_more</span></button>
           </div>
 
           {showDatePicker && (
@@ -433,6 +447,15 @@ export default function LogPage() {
               <div className="grid grid-cols-6 gap-1.5">{Array.from({ length: 12 }, (_, i) => { const h = i + 12; return <button key={h} onClick={() => { setRecordHour(h); setShowTimePicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${recordHour === h ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{h === 12 ? '12' : h - 12}</button> })}</div>
             </div>
           )}
+          {showBathPicker && (
+            <div className="mt-3 mx-auto w-[252px] grid grid-cols-3 gap-1.5">
+              {BATH_OPTIONS.map(o => {
+                const sel = (bathOverride ?? null) === o.value
+                const autoSuffix = o.value === null ? `(${bathLabel(deriveBathGender(facilityType, bathPolicy, user?.gender ?? undefined))})` : ''
+                return <button key={o.label} onClick={() => { setBathOverride(o.value); setShowBathPicker(false) }} className={`py-1.5 rounded-lg text-[11px] font-medium ${sel ? 'bg-white text-stone-800 font-bold' : 'text-white/85 bg-white/10'}`}>{o.label}{autoSuffix}</button>
+              })}
+            </div>
+          )}
         </div>
       </header>
 
@@ -440,8 +463,11 @@ export default function LogPage() {
         {/* 블록 선택 */}
         <section className="space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-base font-bold text-stone-800">오늘 뭐 했어요?</h2>
-            <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
+            <div className="flex items-baseline gap-2">
+              <h2 className="text-base font-bold text-stone-800">오늘 뭐 했어요?</h2>
+              {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-400 transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
+            </div>
+            <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
           </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
           {moreOpen && (
@@ -471,13 +497,13 @@ export default function LogPage() {
         {/* 내 루틴 토글 + 요약 */}
         {picked.length > 0 && (
           <section className="space-y-3">
-            <div className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5" style={{ background: routineDetail ? T.tint : T.slot }}>
+            <div className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5" style={{ background: routineDetail ? T.card : T.slot }}>
               <div className="flex-1 flex flex-wrap gap-1.5 items-center min-w-0">
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
                   : <>
-                      <span className="text-[13px] font-extrabold" style={{ color: T.primary }}>루틴</span>
-                      <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
+                      <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 루틴 순서 변경</span>
+                      <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
                     </>}
               </div>
               <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
@@ -533,12 +559,11 @@ export default function LogPage() {
                   <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr' }}>
                     <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                       <span className="w-10 h-10 rounded-full flex items-center justify-center shadow-md" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 20 }}>repeat</span></span>
-                      <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)' }}>반복</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
-                        <span className="text-base font-bold tabular-nums" style={{ color: T.primary, minWidth: 20, textAlign: 'center' }}>{repeat}</span>
+                        <span className="text-lg font-bold font-heading tabular-nums" style={{ color: T.primary, minWidth: 20, textAlign: 'center' }}>{repeat}</span>
                         <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
                         <span className="text-xs font-bold text-stone-500">세트</span>
                       </div>
@@ -546,7 +571,7 @@ export default function LogPage() {
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>반복</span>
                         <div className="flex flex-col items-center leading-none">
-                          <span className="text-[8px] font-bold text-stone-400">탭</span>
+                          <span className="text-[10px] font-bold text-stone-400">탭</span>
                           <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 18 }}>arrow_right_alt</span>
                         </div>
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-stone-500 border-2 border-dashed border-stone-400 shrink-0">1회</span>

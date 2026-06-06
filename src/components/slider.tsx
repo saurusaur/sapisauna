@@ -64,12 +64,14 @@ export function Slider({
   if (variant === 'seal') {
     // 라벨 없는 리추얼 씰은 좁은 가운데 칸이라 약간 작게(22), 라벨 있는 평가/더자세히는 24
     const cs = label ? 24 : 22
-    // 씰은 항상 칸을 가득 채워 펼침(justify-between) → 입력칸들과 동일 너비로 정렬
+    // 씰은 칸을 가득 채워 펼침 + 각 버튼 flex-1·py-2.5로 히트존 확대(원 크기는 유지)
     const sealBtns = () => (
-      <div className={`flex items-center justify-between flex-1 min-w-0 ${inactive ? 'opacity-50' : ''}`}>
+      <div className={`flex items-center flex-1 min-w-0 ${inactive ? 'opacity-50' : ''}`}>
         {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className={`rounded-full relative shrink-0 transition-transform active:scale-90 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: cs, height: cs, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
-            {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="flex-1 flex items-center justify-center py-2.5 transition-transform active:scale-90">
+            <span className={`rounded-full relative shrink-0 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: cs, height: cs, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+              {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
+            </span>
           </button>
         ))}
       </div>
@@ -99,13 +101,13 @@ export function Slider({
   if (variant === 'stamp') {
     const pct = Math.round(((value - min) / (max - min)) * 100)
     return (
-      <div ref={barRef} className="relative h-11 rounded-xl overflow-hidden cursor-ew-resize touch-none select-none" style={{ backgroundColor: 'var(--color-primary-light)' }}
+      <div ref={barRef} className="relative h-11 rounded-xl overflow-hidden cursor-ew-resize touch-none select-none" style={{ backgroundColor: 'var(--color-card)', border: '1px solid var(--color-border)' }}
         onPointerDown={(e) => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); applyBar(e.clientX) }}
         onPointerMove={(e) => { if (dragging.current) applyBar(e.clientX) }}
         onPointerUp={() => { dragging.current = false }}>
         <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
         {descriptor && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold pointer-events-none" style={{ color: 'var(--color-card)' }}>{descriptor}</span>}
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold tabular-nums pointer-events-none text-stone-800">{value}{unit}</span>
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-base font-bold font-heading tabular-nums pointer-events-none text-stone-800">{value}{unit}</span>
         {/* 핸들 = 평가 씰 동그라미와 동일 그래픽·크기(24px, 빨강+흰 이너링) */}
         <span className="absolute top-1/2 rounded-full pointer-events-none shadow-md" style={{ left: `${pct}%`, width: 24, height: 24, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-primary)' }}>
           <span className="absolute rounded-full" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />
