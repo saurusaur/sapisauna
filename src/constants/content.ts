@@ -381,7 +381,7 @@ export const QUICK_LOG = {
       max: 5,
       steps: [
         { value: 1, label: "별로" },
-        { value: 2, label: "아쉬움" },
+        { value: 2, label: "아쉽" },
         { value: 3, label: "보통" },
         { value: 4, label: "개운" },
         { value: 5, label: "완벽" },
@@ -596,7 +596,7 @@ export const PLACE_SPECS = {
       max: 5,
       steps: [
         { value: 1, label: "맛없음" },
-        { value: 2, label: "아쉬움" },
+        { value: 2, label: "아쉽" },
         { value: 3, label: "평범" },
         { value: 4, label: "맛있음" },
         { value: 5, label: "꿀맛집" },
@@ -724,7 +724,7 @@ export const DEEP_LOG = {
     max: 5,
     steps: [
       { value: 1, label: "불결" },
-      { value: 2, label: "아쉬움" },
+      { value: 2, label: "아쉽" },
       { value: 3, label: "깔끔" },
       { value: 4, label: "청결" },
       { value: 5, label: "광이남" },
@@ -834,7 +834,7 @@ export const DEEP_LOG = {
       max: 5,
       steps: [
         { value: 1, label: "별로" },
-        { value: 2, label: "아쉬움" },
+        { value: 2, label: "아쉽" },
         { value: 3, label: "만족" },
         { value: 4, label: "시원" },
         { value: 5, label: "극락" },

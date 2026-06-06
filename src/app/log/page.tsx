@@ -528,13 +528,19 @@ export default function LogPage() {
                     </div>
                   )
                 })}
-                {/* 반복 세트 — 빨강 원 ×N 크게 + 세트. (반복 노드 있을 때만) */}
+                {/* 반복 세트 행 — 위 리추얼과 동일한 빨강 노드('반복', 이동 불가) + 같은 줄 세트 카운터. 빨강 노드만 반복임을 시각화 */}
                 {picked.length > 1 && picked.some(p => !p.norepeat) && (
-                  <div className="flex items-center justify-center gap-3 pt-1">
-                    <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
-                    <span className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-extrabold tabular-nums" style={{ background: T.tint, color: T.primary }}>×{repeat}</span>
-                    <button onClick={() => setRepeat(r => r + 1)} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
-                    <span className="text-sm font-bold text-stone-500">세트</span>
+                  <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr 80px' }}>
+                    <div className="relative flex items-center justify-center" style={{ height: 44 }}>
+                      <span className="w-10 h-10 rounded-full flex items-center justify-center shadow-md" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 20 }}>repeat</span></span>
+                      <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)' }}>반복</span>
+                    </div>
+                    <div className="flex items-center gap-2.5" style={{ gridColumn: '2 / 4' }}>
+                      <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+                      <span className="text-xl font-extrabold tabular-nums" style={{ color: T.primary, minWidth: 32, textAlign: 'center' }}>×{repeat}</span>
+                      <button onClick={() => setRepeat(r => r + 1)} className="w-8 h-8 rounded-lg text-lg transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
+                      <span className="text-sm font-bold text-stone-500">세트</span>
+                    </div>
                   </div>
                 )}
               </div>
