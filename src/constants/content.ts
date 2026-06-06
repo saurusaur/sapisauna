@@ -791,6 +791,23 @@ export const MESSAGES = {
     CTA_BUTTON: "기록하기",
     COMMUNITY_HEADING: "사-피엔스 라이브",
     COMMUNITY_EMPTY: "아직 조용하네요..",
+
+    // ── 홈 리디자인 (2026-06) 문구 — 한곳에서 관리 ──
+    HERO_HELLO: "HELLO",
+    HERO_BRAND: "SA-PIEN",
+    HERO_SUBTITLE: "우리는 사우나 신인류",
+    // 스탬프 카드
+    STAMP_GUEST_NAME: "SA-PIEN",
+    STAMP_FILL_PROMPT: "나만의 사우나 도장판 채우기!",
+    // 사-첵 포스트잇 CTA (문구 = PREFIX + SUFFIX, SUFFIX는 빨강 강조)
+    CTA_PREFIX_RETURNING: "오늘도", // 로그인 + 기록 있음
+    CTA_PREFIX_NEW: "사우나",       // 비로그인 · 신규(기록 0)
+    CTA_SUFFIX: "첵!",
+    // 섹션 헤딩/서브
+    TRIBE_HEADING: "TRIBE PICKS",
+    TRIBE_SUBTITLE: "실시간 업데이트 트라이브별 베스트 사우나!",
+    FEATURED_HEADING: "SA-PI FEATURED",
+    FEATURED_SUBTITLE: "고수들의 추천 사우나",
   },
   LOG: {
     SELECT_PLACE: "장소 선택",

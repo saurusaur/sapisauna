@@ -9,6 +9,7 @@
 import { useRouter } from 'next/navigation'
 import type { SaList } from '@/types'
 import { listBgColor } from '@/lib/utils'
+import { MESSAGES } from '@/constants/content'
 import FeaturedSaListCard from './featured-sa-list-card'
 
 // home variant 높낮이 스태거 패턴(각도 0·겹침 없음, 높이만 차이 — 재미있게 크게)
@@ -50,9 +51,9 @@ export default function FeaturedSaListCarousel({
     return (
       <section>
         <h2 className="text-[23px] font-extrabold italic font-heading tracking-wide text-[#2a2222]">
-          SA-PI FEATURED
+          {MESSAGES.HOME.FEATURED_HEADING}
         </h2>
-        <p className="text-xs text-stone-500 font-medium mt-1 mb-4">고수들의 추천 사우나</p>
+        <p className="text-xs text-stone-500 font-medium mt-1 mb-4">{MESSAGES.HOME.FEATURED_SUBTITLE}</p>
 
         {/* -mx-5: 섹션 px-5 상쇄 → 풀블리드 스크롤 */}
         <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-9 pt-1">

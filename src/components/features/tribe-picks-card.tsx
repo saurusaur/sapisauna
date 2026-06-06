@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { TRIBES } from '@/constants/content'
+import { TRIBES, MESSAGES } from '@/constants/content'
 import { useAuth } from '@/contexts/auth-context'
 
 // 프로토 순서: SAUNNER · BATHER · JIMI
@@ -58,9 +58,9 @@ export default function TribePicksCard() {
     <section>
       {/* 헤딩 + 서브타이틀 */}
       <h2 className="text-[23px] font-extrabold italic font-heading tracking-wide text-[#2a2222]">
-        TRIBE PICKS
+        {MESSAGES.HOME.TRIBE_HEADING}
       </h2>
-      <p className="text-xs text-stone-500 font-medium mt-1 mb-4">실시간 업데이트 트라이브별 베스트 사우나!</p>
+      <p className="text-xs text-stone-500 font-medium mt-1 mb-4">{MESSAGES.HOME.TRIBE_SUBTITLE}</p>
 
       {/* 3 컬러 카드 */}
       <div className="grid grid-cols-3 gap-3">

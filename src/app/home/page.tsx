@@ -12,6 +12,9 @@ import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carou
 import SaunaStamp from '@/components/svg/sauna-stamp'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
+import { MESSAGES } from '@/constants/content'
+
+const HOME = MESSAGES.HOME
 
 function getTodayKey(): string {
   const now = new Date()
@@ -31,7 +34,7 @@ export default function Home() {
   // 노출: 비로그인=항상 / 로그인=오늘 미기록일 때
   const showCta = authUser ? !recordedToday : true
   // 문구: 로그인+기록 있음="오늘도", 그 외="사우나"
-  const ctaWord = authUser && hasRecords ? '오늘도' : '사우나'
+  const ctaWord = authUser && hasRecords ? HOME.CTA_PREFIX_RETURNING : HOME.CTA_PREFIX_NEW
 
   // 사-첵 팝: 페이지(데이터 포함) 로딩 완료 후 1회만 재생
   const [popReady, setPopReady] = useState(false)
@@ -63,10 +66,10 @@ export default function Home() {
       {/* ── 헤더 ── */}
       <header className="relative z-[3] px-6 pt-8 pb-2">
         <h1 className="text-[40px] leading-none italic font-heading text-white">
-          <span className="font-medium">HELLO</span>{' '}
-          <span className="font-bold">SA-PIEN</span>
+          <span className="font-medium">{HOME.HERO_HELLO}</span>{' '}
+          <span className="font-bold">{HOME.HERO_BRAND}</span>
         </h1>
-        <p className="text-white/90 text-sm font-medium mt-2.5">우리는 사우나 신인류</p>
+        <p className="text-white/90 text-sm font-medium mt-2.5">{HOME.HERO_SUBTITLE}</p>
       </header>
 
       {/* ── 스탬프 카드 슬롯 (프로필 카드 + 도장 + 사-첵 CTA) ── */}
@@ -96,7 +99,7 @@ export default function Home() {
         {/* 도장(right 기준)과 동일하게 right 앵커 → 화면 폭 무관하게 도장 옆 고정(분리 방지), 오른쪽 ~14px만 도장 뒤로 */}
         {popReady && showCta && (
           <div className="cta-postit is-play" style={{ right: '170px', top: '174px' }} aria-hidden="true">
-            {ctaWord} <b>첵!</b>
+            {ctaWord} <b>{HOME.CTA_SUFFIX}</b>
           </div>
         )}
 

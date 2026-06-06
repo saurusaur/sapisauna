@@ -12,8 +12,10 @@ import { useRouter } from 'next/navigation'
 import { useUser } from '@/contexts/user-context'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
-import { TRIBE_EMOJI_MAP } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, MESSAGES } from '@/constants/content'
 import { profileBgColor } from '@/lib/utils'
+
+const HOME = MESSAGES.HOME
 
 const CARD_STYLE: React.CSSProperties = {
   background: 'rgba(251,250,248,0.96)',
@@ -54,7 +56,7 @@ export default function ProfileCard() {
         {/* 이름 (+ 로그인 시 레벨 작게) */}
         <div className="flex items-baseline gap-1.5 min-w-0">
           <span className="text-base font-bold text-stone-700 truncate">
-            {isGuest ? 'SA-PIEN' : user!.nickname}
+            {isGuest ? HOME.STAMP_GUEST_NAME : user!.nickname}
           </span>
           {!isGuest && (
             <button
@@ -75,7 +77,7 @@ export default function ProfileCard() {
             className="text-xs font-medium"
             style={{ color: isGuest ? 'var(--color-primary)' : '#a8a29e' }}
           >
-            나만의 사우나 도장판 채우기!
+            {HOME.STAMP_FILL_PROMPT}
           </span>
         )}
       </div>
