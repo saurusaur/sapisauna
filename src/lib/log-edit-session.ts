@@ -12,7 +12,7 @@
  */
 
 import { safeParse } from './utils'
-import type { LogWithPlace, TribeId, FacilityType, BathPolicy } from '@/types'
+import type { LogWithPlace, LogBlock, TribeId, FacilityType, BathPolicy } from '@/types'
 
 export interface CurrentLogPayload {
   _editId?: string
@@ -37,7 +37,14 @@ export interface CurrentLogPayload {
   sweat_quality?: number
   jjim_temp?: number
   rest_quality?: number
+  cleanliness?: number
+  crowd?: string
+  companion?: string
+  cost?: number
+  currency?: string
+  memo?: string
   deep_log?: LogWithPlace['deep_log']
+  blocks?: LogBlock[]
 }
 
 export interface SelectedPlacePayload {
@@ -80,6 +87,13 @@ function buildBaseCurrentLog(log: LogWithPlace): CurrentLogPayload {
     water_quality: log.water_quality,
     jjim_temp: log.jjim_temp,
     rest_quality: log.rest_quality,
+    cleanliness: log.cleanliness ?? undefined,
+    crowd: log.crowd ?? undefined,
+    companion: log.companion ?? undefined,
+    cost: log.cost ?? undefined,
+    currency: log.currency ?? undefined,
+    memo: log.memo ?? undefined,
+    blocks: log.blocks,
   }
 }
 
