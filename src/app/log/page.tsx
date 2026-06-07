@@ -294,9 +294,9 @@ export default function LogPage() {
     return dur == null
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
     : <div className="flex items-center justify-between h-11">
-        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-7 h-7 rounded-lg text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-7 h-7 rounded-full text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
         <b className="font-heading tabular-nums text-stone-800 whitespace-nowrap text-center flex-1 px-0.5"><span className="text-base">{unit === 'sec' ? dur : Math.round(dur / 60)}</span><span className="text-[11px] font-sans font-bold ml-px">{unit === 'sec' ? '초' : '분'}</span></b>
-        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-7 h-7 rounded-lg text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
+        <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-7 h-7 rounded-full text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
       </div>
   }
 
@@ -545,13 +545,13 @@ export default function LogPage() {
                     <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '52px 1fr 86px' }}>
                       {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
                       {showDropEnd && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ bottom: -12, background: T.primary }} />}
-                      {/* 노드 + 라벨 + 연결선 */}
-                      <div className="relative flex items-center justify-center" style={{ height: 44 }}>
-                        {i < picked.length - 1 && <span className="absolute bg-stone-300" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)' }} />}
-                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=반복 제외 / 끌어서 순서" className={`w-10 h-10 rounded-full flex items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{d.icon}</span>
+                      {/* 노드(아이콘+한글 라벨 내부) + 연결선(진한 빨강) */}
+                      <div className="relative flex items-center justify-center" style={{ height: 48 }}>
+                        {i < picked.length - 1 && <span className="absolute" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)', background: T.primary }} />}
+                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=1회 / 끌어서 순서" className={`w-12 h-12 rounded-full flex flex-col items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{d.icon}</span>
+                          <span className="text-[9px] font-bold leading-none mt-0.5 px-0.5 text-center" style={{ maxWidth: 46 }}>{d.label}</span>
                         </span>
-                        <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap text-center z-10" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)', maxWidth: 58, overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.label}{p.norepeat ? '·1회' : ''}</span>
                       </div>
                       {/* 미들: 기타=카테고리+메모 / 온도 / 평가 / 플레인 */}
                       {isOther
@@ -579,21 +579,20 @@ export default function LogPage() {
                 })}
                 {/* 반복 세트 행 — 위 리추얼과 동일한 빨강 노드('반복', 이동 불가) + 같은 줄 세트 카운터 + 오른쪽 조작 범례 */}
                 {picked.length > 1 && picked.some(p => !p.norepeat) && (
-                  <div className="grid items-center gap-2" style={{ gridTemplateColumns: '52px 1fr' }}>
-                    <div className="relative flex items-center justify-center" style={{ height: 44 }}>
-                      <span className="w-10 h-10 rounded-full flex items-center justify-center shadow-md" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 20 }}>repeat</span></span>
-                      <span className="absolute text-[10px] font-bold text-stone-700 whitespace-nowrap" style={{ top: 'calc(50% + 22px)', left: '50%', transform: 'translateX(-50%)' }}>루틴</span>
+                  <div className="grid items-center gap-2 mt-1 pt-4" style={{ gridTemplateColumns: '52px 1fr', borderTop: `1px dashed ${T.slot2}` }}>
+                    <div className="relative flex items-center justify-center" style={{ height: 48 }}>
+                      <span className="w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-md relative z-10" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 17 }}>repeat</span><span className="text-[9px] font-bold leading-none mt-0.5">루틴</span></span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+                        <button onClick={() => setRepeat(r => Math.max(1, r - 1))} className="w-7 h-7 rounded-full text-base transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
                         <span className="text-lg font-bold font-heading tabular-nums" style={{ color: T.primary, minWidth: 20, textAlign: 'center' }}>{repeat}</span>
-                        <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-lg text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
+                        <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-full text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
                         <span className="text-xs font-bold text-stone-500">세트</span>
                       </div>
                       {/* 조작 범례 — 빨강 '반복' 원 → '탭' 화살표 → 점선 '1회' 원 */}
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>반복</span>
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>루틴</span>
                         <div className="flex flex-col items-center leading-none">
                           <span className="text-xs font-bold text-stone-400">탭</span>
                           <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 18 }}>arrow_right_alt</span>
@@ -705,8 +704,9 @@ export default function LogPage() {
       {/* 드래그 고스트 — 손가락(포인터)을 실제로 따라오는 노드 */}
       {dragIdx != null && dragPos && picked[dragIdx] && (
         <div className="fixed z-50 pointer-events-none" style={{ left: dragPos.x, top: dragPos.y, transform: 'translate(-50%,-50%) scale(1.1)' }}>
-          <span className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg" style={{ background: T.primary, color: T.card }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].icon}</span>
+          <span className="w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-lg" style={{ background: T.primary, color: T.card }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].icon}</span>
+            <span className="text-[9px] font-bold leading-none mt-0.5">{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].label}</span>
           </span>
         </div>
       )}
