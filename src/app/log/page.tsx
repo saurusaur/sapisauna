@@ -632,15 +632,15 @@ export default function LogPage() {
         <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
-          <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
-            <span className="text-[13px] font-bold text-stone-700">메모</span>
+          <div className="grid items-start gap-3 pt-1.5" style={{ gridTemplateColumns: '60px 1fr' }}>
+            <span className="text-[13px] font-bold text-stone-700 pt-1">메모</span>
             <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-12 resize-none" style={{ background: T.slot }} />
           </div>
         </section>
 
         {/* 더 자세히 */}
-        <section>
-          <button onClick={(e) => { const willOpen = !detailOpen; setDetailOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
+        <section className="-mt-5">
+          <button onClick={(e) => { const willOpen = !detailOpen; setDetailOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-start gap-1 text-sm font-semibold py-2 text-stone-500 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
           {detailOpen && (
             <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
@@ -683,7 +683,7 @@ export default function LogPage() {
 
               {/* 시설 온도 (선택) — 루틴에 온도 입력 안 한 시설만, 온도만 기록 */}
               <div className="pt-1" style={{ borderTop: `1px solid ${T.slot}` }}>
-                <button onClick={(e) => { const willOpen = !facTempOpen; setFacTempOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-center gap-1 text-xs font-bold text-stone-500 pt-3 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가</button>
+                <button onClick={(e) => { const willOpen = !facTempOpen; setFacTempOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-start gap-1 text-xs font-bold text-stone-500 pt-3 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가</button>
                 {facTempOpen && (
                   <div className="mt-2.5 space-y-2.5">
                     {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).sort((a, b) => byTempOrder(a.id, b.id)).map(b => {
