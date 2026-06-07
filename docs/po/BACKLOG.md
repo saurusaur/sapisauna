@@ -4,7 +4,7 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- (없음)
+- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. **잔여**: ⓵ 5단계 표시면 평탄화(story/history/카드/캘린더/리워드/explore — 현재 새 폼 저장분이 표시면서 안 보임) ⓶ `/log/deep` 고아·구 함수 정리 ⓷ 030 cleanup(구 컬럼+deep_logs DROP) + 백필 재실행 후 **main 머지** ⓸ 스토리 연결. F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 
