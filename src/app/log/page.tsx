@@ -633,7 +633,7 @@ export default function LogPage() {
         </section>
 
         {/* 더 자세히 */}
-        <section className="-mt-5">
+        <section>
           <button onClick={(e) => { const willOpen = !detailOpen; setDetailOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-start gap-1 text-sm font-semibold py-2 text-stone-500 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
           {detailOpen && (
             <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
@@ -704,13 +704,13 @@ export default function LogPage() {
         {saveError && <ErrorBanner message={saveError} />}
 
         {/* 사-첵 완료 — 폼 맨 끝 도장 버튼(인플로우). 살짝 오른쪽·15도 틸트. 비활성=무색, 활성=레드 */}
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center">
           <button
             type="button"
             onClick={() => { void handleSave() }}
             disabled={!canSave}
             aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-            className={`w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] translate-x-9 transition-all ${canSave ? 'active:scale-95' : 'grayscale opacity-50'}`}
+            className={`w-[150px] h-[150px] rounded-full overflow-hidden rotate-[15deg] translate-x-14 transition-all ${canSave ? 'active:scale-95' : 'grayscale opacity-50'}`}
             style={{ boxShadow: canSave ? '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' : '0 8px 18px -10px rgba(0,0,0,0.15)' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
