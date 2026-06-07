@@ -706,7 +706,7 @@ export default function LogPage() {
             onClick={() => { void handleSave() }}
             disabled={disabled}
             aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-            className={`fixed right-4 bottom-6 z-40 w-[152px] h-[152px] rounded-full overflow-hidden transition-all rotate-[15deg] ${disabled ? 'grayscale' : 'active:scale-95'}`}
+            className={`fixed left-1/2 -translate-x-1/2 bottom-6 z-40 w-[152px] h-[152px] rounded-full overflow-hidden transition-all rotate-[15deg] ${disabled ? 'grayscale' : 'active:scale-95'}`}
             style={{ boxShadow: disabled ? '0 8px 18px -10px rgba(0,0,0,0.18)' : '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
