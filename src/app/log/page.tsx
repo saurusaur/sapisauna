@@ -279,12 +279,6 @@ export default function LogPage() {
   const needPrimary = bothSauna && picked.find(p => p.catalogId === 'dry-sauna')?.temp != null && picked.find(p => p.catalogId === 'steam-sauna')?.temp != null
   // 사-첵 완료(FAB) 활성 조건
   const canSave = !isSaving && picked.length > 0 && !!revisit && !(needPrimary && !primarySaunaKind)
-  // FAB가 막 등장할 때 하단 내용이 버튼에 가리지 않도록 살짝 스크롤
-  const prevCanSave = useRef(false)
-  useEffect(() => {
-    if (canSave && !prevCanSave.current) setTimeout(() => window.scrollBy({ top: 170, behavior: 'smooth' }), 330)
-    prevCanSave.current = canSave
-  }, [canSave])
 
   // 모바일: 입력창 포커스 시 키보드에 가리지 않도록 화면 가운데로 스크롤(키보드 애니메이션 후)
   const scrollIntoCenter = (e: React.FocusEvent<HTMLElement>) => {
@@ -411,7 +405,7 @@ export default function LogPage() {
     )
   }
   return (
-    <div className="min-h-dvh pb-40 bath-tile-bg">
+    <div className="min-h-dvh pb-32 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
       <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-2" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
@@ -662,7 +656,7 @@ export default function LogPage() {
                     {showCurrencyPicker && (
                       <div className="absolute bottom-full left-0 mb-1.5 rounded-xl shadow-lg z-50 w-[180px] overflow-hidden" style={{ background: T.card }}>
                         <div className="p-2 border-b border-stone-100">
-                          <input value={currencySearch} onFocus={scrollIntoCenter} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
+                          <input value={currencySearch} onFocus={() => { const el = currencyRef.current; setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300) }} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
                         </div>
                         <div className="max-h-[200px] overflow-y-auto">
                           {allCurrencies.pinned.filter(c => !currencySearch || c.includes(currencySearch)).map(c => (
@@ -717,7 +711,7 @@ export default function LogPage() {
         disabled={!canSave}
         aria-hidden={!canSave}
         aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-        className={`fixed left-[calc(50%+36px)] -translate-x-1/2 bottom-6 z-40 w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${canSave ? 'opacity-100 active:scale-95' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+        className={`fixed right-6 bottom-6 z-40 w-[90px] h-[90px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${canSave ? 'opacity-100 active:scale-95' : 'opacity-0 translate-y-10 pointer-events-none'}`}
         style={{ boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
