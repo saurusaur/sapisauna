@@ -658,7 +658,7 @@ export default function LogPage() {
                         <div className="p-2 border-b border-stone-100">
                           <input value={currencySearch} onFocus={() => { const el = currencyRef.current; setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300) }} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
                         </div>
-                        <div className="max-h-[200px] overflow-y-auto">
+                        <div className="max-h-[120px] overflow-y-auto">
                           {allCurrencies.pinned.filter(c => !currencySearch || c.includes(currencySearch)).map(c => (
                             <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); setCurrencySearch('') }} className={`w-full px-4 py-2.5 text-left text-sm hover:bg-stone-50 ${currency === c ? 'font-bold' : 'text-stone-600'}`} style={currency === c ? { color: T.primary } : undefined}>{c}</button>
                           ))}
