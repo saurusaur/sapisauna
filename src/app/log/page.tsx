@@ -28,7 +28,6 @@ import {
 import { grantReward } from '@/lib/reward-service'
 import { readEditSession, clearLogSessionAfterSave } from '@/lib/log-edit-session'
 import { captureError } from '@/lib/error-logger'
-import BottomCTA from '@/components/ui/bottom-cta'
 import ErrorBanner from '@/components/ui/error-banner'
 import ConfirmModal from '@/components/ui/confirm-modal'
 
@@ -497,7 +496,7 @@ export default function LogPage() {
         {/* 블록 선택 */}
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
+            <h2 className="text-base font-bold text-stone-800">오늘 어떻게 즐겼나요?</h2>
             <div className="flex items-center gap-2 shrink-0">
               {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
               <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
@@ -698,9 +697,22 @@ export default function LogPage() {
         {saveError && <ErrorBanner message={saveError} />}
       </main>
 
-      <BottomCTA onClick={() => { void handleSave() }} disabled={isSaving || picked.length === 0 || !revisit || (needPrimary && !primarySaunaKind)}>
-        {isSaving ? '저장 중…' : editId ? '수정 완료' : '사-첵 완료'}
-      </BottomCTA>
+      {/* 사-첵 완료 — 홈 사첵 로고 버튼을 플로팅으로. 비활성=무색(grayscale), 활성=레드 */}
+      {(() => {
+        const disabled = isSaving || picked.length === 0 || !revisit || (needPrimary && !primarySaunaKind)
+        return (
+          <button
+            type="button"
+            onClick={() => { void handleSave() }}
+            disabled={disabled}
+            aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
+            className={`fixed left-5 bottom-6 z-40 w-[84px] h-[84px] rounded-full overflow-hidden transition-all ${disabled ? 'grayscale opacity-50 shadow-md' : 'shadow-xl active:scale-95'}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+          </button>
+        )
+      })()}
 
       {showBackConfirm && (
         <ConfirmModal
