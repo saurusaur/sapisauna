@@ -662,7 +662,7 @@ export default function LogPage() {
                     {showCurrencyPicker && (
                       <div className="absolute bottom-full left-0 mb-1.5 rounded-xl shadow-lg z-50 w-[180px] overflow-hidden" style={{ background: T.card }}>
                         <div className="p-2 border-b border-stone-100">
-                          <input value={currencySearch} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
+                          <input value={currencySearch} onFocus={scrollIntoCenter} onChange={e => setCurrencySearch(e.target.value.toUpperCase())} placeholder="통화 검색…" autoFocus className="w-full px-3 py-2 text-xs rounded-lg bg-stone-50 focus:outline-none text-stone-700" />
                         </div>
                         <div className="max-h-[200px] overflow-y-auto">
                           {allCurrencies.pinned.filter(c => !currencySearch || c.includes(currencySearch)).map(c => (
