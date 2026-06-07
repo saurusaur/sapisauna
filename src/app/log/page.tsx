@@ -493,7 +493,7 @@ export default function LogPage() {
         </svg>
       </header>
 
-      <main className="px-5 pt-8 space-y-10">
+      <main className="px-5 pt-16 space-y-10">
         {/* 블록 선택 */}
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
@@ -632,19 +632,19 @@ export default function LogPage() {
           {detailOpen && (
             <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
-                <span className="text-[13px] font-bold text-stone-700 pt-1.5">동행</span>
+              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700">동행</span>
                 <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${companion === o.id ? 'shadow-md' : ''}`} style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
-                <span className="text-[13px] font-bold text-stone-700 pt-1.5">혼잡도</span>
+              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700">혼잡도</span>
                 <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${crowd === o.id ? 'shadow-md' : ''}`} style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
               <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
                 <span className="text-[13px] font-bold text-stone-700">입장료</span>
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative shrink-0" ref={currencyRef}>
-                    <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-2 flex items-center gap-0.5 text-sm font-semibold text-stone-700 transition-transform active:scale-95" style={{ background: T.slot }}>
+                    <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-1.5 flex items-center gap-0.5 text-sm font-semibold text-stone-700 transition-transform active:scale-95" style={{ background: T.slot }}>
                       {currency}<span className="material-symbols-outlined" style={{ fontSize: 16, color: T.primary }}>expand_more</span>
                     </button>
                     {showCurrencyPicker && (
@@ -665,7 +665,7 @@ export default function LogPage() {
                       </div>
                     )}
                   </div>
-                  <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
+                  <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-1.5 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
 
