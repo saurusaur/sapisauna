@@ -53,6 +53,9 @@ const REST_STEPS = QUICK_LOG.JIMI.REST_QUALITY.steps
 const SCRUB_STEPS = [{ value: 1, label: '별로' }, { value: 2, label: '아쉽' }, { value: 3, label: '만족' }, { value: 4, label: '시원' }, { value: 5, label: '극락' }]
 const STORE_STEPS = [{ value: 1, label: '맛없' }, { value: 2, label: '아쉽' }, { value: 3, label: '평범' }, { value: 4, label: '맛남' }, { value: 5, label: '맛집' }]
 const CATEGORY_ORDER: BlockCategory[] = ['heat', 'ice', 'rest', 'beyond']
+// 온도 시설 등장 빈도 순(흔한 것 위로) — 활동 레인·시설온도 정렬용
+const TEMP_ORDER: Record<string, number> = { 'hot-bath': 0, 'very-hot-bath': 1, 'cold-bath': 2, 'dry-sauna': 3, 'steam-sauna': 4, 'bulgama': 5, 'salt-sauna': 6, 'ice-bath': 7, 'open-air-bath': 8, 'ice-room': 9 }
+const byTempOrder = (a: string, b: string) => (TEMP_ORDER[a] ?? 99) - (TEMP_ORDER[b] ?? 99)
 const PRICE_BLOCKS = new Set(['scrub', 'massage'])
 const MEMO_BLOCKS = new Set(['snack', 'restaurant'])
 const REST_EVAL = new Set(['rest', 'outdoor-rest', 'indoor-rest', 'sleep-room'])
@@ -270,6 +273,8 @@ export default function LogPage() {
     dragInfo.current = null; setDragIdx(null); setDropIdx(null); setDragPos(null)
   }
   const bothSauna = isPicked('dry-sauna') && isPicked('steam-sauna')
+  // 주 이용 사우나 선택은 '온도를 둘 다 입력했을 때'만 의미 있음 → 그때만 노출·필수
+  const needPrimary = bothSauna && picked.find(p => p.catalogId === 'dry-sauna')?.temp != null && picked.find(p => p.catalogId === 'steam-sauna')?.temp != null
 
   // 모바일: 입력창 포커스 시 키보드에 가리지 않도록 화면 가운데로 스크롤(키보드 애니메이션 후)
   const scrollIntoCenter = (e: React.FocusEvent<HTMLElement>) => {
@@ -294,7 +299,7 @@ export default function LogPage() {
     return dur == null
     ? <button onClick={() => updatePicked(i, { durationSec: defaultDurSec(d) })} className="h-11 rounded-xl w-full flex items-center justify-center text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋시간</button>
     : <div className="flex items-center justify-between h-11">
-        <button onClick={() => updatePicked(i, { durationSec: Math.max(0, dur - (unit === 'sec' ? 10 : 60)) })} className="w-7 h-7 rounded-full text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
+        <button onClick={() => { const nv = dur - (unit === 'sec' ? 10 : 60); updatePicked(i, { durationSec: nv <= 0 ? null : nv }) }} className="w-7 h-7 rounded-full text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>−</button>
         <b className="font-heading tabular-nums text-stone-800 whitespace-nowrap text-center flex-1 px-0.5"><span className="text-base">{unit === 'sec' ? dur : Math.round(dur / 60)}</span><span className="text-[11px] font-sans font-bold ml-px">{unit === 'sec' ? '초' : '분'}</span></b>
         <button onClick={() => updatePicked(i, { durationSec: dur + (unit === 'sec' ? 10 : 60) })} className="w-7 h-7 rounded-full text-base shrink-0 transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
       </div>
@@ -335,7 +340,7 @@ export default function LogPage() {
   const handleSave = async () => {
     if (!placeId) { setSaveError('장소 정보가 없습니다.'); return }
     if (picked.length === 0) { setSaveError('활동을 하나 이상 선택해주세요.'); return }
-    if (bothSauna && !primarySaunaKind) { setSaveError('주로 이용한 사우나(건식/습식)를 선택해주세요.'); return }
+    if (needPrimary && !primarySaunaKind) { setSaveError('주로 이용한 사우나(건식/습식)를 선택해주세요.'); return }
     if (!revisit) { setSaveError('"또 갈래요?"를 입력해주세요.'); return }
     setIsSaving(true); setSaveError(null)
     try {
@@ -496,7 +501,7 @@ export default function LogPage() {
             <div className="space-y-2.5">
               {CATEGORY_ORDER.map(cat => {
                 const meta = BLOCK_CATEGORY_META[cat]
-                const ids = BLOCK_TYPES.filter(b => b.category === cat).map(b => b.id)
+                const ids = BLOCK_TYPES.filter(b => b.category === cat).map(b => b.id).sort(byTempOrder)
                 return (
                   <div key={cat} className="flex items-center gap-2">
                     <div className="flex flex-col items-center gap-0.5 w-11 shrink-0"><span className="material-symbols-outlined text-stone-500" style={{ fontSize: 18 }}>{meta.icon}</span><span className="text-[9px] font-bold text-stone-500">{meta.label}</span></div>
@@ -508,14 +513,6 @@ export default function LogPage() {
           )}
         </section>
 
-        {/* 메인 사우나 */}
-        {bothSauna && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-stone-700">{QUICK_LOG.SAUNER.PRIMARY_PROMPT}</span>
-            {(['dry', 'steam'] as const).map(k => <button key={k} onClick={() => setPrimarySaunaKind(k)} className={`px-3 py-1 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${primarySaunaKind === k ? 'shadow-md' : ''}`} style={primarySaunaKind === k ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{k === 'dry' ? '건식' : '습식'}</button>)}
-          </div>
-        )}
-
         {/* 내 루틴 토글 + 요약 */}
         {picked.length > 0 && (
           <section className="space-y-2.5">
@@ -523,19 +520,20 @@ export default function LogPage() {
               <div className="flex-1 flex flex-wrap gap-1.5 items-center min-w-0">
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
-                  : <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 순서 변경</span>}
+                  : <span className="text-[11px] font-bold" style={{ color: T.primary }}>오늘의 루틴을 기록해보세요</span>}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {routineDetail && <button onClick={resetRoutine} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
-                <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 transition-transform active:scale-95">
-                  <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
-                  <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
-                </button>
-              </div>
+              <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
+                <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
+                <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
+              </button>
             </div>
 
             {routineDetail && (
               <div className="flex flex-col gap-2.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-stone-400">드래그로 순서 변경</span>
+                  <button onClick={resetRoutine} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
+                </div>
                 {picked.map((p, i) => {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
@@ -556,8 +554,8 @@ export default function LogPage() {
                       </div>
                       {/* 미들: 기타=카테고리+메모 / 온도 / 평가 / 플레인 */}
                       {isOther
-                        ? <div className="flex gap-1.5 items-center">
-                            <select value={p.category ?? 'beyond'} onChange={e => updatePicked(i, { category: e.target.value })} className="h-11 rounded-xl pl-2.5 pr-1 text-[11px] font-semibold w-[86px] shrink-0" style={{ background: T.slot }}>
+                        ? <div className="flex gap-1.5 items-center min-w-0">
+                            <select value={p.category ?? 'beyond'} onChange={e => updatePicked(i, { category: e.target.value })} className="h-11 rounded-xl pl-2 pr-0.5 text-[11px] font-semibold w-[68px] shrink-0" style={{ background: T.slot }}>
                               <option value="heat">HEAT</option><option value="ice">ICE</option><option value="rest">PAUSE</option><option value="beyond">BEYOND</option>
                             </select>
                             <input placeholder="뭐 했어요?" value={p.memo ?? ''} onFocus={scrollIntoCenter} onChange={e => updatePicked(i, { memo: e.target.value || null })} className="h-11 rounded-xl px-2.5 text-sm flex-1 min-w-0" style={{ background: T.slot }} />
@@ -595,12 +593,19 @@ export default function LogPage() {
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>루틴</span>
                         <div className="flex flex-col items-center leading-none">
-                          <span className="text-xs font-bold text-stone-400">탭</span>
-                          <span className="material-symbols-outlined text-stone-300" style={{ fontSize: 18 }}>arrow_right_alt</span>
+                          <span className="text-xs font-bold text-stone-500">탭</span>
+                          <span className="material-symbols-outlined text-stone-600" style={{ fontSize: 18 }}>swap_horiz</span>
                         </div>
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-stone-500 border-2 border-dashed border-stone-400 shrink-0">1회</span>
                       </div>
                     </div>
+                  </div>
+                )}
+                {/* 주 이용 사우나 — 건식·습식 온도 둘 다 입력했을 때만(필수) */}
+                {needPrimary && (
+                  <div className="flex items-center gap-2 text-sm pt-1">
+                    <span className="text-[13px] font-bold text-stone-700">{QUICK_LOG.SAUNER.PRIMARY_PROMPT}</span>
+                    {(['dry', 'steam'] as const).map(k => <button key={k} onClick={() => setPrimarySaunaKind(k)} className={`px-3 py-1 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${primarySaunaKind === k ? 'shadow-md' : ''}`} style={primarySaunaKind === k ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{k === 'dry' ? '건식' : '습식'}</button>)}
                   </div>
                 )}
               </div>
@@ -612,6 +617,7 @@ export default function LogPage() {
         <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
+          <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none mt-1" style={{ background: T.slot }} />
         </section>
 
         {/* 더 자세히 */}
@@ -656,17 +662,13 @@ export default function LogPage() {
                   <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
-                <span className="text-[13px] font-bold text-stone-700 pt-1.5">메모</span>
-                <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
-              </div>
 
               {/* 시설 온도 (선택) — 루틴에 온도 입력 안 한 시설만, 온도만 기록 */}
               <div className="pt-1" style={{ borderTop: `1px solid ${T.slot}` }}>
-                <button onClick={() => setFacTempOpen(o => !o)} className="flex items-center gap-1 text-xs font-bold text-stone-500 pt-3"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가 <span className="text-[10px] font-medium text-stone-400">루틴에 없는 시설</span></button>
+                <button onClick={() => setFacTempOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-xs font-bold text-stone-500 pt-3"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가</button>
                 {facTempOpen && (
                   <div className="mt-2.5 space-y-2.5">
-                    {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).map(b => {
+                    {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).sort((a, b) => byTempOrder(a.id, b.id)).map(b => {
                       const t = facTemps[b.id] ?? null
                       return (
                         <div key={b.id} className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr 24px' }}>
@@ -690,7 +692,7 @@ export default function LogPage() {
         {saveError && <ErrorBanner message={saveError} />}
       </main>
 
-      <BottomCTA onClick={() => { void handleSave() }} disabled={isSaving || picked.length === 0 || !revisit || (bothSauna && !primarySaunaKind)}>
+      <BottomCTA onClick={() => { void handleSave() }} disabled={isSaving || picked.length === 0 || !revisit || (needPrimary && !primarySaunaKind)}>
         {isSaving ? '저장 중…' : editId ? '수정 완료' : '사-첵 완료'}
       </BottomCTA>
 
