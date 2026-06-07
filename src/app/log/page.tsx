@@ -405,7 +405,7 @@ export default function LogPage() {
     )
   }
   return (
-    <div className="min-h-dvh pb-32 bath-tile-bg">
+    <div className="min-h-dvh pb-10 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
       <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-2" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
@@ -702,21 +702,22 @@ export default function LogPage() {
         </section>
 
         {saveError && <ErrorBanner message={saveError} />}
-      </main>
 
-      {/* 사-첵 완료 — 홈 사첵 로고 버튼을 플로팅으로. 비활성=무색(grayscale), 활성=레드 */}
-      <button
-        type="button"
-        onClick={() => { void handleSave() }}
-        disabled={!canSave}
-        aria-hidden={!canSave}
-        aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-        className={`fixed right-6 bottom-6 z-40 w-[90px] h-[90px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${canSave ? 'opacity-100 active:scale-95' : 'opacity-0 translate-y-10 pointer-events-none'}`}
-        style={{ boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
-      </button>
+        {/* 사-첵 완료 — 폼 맨 끝 도장 버튼(인플로우). 살짝 오른쪽·15도 틸트. 비활성=무색, 활성=레드 */}
+        <div className="flex justify-center pt-2">
+          <button
+            type="button"
+            onClick={() => { void handleSave() }}
+            disabled={!canSave}
+            aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
+            className={`w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] translate-x-9 transition-all ${canSave ? 'active:scale-95' : 'grayscale opacity-50'}`}
+            style={{ boxShadow: canSave ? '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' : '0 8px 18px -10px rgba(0,0,0,0.15)' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+          </button>
+        </div>
+      </main>
 
       {showBackConfirm && (
         <ConfirmModal
