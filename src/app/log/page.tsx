@@ -54,7 +54,7 @@ const SCRUB_STEPS = [{ value: 1, label: '별로' }, { value: 2, label: '아쉽' 
 const STORE_STEPS = [{ value: 1, label: '맛없' }, { value: 2, label: '아쉽' }, { value: 3, label: '평범' }, { value: 4, label: '맛남' }, { value: 5, label: '맛집' }]
 const CATEGORY_ORDER: BlockCategory[] = ['heat', 'ice', 'rest', 'beyond']
 // 온도 시설 등장 빈도 순(흔한 것 위로) — 활동 레인·시설온도 정렬용
-const TEMP_ORDER: Record<string, number> = { 'hot-bath': 0, 'very-hot-bath': 1, 'cold-bath': 2, 'dry-sauna': 3, 'steam-sauna': 4, 'bulgama': 5, 'salt-sauna': 6, 'ice-bath': 7, 'open-air-bath': 8, 'ice-room': 9 }
+const TEMP_ORDER: Record<string, number> = { 'hot-bath': 0, 'very-hot-bath': 1, 'cold-bath': 2, 'dry-sauna': 3, 'steam-sauna': 4, 'salt-sauna': 5, 'bulgama': 6, 'ice-bath': 7, 'open-air-bath': 8, 'ice-room': 9 }
 const byTempOrder = (a: string, b: string) => (TEMP_ORDER[a] ?? 99) - (TEMP_ORDER[b] ?? 99)
 const PRICE_BLOCKS = new Set(['scrub', 'massage'])
 const MEMO_BLOCKS = new Set(['snack', 'restaurant'])
@@ -385,20 +385,20 @@ export default function LogPage() {
     const sel = isPicked(catalogId)
     const sz = small ? 46 : 54
     return (
-      <button type="button" onClick={() => togglePick(catalogId)} className="flex flex-col items-center gap-1.5 shrink-0 relative transition-transform active:scale-90" style={{ width: small ? 50 : undefined }}>
+      <button type="button" onClick={() => togglePick(catalogId)} className="flex flex-col items-center gap-1.5 shrink-0 relative transition-transform active:scale-90 px-0.5">
         {sel && <span className="absolute -top-1 right-0 w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shadow z-10" style={{ background: T.card, color: T.primary }}>{seqOf(catalogId)}</span>}
         <span className={`rounded-full flex items-center justify-center relative ${sel ? 'shadow-md' : ''}`} style={{ width: sz, height: sz, background: sel ? T.primary : T.slot }}>
           {sel && <span className="absolute rounded-full pointer-events-none" style={{ inset: 5, border: `2px solid ${T.card}` }} />}
           <span className="material-symbols-outlined" style={{ fontSize: 24, color: sel ? T.card : undefined }}>{d.icon}</span>
         </span>
-        <span className="text-[11px] font-semibold" style={sel ? { color: T.primary } : undefined}>{d.label}</span>
+        <span className="text-[11px] font-semibold whitespace-nowrap" style={sel ? { color: T.primary } : undefined}>{d.label}</span>
       </button>
     )
   }
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header ref={headerRef} className="relative text-white text-center px-7 pt-12 pb-6" style={{ background: tribeColor }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-10 pb-5" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -497,6 +497,11 @@ export default function LogPage() {
             <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
             <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
           </div>
+          {picked.length > 0 && (
+            <div className="flex justify-end">
+              <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
+            </div>
+          )}
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
           {moreOpen && (
             <div className="space-y-2.5">
@@ -506,15 +511,10 @@ export default function LogPage() {
                 return (
                   <div key={cat} className="flex items-center gap-2">
                     <div className="flex flex-col items-center gap-0.5 w-11 shrink-0"><span className="material-symbols-outlined text-stone-500" style={{ fontSize: 18 }}>{meta.icon}</span><span className="text-[9px] font-bold text-stone-500">{meta.label}</span></div>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar py-1 pr-1" style={{ WebkitMaskImage: 'linear-gradient(to right, #000 86%, transparent)', maskImage: 'linear-gradient(to right, #000 86%, transparent)' }}>{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
+                    <div className="flex-1 min-w-0 flex gap-2 overflow-x-auto no-scrollbar py-1 pr-1" style={{ WebkitMaskImage: 'linear-gradient(to right, #000 90%, transparent)', maskImage: 'linear-gradient(to right, #000 90%, transparent)' }}>{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
                   </div>
                 )
               })}
-            </div>
-          )}
-          {picked.length > 0 && (
-            <div className="flex justify-end">
-              <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
             </div>
           )}
         </section>
@@ -623,7 +623,10 @@ export default function LogPage() {
         <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
-          <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+          <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+            <span className="text-[13px] font-bold text-stone-700 pt-1.5">메모</span>
+            <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+          </div>
         </section>
 
         {/* 더 자세히 */}
