@@ -249,16 +249,14 @@ input[type="range"]::-moz-range-thumb {
   .sachek-nudge { animation: none; }
 }
 
-/* 사-첵 완료 버튼(활성) — 매우 간헐적 팝으로 "누를 수 있음" 시그널 (6초마다 짧게) */
-@keyframes fab-pulse {
-  0%, 88%, 100% { transform: scale(1); }
-  91% { transform: scale(1.08); }
-  94% { transform: scale(0.97); }
-  97% { transform: scale(1.02); }
+/* 사-첵 완료 버튼(활성) — 매우 간헐적·담백한 단일 팝(바운스 X). 버튼의 틸트/위치 transform 포함 */
+@keyframes fab-pop {
+  0%, 90%, 100% { transform: translate(62px, -15px) rotate(-15deg) scale(1); }
+  95% { transform: translate(62px, -15px) rotate(-15deg) scale(1.07); }
 }
-.fab-pulse { animation: fab-pulse 6s ease-in-out infinite; transform-origin: center; }
+.fab-pop { animation: fab-pop 6s ease-in-out infinite; transform-origin: center; }
 @media (prefers-reduced-motion: reduce) {
-  .fab-pulse { animation: none; }
+  .fab-pop { animation: none; }
 }
 
 /* 홈 사-첵 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(1회) 후 수납 */

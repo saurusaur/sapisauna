@@ -710,11 +710,11 @@ export default function LogPage() {
             onClick={() => { void handleSave() }}
             disabled={!canSave}
             aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-            className={`w-[150px] h-[150px] rounded-full overflow-hidden rotate-[-15deg] translate-x-[62px] -translate-y-[15px] transition-all ${canSave ? 'active:scale-95' : 'grayscale opacity-40'}`}
-            style={{ boxShadow: canSave ? '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' : 'none' }}
+            className={`w-[150px] h-[150px] rounded-full overflow-hidden transition-all ${canSave ? 'fab-pop' : 'grayscale opacity-30'}`}
+            style={{ transform: 'translate(62px, -15px) rotate(-15deg)', boxShadow: canSave ? '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' : 'none' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo/sapi-chek-logo.svg" alt="" className={`block w-full h-full ${canSave ? 'fab-pulse' : ''}`} />
+            <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
           </button>
         </div>
       </main>
