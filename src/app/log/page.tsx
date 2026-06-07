@@ -143,7 +143,6 @@ export default function LogPage() {
   // 순서변경 (포인터 드래그)
   const dragInfo = useRef<{ idx: number; x: number; y: number; moved: boolean } | null>(null)
   const [dragIdx, setDragIdx] = useState<number | null>(null)
-  const [dropIdx, setDropIdx] = useState<number | null>(null)
   const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)  // 손가락 따라오는 고스트 위치
 
   // 날짜·시간
@@ -245,7 +244,7 @@ export default function LogPage() {
   const isPicked = (catalogId: string) => picked.some(p => p.catalogId === catalogId)
   const seqOf = (catalogId: string) => picked.findIndex(p => p.catalogId === catalogId) + 1
   const updatePicked = (i: number, patch: Partial<Picked>) => setPicked(prev => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
-  // 노드 포인터 드래그 = 순서변경 (이동 없으면 탭 = 반복제외). 모바일 터치 지원.
+  // 노드 포인터 드래그 = 순서변경(라이브 리오더: 손가락 위 행으로 즉시 이동). 이동 없으면 탭=반복제외. 모바일 터치 지원.
   const nodePointerDown = (i: number) => (e: React.PointerEvent) => {
     dragInfo.current = { idx: i, x: e.clientX, y: e.clientY, moved: false }
     try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId) } catch { /* noop */ }
@@ -257,20 +256,24 @@ export default function LogPage() {
     if (!info.moved) return
     setDragPos({ x: e.clientX, y: e.clientY })  // 고스트가 손가락 따라옴
     const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest('[data-rrow]') as HTMLElement | null
-    if (el) { setDropIdx(Number(el.dataset.rrow)); return }
-    // 마지막 행보다 아래면 맨 끝으로
-    const last = document.querySelector(`[data-rrow="${picked.length - 1}"]`)
-    if (last && e.clientY > last.getBoundingClientRect().bottom) setDropIdx(picked.length)
-    else setDropIdx(null)
+    let target = el ? Number(el.dataset.rrow) : null
+    if (target == null) {  // 마지막 행보다 아래면 맨 끝으로
+      const last = document.querySelector(`[data-rrow="${picked.length - 1}"]`)
+      if (last && e.clientY > last.getBoundingClientRect().bottom) target = picked.length - 1
+    }
+    // 손가락 위 행으로 즉시 이동(미리 이동된 상태로 보임). 이동 후 손가락은 그 항목 위 → 오실레이션 없음
+    if (target != null && target !== info.idx) {
+      const from = info.idx
+      setPicked(prev => { const arr = [...prev]; const [it] = arr.splice(from, 1); arr.splice(target as number, 0, it); return arr })
+      info.idx = target
+      setDragIdx(target)
+    }
   }
   const nodePointerUp = (i: number) => (e: React.PointerEvent) => {
     const info = dragInfo.current
     try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId) } catch { /* noop */ }
-    if (info && !info.moved) updatePicked(i, { norepeat: !picked[i].norepeat })
-    else if (info && dropIdx != null && dropIdx !== i) {
-      setPicked(prev => { const arr = [...prev]; const [it] = arr.splice(i, 1); arr.splice(dropIdx > i ? dropIdx - 1 : dropIdx, 0, it); return arr })
-    }
-    dragInfo.current = null; setDragIdx(null); setDropIdx(null); setDragPos(null)
+    if (info && !info.moved) updatePicked(info.idx, { norepeat: !picked[info.idx].norepeat })
+    dragInfo.current = null; setDragIdx(null); setDragPos(null)
   }
   const bothSauna = isPicked('dry-sauna') && isPicked('steam-sauna')
   // 주 이용 사우나 선택은 '온도를 둘 다 입력했을 때'만 의미 있음 → 그때만 노출·필수
@@ -398,7 +401,7 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header ref={headerRef} className="relative text-white text-center px-7 pt-10 pb-5" style={{ background: tribeColor }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-12 pb-2" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -485,8 +488,8 @@ export default function LogPage() {
           })()}
         </div>
         {/* 바닥 곡선 — 홈 상단과 동일(가운데가 볼록한 타원 느낌) */}
-        <svg viewBox="0 0 393 34" preserveAspectRatio="none" className="absolute left-0 right-0 w-full h-[34px] pointer-events-none" style={{ top: '100%', marginTop: -1 }} aria-hidden>
-          <path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill={tribeColor} />
+        <svg viewBox="0 0 393 24" preserveAspectRatio="none" className="absolute left-0 right-0 w-full h-[24px] pointer-events-none" style={{ top: '100%', marginTop: -1 }} aria-hidden>
+          <path d="M0,0 H393 V8 C300,21 110,21 0,11 Z" fill={tribeColor} />
         </svg>
       </header>
 
@@ -495,13 +498,11 @@ export default function LogPage() {
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
             <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
-            <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
-          </div>
-          {picked.length > 0 && (
-            <div className="flex justify-end">
-              <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
+            <div className="flex items-center gap-2 shrink-0">
+              {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
+              <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
             </div>
-          )}
+          </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
           {moreOpen && (
             <div className="space-y-2.5">
@@ -511,7 +512,7 @@ export default function LogPage() {
                 return (
                   <div key={cat} className="flex items-center gap-2">
                     <div className="flex flex-col items-center gap-0.5 w-11 shrink-0"><span className="material-symbols-outlined text-stone-500" style={{ fontSize: 18 }}>{meta.icon}</span><span className="text-[9px] font-bold text-stone-500">{meta.label}</span></div>
-                    <div className="flex-1 min-w-0 flex gap-2 overflow-x-auto no-scrollbar py-1 pr-1" style={{ WebkitMaskImage: 'linear-gradient(to right, #000 90%, transparent)', maskImage: 'linear-gradient(to right, #000 90%, transparent)' }}>{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
+                    <div className="flex-1 min-w-0 flex gap-2 overflow-x-auto no-scrollbar py-1 pr-1" style={{ WebkitMaskImage: 'linear-gradient(to right, #000 72%, transparent)', maskImage: 'linear-gradient(to right, #000 72%, transparent)' }}>{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
                   </div>
                 )
               })}
@@ -544,16 +545,12 @@ export default function LogPage() {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
                   const isOther = d.blockType === 'other'
-                  const showDrop = dropIdx === i && dragIdx != null && dragIdx !== i
-                  const showDropEnd = dropIdx === picked.length && i === picked.length - 1 && dragIdx != null && dragIdx !== i
                   return (
-                    <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-30' : ''}`} style={{ gridTemplateColumns: '52px 1fr 86px' }}>
-                      {showDrop && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ top: -10, background: T.primary }} />}
-                      {showDropEnd && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ bottom: -12, background: T.primary }} />}
+                    <div key={i} data-rrow={i} className={`grid items-center gap-2 relative transition-opacity ${dragIdx === i ? 'opacity-40' : ''}`} style={{ gridTemplateColumns: '52px 1fr 86px' }}>
                       {/* 노드(아이콘+한글 라벨 내부) + 연결선(진한 빨강) */}
-                      <div className="relative flex items-center justify-center" style={{ height: 48 }}>
+                      <div className="relative flex items-center justify-center" style={{ height: 44 }}>
                         {i < picked.length - 1 && <span className="absolute" style={{ width: 4, top: '100%', height: 10, left: '50%', transform: 'translateX(-50%)', borderRadius: 2, background: T.primary }} />}
-                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=1회 / 끌어서 순서" className={`w-12 h-12 rounded-full flex flex-col items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
+                        <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=1회 / 끌어서 순서" className={`w-11 h-11 rounded-full flex flex-col items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{d.icon}</span>
                           <span className="text-[9px] font-bold leading-none mt-0.5 px-0.5 text-center" style={{ maxWidth: 46 }}>{d.label}</span>
                         </span>
@@ -585,8 +582,8 @@ export default function LogPage() {
                 {/* 반복 세트 행 — 위 리추얼과 동일한 빨강 노드('반복', 이동 불가) + 같은 줄 세트 카운터 + 오른쪽 조작 범례 */}
                 {picked.length > 1 && picked.some(p => !p.norepeat) && (
                   <div className="grid items-center gap-2 mt-1 pt-4" style={{ gridTemplateColumns: '52px 1fr', borderTop: `1px dashed ${T.slot2}` }}>
-                    <div className="relative flex items-center justify-center" style={{ height: 48 }}>
-                      <span className="w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-md relative z-10" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 17 }}>repeat</span><span className="text-[9px] font-bold leading-none mt-0.5">루틴</span></span>
+                    <div className="relative flex items-center justify-center" style={{ height: 44 }}>
+                      <span className="w-11 h-11 rounded-full flex flex-col items-center justify-center shadow-md relative z-10" style={{ background: T.primary, color: T.card }}><span className="material-symbols-outlined" style={{ fontSize: 17 }}>repeat</span><span className="text-[9px] font-bold leading-none mt-0.5">루틴</span></span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -716,7 +713,7 @@ export default function LogPage() {
       {/* 드래그 고스트 — 손가락(포인터)을 실제로 따라오는 노드 */}
       {dragIdx != null && dragPos && picked[dragIdx] && (
         <div className="fixed z-50 pointer-events-none" style={{ left: dragPos.x, top: dragPos.y, transform: 'translate(-50%,-50%) scale(1.1)' }}>
-          <span className="w-12 h-12 rounded-full flex flex-col items-center justify-center shadow-lg" style={{ background: T.primary, color: T.card }}>
+          <span className="w-11 h-11 rounded-full flex flex-col items-center justify-center shadow-lg" style={{ background: T.primary, color: T.card }}>
             <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].icon}</span>
             <span className="text-[9px] font-bold leading-none mt-0.5">{BLOCK_TYPE_MAP[picked[dragIdx].catalogId].label}</span>
           </span>
