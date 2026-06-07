@@ -87,8 +87,8 @@ export function Slider({
     }
     // 라벨 있음(수질/또갈래요/청결도): 라벨 | [씰(칸 채움) + 단어(우측 끝, 폭 고정·2줄 고정 박스 → 줄바꿈해도 행 안 밀림)]
     return (
-      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
-        <span className="text-xs font-bold text-stone-700">{label}</span>
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+        <span className="text-[13px] font-bold text-stone-700 whitespace-nowrap">{label}</span>
         <div className="flex items-center gap-2 min-w-0">
           {sealBtns()}
           <span className="text-[10px] font-bold shrink-0 flex items-center justify-end text-right" style={{ width: 50, height: 26, lineHeight: '12px', wordBreak: 'keep-all', color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : ''}</span>

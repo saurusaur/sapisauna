@@ -307,7 +307,7 @@ export default function LogPage() {
     record_date: buildRecordDate(),
     revisit_score: revisit,
     bath_gender: effectiveBath,
-    primary_sauna_kind: bothSauna ? (primarySaunaKind ?? 'dry') : null,
+    primary_sauna_kind: bothSauna ? primarySaunaKind : null,
     totono_score: logType === 'saunner' ? quality : null,
     water_quality: logType === 'bather' ? quality : null,
     sweat_quality: logType === 'jimi' ? quality : null,
@@ -335,6 +335,7 @@ export default function LogPage() {
   const handleSave = async () => {
     if (!placeId) { setSaveError('장소 정보가 없습니다.'); return }
     if (picked.length === 0) { setSaveError('활동을 하나 이상 선택해주세요.'); return }
+    if (bothSauna && !primarySaunaKind) { setSaveError('주로 이용한 사우나(건식/습식)를 선택해주세요.'); return }
     if (!revisit) { setSaveError('"또 갈래요?"를 입력해주세요.'); return }
     setIsSaving(true); setSaveError(null)
     try {
@@ -486,7 +487,7 @@ export default function LogPage() {
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-2">
               <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
-              {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-400 transition-transform active:scale-95"><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
+              {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
             </div>
             <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
           </div>
@@ -522,15 +523,15 @@ export default function LogPage() {
               <div className="flex-1 flex flex-wrap gap-1.5 items-center min-w-0">
                 {!routineDetail
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
-                  : <>
-                      <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 순서 변경</span>
-                      <button onClick={resetRoutine} className="ml-1 flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
-                    </>}
+                  : <span className="text-[11px] font-bold" style={{ color: T.primary }}>드래그로 순서 변경</span>}
               </div>
-              <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
-                <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
-                <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {routineDetail && <button onClick={resetRoutine} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
+                <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 transition-transform active:scale-95">
+                  <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
+                  <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
+                </button>
+              </div>
             </div>
 
             {routineDetail && (
@@ -615,20 +616,20 @@ export default function LogPage() {
 
         {/* 더 자세히 */}
         <section>
-          <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>더 자세히 기록하기</button>
+          <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
           {detailOpen && (
             <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
-                <span className="text-xs font-bold text-stone-700 pt-1.5">동행</span>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700 pt-1.5">동행</span>
                 <div className="flex flex-wrap gap-2">{DEEP_LOG.COMPANION.options.map(o => <button key={o.id} onClick={() => setCompanion(companion === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${companion === o.id ? 'shadow-md' : ''}`} style={companion === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
-                <span className="text-xs font-bold text-stone-700 pt-1.5">혼잡도</span>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700 pt-1.5">혼잡도</span>
                 <div className="flex flex-wrap gap-2">{DEEP_LOG.CROWD.options.map(o => <button key={o.id} onClick={() => setCrowd(crowd === o.id ? null : o.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${crowd === o.id ? 'shadow-md' : ''}`} style={crowd === o.id ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{o.label}</button>)}</div>
               </div>
-              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
-                <span className="text-xs font-bold text-stone-700">입장료</span>
+              <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700">입장료</span>
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative shrink-0" ref={currencyRef}>
                     <button onClick={() => { setShowCurrencyPicker(v => !v); setCurrencySearch('') }} className="rounded-lg px-2.5 py-2 flex items-center gap-0.5 text-sm font-semibold text-stone-700 transition-transform active:scale-95" style={{ background: T.slot }}>
@@ -655,8 +656,8 @@ export default function LogPage() {
                   <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
-              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
-                <span className="text-xs font-bold text-stone-700 pt-1.5">메모</span>
+              <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                <span className="text-[13px] font-bold text-stone-700 pt-1.5">메모</span>
                 <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
               </div>
 
@@ -668,8 +669,8 @@ export default function LogPage() {
                     {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).map(b => {
                       const t = facTemps[b.id] ?? null
                       return (
-                        <div key={b.id} className="grid items-center gap-3" style={{ gridTemplateColumns: '56px 1fr 24px' }}>
-                          <span className="text-xs font-bold text-stone-700">{b.label}</span>
+                        <div key={b.id} className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr 24px' }}>
+                          <span className="text-[13px] font-bold text-stone-700">{b.label}</span>
                           {t == null
                             ? <button onClick={() => setFacTemps(m => ({ ...m, [b.id]: Math.round((b.tempRange![0] + b.tempRange![1]) / 2) }))} className="h-11 rounded-xl w-full flex items-center px-3 text-sm font-semibold text-stone-400 transition-transform active:scale-[0.97]" style={{ background: T.slot }}>＋ 온도</button>
                             : <Slider variant="stamp" label="" value={t} min={b.tempRange![0]} max={b.tempRange![1]} unit="°C" steps={b.tempSteps ?? []} onChange={v => setFacTemps(m => ({ ...m, [b.id]: v }))} />}
@@ -689,7 +690,7 @@ export default function LogPage() {
         {saveError && <ErrorBanner message={saveError} />}
       </main>
 
-      <BottomCTA onClick={() => { void handleSave() }} disabled={isSaving || picked.length === 0 || !revisit}>
+      <BottomCTA onClick={() => { void handleSave() }} disabled={isSaving || picked.length === 0 || !revisit || (bothSauna && !primarySaunaKind)}>
         {isSaving ? '저장 중…' : editId ? '수정 완료' : '사-첵 완료'}
       </BottomCTA>
 
