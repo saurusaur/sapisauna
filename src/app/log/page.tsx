@@ -398,7 +398,7 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: '50% 64px', borderBottomRightRadius: '50% 64px' }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: 46, borderBottomRightRadius: 46 }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -490,10 +490,7 @@ export default function LogPage() {
         {/* 블록 선택 */}
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
-            <div className="flex items-baseline gap-2">
-              <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
-              {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
-            </div>
+            <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
             <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5 shrink-0" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
           </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
@@ -505,10 +502,15 @@ export default function LogPage() {
                 return (
                   <div key={cat} className="flex items-center gap-2">
                     <div className="flex flex-col items-center gap-0.5 w-11 shrink-0"><span className="material-symbols-outlined text-stone-500" style={{ fontSize: 18 }}>{meta.icon}</span><span className="text-[9px] font-bold text-stone-500">{meta.label}</span></div>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar py-1 pr-1" style={{ WebkitMaskImage: 'linear-gradient(to right, #000 86%, transparent)', maskImage: 'linear-gradient(to right, #000 86%, transparent)' }}>{ids.map(id => <BlockChip key={id} catalogId={id} small />)}</div>
                   </div>
                 )
               })}
+            </div>
+          )}
+          {picked.length > 0 && (
+            <div className="flex justify-end">
+              <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
             </div>
           )}
         </section>
@@ -531,7 +533,7 @@ export default function LogPage() {
             {routineDetail && (
               <div className="flex flex-col gap-2.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-stone-400">드래그로 순서 변경</span>
+                  <span className="text-[11px] font-bold text-stone-500">드래그로 순서 변경</span>
                   <button onClick={resetRoutine} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>
                 </div>
                 {picked.map((p, i) => {
@@ -603,7 +605,7 @@ export default function LogPage() {
                 )}
                 {/* 주 이용 사우나 — 건식·습식 온도 둘 다 입력했을 때만(필수) */}
                 {needPrimary && (
-                  <div className="flex items-center gap-2 text-sm pt-1">
+                  <div className="flex items-center gap-2 text-sm">
                     <span className="text-[13px] font-bold text-stone-700">{QUICK_LOG.SAUNER.PRIMARY_PROMPT}</span>
                     {(['dry', 'steam'] as const).map(k => <button key={k} onClick={() => setPrimarySaunaKind(k)} className={`px-3 py-1 rounded-full text-xs font-bold border text-stone-500 transition-transform active:scale-95 ${primarySaunaKind === k ? 'shadow-md' : ''}`} style={primarySaunaKind === k ? { background: T.primary, color: T.card, borderColor: 'transparent' } : { borderColor: T.slot2 }}>{k === 'dry' ? '건식' : '습식'}</button>)}
                   </div>
@@ -617,7 +619,7 @@ export default function LogPage() {
         <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
-          <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none mt-1" style={{ background: T.slot }} />
+          <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
         </section>
 
         {/* 더 자세히 */}
