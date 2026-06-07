@@ -429,7 +429,7 @@ export default function LogPage() {
           </div>
         </div>
 
-        <div className="font-bold text-xl mt-4 px-4 break-keep">{placeName}</div>
+        <div className="font-bold text-xl mt-[21px] px-4 break-keep">{placeName}</div>
 
         {/* 메타 + 작은 연필 */}
         <div className="inline-flex items-center justify-center gap-1.5 mt-1.5">
@@ -493,7 +493,7 @@ export default function LogPage() {
         </svg>
       </header>
 
-      <main className="px-5 pt-16 space-y-10">
+      <main className="px-5 pt-[54px] space-y-10">
         {/* 블록 선택 */}
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
