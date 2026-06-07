@@ -480,9 +480,9 @@ export default function LogPage() {
         </div>
       </header>
 
-      <main className="px-5 pt-4 space-y-6">
+      <main className="px-5 pt-5 space-y-10">
         {/* 블록 선택 */}
-        <section className="space-y-3">
+        <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-2">
               <h2 className="text-base font-bold text-stone-800">오늘 뭐 했나요?</h2>
@@ -492,7 +492,7 @@ export default function LogPage() {
           </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
           {moreOpen && (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {CATEGORY_ORDER.map(cat => {
                 const meta = BLOCK_CATEGORY_META[cat]
                 const ids = BLOCK_TYPES.filter(b => b.category === cat).map(b => b.id)
@@ -517,7 +517,7 @@ export default function LogPage() {
 
         {/* 내 루틴 토글 + 요약 */}
         {picked.length > 0 && (
-          <section className="space-y-3">
+          <section className="space-y-2.5">
             <div className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5" style={{ background: routineDetail ? T.card : T.slot }}>
               <div className="flex-1 flex flex-wrap gap-1.5 items-center min-w-0">
                 {!routineDetail
@@ -534,7 +534,7 @@ export default function LogPage() {
             </div>
 
             {routineDetail && (
-              <div className="flex flex-col gap-5 pt-1">
+              <div className="flex flex-col gap-2.5 pt-1">
                 {picked.map((p, i) => {
                   const d = BLOCK_TYPE_MAP[p.catalogId]
                   const evalSteps = REST_EVAL.has(d.blockType) ? REST_STEPS : (d.blockType === 'scrub' || d.blockType === 'massage') ? SCRUB_STEPS : MEMO_BLOCKS.has(d.blockType) ? STORE_STEPS : null
@@ -547,7 +547,7 @@ export default function LogPage() {
                       {showDropEnd && <span className="absolute left-0 right-0 h-0.5 rounded z-20" style={{ bottom: -12, background: T.primary }} />}
                       {/* 노드(아이콘+한글 라벨 내부) + 연결선(진한 빨강) */}
                       <div className="relative flex items-center justify-center" style={{ height: 48 }}>
-                        {i < picked.length - 1 && <span className="absolute" style={{ width: 3, top: '50%', height: 'calc(100% + 20px)', left: '50%', transform: 'translateX(-50%)', background: T.primary }} />}
+                        {i < picked.length - 1 && <span className="absolute" style={{ width: 4, top: '100%', height: 10, left: '50%', transform: 'translateX(-50%)', borderRadius: 2, background: T.primary }} />}
                         <span onPointerDown={nodePointerDown(i)} onPointerMove={nodePointerMove} onPointerUp={nodePointerUp(i)} title="탭=1회 / 끌어서 순서" className={`w-12 h-12 rounded-full flex flex-col items-center justify-center cursor-grab relative z-10 touch-none select-none transition-transform active:scale-95 ${p.norepeat ? '' : 'shadow-md'}`} style={{ background: p.norepeat ? T.card : T.primary, border: p.norepeat ? `2px dashed ${T.slot2}` : undefined, color: p.norepeat ? T.muted : T.card }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 17 }}>{d.icon}</span>
                           <span className="text-[9px] font-bold leading-none mt-0.5 px-0.5 text-center" style={{ maxWidth: 46 }}>{d.label}</span>
@@ -608,7 +608,7 @@ export default function LogPage() {
         )}
 
         {/* 평가 */}
-        <section className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
+        <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
         </section>
@@ -617,7 +617,7 @@ export default function LogPage() {
         <section>
           <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>더 자세히 기록하기</button>
           {detailOpen && (
-            <div className="space-y-4 rounded-2xl p-4" style={{ background: T.card }}>
+            <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
               <div className="grid items-start gap-3" style={{ gridTemplateColumns: '56px 1fr' }}>
                 <span className="text-xs font-bold text-stone-700 pt-1.5">동행</span>
