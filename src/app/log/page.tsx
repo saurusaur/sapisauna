@@ -398,7 +398,7 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-9" style={{ background: tribeColor, borderBottomLeftRadius: 46, borderBottomRightRadius: 46 }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-12 pb-6" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -484,9 +484,13 @@ export default function LogPage() {
             )
           })()}
         </div>
+        {/* 바닥 곡선 — 홈 상단과 동일(가운데가 볼록한 타원 느낌) */}
+        <svg viewBox="0 0 393 34" preserveAspectRatio="none" className="absolute left-0 right-0 w-full h-[34px] pointer-events-none" style={{ top: '100%', marginTop: -1 }} aria-hidden>
+          <path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill={tribeColor} />
+        </svg>
       </header>
 
-      <main className="px-5 pt-5 space-y-10">
+      <main className="px-5 pt-8 space-y-10">
         {/* 블록 선택 */}
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
