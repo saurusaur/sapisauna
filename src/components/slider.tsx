@@ -68,7 +68,7 @@ export function Slider({
     const sealBtns = () => (
       <div className={`flex items-center flex-1 min-w-0 ${inactive ? 'opacity-50' : ''}`}>
         {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="flex-1 flex items-center justify-center py-2.5 transition-transform active:scale-90">
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="flex-1 flex items-center justify-center py-1.5 transition-transform active:scale-90">
             <span className={`rounded-full relative shrink-0 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: cs, height: cs, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
               {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
             </span>

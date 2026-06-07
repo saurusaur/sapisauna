@@ -592,8 +592,8 @@ export default function LogPage() {
                         <button onClick={() => setRepeat(r => r + 1)} className="w-7 h-7 rounded-full text-base transition-transform active:scale-90" style={{ background: T.slot }}>＋</button>
                         <span className="text-xs font-bold text-stone-500">세트</span>
                       </div>
-                      {/* 조작 범례 — 빨강 '반복' 원 → '탭' 화살표 → 점선 '1회' 원 */}
-                      <div className="flex items-center gap-1 shrink-0">
+                      {/* 조작 범례(가이드) — 얇은 테두리 박스 */}
+                      <div className="flex items-center gap-1 shrink-0 rounded-xl border border-stone-300 px-2 py-1">
                         <span className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: T.primary, color: T.card }}>루틴</span>
                         <div className="flex flex-col items-center leading-none">
                           <span className="text-xs font-bold text-stone-500">탭</span>
