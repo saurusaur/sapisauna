@@ -401,7 +401,7 @@ export default function LogPage() {
   return (
     <div className="min-h-dvh pb-28 bath-tile-bg">
       {/* 페르소나 돔 — 트라이브 컬러 영역에 사우나명·시간·탕까지 중앙정렬 */}
-      <header ref={headerRef} className="relative text-white text-center px-7 pt-12 pb-2" style={{ background: tribeColor }}>
+      <header ref={headerRef} className="relative text-white text-center px-7 pt-14 pb-2" style={{ background: tribeColor }}>
         <button onClick={() => setShowBackConfirm(true)} className="absolute left-3 top-3 w-9 h-9 flex items-center justify-center z-10"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="text-[10px] tracking-[0.2em] font-bold opacity-85">LOGGING AS</div>
 
@@ -622,7 +622,7 @@ export default function LogPage() {
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
           <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
             <span className="text-[13px] font-bold text-stone-700 pt-1.5">메모</span>
-            <textarea placeholder="오늘 사우나는 어떠셨나요? (선택)" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+            <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
           </div>
         </section>
 
