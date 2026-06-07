@@ -283,6 +283,11 @@ export default function LogPage() {
     const el = e.currentTarget
     setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
   }
+  // 토글로 패널 열 때 그 토글을 화면 상단 쪽으로 스크롤(펼친 내용이 잘 보이게). open=true일 때만
+  const scrollToToggle = (el: HTMLElement, willOpen: boolean) => {
+    if (!willOpen) return
+    setTimeout(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' }), 120)
+  }
 
   // 루틴 입력값(온도·시간·평가·가격·메모·세트) 한 번에 초기화 — 개별 × 대신
   const resetRoutine = () => {
@@ -499,7 +504,7 @@ export default function LogPage() {
             <h2 className="text-base font-bold text-stone-800">오늘 어떻게 즐겼나요?</h2>
             <div className="flex items-center gap-2 shrink-0">
               {picked.length > 0 && <button onClick={resetBlocks} className="flex items-center gap-0.5 text-[11px] font-bold text-stone-500 rounded-full px-2 py-0.5 transition-transform active:scale-95" style={{ background: T.slot }}><span className="material-symbols-outlined" style={{ fontSize: 13 }}>restart_alt</span>초기화</button>}
-              <button onClick={() => setMoreOpen(o => !o)} className="text-xs font-bold flex items-center gap-0.5" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
+              <button onClick={(e) => { const willOpen = !moreOpen; const sec = e.currentTarget.closest('section') as HTMLElement | null; setMoreOpen(willOpen); scrollToToggle(sec ?? e.currentTarget, willOpen) }} className="text-xs font-bold flex items-center gap-0.5 scroll-mt-4" style={{ color: T.primary }}>{moreOpen ? '접기' : '활동 전체보기'}<span className="material-symbols-outlined" style={{ fontSize: 16, transform: moreOpen ? 'rotate(180deg)' : undefined }}>expand_more</span></button>
             </div>
           </div>
           {!moreOpen && <div className="flex justify-between">{TRIBE_DEFAULT_BLOCKS[logType].map(id => <BlockChip key={id} catalogId={id} />)}</div>}
@@ -528,7 +533,7 @@ export default function LogPage() {
                   ? picked.map((p, i) => <span key={i} className="rounded-full px-2.5 py-1 text-xs font-bold text-stone-700" style={{ background: T.card }}>{BLOCK_TYPE_MAP[p.catalogId].label}</span>)
                   : <span className="text-[11px] font-bold" style={{ color: T.primary }}>오늘의 루틴을 기록해보세요</span>}
               </div>
-              <button onClick={() => setRoutineDetail(v => !v)} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95">
+              <button onClick={(e) => { const willOpen = !routineDetail; const sec = e.currentTarget.closest('section') as HTMLElement | null; setRoutineDetail(willOpen); scrollToToggle(sec ?? e.currentTarget, willOpen) }} className="flex items-center gap-2 shrink-0 transition-transform active:scale-95 scroll-mt-4">
                 <span className="text-[11px] font-bold" style={routineDetail ? { color: T.primary } : undefined}>온도·시간 기록하기</span>
                 <span className="w-10 h-6 rounded-full relative transition-colors" style={{ background: routineDetail ? T.primary : T.slot2 }}><span className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: routineDetail ? 22 : 2, background: T.card }} /></span>
               </button>
@@ -627,7 +632,7 @@ export default function LogPage() {
 
         {/* 더 자세히 */}
         <section>
-          <button onClick={() => setDetailOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
+          <button onClick={(e) => { const willOpen = !detailOpen; setDetailOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-center gap-1 text-sm font-semibold py-2 text-stone-500 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 17 }}>{detailOpen ? 'expand_less' : 'expand_more'}</span>(선택) 더 자세히 기록하실래요?</button>
           {detailOpen && (
             <div className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
               <Slider variant="seal" label="청결도" value={cleanliness} min={1} max={5} steps={CLEAN_STEPS} onChange={setCleanliness} />
@@ -670,7 +675,7 @@ export default function LogPage() {
 
               {/* 시설 온도 (선택) — 루틴에 온도 입력 안 한 시설만, 온도만 기록 */}
               <div className="pt-1" style={{ borderTop: `1px solid ${T.slot}` }}>
-                <button onClick={() => setFacTempOpen(o => !o)} className="w-full flex items-center justify-center gap-1 text-xs font-bold text-stone-500 pt-3"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가</button>
+                <button onClick={(e) => { const willOpen = !facTempOpen; setFacTempOpen(willOpen); scrollToToggle(e.currentTarget, willOpen) }} className="w-full flex items-center justify-center gap-1 text-xs font-bold text-stone-500 pt-3 scroll-mt-4"><span className="material-symbols-outlined" style={{ fontSize: 15 }}>{facTempOpen ? 'expand_less' : 'expand_more'}</span>시설 온도 추가</button>
                 {facTempOpen && (
                   <div className="mt-2.5 space-y-2.5">
                     {BLOCK_TYPES.filter(b => b.tempRange && !isPicked(b.id)).sort((a, b) => byTempOrder(a.id, b.id)).map(b => {
@@ -705,9 +710,10 @@ export default function LogPage() {
             type="button"
             onClick={() => { void handleSave() }}
             disabled={disabled}
+            aria-hidden={disabled}
             aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-            className={`fixed left-1/2 -translate-x-1/2 bottom-6 z-40 w-[134px] h-[134px] rounded-full overflow-hidden transition-all rotate-[15deg] ${disabled ? 'grayscale' : 'active:scale-95'}`}
-            style={{ boxShadow: disabled ? '0 8px 18px -10px rgba(0,0,0,0.18)' : '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
+            className={`fixed left-[calc(50%+36px)] -translate-x-1/2 bottom-6 z-40 w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${disabled ? 'opacity-0 translate-y-10 pointer-events-none' : 'opacity-100 active:scale-95'}`}
+            style={{ boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
