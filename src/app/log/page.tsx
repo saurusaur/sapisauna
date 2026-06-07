@@ -277,6 +277,14 @@ export default function LogPage() {
   const bothSauna = isPicked('dry-sauna') && isPicked('steam-sauna')
   // 주 이용 사우나 선택은 '온도를 둘 다 입력했을 때'만 의미 있음 → 그때만 노출·필수
   const needPrimary = bothSauna && picked.find(p => p.catalogId === 'dry-sauna')?.temp != null && picked.find(p => p.catalogId === 'steam-sauna')?.temp != null
+  // 사-첵 완료(FAB) 활성 조건
+  const canSave = !isSaving && picked.length > 0 && !!revisit && !(needPrimary && !primarySaunaKind)
+  // FAB가 막 등장할 때 하단 내용이 버튼에 가리지 않도록 살짝 스크롤
+  const prevCanSave = useRef(false)
+  useEffect(() => {
+    if (canSave && !prevCanSave.current) setTimeout(() => window.scrollBy({ top: 170, behavior: 'smooth' }), 330)
+    prevCanSave.current = canSave
+  }, [canSave])
 
   // 모바일: 입력창 포커스 시 키보드에 가리지 않도록 화면 가운데로 스크롤(키보드 애니메이션 후)
   const scrollIntoCenter = (e: React.FocusEvent<HTMLElement>) => {
@@ -286,7 +294,7 @@ export default function LogPage() {
   // 토글로 패널 열 때 그 토글을 화면 상단 쪽으로 스크롤(펼친 내용이 잘 보이게). open=true일 때만
   const scrollToToggle = (el: HTMLElement, willOpen: boolean) => {
     if (!willOpen) return
-    setTimeout(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' }), 120)
+    setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 120)
   }
 
   // 루틴 입력값(온도·시간·평가·가격·메모·세트) 한 번에 초기화 — 개별 × 대신
@@ -624,9 +632,9 @@ export default function LogPage() {
         <section className="space-y-2.5 rounded-2xl p-4" style={{ background: T.card }}>
           <Slider variant="seal" label={QUALITY[logType].label} value={quality} min={1} max={5} steps={QUALITY[logType].steps} onChange={setQuality} />
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
-          <div className="grid items-start gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
-            <span className="text-[13px] font-bold text-stone-700 pt-1.5">메모</span>
-            <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-16 resize-none" style={{ background: T.slot }} />
+          <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+            <span className="text-[13px] font-bold text-stone-700">메모</span>
+            <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-12 resize-none" style={{ background: T.slot }} />
           </div>
         </section>
 
@@ -703,23 +711,18 @@ export default function LogPage() {
       </main>
 
       {/* 사-첵 완료 — 홈 사첵 로고 버튼을 플로팅으로. 비활성=무색(grayscale), 활성=레드 */}
-      {(() => {
-        const disabled = isSaving || picked.length === 0 || !revisit || (needPrimary && !primarySaunaKind)
-        return (
-          <button
-            type="button"
-            onClick={() => { void handleSave() }}
-            disabled={disabled}
-            aria-hidden={disabled}
-            aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
-            className={`fixed left-[calc(50%+36px)] -translate-x-1/2 bottom-6 z-40 w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${disabled ? 'opacity-0 translate-y-10 pointer-events-none' : 'opacity-100 active:scale-95'}`}
-            style={{ boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
-          </button>
-        )
-      })()}
+      <button
+        type="button"
+        onClick={() => { void handleSave() }}
+        disabled={!canSave}
+        aria-hidden={!canSave}
+        aria-label={isSaving ? '저장 중' : editId ? '수정 완료' : '사-첵 완료'}
+        className={`fixed left-[calc(50%+36px)] -translate-x-1/2 bottom-6 z-40 w-[134px] h-[134px] rounded-full overflow-hidden rotate-[15deg] transition-all duration-300 ${canSave ? 'opacity-100 active:scale-95' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+        style={{ boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)' }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo/sapi-chek-logo.svg" alt="" className="block w-full h-full" />
+      </button>
 
       {showBackConfirm && (
         <ConfirmModal
