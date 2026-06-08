@@ -22,7 +22,7 @@ import SteamCardReveal from '@/components/features/steam-card-reveal'
 import type { RewardResult } from '@/types'
 import SaunnerGraph from '@/components/svg/saunner-graph'
 import BatherGraph from '@/components/svg/bather-graph'
-import { getPrimaryTempDelta, getPrimarySaunaTemp } from '@/lib/sauna-temp-helpers'
+import { getPrimaryTempDelta, getPrimarySaunaTemp, getJimiHeadlineTemp } from '@/lib/sauna-temp-helpers'
 
 // 요일 약어
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
@@ -141,18 +141,18 @@ export default function Story() {
         placeName: log.place_name,
         date: log.date,
         bgPhoto,
-        saunaTemp: log.sauna_temp,
+        saunaTemp: log.dry_sauna_temp ?? log.sauna_temp,
         steamSaunaTemp: log.steam_sauna_temp,
         primarySaunaKind: log.primary_sauna_kind,
         coldBathTemp: log.cold_bath_temp,
         hotBathTemp: log.hot_bath_temp,
-        jjimTemp: log.jjim_temp,
+        jjimTemp: getJimiHeadlineTemp(log) ?? undefined,
         totono_score: log.totono_score,
         waterQuality: log.water_quality,
         sweatQuality: log.sweat_quality,
         heatTime: log.heat_time,
         iceTime: log.ice_time,
-        pauseTime: log.pause_time,
+        pauseTime: log.rest_time,
         repeat: log.repeat,
         userNickname: log.user_nickname,
         userTitle: log.user_title,
@@ -209,7 +209,7 @@ export default function Story() {
       case 'bather':
         return { value: String(log.hot_bath_temp || 40), unit: '°C', label: 'BATH TEMP' }
       case 'jimi': {
-        const temp = log.jjim_temp
+        const temp = getJimiHeadlineTemp(log)
         return temp
           ? { value: String(temp), unit: '°C', label: 'JJIMJIL TEMP' }
           : { value: '—', unit: '', label: 'JJIMJIL TEMP' }
@@ -224,7 +224,7 @@ export default function Story() {
     if (log.tribe_id === 'jimi') {
       return [
         { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
-        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.rest_time || null, label: 'PAUSE', suffix: 'm' },
         { value: log.repeat || null, label: 'RPT', suffix: 'set' },
         { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
@@ -232,7 +232,7 @@ export default function Story() {
     return [
       { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
       { value: log.ice_time || null, label: 'ICE', suffix: 's' },
-      { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+      { value: log.rest_time || null, label: 'PAUSE', suffix: 'm' },
       { value: log.repeat || null, label: 'RPT', suffix: 'set' },
     ]
   }

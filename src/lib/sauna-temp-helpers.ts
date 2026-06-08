@@ -24,6 +24,8 @@ export interface PrimarySaunaTemp {
 }
 
 interface SaunaInputs {
+  /** 신규 캐시 컬럼 (029 블록 평탄화). 레거시 sauna_temp는 폴백 */
+  dry_sauna_temp?: number | null
   sauna_temp?: number | null
   steam_sauna_temp?: number | null
   primary_sauna_kind?: SaunaKind | null
@@ -40,7 +42,8 @@ interface SaunaInputs {
  * fallback은 마이그레이션 이전의 레거시 데이터나 사우나 미입력 로그를 안전하게 처리하기 위함.
  */
 export function getPrimarySaunaTemp(log: SaunaInputs): PrimarySaunaTemp | null {
-  const dry = log.sauna_temp
+  // 신규 캐시(dry_sauna_temp) 우선, 레거시(sauna_temp) 폴백
+  const dry = log.dry_sauna_temp ?? log.sauna_temp
   const steam = log.steam_sauna_temp
   const primary = log.primary_sauna_kind
 
@@ -87,4 +90,27 @@ export function getPrimaryTempDelta(
   if (primary == null) return null
   const cold = log.cold_bath_temp ?? 15
   return { delta: primary.value - cold, primary }
+}
+
+/**
+ * 찜질파(jimi) 스토리 카드 메인 온도.
+ *
+ * 구 모델의 jjim_temp가 블록 모델(029)에서 사라져, 입력된 "때면(사우나/한증막)
+ * 온도 중 최고값"을 대표 온도로 사용한다. 대상: 한증막·소금사우나·건식·습식.
+ * (탕 온도는 찜질 메트릭이 아니므로 제외)
+ * 하나도 없으면 null.
+ */
+export function getJimiHeadlineTemp(log: {
+  bulgama_temp?: number | null
+  salt_sauna_temp?: number | null
+  dry_sauna_temp?: number | null
+  steam_sauna_temp?: number | null
+}): number | null {
+  const temps = [
+    log.bulgama_temp,
+    log.salt_sauna_temp,
+    log.dry_sauna_temp,
+    log.steam_sauna_temp,
+  ].filter((t): t is number => t != null)
+  return temps.length ? Math.max(...temps) : null
 }
