@@ -872,7 +872,7 @@ export const MESSAGES = {
     HERO_SUBTITLE: "우리는 사우나 신인류",
     // 스탬프 카드
     STAMP_GUEST_NAME: "SA-PIEN",
-    STAMP_FILL_PROMPT: "나만의 사우나 도장판 채우기!",
+    STAMP_FILL_PROMPT: "좋은 사우나 방문하고 사우나템 모으기!",
     // 사-첵 포스트잇 CTA (문구 = PREFIX + SUFFIX, SUFFIX는 빨강 강조)
     CTA_PREFIX_RETURNING: "오늘도", // 로그인 + 기록 있음
     CTA_PREFIX_NEW: "사우나",       // 비로그인 · 신규(기록 0)

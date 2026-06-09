@@ -1,7 +1,7 @@
 {
-  "name": "사우나 로그",
-  "short_name": "사우나로그",
-  "description": "나만의 사우나 기록",
+  "name": "사-피",
+  "short_name": "사-피",
+  "description": "사우나 피플을 위한 기록, 공유, 발견",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -11,12 +11,20 @@
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
