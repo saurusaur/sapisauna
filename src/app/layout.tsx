@@ -30,13 +30,28 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sapisauna.vercel.app'),
   title: APP.NAME,
   description: APP.TAGLINE,
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: APP.NAME,
+    title: '사-피',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: '사-피',
+    title: '사-피',
+    description: '사우나 신인류를 위한 기록, 공유, 발견',
+    locale: 'ko_KR',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: '사-피 — 사우나 신인류를 위한 기록, 공유, 발견' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '사-피',
+    description: '사우나 신인류를 위한 기록, 공유, 발견',
+    images: ['/og-image.png'],
   },
 }
 
