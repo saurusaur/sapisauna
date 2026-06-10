@@ -489,12 +489,13 @@ export default function Story() {
             <div style={{ position: 'absolute', left: px(26), right: px(26), bottom: px(26) }}>
               {/* 우측(칭호·닉네임) 자간 .02em, 트라이브명(Oswald)은 .06em 유지 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.02em' }}>
-                <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), letterSpacing: '0.06em', color: INK }}>
+                <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), letterSpacing: '0.06em', fontStyle: 'italic', color: INK }}>
                   <span style={{ width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe] }} />
                   {TRIBE_EN[tribe]}
                 </span>
                 <span style={{ color: INK }}>
-                  {log.user_title && <span style={{ fontWeight: 400 }}>{log.user_title} · </span>}
+                  {/* 한글 칭호가 영문 닉네임보다 미세하게 커 보여 -0.5px 보정 */}
+                  {log.user_title && <span style={{ fontWeight: 400, fontSize: px(10.5) }}>{log.user_title} · </span>}
                   <span style={{ fontWeight: 700 }}>{log.user_nickname || 'SA-PIEN'}</span>
                 </span>
               </div>
