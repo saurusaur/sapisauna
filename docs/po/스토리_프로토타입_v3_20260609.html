@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>스토리 프로토타입 v3.1 — 재배치 + 폴백 + 0610 결정 반영</title>
+<title>스토리 프로토타입 v3.2 — 히어로 130·레이아웃 하향 (page.tsx 반영 완료)</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -40,20 +40,20 @@
   .ink-m { color:rgba(28,25,23,.38); }
 
   /* 상단 코너: 좌=날짜, 우=메트릭 라벨 */
-  .top { position:absolute; left:26px; right:26px; top:28px; display:flex; justify-content:space-between; align-items:flex-start; }
+  .top { position:absolute; left:26px; right:26px; top:72px; display:flex; justify-content:space-between; align-items:flex-start; }
   .top .date { font-size:11px; font-weight:700; letter-spacing:.08em; }
   .top .metric { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; text-align:right; max-width:130px; }
 
   /* 히어로 대형 — ° 동그라미가 우측 모서리에 반쯤 잘리게 블리드 */
-  .hero-num { position:absolute; right:-6px; top:46px; font-weight:700; font-size:180px; line-height:.84; letter-spacing:-.03em;
+  .hero-num { position:absolute; right:-6px; top:96px; font-weight:700; font-size:130px; line-height:.84; letter-spacing:-.03em;
               background:linear-gradient(160deg,#3a3330 0%, #1c1917 55%); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero-num .u { font-size:49px; vertical-align:top; margin-left:2px; }
+  .hero-num .u { font-size:36px; vertical-align:top; margin-left:2px; }
 
   /* 좌중: 사우나명 — 루틴과 폰트 통일 (동일 family·weight) */
-  .place { position:absolute; left:26px; top:214px; font-weight:700; font-size:12.5px; line-height:1; letter-spacing:.01em; max-width:200px; }
+  .place { position:absolute; left:26px; top:230px; font-weight:700; font-size:12.5px; line-height:1; letter-spacing:.01em; max-width:200px; }
 
   /* 그 아래: 루틴 (활동 - 온도 - 시간) + 세트는 루틴 끝에 동일 스타일 */
-  .routine { position:absolute; left:26px; top:240px; right:26px; }
+  .routine { position:absolute; left:26px; top:256px; right:26px; }
   /* 칸 없이 인라인 흐름 — em-dash 글리프 구분 */
   .r-line { font-size:12.5px; letter-spacing:.01em; line-height:1.9; }
   .r-line .nm { font-weight:700; }
@@ -75,8 +75,8 @@
 
   /* 하단 */
   .foot { position:absolute; left:26px; right:26px; bottom:26px; }
-  .foot .big { font-size:32px; font-weight:700; line-height:.95; letter-spacing:-.01em; }
-  .foot .r2 { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; letter-spacing:.06em; margin-top:7px; }
+  .foot .big { font-size:22px; font-weight:700; line-height:.95; letter-spacing:-.01em; }
+  .foot .r2 { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; letter-spacing:.06em; margin-top:10px; }
   .dot { display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:middle; margin-right:7px; }
 
   /* 워터마크 — sauna-stamp 물결(steam) 마크, 엄청 연하게·작게 (닉네임 위 우측) */
@@ -84,7 +84,7 @@
   .watermark img { display:block; width:100%; height:auto; }
 
   /* 폴백: 물결 마크 히어로 */
-  .hero-steam { position:absolute; right:8px; top:46px; width:150px; opacity:.88; pointer-events:none; }
+  .hero-steam { position:absolute; right:8px; top:96px; width:120px; opacity:.88; pointer-events:none; }
   .hero-steam img { display:block; width:100%; height:auto; }
   /* 폴백: 날짜 타이포 히어로 */
   .hero-date { position:absolute; right:14px; top:54px; text-align:right; color:#1c1917; }
@@ -108,14 +108,14 @@
      · 사진 배경: 사진(blur 2px, saturate .55, scale 1.04) 위에 오로라 라디얼 강화(saunner .88/.52/.48)
        + 흰 베이스 linear만 반투명 rgba(253,246,240,.38)→rgba(255,255,255,.46)
      · 그레인: feTurbulence 타일(240px) opacity .07 multiply — 밴딩 방지
-     · 긴 루틴: 줄수(활동+세트) ≤6 기본 / 7~8 압축(11.5px·행간 1.58) /
-       >8 beyond 제외 → 그래도 넘으면 「+N 활동」(일반 굵기) 포함 8줄 컷. 점수줄 항상 보존
+     · 긴 루틴: 줄수(활동+세트) ≤6 기본 / 7 압축(11.5px·행간 1.58) /
+       >7 beyond 제외 → 그래도 넘으면 「+N 활동」(일반 굵기) 포함 7줄 컷. 점수줄 항상 보존
      · 목욕파 히어로: 온탕 우선, 루틴상 열탕 시간 더 길면 열탕. 라벨 BATH TEMP 유지
      · 총 체류시간 표시 안 함 */
 </style>
 </head>
 <body>
-  <h1>스토리 프로토타입 v3.1 — 재배치 (0610 결정 반영)</h1>
+  <h1>스토리 프로토타입 v3.2 — 히어로 130(top 96)·날짜 72·사우나명 230·트라이브명 22 (page.tsx 반영 완료)</h1>
   <div class="sub">요약줄=토토노우/또갈래요 점수 / 세트·사우나명 폰트 통일 / 물결(steam) 워터마크</div>
 
   <!-- 물결(steam) 워터마크 정의: 아래 .wm 템플릿을 각 카드에 인라인 -->

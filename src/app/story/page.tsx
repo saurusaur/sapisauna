@@ -6,12 +6,14 @@
  * 프리뷰: 기존 JSX 렌더링 (빠르고 정확)
  * 내보내기: Canvas에서 직접 렌더링 → PNG (서버 왕복 없음)
  *
- * v3 에디토리얼 디자인 (2026-06-09 확정) + v3.1 결정 (2026-06-10):
- *  - 초대형 블리드 히어로(°반잘림, 180px 공통) + 우상 메트릭 라벨 + 좌중 사우나명
+ * v3 에디토리얼 디자인 (2026-06-09 확정) + v3.1~v3.2 결정 (2026-06-10):
+ *  - 블리드 히어로(°반잘림, 130px 공통, top 96) + 우상 메트릭 라벨(top 72) + 좌중 사우나명(top 230)
+ *    — 라벨↔히어로 간격 = 사우나명↔루틴 간격(~13px)과 동일
  *  - 세로 루틴 타임라인(활동 — 온도 — 시간) + 세트(×N, 높이정렬 보정)
  *  - 오로라 그라데이션 + 그레인(밴딩 방지) + 물결(steam) 워터마크 + 트라이브 점색
  *  - 요약 점수 = 블랙 점 5개(채움/빈 원), 칭호(일반)·닉네임(bold) 잉크 통일
- *  - 긴 루틴: ≤6줄 기본 / 7~8줄 압축 / 초과 시 beyond 제외 → 「+N 활동」 8줄 컷
+ *  - 하단: 트라이브명 22px, SA-PI 줄과 간격 10px
+ *  - 긴 루틴: ≤6줄 기본 / 7줄 압축 / 초과 시 beyond 제외 → 「+N 활동」 7줄 컷
  *  - 사진 배경: 사진(블러·저채도) 위에 오로라 유지, 흰 베이스만 반투명(.38→.46)
  *  - 목욕파 히어로: 온탕 우선, 루틴상 열탕 시간이 더 길면 열탕
  *  - 온도 미입력(폴백): 물결 마크를 히어로로
@@ -317,17 +319,17 @@ export default function Story() {
   // 요약줄 점수 (트라이브 시그니처 품질)
   const nowScoreVal = tribe === 'saunner' ? log.totono_score : tribe === 'bather' ? log.water_quality : log.sweat_quality
 
-  // 루틴 타임라인 (블록 seq 순) + 오버플로 규칙 (2026-06-10 확정)
-  // 줄 수(활동+세트) 기준: ≤6 기본 / 7~8 압축(11.5px·행간 1.58) / >8 beyond 제외 → 그래도 넘으면 활동 + 「+N 활동」 + 세트 = 8줄 컷
+  // 루틴 타임라인 (블록 seq 순) + 오버플로 규칙 (2026-06-10 확정, v3.2: 레이아웃 하향으로 max 7줄)
+  // 줄 수(활동+세트) 기준: ≤6 기본 / 7 압축(11.5px·행간 1.58) / >7 beyond 제외 → 그래도 넘으면 활동 + 「+N 활동」 + 세트 = 7줄 컷
   const repeat = log.repeat ?? 0
   const setLine = repeat > 1 ? 1 : 0
   const allLines = (log.blocks ?? []).slice().sort((a, b) => a.seq - b.seq).map(blockLine)
   let routineLines = allLines
   let hiddenCount = 0
-  if (routineLines.length + setLine > 8) {
+  if (routineLines.length + setLine > 7) {
     routineLines = allLines.filter((ln) => !ln.beyond) // beyond(세신/매점 등) 우선 제외
-    if (routineLines.length + setLine > 8) {
-      const visible = 8 - setLine - 1 // 「+N 활동」 줄 포함 총 8줄
+    if (routineLines.length + setLine > 7) {
+      const visible = 7 - setLine - 1 // 「+N 활동」 줄 포함 총 7줄
       hiddenCount = allLines.length - visible // 숨김 = 전체 - 표시 (beyond 포함)
       routineLines = routineLines.slice(0, visible)
     }
@@ -396,8 +398,8 @@ export default function Story() {
               }}
             />
 
-            {/* 상단: 좌=날짜 / 우=메트릭 라벨 */}
-            <div style={{ position: 'absolute', left: px(26), right: px(26), top: px(28), display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            {/* 상단: 좌=날짜 / 우=메트릭 라벨 (v3.2: 히어로와 함께 하향, 라벨↔히어로 ~13px) */}
+            <div style={{ position: 'absolute', left: px(26), right: px(26), top: px(72), display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.08em', color: INK }}>{formatTopDate()}</span>
               <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'right', color: INK, maxWidth: px(130) }}>
                 {fallbackHero ? '' : METRIC_LABEL[tribe]}
@@ -407,29 +409,29 @@ export default function Story() {
             {/* 히어로: 온도 대형(°반잘림) 또는 물결 마크 폴백 */}
             {fallbackHero ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: px(8), top: px(46), width: px(150), opacity: 0.88 }} />
+              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: px(8), top: px(96), width: px(120), opacity: 0.88 }} />
             ) : (
               <div
                 className="font-heading"
                 style={{
-                  position: 'absolute', right: px(-6), top: px(46), fontWeight: 700, fontSize: px(180),
+                  position: 'absolute', right: px(-6), top: px(96), fontWeight: 700, fontSize: px(130),
                   lineHeight: 0.84, letterSpacing: '-0.03em',
                   backgroundImage: 'linear-gradient(160deg,#3a3330 0%, #1c1917 55%)',
                   WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
                 }}
               >
                 {heroTemp}
-                <span style={{ fontSize: px(49), verticalAlign: 'top', marginLeft: px(2) }}>°</span>
+                <span style={{ fontSize: px(36), verticalAlign: 'top', marginLeft: px(2) }}>°</span>
               </div>
             )}
 
-            {/* 좌중: 사우나명 */}
-            <div style={{ position: 'absolute', left: px(26), top: px(214), fontWeight: 700, fontSize: px(12.5), lineHeight: 1, letterSpacing: '0.01em', color: INK, maxWidth: px(200) }}>
+            {/* 좌중: 사우나명 (v3.2: 230으로 하향) */}
+            <div style={{ position: 'absolute', left: px(26), top: px(230), fontWeight: 700, fontSize: px(12.5), lineHeight: 1, letterSpacing: '0.01em', color: INK, maxWidth: px(200) }}>
               {log.place_name}
             </div>
 
             {/* 루틴 타임라인 + (+N 활동) + 세트 + 요약 점수(블랙 점 5개) */}
-            <div style={{ position: 'absolute', left: px(26), top: px(240), right: px(26) }}>
+            <div style={{ position: 'absolute', left: px(26), top: px(256), right: px(26) }}>
               {routineLines.map((ln, i) => (
                 <div key={i} style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.9, letterSpacing: '0.01em', color: INK }}>
                   <span style={{ fontWeight: 700 }}>{ln.name}</span>
@@ -478,11 +480,11 @@ export default function Story() {
 
             {/* 하단: 트라이브명 + 점·SA-PI / 닉네임 */}
             <div style={{ position: 'absolute', left: px(26), right: px(26), bottom: px(26) }}>
-              <div className="font-heading" style={{ fontSize: px(32), fontWeight: 700, lineHeight: 0.95, letterSpacing: '-0.01em', color: INK }}>
+              <div className="font-heading" style={{ fontSize: px(22), fontWeight: 700, lineHeight: 0.95, letterSpacing: '-0.01em', color: INK }}>
                 {TRIBE_EN[tribe]}
               </div>
               {/* SA-PI·칭호·닉네임 잉크 통일 — 칭호=일반(400), 닉네임=bold(700) */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.06em', marginTop: px(7) }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.06em', marginTop: px(10) }}>
                 <span style={{ color: INK }}>
                   <span style={{ display: 'inline-block', width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe], marginRight: px(7), verticalAlign: 'middle' }} />
                   SA-PI
