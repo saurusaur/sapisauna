@@ -487,8 +487,9 @@ export default function Story() {
 
             {/* 하단 한 줄 (v3.3: 대형 트라이브명 제거): 좌=점+트라이브명(Oswald bold, 높이정렬) / 우=칭호·닉네임 — 전부 11px·잉크 */}
             <div style={{ position: 'absolute', left: px(26), right: px(26), bottom: px(26) }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.06em' }}>
-                <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), color: INK }}>
+              {/* 우측(칭호·닉네임) 자간 .02em, 트라이브명(Oswald)은 .06em 유지 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.02em' }}>
+                <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), letterSpacing: '0.06em', color: INK }}>
                   <span style={{ width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe] }} />
                   {TRIBE_EN[tribe]}
                 </span>
