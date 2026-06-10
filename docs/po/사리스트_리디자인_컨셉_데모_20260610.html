@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>SA-LIST 리디자인 컨셉 A/B/C 비교 데모</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    background:#e9e4de; padding:40px 30px; color:#2a2222;
+  }
+  h1 { font-size:20px; font-style:italic; font-weight:800; margin-bottom:6px; }
+  .sub { font-size:13px; color:#78716c; margin-bottom:28px; }
+  .row { display:flex; gap:36px; align-items:flex-start; flex-wrap:wrap; }
+  .col { width:320px; }
+  .concept-label { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .concept-desc { font-size:12px; color:#78716c; line-height:1.5; margin-bottom:14px; min-height:54px; }
+
+  /* phone frame */
+  .phone {
+    width:320px; height:640px; background:linear-gradient(135deg,#f5f2ef,#ede8e3);
+    border-radius:36px; border:6px solid #1c1917; overflow:hidden; position:relative;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,.35);
+  }
+  .screen { height:100%; overflow-y:auto; scrollbar-width:none; }
+  .screen::-webkit-scrollbar { display:none; }
+
+  /* ---------- shared card grammar (레퍼런스 문법) ---------- */
+  .masonry { display:flex; gap:10px; padding:0 14px; }
+  .mcol { flex:1; display:flex; flex-direction:column; gap:10px; }
+  .cover {
+    border-radius:16px; padding:14px 13px 12px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .cover .t1 { font-size:15px; font-weight:800; line-height:1.2; position:relative; z-index:2; }
+  .cover .t2 { font-size:14px; font-weight:700; line-height:1.25; position:relative; z-index:2; }
+  .cover .curator { margin-top:auto; font-size:10px; font-weight:600; opacity:.65; position:relative; z-index:2; }
+  .shape { position:absolute; z-index:1; }
+
+  /* pastel hues + tone-down 2행 색 */
+  .hue-lav  { background:#cdc3ee; } .hue-lav .t2 { color:#7a68b8; } .hue-lav .shape { fill:#b3a4e3; }
+  .hue-sage { background:#cfe3c8; } .hue-sage .t2 { color:#6f9a63; } .hue-sage .shape { fill:#b2d0a8; }
+  .hue-btr  { background:#f2e6a8; } .hue-btr .t2 { color:#b09a3c; } .hue-btr .shape { fill:#e6d177; }
+  .hue-pink { background:#f2cdd4; } .hue-pink .t2 { color:#c4717f; } .hue-pink .shape { fill:#e7aeb9; }
+  .hue-blue { background:#c4dbe8; } .hue-blue .t2 { color:#5f8aa3; } .hue-blue .shape { fill:#a3c6d9; }
+  .hue-pch  { background:#f4d8bd; } .hue-pch .t2 { color:#bd8350; } .hue-pch .shape { fill:#e9bf94; }
+
+  /* ---------- 컨셉 A ---------- */
+  .a-header { padding:22px 16px 10px; }
+  .a-title { font-size:24px; font-weight:800; font-style:italic; letter-spacing:.02em; }
+  .a-search {
+    margin:10px 14px 14px; background:rgba(255,255,255,.7); border:0.5px solid rgba(255,255,255,.9);
+    border-radius:14px; padding:10px 13px; font-size:12.5px; color:#a8a29e;
+    display:flex; align-items:center; gap:8px; box-shadow:0 2px 8px -3px rgba(0,0,0,.08);
+  }
+  .pill-nav {
+    position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+    background:rgba(255,255,255,.92); backdrop-filter:blur(10px); border-radius:999px;
+    padding:7px 8px; display:flex; gap:4px; box-shadow:0 6px 20px -6px rgba(0,0,0,.25);
+    white-space:nowrap; z-index:10;
+  }
+  .pill-nav span { font-size:11px; font-weight:700; padding:6px 12px; border-radius:999px; color:#78716c; }
+  .pill-nav .on { background:#2a2222; color:#fff; }
+  .pill-nav sup { font-size:8px; font-weight:600; opacity:.6; }
+
+  /* ---------- 컨셉 B ---------- */
+  .b-dome {
+    background:#cc1a1a; padding:26px 18px 56px; border-radius:0 0 48% 48% / 0 0 16% 16%;
+    color:#fff;
+  }
+  .b-discover { font-size:30px; font-weight:800; font-style:italic; line-height:1; }
+  .b-dsub { font-size:11px; font-weight:500; opacity:.85; margin-top:5px; }
+  .b-hero {
+    margin:-36px 26px 0; transform:rotate(-3.5deg);
+    box-shadow:0 10px 26px -8px rgba(0,0,0,.28); height:170px;
+  }
+  .b-hero .badge {
+    font-size:9px; font-weight:800; letter-spacing:.12em; background:rgba(255,255,255,.55);
+    padding:3px 8px; border-radius:999px; width:fit-content; margin-bottom:8px; position:relative; z-index:2;
+  }
+  .tagrail { display:flex; gap:7px; padding:18px 16px 4px; overflow-x:auto; scrollbar-width:none; }
+  .tagrail::-webkit-scrollbar { display:none; }
+  .tag {
+    font-size:11px; font-weight:700; padding:6px 11px; border-radius:999px; white-space:nowrap;
+    background:rgba(255,255,255,.75); border:0.5px solid #e2deda; color:#57534e;
+  }
+  .sec-h { font-size:15px; font-weight:800; font-style:italic; padding:18px 16px 10px; letter-spacing:.03em; }
+  .sec-h small { font-size:10px; font-weight:500; font-style:normal; color:#a8a29e; margin-left:6px; }
+  .shelf { display:flex; gap:8px; padding:0 16px 24px; overflow-x:auto; scrollbar-width:none; }
+  .shelf::-webkit-scrollbar { display:none; }
+  .spine {
+    min-width:64px; height:120px; border-radius:10px; padding:10px 8px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .spine .st { font-size:10.5px; font-weight:800; line-height:1.25; writing-mode:vertical-rl; }
+  .spine .sn { font-size:9px; opacity:.6; font-weight:600; }
+
+  /* ---------- 컨셉 C ---------- */
+  .c-hero { padding:26px 16px 6px; }
+  .c-hero .ct { font-size:22px; font-weight:800; font-style:italic; line-height:1.15; margin-bottom:14px; }
+  .c-search {
+    background:#fff; border-radius:16px; padding:13px 15px; font-size:13px; color:#a8a29e;
+    display:flex; gap:8px; align-items:center; box-shadow:0 4px 14px -5px rgba(0,0,0,.12);
+  }
+  .c-tabs { display:flex; gap:18px; padding:16px 18px 2px; }
+  .c-tabs span { font-size:12px; font-weight:700; color:#a8a29e; padding-bottom:5px; }
+  .c-tabs .on { color:#2a2222; border-bottom:2px solid #2a2222; }
+  .tagtiles { display:grid; grid-template-columns:1fr 1fr; gap:9px; padding:12px 14px; }
+  .tagtile { border-radius:14px; padding:12px; height:74px; position:relative; overflow:hidden; }
+  .tagtile .tt { font-size:14px; font-weight:800; position:relative; z-index:2; }
+  .tagtile .tc { font-size:10px; font-weight:600; opacity:.6; margin-top:3px; position:relative; z-index:2; }
+  .feedrow {
+    display:flex; align-items:center; gap:10px; margin:0 14px 8px; padding:10px;
+    background:rgba(255,255,255,.65); border-radius:13px;
+  }
+  .feedrow .thumb { width:40px; height:40px; border-radius:11px; flex-shrink:0; }
+  .feedrow .ft { font-size:12.5px; font-weight:700; }
+  .feedrow .fm { font-size:10px; color:#a8a29e; margin-top:2px; }
+
+  .note { font-size:11px; color:#a8a29e; margin-top:10px; line-height:1.5; }
+  .icon { width:14px; height:14px; opacity:.55; }
+</style>
+</head>
+<body>
+<h1>SA-LIST 메인 리디자인 — 컨셉 A / B / C</h1>
+<p class="sub">공통 문법: cover_hue 파스텔 카드 · 2톤 스택 타이포(잉크 굵은 1행 + hue톤 2행) · 사우나 모티프 도형 · 큐레이터 하단 표기</p>
+
+<div class="row">
+
+  <!-- ================= CONCEPT A ================= -->
+  <div class="col">
+    <div class="concept-label">A — 사우나 가판대 (레퍼런스 충실)</div>
+    <div class="concept-desc">페이지 전체가 모자이크 그리드 = Featured 피드. 검색은 상단 pill, 저장됨은 하단 플로팅 pill로 그리드를 스왑. 첫 칸 대형 = 이주의 사피픽.</div>
+    <div class="phone"><div class="screen">
+      <div class="a-header"><div class="a-title">SA-LIST</div></div>
+      <div class="a-search">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        리스트 · #해시태그 검색
+      </div>
+      <div class="masonry" style="padding-bottom:90px;">
+        <div class="mcol">
+          <div class="cover hue-lav" style="height:210px;">
+            <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#7a68b8;margin-bottom:6px;position:relative;z-index:2;">이주의 사피픽</div>
+            <div class="t1">주말 노천탕</div><div class="t2">서울 근교 6곳</div>
+            <svg class="shape" style="bottom:-22px;left:14px;" width="130" height="110" viewBox="0 0 130 110"><path d="M5 110 Q5 30 65 30 Q125 30 125 110 Z"/></svg>
+            <div class="curator">@사피 · 구독 132</div>
+          </div>
+          <div class="cover hue-btr" style="height:130px;">
+            <div class="t1">을지로</div><div class="t2">퇴근 사우나</div>
+            <svg class="shape" style="bottom:10px;right:10px;" width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="32"/></svg>
+            <div class="curator">@목욕왕</div>
+          </div>
+          <div class="cover hue-blue" style="height:160px;">
+            <div class="t1">냉탕</div><div class="t2">수련회</div>
+            <svg class="shape" style="bottom:-6px;left:0;" width="150" height="56" viewBox="0 0 150 56"><path d="M0 30 Q25 10 50 30 T100 30 T150 30 V56 H0 Z"/></svg>
+            <div class="curator">@얼음인간 · 구독 89</div>
+          </div>
+        </div>
+        <div class="mcol">
+          <div class="cover hue-sage" style="height:150px;">
+            <div class="t1">찜질방</div><div class="t2">올나잇 코스</div>
+            <svg class="shape" style="bottom:-18px;right:-14px;" width="100" height="90" viewBox="0 0 100 90"><path d="M0 90 Q0 20 50 20 Q100 20 100 90 Z"/></svg>
+            <div class="curator">@불가마</div>
+          </div>
+          <div class="cover hue-pink" style="height:185px;">
+            <div class="t1">혼사우나</div><div class="t2">입문 코스</div>
+            <svg class="shape" style="bottom:12px;left:16px;" width="90" height="86" viewBox="0 0 90 86"><path d="M10 86 Q2 40 30 30 Q14 12 38 4 Q70 -6 78 26 Q92 40 80 60 Q86 82 60 86 Z"/></svg>
+            <div class="curator">@혼자만끽 · 구독 51</div>
+          </div>
+          <div class="cover hue-pch" style="height:135px;">
+            <div class="t1">강원도</div><div class="t2">온천 로드</div>
+            <svg class="shape" style="bottom:-10px;right:6px;" width="86" height="64" viewBox="0 0 86 64"><path d="M8 64 Q14 30 30 38 Q30 8 56 14 Q80 18 74 46 Q84 52 80 64 Z"/></svg>
+            <div class="curator">@로드사우너</div>
+          </div>
+        </div>
+      </div>
+      <div class="pill-nav">
+        <span class="on">FEATURED <sup>23</sup></span><span># 태그</span><span>저장됨 <sup>12</sup></span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= CONCEPT B ================= -->
+  <div class="col">
+    <div class="concept-label">B — 온천 매거진 (home 연속성)</div>
+    <div class="concept-desc">home의 레드 돔 + 기울어진 카드 문법. 대형 히어로 1장(이주의 사피픽) → 태그 레일 → 작은 모자이크 → 내 저장 리스트는 '책등 선반'.</div>
+    <div class="phone"><div class="screen">
+      <div class="b-dome">
+        <div class="b-discover">DISCOVER</div>
+        <div class="b-dsub">이번 주, 사피가 고른 리스트</div>
+      </div>
+      <div class="cover hue-sage b-hero">
+        <div class="badge">이주의 사피픽</div>
+        <div class="t1" style="font-size:19px;">주말 노천탕</div><div class="t2" style="font-size:17px;">서울 근교 6곳</div>
+        <svg class="shape" style="bottom:-20px;right:6px;" width="150" height="110" viewBox="0 0 150 110"><path d="M10 110 Q10 30 75 30 Q140 30 140 110 Z"/></svg>
+        <div class="curator">@사피 · 구독 132 · 6곳</div>
+      </div>
+      <div class="tagrail">
+        <span class="tag">#노천탕</span><span class="tag">#냉탕맛집</span><span class="tag">#세신</span><span class="tag">#찜질방</span><span class="tag">#호텔스파</span>
+      </div>
+      <div class="sec-h">FEATURED <small>큐레이션 리스트</small></div>
+      <div class="masonry">
+        <div class="mcol">
+          <div class="cover hue-btr" style="height:120px;">
+            <div class="t1">을지로</div><div class="t2">퇴근 사우나</div>
+            <svg class="shape" style="bottom:8px;right:8px;" width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="26"/></svg>
+            <div class="curator">@목욕왕</div>
+          </div>
+        </div>
+        <div class="mcol">
+          <div class="cover hue-blue" style="height:120px;">
+            <div class="t1">냉탕</div><div class="t2">수련회</div>
+            <svg class="shape" style="bottom:-4px;left:0;" width="140" height="44" viewBox="0 0 140 44"><path d="M0 24 Q20 6 40 24 T80 24 T120 24 T160 24 V44 H0 Z"/></svg>
+            <div class="curator">@얼음인간</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-h">MY SHELF <small>저장한 리스트 12</small></div>
+      <div class="shelf">
+        <div class="spine hue-lav"><div class="st">주말 노천탕</div><div class="sn">6곳</div></div>
+        <div class="spine hue-pink"><div class="st">혼사우나 입문</div><div class="sn">4곳</div></div>
+        <div class="spine hue-pch"><div class="st">강원도 온천</div><div class="sn">9곳</div></div>
+        <div class="spine hue-sage"><div class="st">찜질 올나잇</div><div class="sn">5곳</div></div>
+        <div class="spine hue-btr"><div class="st">을지로 퇴근</div><div class="sn">3곳</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= CONCEPT C ================= -->
+  <div class="col">
+    <div class="concept-label">C — 수증기 탐색대 (검색 주도)</div>
+    <div class="concept-desc">대형 검색바가 히어로. 해시태그 자체를 파스텔 타일(레퍼런스 카드 문법)로 — 태그를 먼저 고르고 리스트를 만난다. 저장됨은 상단 탭.</div>
+    <div class="phone"><div class="screen">
+      <div class="c-hero">
+        <div class="ct">어떤 사우나<br>리스트를 찾으세요?</div>
+        <div class="c-search">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          리스트 · #해시태그 검색
+        </div>
+      </div>
+      <div class="c-tabs"><span class="on">탐색</span><span>저장됨 12</span></div>
+      <div class="tagtiles">
+        <div class="tagtile hue-lav">
+          <div class="tt">#노천탕</div><div class="tc">42 lists</div>
+          <svg class="shape" style="bottom:-14px;right:-8px;" width="74" height="60" viewBox="0 0 74 60"><path d="M0 60 Q0 14 37 14 Q74 14 74 60 Z"/></svg>
+        </div>
+        <div class="tagtile hue-blue">
+          <div class="tt">#냉탕맛집</div><div class="tc">31 lists</div>
+          <svg class="shape" style="bottom:-4px;left:0;" width="140" height="34" viewBox="0 0 140 34"><path d="M0 18 Q18 4 36 18 T72 18 T108 18 T144 18 V34 H0 Z"/></svg>
+        </div>
+        <div class="tagtile hue-btr">
+          <div class="tt">#세신</div><div class="tc">18 lists</div>
+          <svg class="shape" style="bottom:8px;right:8px;" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20"/></svg>
+        </div>
+        <div class="tagtile hue-pink">
+          <div class="tt">#찜질방</div><div class="tc">27 lists</div>
+          <svg class="shape" style="bottom:-10px;right:-6px;" width="64" height="52" viewBox="0 0 64 52"><path d="M6 52 Q0 26 18 22 Q12 6 32 4 Q54 2 54 24 Q66 32 58 44 Q58 52 44 52 Z"/></svg>
+        </div>
+      </div>
+      <div class="sec-h" style="padding-top:8px;">#노천탕 리스트</div>
+      <div class="feedrow"><div class="thumb hue-lav"></div><div><div class="ft">주말 노천탕 — 서울 근교 6곳</div><div class="fm">@사피 · 구독 132</div></div></div>
+      <div class="feedrow"><div class="thumb hue-pch"></div><div><div class="ft">강원도 온천 로드</div><div class="fm">@로드사우너 · 구독 44</div></div></div>
+      <div class="feedrow"><div class="thumb hue-sage"></div><div><div class="ft">노천+찜질 풀코스</div><div class="fm">@불가마 · 구독 28</div></div></div>
+    </div></div>
+    <div class="note">※ C는 태그 풀이 적은 베타 시점엔 빈약해 보일 리스크 — A의 검색 오버레이 안에 축소 수용 가능</div>
+  </div>
+
+</div>
+</body>
+</html>
