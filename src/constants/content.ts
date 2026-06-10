@@ -875,8 +875,9 @@ export const MESSAGES = {
     STAMP_FILL_PROMPT: "좋은 사우나 방문하고 사우나템 모으기!",
     // 사-첵 포스트잇 CTA (문구 = PREFIX + SUFFIX, SUFFIX는 빨강 강조)
     CTA_PREFIX_RETURNING: "오늘도", // 로그인 + 기록 있음
-    CTA_PREFIX_NEW: "사우나",       // 비로그인 · 신규(기록 0)
-    CTA_SUFFIX: "첵!",
+    CTA_SUFFIX_RETURNING: "첵!",
+    CTA_PREFIX_NEW: "사우나",       // 비로그인 · 신규(기록 0) — "첵" 모르는 유저용 명확한 문구
+    CTA_SUFFIX_NEW: "기록!",
     // 섹션 헤딩/서브
     TRIBE_HEADING: "TRIBE PICKS",
     TRIBE_SUBTITLE: "실시간 업데이트 트라이브별 베스트 사우나!",
