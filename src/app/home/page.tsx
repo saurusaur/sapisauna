@@ -33,8 +33,10 @@ export default function Home() {
   const recordedToday = userLogs.some((l) => l.date.slice(0, 10) === getTodayKey())
   // 노출: 비로그인=항상 / 로그인=오늘 미기록일 때
   const showCta = authUser ? !recordedToday : true
-  // 문구: 로그인+기록 있음="오늘도", 그 외="사우나"
-  const ctaWord = authUser && hasRecords ? HOME.CTA_PREFIX_RETURNING : HOME.CTA_PREFIX_NEW
+  // 문구: 로그인+기록 있음="오늘도 첵!", 그 외(신규/비로그인)="사우나 기록!"
+  const isReturning = authUser && hasRecords
+  const ctaWord = isReturning ? HOME.CTA_PREFIX_RETURNING : HOME.CTA_PREFIX_NEW
+  const ctaSuffix = isReturning ? HOME.CTA_SUFFIX_RETURNING : HOME.CTA_SUFFIX_NEW
 
   // 사-첵 팝: 페이지(데이터 포함) 로딩 완료 후 1회만 재생
   const [popReady, setPopReady] = useState(false)
@@ -99,7 +101,7 @@ export default function Home() {
         {/* 도장(right 기준)과 동일하게 right 앵커 → 화면 폭 무관하게 도장 옆 고정(분리 방지), 오른쪽 ~14px만 도장 뒤로 */}
         {popReady && showCta && (
           <div className="cta-postit is-play" style={{ right: '170px', top: '174px' }} aria-hidden="true">
-            {ctaWord} <b>{HOME.CTA_SUFFIX}</b>
+            {ctaWord} <b>{ctaSuffix}</b>
           </div>
         )}
 
