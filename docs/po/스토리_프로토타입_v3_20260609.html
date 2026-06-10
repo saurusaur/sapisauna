@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>스토리 프로토타입 v3.2 — 히어로 130·레이아웃 하향 (page.tsx 반영 완료)</title>
+<title>스토리 프로토타입 v3.3 — 하단 트라이브명 단일화·물결 좌상단 20px</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -14,6 +14,8 @@
   .note { font-size:11px; color:#a8a29e; margin:0 8px 18px; line-height:1.6; }
   .row { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
   .font-h { font-family:'Oswald',sans-serif; }
+  .tag { text-align:center; font-size:11px; color:#a8a29e; margin-top:8px; font-weight:600; }
+  .tag b { color:#facc15; }
   .cap { text-align:center; font-size:11px; color:#facc15; margin-top:10px; font-weight:600; }
 
   .card { width:300px; height:533px; border-radius:26px; overflow:hidden; position:relative;
@@ -60,7 +62,7 @@
   .r-line .d { margin:0 6px; color:rgba(28,25,23,.38); }         /* em-dash 글리프 (샤프) */
   .r-line .d.x { font-weight:300; font-size:15px; vertical-align:-1px; }              /* 세트 × — 더 얇고 살짝 크게 */
   /* 루틴 정보(온도/시간) 없는 활동: 이름 뒤 라인 쭉 */
-  .r-line.bare { display:flex; align-items:center; width:150px; }
+  .r-line.bare { display:flex; align-items:center; width:135px; } /* v3.3: 150→135 */
   .r-line.bare .nm { flex:none; }
   .r-line.bare::after { content:""; flex:1; height:0; margin-left:11px; border-top:1.5px solid rgba(28,25,23,.22); }
   .now-line { font-size:12px; font-weight:700; margin-top:12px; display:flex; align-items:center; }
@@ -76,26 +78,20 @@
   /* 하단 */
   .foot { position:absolute; left:26px; right:26px; bottom:26px; }
   .foot .big { font-size:22px; font-weight:700; line-height:.95; letter-spacing:-.01em; }
-  .foot .r2 { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; letter-spacing:.06em; margin-top:10px; }
+  .foot .r2 { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; letter-spacing:.06em; }
   .dot { display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:middle; margin-right:7px; }
+  /* v3.3: 하단 좌측 = 점 + 트라이브명(Oswald bold, 점과 높이 정렬). 대형 트라이브명 제거 */
+  .tribe-sm { display:inline-flex; align-items:center; gap:7px; font-family:'Oswald',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; color:#1c1917; }
+  .tribe-sm .dot { margin-right:0; }
 
   /* 워터마크 — sauna-stamp 물결(steam) 마크, 엄청 연하게·작게 (닉네임 위 우측) */
-  .watermark { position:absolute; right:12px; bottom:44px; width:40px; opacity:.11; pointer-events:none; }
+  .watermark { position:absolute; left:26px; top:24px; width:20px; opacity:.11; pointer-events:none; } /* v3.3: 좌상단 반크기 */
   .watermark img { display:block; width:100%; height:auto; }
 
   /* 폴백: 물결 마크 히어로 */
-  .hero-steam { position:absolute; right:8px; top:96px; width:120px; opacity:.88; pointer-events:none; }
+  .hero-steam { position:absolute; right:26px; top:96px; width:120px; opacity:.88; pointer-events:none; }
   .hero-steam img { display:block; width:100%; height:auto; }
-  /* 폴백: 날짜 타이포 히어로 */
-  .hero-date { position:absolute; right:14px; top:54px; text-align:right; color:#1c1917; }
-  .hero-date .d1 { font-size:104px; font-weight:700; line-height:.8; letter-spacing:-.03em; }
-  .hero-date .d2 { font-size:40px; font-weight:600; line-height:1; margin-top:6px; color:rgba(28,25,23,.55); }
 
-  /* 폴백 변형 */
-  .hero-eval { position:absolute; right:10px; top:60px; text-align:right; font-weight:700; }
-  .hero-eval .n { font-size:166px; line-height:.82; letter-spacing:-.03em; color:#1c1917; }
-  .hero-eval .n small { font-size:50px; color:rgba(28,25,23,.38); }
-  .hero-stamp { position:absolute; right:14px; top:78px; border:3px solid rgba(28,25,23,.55); border-radius:16px;
                 padding:16px 22px; text-align:center; transform:rotate(-6deg); }
   .hero-stamp .ic { font-size:38px; line-height:1; }
   .hero-stamp .t { font-size:12px; font-weight:700; letter-spacing:.12em; margin-top:6px; }
@@ -115,7 +111,7 @@
 </style>
 </head>
 <body>
-  <h1>스토리 프로토타입 v3.2 — 히어로 130(top 96)·날짜 72·사우나명 230·트라이브명 22 (page.tsx 반영 완료)</h1>
+  <h1>스토리 프로토타입 v3.3 — 대형 트라이브명 제거·하단 점+트라이브명(Oswald)·물결 좌상단 20px</h1>
   <div class="sub">요약줄=토토노우/또갈래요 점수 / 세트·사우나명 폰트 통일 / 물결(steam) 워터마크</div>
 
   <!-- 물결(steam) 워터마크 정의: 아래 .wm 템플릿을 각 카드에 인라인 -->
@@ -138,8 +134,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
@@ -156,8 +151,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">BATHER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#3B82F6"></span>SA-PI</span><span class="ink-d"><span class="title-inline">목욕의신 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#3B82F6"></span>BATHER</span><span class="ink-d"><span class="title-inline">목욕의신 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
@@ -175,20 +169,16 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">JIMI</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#22C55E"></span>SA-PI</span><span class="ink-d"><span class="title-inline">찜질장인 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#22C55E"></span>JIMI</span><span class="ink-d"><span class="title-inline">찜질장인 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
   </div>
 
   <!-- ===== hero 폴백 옵션 (리뉴얼) ===== -->
-  <div class="section-title">hero 폴백 옵션 — 온도 미입력 (S3·J3) · <span style="color:#F97316">F3 물결 마크 확정</span></div>
-  <div class="note">온도가 없어 메인 숫자가 빌 때. F3(물결 마크) 채택. 나머지는 비교 참고용.</div>
+  <div class="section-title">hero 폴백 — 온도 미입력 (S3·J3) · F3 물결 마크 (확정)</div>
+  <div class="note">온도가 없어 메인 숫자가 빌 때 → 물결 마크를 히어로 자리에(우측 축 26 정렬), 라벨 슬롯은 비움(SA-PI 검토 후 폐기). 워터마크 유지. (2026-06-10 확정)</div>
   <div class="row">
 
-    <div class="card"><div class="bg bg-saunner"></div><div class="card-inner">
-      <div class="top"><span class="date ink">2026.06.09 TUE</span><span class="metric ink">REVISIT</span></div>
-      <div class="hero-eval font-h"><div class="n">5<small>/5</small></div></div>
       <div class="place ink">동탄사우나</div>
       <div class="routine">
         <div class="r-line bare ink"><span class="nm">건식</span></div>
@@ -198,14 +188,10 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
-    <div class="card"><div class="bg bg-saunner"></div><div class="card-inner">
-      <div class="top"><span class="date ink">2026.06.09 TUE</span><span class="metric ink">TOTONO</span></div>
-      <div class="hero-eval font-h"><div class="n">4<small>/5</small></div></div>
       <div class="place ink">동탄사우나</div>
       <div class="routine">
         <div class="r-line bare ink"><span class="nm">건식</span></div>
@@ -215,13 +201,13 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
-    <div class="card" style="outline:3px solid #F97316; outline-offset:3px;"><div class="bg bg-saunner"></div><div class="card-inner">
+    <div class="card" ><div class="bg bg-saunner"></div><div class="card-inner">
       <div class="top"><span class="date ink">2026.06.09 TUE</span><span></span></div>
+      <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="hero-steam"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="place ink">동탄사우나</div>
       <div class="routine">
@@ -231,14 +217,10 @@
         <div class="now-line ink">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
       </div>
       <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
-    <div class="card"><div class="bg bg-saunner"></div><div class="card-inner">
-      <div class="top"><span class="date ink">2026.06.09 TUE</span><span class="metric ink">DATE</span></div>
-      <div class="hero-date font-h"><div class="d1">TUE</div><div class="d2">06.09</div></div>
       <div class="place ink">동탄사우나</div>
       <div class="routine">
         <div class="r-line bare ink"><span class="nm">건식</span></div>
@@ -248,29 +230,12 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
       </div>
     </div></div>
 
-    <div class="card"><div class="bg bg-saunner"></div><div class="card-inner">
-      <div class="top"><span class="date ink">2026.06.09 TUE</span><span class="metric ink">ACTIVITIES</span></div>
-      <div class="hero-num font-h">3<span class="u" style="font-size:30px">가지</span></div>
-      <div class="place ink">동탄사우나</div>
-      <div class="routine">
-        <div class="r-line bare ink"><span class="nm">건식</span></div>
-        <div class="r-line bare ink"><span class="nm">냉탕</span></div>
-        <div class="r-line bare ink"><span class="nm">휴식</span></div>
-        <div class="now-line ink">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
-      </div>
-      <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
-      <div class="foot">
-        <div class="big font-h ink">SAUNNER</div>
-        <div class="r2"><span class="ink-d"><span class="dot" style="background:#F97316"></span>SA-PI</span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
-      </div>
-    </div></div>
   </div>
-  <div class="cap">F1 또갈래요 · F2 토토노우 · ★F3 물결 마크(확정) · F4 날짜 타이포 · F5 활동 수</div>
+  
 
 </body>
 </html>

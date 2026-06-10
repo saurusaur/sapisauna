@@ -107,6 +107,27 @@
 
   .watermark { position:absolute; right:12px; bottom:44px; width:40px; opacity:.11; pointer-events:none; }
   .watermark img { display:block; width:100%; height:auto; }
+
+  /* ── §4 시뮬: v3.2 지오메트리 스코프 ── */
+  .v32 .top { top:72px; }
+  .v32 .hero-num { top:96px; font-size:130px; }
+  .v32 .hero-num .u { font-size:36px; }
+  .v32 .place { top:230px; }
+  .v32 .routine { top:256px; }
+  .v32 .foot .big { font-size:22px; }
+  .v32 .foot .r2 { margin-top:10px; }
+  /* 물결 위치 제안 (좌측) */
+  .wm { position:absolute; width:40px; opacity:.11; pointer-events:none; }
+  .wm img { display:block; width:100%; height:auto; }
+  .wm-p1 { left:26px; top:24px; }                /* P1 최상단 좌 — 날짜 위 여백 */
+  .wm-p1h { left:26px; top:24px; width:20px; }   /* P1 반크기(20px) */
+  .wm-p2 { left:26px; top:130px; }               /* P2 좌중 — 히어로 좌측 빈 공간 */
+  .wm-p3 { left:26px; bottom:120px; }            /* P3 루틴 아래 — 점수줄 아래 여백 */
+  .wm-p4 { left:26px; bottom:60px; }             /* P4 하단줄 바로 위 (대형 제거로 여유) */
+  .wm-p5 { right:12px; bottom:60px; }            /* P5 우하단 (기존 위치 참고) */
+  /* 하단 좌측: 점 + 트라이브명(Oswald bold, 점과 높이 정렬) */
+  .tribe-sm { display:inline-flex; align-items:center; gap:7px; font-family:'Oswald',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; color:#1c1917; }
+  .tribe-sm .dot { margin-right:0; }
 </style>
 </head>
 <body>
@@ -420,6 +441,122 @@
     </div></div>
   </div>
   <div class="cap">① 행간 1.9 비압축 — 점수줄이 트라이브명에 맞닿음 · ② 행간 1.7 절충(폰트 12.5 유지) · ③ 행간 1.58 압축(현재안)</div>
+
+
+  <!-- ════ 4. v3.2 — 하단 확정(대형 제거·점+사우너 Oswald) + 물결 위치 5안 ════ -->
+  <div class="section-title">4. 물결 위치 variation — 하단은 확정(대형 트라이브명 제거, 점+SAUNNER Oswald bold 높이정렬)</div>
+  <div class="note">하단 = 한 줄: 좌 <b>점+SAUNNER(Oswald bold, 점과 세로 중앙 정렬)</b> / 우 칭호·닉네임. 물결: P1 최상단 좌 / P2 좌중(히어로 반대편) / P3 루틴 아래(bottom 120) / P4 하단줄 바로 위(bottom 60) / P5 우하단(기존 높이, 참고).</div>
+  <div class="row">
+    <div class="card v32"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p1"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>P1 최상단 좌</b></div></div>
+    <div class="card v32 pick"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p1h"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>★P1 반크기(20px)</b></div></div>
+    <div class="card v32"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p2"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>P2 좌중</b></div></div>
+    <div class="card v32"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p3"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>P3 루틴 아래</b></div></div>
+    <div class="card v32"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p4"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>P4 하단줄 위</b></div></div>
+    <div class="card v32"><div class="bg bg-saunner"></div><div class="card-inner">
+      <div class="top"><span class="date ink">2026.06.10 WED</span><span class="metric ink">TEMP DELTA</span></div>
+      <div class="hero-num font-h">70<span class="u">°</span></div>
+      <div class="place ink">동탄사우나</div>
+      <div class="routine">
+        <div class="r-line"><span class="nm">건식</span><span class="d">—</span>85°<span class="d">—</span>12분</div>
+        <div class="r-line"><span class="nm">냉탕</span><span class="d">—</span>15°<span class="d">—</span>40초</div>
+        <div class="r-line"><span class="nm">휴식</span><span class="d">—</span>7분</div>
+        <div class="r-line"><span class="nm">세트</span><span class="d x">×</span>3</div>
+        <div class="now-line">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
+      </div>
+      <div class="wm wm-p5"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
+      <div class="foot">
+        <div class="r2"><span class="tribe-sm"><span class="dot" style="background:#F97316"></span>SAUNNER</span>
+          <span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+      </div>
+    </div></div>
+    <div style="flex-basis:0"><div class="tag"><b>P5 우하단(참고)</b></div></div>
+  </div>
+  <div class="cap">P1 ~ P5 — 카드 아래 라벨 참조. 하단 구성은 전 카드 동일(확정안)</div>
 
 </body>
 </html>
