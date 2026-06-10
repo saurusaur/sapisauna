@@ -219,30 +219,24 @@ export default function Story() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [router])
 
-  // Canvas 기반 내보내기 (서버 호출 없음)
-  // ⚠️ renderCard(Canvas)는 아직 구버전 레이아웃 — v3 미러링 TODO
+  // Canvas 기반 내보내기 (서버 호출 없음) — 프리뷰와 동일한 표시 데이터(아래 derived 값)를 그대로 전달
   const handleExport = async (mode: 'download' | 'share') => {
     if (!log) return
     setIsExporting(true)
     try {
       const blob = await renderCard({
-        tribeId: log.tribe_id as StoryTribeId,
+        tribeId: tribe,
         placeName: log.place_name,
         date: log.date,
         bgPhoto,
-        saunaTemp: log.dry_sauna_temp ?? log.sauna_temp,
-        steamSaunaTemp: log.steam_sauna_temp,
-        primarySaunaKind: log.primary_sauna_kind,
-        coldBathTemp: log.cold_bath_temp,
-        hotBathTemp: log.hot_bath_temp,
-        jjimTemp: getJimiHeadlineTemp(log) ?? undefined,
-        totono_score: log.totono_score,
-        waterQuality: log.water_quality,
-        sweatQuality: log.sweat_quality,
-        heatTime: log.heat_time,
-        iceTime: log.ice_time,
-        pauseTime: log.rest_time,
-        repeat: log.repeat,
+        heroTemp,
+        metricLabel: METRIC_LABEL[tribe],
+        routineLines,
+        hiddenCount,
+        repeat,
+        dense,
+        scoreLabel: SCORE_LABEL[tribe],
+        scoreValue: nowScoreVal ?? null,
         userNickname: log.user_nickname,
         userTitle: log.user_title,
       })
