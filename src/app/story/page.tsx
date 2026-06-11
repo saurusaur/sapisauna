@@ -12,8 +12,9 @@
  *  - 세로 루틴 타임라인(활동 — 온도 — 시간) + 세트(×N, 높이정렬 보정)
  *  - 오로라 그라데이션 + 그레인(밴딩 방지) + 물결(steam) 워터마크 + 트라이브 점색
  *  - 요약 점수 = 블랙 점 5개(채움/빈 원), 칭호(일반)·닉네임(bold) 잉크 통일
- *  - 하단(v3.3): 대형 트라이브명 제거 — 한 줄: 점+트라이브명(Oswald bold 11px, 높이정렬) / 칭호·닉네임(11px)
- *  - 물결 워터마크(v3.3): 좌상단(26,24) 반크기 20px
+ *  - 하단(v3.4): 우측 정렬 스택 bottom 72(IG 답장바 회피) — 트라이브명+도트(이름 먼저, italic) / 칭호·닉네임, 갭 10
+ *  - 물결 워터마크(v3.4): 날짜 아래(20,92) 20px — IG 프로필칩 회피
+ *  - v3.4: 여백 20px 통일(히어로 제외)·° 중심=모서리 반잘림·요일 제거·세트 × 잉크·비압축 행간 1.8(줄 갭 10px)
  *  - 긴 루틴: ≤6줄 기본 / 7줄 압축 / 초과 시 beyond 제외 → 「+N 활동」 7줄 컷
  *  - 사진 배경: 사진(블러·저채도) 위에 오로라 유지, 흰 베이스만 반투명(.38→.46)
  *  - 목욕파 히어로: 온탕 우선, 루틴상 열탕 시간이 더 길면 열탕
@@ -37,9 +38,6 @@ import confetti from 'canvas-confetti'
 import SteamCardReveal from '@/components/features/steam-card-reveal'
 import type { RewardResult } from '@/types'
 import { getPrimaryTempDelta, getJimiHeadlineTemp } from '@/lib/sauna-temp-helpers'
-
-// 요일 약어
-const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
 // ── v3 디자인 토큰 ──────────────────────────────────────
 // 카드는 1080×1920 native, 프로토타입(300px)의 3.6배 → px() 헬퍼로 변환
@@ -279,11 +277,10 @@ export default function Story() {
     setBgPhoto(null)
   }
 
+  // v3.4: 요일 제거 — 날짜만
   const formatTopDate = () => {
     if (!log) return ''
-    const d = new Date(log.date)
-    const dateStr = log.date.slice(0, 10).replace(/-/g, '.')
-    return `${dateStr} ${DAY_NAMES[d.getDay()]}`
+    return log.date.slice(0, 10).replace(/-/g, '.')
   }
 
   if (isLoading || !log) {
@@ -393,23 +390,23 @@ export default function Story() {
               }}
             />
 
-            {/* 상단: 좌=날짜 / 우=메트릭 라벨 (v3.2: 히어로와 함께 하향, 라벨↔히어로 ~13px) */}
-            <div style={{ position: 'absolute', left: px(26), right: px(26), top: px(72), display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            {/* 상단: 좌=날짜 / 우=메트릭 라벨 (v3.4: 여백 20) */}
+            <div style={{ position: 'absolute', left: px(20), right: px(20), top: px(72), display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.08em', color: INK }}>{formatTopDate()}</span>
               <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'right', color: INK, maxWidth: px(130) }}>
                 {fallbackHero ? '' : METRIC_LABEL[tribe]}
               </span>
             </div>
 
-            {/* 히어로: 온도 대형(°반잘림) 또는 물결 마크 폴백 (라벨 슬롯은 비움) */}
+            {/* 히어로: 온도 대형(° 중심=모서리 반잘림) 또는 물결 마크 폴백 (라벨 슬롯은 비움) */}
             {fallbackHero ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: px(26), top: px(96), width: px(120), opacity: 0.88 }} />
+              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: px(20), top: px(96), width: px(120), opacity: 0.88 }} />
             ) : (
               <div
                 className="font-heading"
                 style={{
-                  position: 'absolute', right: px(-6), top: px(96), fontWeight: 700, fontSize: px(130),
+                  position: 'absolute', right: px(-7), top: px(96), fontWeight: 700, fontSize: px(130),
                   lineHeight: 0.84, letterSpacing: '-0.03em',
                   backgroundImage: 'linear-gradient(160deg,#3a3330 0%, #1c1917 55%)',
                   WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
@@ -420,22 +417,22 @@ export default function Story() {
               </div>
             )}
 
-            {/* 좌중: 사우나명 (v3.2: 230으로 하향) */}
-            <div style={{ position: 'absolute', left: px(26), top: px(230), fontWeight: 700, fontSize: px(12.5), lineHeight: 1, letterSpacing: '0.01em', color: INK, maxWidth: px(200) }}>
+            {/* 좌중: 사우나명 */}
+            <div style={{ position: 'absolute', left: px(20), top: px(230), fontWeight: 700, fontSize: px(12.5), lineHeight: 1, letterSpacing: '0.01em', color: INK, maxWidth: px(200) }}>
               {log.place_name}
             </div>
 
             {/* 루틴 타임라인 + (+N 활동) + 세트 + 요약 점수(블랙 점 5개) */}
-            <div style={{ position: 'absolute', left: px(26), top: px(256), right: px(26) }}>
+            <div style={{ position: 'absolute', left: px(20), top: px(256), right: px(20) }}>
               {routineLines.map((ln, i) =>
                 ln.parts.length === 0 ? (
                   // 온도/시간 없는 활동: 이름 뒤 장식 라인 (bare, 폭 135)
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', width: px(135), fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.9, letterSpacing: '0.01em', color: INK }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', width: px(135), fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
                     <span style={{ fontWeight: 700 }}>{ln.name}</span>
                     <span style={{ flex: 1, height: 0, marginLeft: px(11), borderTop: '5px solid rgba(28,25,23,0.22)' }} />
                   </div>
                 ) : (
-                  <div key={i} style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.9, letterSpacing: '0.01em', color: INK }}>
+                  <div key={i} style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
                     <span style={{ fontWeight: 700 }}>{ln.name}</span>
                     {ln.parts.map((p, j) => (
                       <span key={j}>
@@ -450,10 +447,10 @@ export default function Story() {
                 <div style={{ fontSize: px(11.5), lineHeight: 1.58, color: INK }}>+ {hiddenCount} 활동</div>
               )}
               {repeat > 1 && (
-                <div style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.9, letterSpacing: '0.01em', color: INK }}>
+                <div style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
                   <span style={{ fontWeight: 700 }}>세트</span>
-                  {/* ×는 살짝 내려 숫자와 높이 정렬 */}
-                  <span style={{ margin: `0 ${px(6)}px`, color: INK_M, fontWeight: 300, fontSize: px(15), verticalAlign: px(-1) }}>×</span>
+                  {/* ×는 살짝 내려 숫자와 높이 정렬, 색상은 잉크 통일 (v3.4) */}
+                  <span style={{ margin: `0 ${px(6)}px`, color: INK, fontWeight: 300, fontSize: px(15), verticalAlign: px(-1) }}>×</span>
                   {repeat}
                 </div>
               )}
@@ -475,24 +472,21 @@ export default function Story() {
               )}
             </div>
 
-            {/* 워터마크: 물결 마크 좌상단 반크기 (v3.3) — 폴백(히어로 물결) 시에도 유지 */}
+            {/* 워터마크: 물결 마크 날짜 아래 (v3.4 — IG 프로필칩 회피), 폴백 시에도 유지 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={STEAM_MARK} alt="" style={{ position: 'absolute', left: px(26), top: px(24), width: px(20), opacity: 0.11 }} />
+            <img src={STEAM_MARK} alt="" style={{ position: 'absolute', left: px(20), top: px(92), width: px(20), opacity: 0.11 }} />
 
-            {/* 하단 한 줄 (v3.3: 대형 트라이브명 제거): 좌=점+트라이브명(Oswald bold, 높이정렬) / 우=칭호·닉네임 — 전부 11px·잉크 */}
-            <div style={{ position: 'absolute', left: px(26), right: px(26), bottom: px(26) }}>
-              {/* 우측(칭호·닉네임) 자간 .02em, 트라이브명(Oswald)은 .06em 유지 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.02em' }}>
-                <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), letterSpacing: '0.06em', fontStyle: 'italic', color: INK }}>
-                  <span style={{ width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe] }} />
-                  {TRIBE_EN[tribe]}
-                </span>
-                <span style={{ color: INK }}>
-                  {/* 한글 칭호가 영문 닉네임보다 미세하게 커 보여 -0.5px 보정 */}
-                  {log.user_title && <span style={{ fontWeight: 400, fontSize: px(10.5) }}>{log.user_title} · </span>}
-                  <span style={{ fontWeight: 700 }}>{log.user_nickname || 'SA-PIEN'}</span>
-                </span>
-              </div>
+            {/* 하단 우측 스택 (v3.4): 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래, 갭 10, bottom 72(IG 답장바 회피) */}
+            <div style={{ position: 'absolute', right: px(20), bottom: px(72), display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: px(10) }}>
+              <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), fontSize: px(11), fontWeight: 700, fontStyle: 'italic', letterSpacing: '0.06em', color: INK }}>
+                {TRIBE_EN[tribe]}
+                <span style={{ width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe] }} />
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.02em', color: INK }}>
+                {/* 한글 칭호가 영문 닉네임보다 미세하게 커 보여 -0.5px 보정 */}
+                {log.user_title && <span style={{ fontWeight: 400, fontSize: px(10.5) }}>{log.user_title} · </span>}
+                <span style={{ fontWeight: 700 }}>{log.user_nickname || 'SA-PIEN'}</span>
+              </span>
             </div>
           </div>
         </div>
