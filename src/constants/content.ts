@@ -570,7 +570,10 @@ export const PLACE_SPECS = {
         icon: "laptop",
         category: "amenities",
       },
-      { id: "food", label: "매점", icon: "dining", category: "amenities" },
+      // 구 'food'(라벨 매점) → snack/restaurant 분리 (2026-06-12).
+      // DB places.facilities의 'food' 태그는 일괄 restaurant 치환 후 유저 건별 검증 (032_food_to_restaurant.sql)
+      { id: "snack", label: "매점", icon: "dining", category: "amenities" },
+      { id: "restaurant", label: "식당", icon: "restaurant", category: "amenities" },
       {
         id: "sleep-room",
         label: "수면실",
@@ -1050,7 +1053,7 @@ export const EXPLORE_FILTERS = {
   },
   AMENITIES: {
     label: PLACE_SPECS.AMENITIES.label,
-    options: ["food", "sleep-room", "workspace", "tattoo-friendly"],
+    options: ["snack", "restaurant", "sleep-room", "workspace", "tattoo-friendly"],
   },
   GENDER: {
     label: "탕 구분",
