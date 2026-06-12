@@ -71,59 +71,6 @@ export interface PlaceSource {
   created_at: string
 }
 
-// Quick Log 기록
-export interface QuickLogData {
-  // 공통
-  revisit: number       // 1-5
-
-  // 공통 루틴 (heat/ice/pause 시간, repeat 세트)
-  heatTime?: number     // 1-60분
-  iceTime?: number      // 1-5분
-  pauseTime?: number    // 1-30분
-  repeat?: number       // 1-7세트
-
-  // 목욕파
-  waterQuality?: number    // 1-5
-  hotBathTemp?: number     // 30-46°C
-  coldBathTemp?: number    // 0-30°C (saunner/bather 공통 — 선택)
-
-  // 사우너파
-  saunaTemp?: number              // 50-130°C (건식)
-  steamSaunaTemp?: number         // 40-75°C (습식)
-  primarySaunaKind?: 'dry' | 'steam'  // 주 이용 사우나 (둘 다 입력 시 필수)
-  totonoScore?: number            // 1-5, 토토노이
-
-  // 찜질파
-  sweatQuality?: number // 1-5, 발한 퀄리티
-  restQuality?: number  // 1-5, 휴식 퀄리티
-  jjimTemp?: number     // 70-130°C (선택)
-}
-
-// Deep Log 기록
-export interface DeepLogData {
-  // 공통
-  companion?: string
-  cost?: number
-  currency?: string
-  memo?: string
-
-  // 목욕파
-  scrubSatisfaction?: number
-  facilities?: string[]
-  hasOutdoorBath?: boolean
-
-  // 사우너파
-  facilityTags?: string[]
-  coldBathDetail?: string[]
-
-  // 찜질파
-  food_eaten?: string[]
-  roomTypes?: string[]
-  crowd?: string
-  amenities?: string[]
-}
-
-
 // 슬라이더 설정 타입
 export interface SliderConfig {
   label: string
@@ -209,25 +156,6 @@ export interface LogWithPlace {
   blocks?: LogBlock[]
   user_nickname?: string
   user_title?: string
-  deep_log?: {
-    companion?: string | null
-    cost?: number | null
-    currency?: string | null
-    crowd?: string | null
-    memo?: string
-    has_scrub?: boolean
-    scrub_satisfaction?: number | null
-    has_store?: boolean
-    store_score?: number | null
-    store_memo?: string | null
-    cleanliness?: number | null
-    has_very_hot_bath?: boolean
-    very_hot_bath_temp?: number | null
-    has_ice_bath?: boolean
-    ice_bath_temp?: number | null
-    scrub_types?: string[]
-    scrub_cost?: number | null
-  }
 }
 
 // 칭호 (user_titles 테이블)

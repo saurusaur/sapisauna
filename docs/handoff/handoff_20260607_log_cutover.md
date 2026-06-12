@@ -61,7 +61,7 @@
 1. **포인터 드래그 실기기 검증** — 모바일 터치로 잡힘/드롭마커/스크롤 안 밀림. 어색하면 임계값(6px)·마커 위치 조정.
 2. ~~**5단계 표시면 평탄화**~~ ✅ **완료(2026-06-12)** — `toLogWithPlace` 한 곳서 "새 캐시 ?? 레거시" coalesce, 표시면 전부 평탄 필드만 읽음. 상세·disjoint 15건 = `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`. 블록 시퀀스 렌더(히스토리 상세 타임라인)는 BACKLOG P1로 분리.
 3. **기타 시설 온도 토글**(더자세히) — 아직 안 함. 새 모델에선 *루틴 외 시설 온도만 빠르게* 용도, **temp-only 블록**으로 저장 예정(유저 확인 필요). 활동 전체보기로 블록 추가해도 온도 기록은 됨.
-4. **`/log/deep` 페이지 고아** — 새 단일 폼이 안 씀. 정리(삭제) 필요. 구 `insertLog`/`saveOrUpdateDeepLog`(logs-service)도 폼 컷오버 검증 후 삭제.
+4. ~~**`/log/deep` 페이지 고아**~~ ✅ **삭제 완료(2026-06-12)** — deep 페이지 + 구 `insertLog`/`updateLog`/`saveOrUpdateDeepLog` + `buildDeepEntrySession`/`_deepOnly` + `LogWithPlace.deep_log` 중첩 + 고아 타입(QuickLogData/DeepLogData) 제거. deep_logs는 toLogWithPlace 폴백 읽기 전용으로만 잔존(030서 제거).
 5. **배포(main 머지) 전**: 029 STEP2·5 백필 **재실행**(gap 동기화) → 검증 → `030_cleanup`(구 컬럼 sauna_temp/jjim_temp/pause_time + scrub_types + deep_logs DROP). dual-write 여부 재검토.
 6. 디자인 미세조정 계속 (유저가 "디자인 마저 다듬고 다음 작업" 예정).
 

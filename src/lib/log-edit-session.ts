@@ -1,7 +1,7 @@
 /**
  * Log edit session — typed contract for the localStorage payload used when
  * entering an edit flow from history (and as an in-flight scratch on the
- * log/log-deep pages).
+ * log page).
  *
  * Storage keys are intentionally preserved: `currentLog`, `selectedPlace`,
  * and `selectedRecordDate` (cleared together post-save).
@@ -16,7 +16,6 @@ import type { LogWithPlace, LogBlock, TribeId, FacilityType, BathPolicy } from '
 
 export interface CurrentLogPayload {
   _editId?: string
-  _deepOnly?: boolean
   place_id?: string
   place_name?: string
   place_country_code?: string
@@ -43,7 +42,6 @@ export interface CurrentLogPayload {
   cost?: number
   currency?: string
   memo?: string
-  deep_log?: LogWithPlace['deep_log']
   blocks?: LogBlock[]
 }
 
@@ -97,27 +95,12 @@ function buildBaseCurrentLog(log: LogWithPlace): CurrentLogPayload {
   }
 }
 
-/** Quick-log edit entry from history. Includes deep_log if present so the
- * quick-log page can preserve it through edit-save. */
+/** Edit entry from history — 편집 데이터는 blocks(+평탄 필드)가 정본. */
 export function buildQuickEditSession(log: LogWithPlace): {
   currentLog: CurrentLogPayload
   selectedPlace: SelectedPlacePayload
 } {
-  const currentLog = buildBaseCurrentLog(log)
-  if (log.deep_log) currentLog.deep_log = log.deep_log
-  return { currentLog, selectedPlace: buildSelectedPlace(log) }
-}
-
-/** Deep-log entry from history detail (used when no deep_log exists yet).
- * `_deepOnly` flag is preserved for back-compat even though no reader
- * currently branches on it. */
-export function buildDeepEntrySession(log: LogWithPlace): {
-  currentLog: CurrentLogPayload
-  selectedPlace: SelectedPlacePayload
-} {
-  const currentLog = buildBaseCurrentLog(log)
-  currentLog._deepOnly = true
-  return { currentLog, selectedPlace: buildSelectedPlace(log) }
+  return { currentLog: buildBaseCurrentLog(log), selectedPlace: buildSelectedPlace(log) }
 }
 
 /** Persist both payloads to localStorage. Keys are stable contract. */

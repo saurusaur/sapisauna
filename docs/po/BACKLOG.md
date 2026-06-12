@@ -4,7 +4,7 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. **잔여**: ⓶ `/log/deep` 고아·구 함수 정리 ⓷ 030 cleanup(구 컬럼+deep_logs DROP) + **백필 재실행(필수 — gap 로그 편집 시 캐시 유실 방지)** 후 **main 머지** ⓸ 스토리 연결. F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
+- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. ~~⓶ `/log/deep` 고아·구 함수 정리~~ **완료(2026-06-12** — deep 페이지·insertLog/updateLog/saveOrUpdateDeepLog·deep_log 타입 삭제, 시설온도=log_detail 보너스 분리**)**. **잔여**: ⓷ **백필 재실행(필수 — gap 로그 편집 시 캐시 유실 방지, SQL 에디터 수동)** → 검증 → 030 cleanup(구 컬럼+deep_logs DROP + 코드 폴백 제거) → **main 머지** ⓸ 스토리 연결. F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 

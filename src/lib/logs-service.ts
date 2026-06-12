@@ -1,5 +1,6 @@
 /**
- * 로그 서비스 — Supabase logs + deep_logs 연동
+ * 로그 서비스 — Supabase logs(평탄 캐시) + log_blocks(정正) 연동
+ * deep_logs는 030 DROP 전까지 toLogWithPlace의 레거시 폴백 소스로만 읽음 (쓰기 없음)
  */
 
 import { supabase } from './supabase'
@@ -108,25 +109,6 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     restaurant_score: row.restaurant_score as number | null,
     restaurant_memo: row.restaurant_memo as string | null,
     blocks,
-    deep_log: dl ? {
-      companion: dl.companion as string | null,
-      cost: dl.cost as number | null,
-      currency: dl.currency as string | null,
-      crowd: dl.crowd as string | null,
-      memo: dl.memo as string | undefined,
-      has_scrub: dl.has_scrub as boolean | undefined,
-      scrub_satisfaction: dl.scrub_satisfaction as number | null,
-      has_store: dl.has_store as boolean | undefined,
-      store_score: dl.store_score as number | null,
-      store_memo: dl.store_memo as string | null,
-      cleanliness: dl.cleanliness as number | null,
-      has_very_hot_bath: dl.has_very_hot_bath as boolean | undefined,
-      very_hot_bath_temp: dl.very_hot_bath_temp as number | null,
-      has_ice_bath: dl.has_ice_bath as boolean | undefined,
-      ice_bath_temp: dl.ice_bath_temp as number | null,
-      scrub_types: (dl.scrub_types as string[]) || [],
-      scrub_cost: dl.scrub_cost as number | null,
-    } : undefined,
   }
 }
 
@@ -242,42 +224,6 @@ export async function getMyLogsByPlace(placeId: string): Promise<LogWithPlace[]>
   return (data || []).map(toLogWithPlace)
 }
 
-// 로그 INSERT — DB 컬럼명과 키 동일
-export async function insertLog(logData: Record<string, unknown>): Promise<string> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('인증 필요')
-
-  const { data, error } = await supabase
-    .from('logs')
-    .insert({
-      user_id: user.id,
-      place_id: logData.place_id,
-      tribe_id: logData.tribe_id,
-      revisit_score: logData.revisit_score,
-      heat_time: logData.heat_time ?? null,
-      ice_time: logData.ice_time ?? null,
-      pause_time: logData.pause_time ?? null,
-      repeat: logData.repeat ?? null,
-      sauna_temp: logData.sauna_temp ?? null,
-      steam_sauna_temp: logData.steam_sauna_temp ?? null,
-      primary_sauna_kind: logData.primary_sauna_kind ?? null,
-      cold_bath_temp: logData.cold_bath_temp ?? null,
-      totono_score: logData.totono_score ?? null,
-      water_quality: logData.water_quality ?? null,
-      hot_bath_temp: logData.hot_bath_temp ?? null,
-      jjim_temp: logData.jjim_temp ?? null,
-      sweat_quality: logData.sweat_quality ?? null,
-      rest_quality: logData.rest_quality ?? null,
-      bath_gender: logData.bath_gender ?? null,
-      record_date: logData.record_date ?? null,
-    })
-    .select('id')
-    .single()
-
-  if (error) throw error
-  return data.id as string
-}
-
 // 로그 삭제 — deep_logs는 ON DELETE CASCADE로 자동 삭제
 export async function deleteLog(logId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
@@ -290,149 +236,6 @@ export async function deleteLog(logId: string): Promise<void> {
     .eq('user_id', user.id)
 
   if (error) throw error
-}
-
-// 로그 UPDATE — 편집 모드에서 사용
-export async function updateLog(logId: string, logData: Record<string, unknown>): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('인증 필요')
-
-  // tribe 변경 시 이전 tribe 전용 필드를 null로 초기화
-  const { error } = await supabase
-    .from('logs')
-    .update({
-      place_id: logData.place_id,
-      tribe_id: logData.tribe_id,
-      revisit_score: logData.revisit_score,
-      heat_time: logData.heat_time ?? null,
-      ice_time: logData.ice_time ?? null,
-      pause_time: logData.pause_time ?? null,
-      repeat: logData.repeat ?? null,
-      // 모든 tribe 필드를 명시 — 해당 tribe가 아니면 null로 클리어
-      sauna_temp: logData.sauna_temp ?? null,
-      steam_sauna_temp: logData.steam_sauna_temp ?? null,
-      primary_sauna_kind: logData.primary_sauna_kind ?? null,
-      cold_bath_temp: logData.cold_bath_temp ?? null,
-      totono_score: logData.totono_score ?? null,
-      water_quality: logData.water_quality ?? null,
-      hot_bath_temp: logData.hot_bath_temp ?? null,
-      jjim_temp: logData.jjim_temp ?? null,
-      sweat_quality: logData.sweat_quality ?? null,
-      rest_quality: logData.rest_quality ?? null,
-      bath_gender: logData.bath_gender ?? null,
-      record_date: logData.record_date ?? null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', logId)
-    .eq('user_id', user.id)
-
-  if (error) throw error
-}
-
-// 딥로그 저장 (INSERT 또는 UPDATE — 기존 존재 여부에 따라 분기)
-export async function saveOrUpdateDeepLog(logId: string, deepData: Record<string, unknown>): Promise<void> {
-  // 기존 딥로그 존재 확인
-  const { data: existing } = await supabase
-    .from('deep_logs')
-    .select('id')
-    .eq('log_id', logId)
-    .single()
-
-  const payload = {
-    log_id: logId,
-    companion: deepData.companion ?? null,
-    cost: deepData.cost ?? null,
-    currency: deepData.currency ?? 'KRW',
-    memo: deepData.memo ?? null,
-    crowd: deepData.crowd ?? null,
-    has_scrub: deepData.has_scrub ?? false,
-    scrub_satisfaction: deepData.scrub_satisfaction ?? null,
-    has_store: deepData.has_store ?? false,
-    store_score: deepData.store_score ?? null,
-    store_memo: deepData.store_memo ?? null,
-    food_eaten: deepData.food_eaten ?? [],
-    cleanliness: deepData.cleanliness ?? null,
-    has_very_hot_bath: deepData.has_very_hot_bath ?? false,
-    very_hot_bath_temp: deepData.very_hot_bath_temp ?? null,
-    has_ice_bath: deepData.has_ice_bath ?? false,
-    ice_bath_temp: deepData.ice_bath_temp ?? null,
-    scrub_types: deepData.scrub_types ?? [],
-    scrub_cost: deepData.scrub_cost ?? null,
-    updated_at: new Date().toISOString(),
-  }
-
-  if (existing) {
-    const { error } = await supabase
-      .from('deep_logs')
-      .update(payload)
-      .eq('log_id', logId)
-    if (error) throw error
-  } else {
-    const { error } = await supabase
-      .from('deep_logs')
-      .insert(payload)
-    if (error) throw error
-  }
-
-  // 탕/사우나 온도: 딥로그에서 입력받아 logs 테이블에 저장
-  // ── key-presence semantics ──
-  // deepData에 키가 있으면 deep page가 해당 필드의 편집 권한이 있고 의도적으로 값 설정
-  //  → null이면 클리어, number/문자열이면 업데이트
-  // 키 자체가 없으면 quick log 소유 영역이라 절대 안 건드림 (quick에서 입력한 값 보존)
-  const logsUpdate: Record<string, unknown> = {}
-  const setIfPresent = (key: keyof typeof deepData) => {
-    if (key in deepData) logsUpdate[key as string] = deepData[key] ?? null
-  }
-  setIfPresent('hot_bath_temp')
-  setIfPresent('cold_bath_temp')
-  setIfPresent('sauna_temp')
-  setIfPresent('steam_sauna_temp')
-  setIfPresent('primary_sauna_kind')
-  if (Object.keys(logsUpdate).length > 0) {
-    await supabase.from('logs').update(logsUpdate).eq('id', logId)
-  }
-
-  // 시설 자동태그 (deep page가 해당 필드 편집 권한이 있고 값을 입력한 경우에만)
-  const autoTags: string[] = []
-  if (deepData.sauna_temp != null) autoTags.push('dry-sauna')
-  if (deepData.steam_sauna_temp != null) autoTags.push('steam-sauna')
-  if (deepData.has_very_hot_bath) autoTags.push('very-hot-bath')
-  if (deepData.has_ice_bath) autoTags.push('ice-bath')
-  if (deepData.cold_bath_temp != null) autoTags.push('cold-bath')
-  if (deepData.hot_bath_temp != null) autoTags.push('hot-bath')
-  if (deepData.has_scrub) {
-    const types = (deepData.scrub_types as string[]) || []
-    if (types.includes('scrub')) autoTags.push('scrub')
-    if (types.includes('massage')) autoTags.push('massage')
-  }
-
-  if (autoTags.length > 0) {
-    // logId로 place_id 조회
-    const { data: log } = await supabase
-      .from('logs')
-      .select('place_id')
-      .eq('id', logId)
-      .single()
-
-    if (log) {
-      const { data: place } = await supabase
-        .from('places')
-        .select('facilities')
-        .eq('id', log.place_id)
-        .single()
-
-      if (place) {
-        const current = (place.facilities as string[]) || []
-        const newTags = autoTags.filter(t => !current.includes(t))
-        if (newTags.length > 0) {
-          await supabase
-            .from('places')
-            .update({ facilities: [...current, ...newTags] })
-            .eq('id', log.place_id)
-        }
-      }
-    }
-  }
 }
 
 // ============================================================
