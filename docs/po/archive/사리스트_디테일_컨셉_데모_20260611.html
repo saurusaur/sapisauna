@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>SA-LIST 디테일 페이지 컨셉 — 매거진 목차형 vs 카드 스택형</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+    background:#e9e4de; padding:40px 30px; color:#2a2222;
+  }
+  h1 { font-size:20px; font-style:italic; font-weight:800; margin-bottom:6px; }
+  .sub { font-size:13px; color:#78716c; margin-bottom:28px; }
+  .row { display:flex; gap:36px; align-items:flex-start; flex-wrap:wrap; }
+  .col { width:320px; }
+  .concept-label { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .concept-desc { font-size:12px; color:#78716c; line-height:1.5; margin-bottom:14px; min-height:54px; }
+
+  .phone {
+    width:320px; height:700px;
+    background:linear-gradient(135deg,#f5f2ef 0%,#ede8e3 100%);
+    border-radius:36px; border:6px solid #1c1917; overflow:hidden; position:relative;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,.35);
+  }
+  .screen { height:100%; overflow-y:auto; scrollbar-width:none; position:relative; }
+  .screen::-webkit-scrollbar { display:none; }
+
+  /* ── hue 헤더: 홈/메인의 곡선 SVG 컴포넌트 재사용 (fill만 cover_hue) ── */
+  .hue-block { position:absolute; top:0; left:0; right:0; height:248px; background:#cfe3c8; z-index:0; overflow:hidden; }
+  .hue-curve { position:absolute; left:0; right:0; top:240px; z-index:0; line-height:0; }
+  .hue-curve svg { display:block; width:100%; height:34px; }
+  .hue-block .bigshape { position:absolute; right:-34px; bottom:-46px; fill:#b2d0a8; }
+
+  .nav { position:relative; z-index:4; display:flex; justify-content:space-between; align-items:center; padding:18px 16px 0; }
+  .navbtn {
+    width:34px; height:34px; border-radius:999px; background:rgba(255,255,255,.45);
+    border:1px solid rgba(255,255,255,.6); display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; color:#2a2222;
+  }
+
+  .head { position:relative; z-index:3; padding:18px 22px 0; }
+  .head .label { font-family:'Oswald',sans-serif; font-size:10px; font-weight:600; letter-spacing:.22em; color:#6f9a63; }
+  .head .t1 { font-size:30px; font-weight:800; line-height:1.12; margin-top:6px; }
+  .head .t2 { font-size:26px; font-weight:700; line-height:1.15; color:#6f9a63; }
+  .head .desc { font-size:12.5px; line-height:1.65; color:#3f3a36; margin-top:11px; max-width:92%; }
+  .head .meta { display:flex; align-items:center; gap:7px; margin-top:12px; font-size:11px; font-weight:600; color:#57534e; }
+  .head .avatar { width:20px; height:20px; border-radius:999px; background:#fff; border:1.5px solid #b2d0a8; }
+  .tags { display:flex; gap:6px; margin-top:10px; }
+  .tags span { font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.5); color:#57534e; }
+
+  /* ── 액션 행: 구독 + 공유 ── */
+  .actions { position:relative; z-index:5; display:flex; gap:9px; padding:18px 20px 6px; }
+  .btn-sub {
+    flex:1; background:#2a2222; color:#fff; border-radius:999px; padding:12px 0;
+    font-size:13px; font-weight:700; text-align:center;
+    box-shadow:0 6px 16px -6px rgba(42,34,34,.45);
+  }
+  .btn-share {
+    width:44px; height:44px; border-radius:999px; background:rgba(255,255,255,.85);
+    border:0.5px solid #e2deda; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 10px -4px rgba(0,0,0,.14);
+  }
+
+  .toc-h { display:flex; align-items:baseline; justify-content:space-between; padding:20px 22px 12px; position:relative; z-index:2; }
+  .toc-h .th { font-family:'Oswald',sans-serif; font-style:italic; font-size:16px; font-weight:600; letter-spacing:.05em; }
+  .toc-h .tn { font-size:10px; color:#a8a29e; font-weight:600; }
+
+  /* ── A안: 매거진 목차형 ── */
+  .tocrow { padding:13px 22px 15px; position:relative; z-index:2; }
+  .tocrow + .tocrow { border-top:1px solid rgba(42,34,34,.07); }
+  .tocrow .line1 { display:flex; align-items:baseline; gap:11px; }
+  .tocrow .num { font-family:'Oswald',sans-serif; font-style:italic; font-size:17px; font-weight:600; color:#9bbd8e; min-width:24px; }
+  .tocrow .name { font-size:14.5px; font-weight:800; }
+  .tocrow .loc { font-size:10px; color:#a8a29e; font-weight:600; margin-left:auto; }
+  .tocrow .memo {
+    margin:8px 0 0 35px; padding:2px 0 2px 11px; border-left:2.5px solid #b2d0a8;
+    font-size:12px; line-height:1.6; color:#57534e;
+  }
+  .tocrow .chips { display:flex; gap:5px; margin:8px 0 0 35px; }
+  .tocrow .chips span { font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.7); border:0.5px solid #e2deda; color:#78716c; }
+
+  /* ── B안: 카드 스택형 ── */
+  .pcard {
+    margin:0 16px 10px; background:rgba(251,250,248,.92); border-radius:16px; padding:13px 14px;
+    box-shadow:0 3px 12px -3px rgba(38,33,33,.10), 0 1px 3px -1px rgba(38,33,33,.06);
+    position:relative; z-index:2;
+  }
+  .pcard .top { display:flex; align-items:center; gap:10px; }
+  .pcard .dot { width:38px; height:38px; border-radius:12px; background:#cfe3c8; position:relative; overflow:hidden; flex-shrink:0; }
+  .pcard .dot svg { position:absolute; bottom:-6px; left:5px; fill:#b2d0a8; }
+  .pcard .nm { font-size:13.5px; font-weight:800; }
+  .pcard .lc { font-size:10px; color:#a8a29e; font-weight:600; margin-top:2px; }
+  .pcard .save { margin-left:auto; width:30px; height:30px; border-radius:999px; background:#f5f2ef; display:flex; align-items:center; justify-content:center; font-size:13px; color:#a8a29e; }
+  .pcard .memo {
+    margin-top:10px; background:rgba(207,227,200,.35); border-radius:11px; padding:9px 11px;
+    font-size:12px; line-height:1.6; color:#57534e;
+  }
+  .pcard .memo b { font-size:9.5px; font-weight:800; letter-spacing:.1em; color:#6f9a63; display:block; margin-bottom:3px; }
+
+  .anno { width:280px; padding-top:8px; }
+  .anno h3 { font-size:14px; font-weight:800; margin:18px 0 4px; }
+  .anno p { font-size:12px; color:#57534e; line-height:1.6; }
+  .anno .n { display:inline-flex; width:18px; height:18px; border-radius:999px; background:#cc1a1a; color:#fff; font-size:11px; font-weight:800; align-items:center; justify-content:center; margin-right:6px; }
+</style>
+</head>
+<body>
+<h1>SA-LIST 디테일 페이지 — 헤더 공통, 사우나 목록 A/B 비교</h1>
+<p class="sub">헤더 = 메인·홈과 같은 곡선 SVG 컴포넌트, fill만 리스트의 cover_hue. 2톤 타이틀 + 설명 + 구독/공유.</p>
+
+<div class="row">
+
+  <!-- ========== A안: 매거진 목차형 ========== -->
+  <div class="col">
+    <div class="concept-label">A — 매거진 목차형 (추천)</div>
+    <div class="concept-desc">사우나들을 잡지 목차처럼: Oswald 번호 + 시설명 + 지역, 큐레이터 메모는 hue색 인용선 풀쿼트. 카드 테두리 없이 가벼움 — "큐레이터의 글"이라는 느낌.</div>
+    <div class="phone"><div class="screen" style="padding-bottom:30px;">
+      <div class="hue-block">
+        <svg class="bigshape" width="190" height="150" viewBox="0 0 190 150"><path d="M8 150 Q8 38 95 38 Q182 38 182 150 Z"/></svg>
+      </div>
+      <div class="hue-curve" aria-hidden="true">
+        <svg viewBox="0 0 393 34" preserveAspectRatio="none"><path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill="#cfe3c8"/></svg>
+      </div>
+
+      <div class="nav"><div class="navbtn">‹</div><div class="navbtn">⋯</div></div>
+      <div class="head">
+        <div class="label">SA-LIST · 사피픽 №1</div>
+        <div class="t1">주말 노천탕</div>
+        <div class="t2">서울 근교 6곳</div>
+        <div class="desc">노천에서 김 올라오는 거 보면서 몸 지지는 게 최고라서, 차로 1시간 안에 가는 곳만 모았습니다. 전부 직접 다녀온 곳.</div>
+        <div class="meta"><div class="avatar"></div>@사피 · 구독 132 · 6곳 · 업데이트 6/8</div>
+        <div class="tags"><span>#노천탕</span><span>#서울근교</span><span>#주말</span></div>
+      </div>
+
+      <div class="actions">
+        <div class="btn-sub">구독하기</div>
+        <div class="btn-share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#57534e" stroke-width="2"><circle cx="6" cy="12" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="M8.2 10.8l6.6-3.6M8.2 13.2l6.6 3.6"/></svg></div>
+      </div>
+
+      <div class="toc-h"><span class="th">THE LIST</span><span class="tn">6곳 · 큐레이터 순서</span></div>
+
+      <div class="tocrow">
+        <div class="line1"><span class="num">01</span><span class="name">스파그린랜드</span><span class="loc">남양주</span></div>
+        <div class="memo">노천 바데풀이 메인. 겨울 밤에 가면 머리 위로 김이 안개처럼 깔림. 평일 저녁 추천.</div>
+        <div class="chips"><span>호텔스파</span><span>냉탕 18°</span></div>
+      </div>
+      <div class="tocrow">
+        <div class="line1"><span class="num">02</span><span class="name">아쿠아필드 고양</span><span class="loc">고양</span></div>
+        <div class="memo">인피니티 노천탕에서 보는 노을. 주말은 웨이팅 있으니 오픈런.</div>
+        <div class="chips"><span>찜질방</span><span>노천</span></div>
+      </div>
+      <div class="tocrow">
+        <div class="line1"><span class="num">03</span><span class="name">온휴 스파</span><span class="loc">가평</span></div>
+        <div class="memo">계곡 옆 야외탕. 물소리 들으면서 반신욕 — 여기가 제일 조용함.</div>
+        <div class="chips"><span>온천</span></div>
+      </div>
+      <div class="tocrow">
+        <div class="line1"><span class="num">04</span><span class="name">설악 워터피아</span><span class="loc">속초</span></div>
+        <div class="memo">유황 온천수라 탕에서 나와도 몸이 한참 따뜻함.</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ========== B안: 카드 스택형 ========== -->
+  <div class="col">
+    <div class="concept-label">B — 카드 스택형</div>
+    <div class="concept-desc">사우나마다 글래스 카드 + hue 틴트 메모 박스("큐레이터 메모" 라벨). 시설 저장(북마크) 같은 행동 버튼 달기 좋고, 현재 PlaceCard 구현과 가까워 전환 비용 낮음.</div>
+    <div class="phone"><div class="screen" style="padding-bottom:30px;">
+      <div class="hue-block">
+        <svg class="bigshape" width="190" height="150" viewBox="0 0 190 150"><path d="M8 150 Q8 38 95 38 Q182 38 182 150 Z"/></svg>
+      </div>
+      <div class="hue-curve" aria-hidden="true">
+        <svg viewBox="0 0 393 34" preserveAspectRatio="none"><path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill="#cfe3c8"/></svg>
+      </div>
+
+      <div class="nav"><div class="navbtn">‹</div><div class="navbtn">⋯</div></div>
+      <div class="head">
+        <div class="label">SA-LIST · 사피픽 №1</div>
+        <div class="t1">주말 노천탕</div>
+        <div class="t2">서울 근교 6곳</div>
+        <div class="desc">노천에서 김 올라오는 거 보면서 몸 지지는 게 최고라서, 차로 1시간 안에 가는 곳만 모았습니다. 전부 직접 다녀온 곳.</div>
+        <div class="meta"><div class="avatar"></div>@사피 · 구독 132 · 6곳 · 업데이트 6/8</div>
+        <div class="tags"><span>#노천탕</span><span>#서울근교</span><span>#주말</span></div>
+      </div>
+
+      <div class="actions">
+        <div class="btn-sub">구독하기</div>
+        <div class="btn-share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#57534e" stroke-width="2"><circle cx="6" cy="12" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="M8.2 10.8l6.6-3.6M8.2 13.2l6.6 3.6"/></svg></div>
+      </div>
+
+      <div class="toc-h"><span class="th">THE LIST</span><span class="tn">6곳 · 큐레이터 순서</span></div>
+
+      <div class="pcard">
+        <div class="top">
+          <div class="dot"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M1 26 Q1 6 17 6 Q33 6 33 26 Z"/></svg></div>
+          <div><div class="nm">스파그린랜드</div><div class="lc">남양주 · 호텔스파</div></div>
+          <div class="save">♡</div>
+        </div>
+        <div class="memo"><b>CURATOR'S MEMO</b>노천 바데풀이 메인. 겨울 밤에 가면 머리 위로 김이 안개처럼 깔림. 평일 저녁 추천.</div>
+      </div>
+      <div class="pcard">
+        <div class="top">
+          <div class="dot"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M1 26 Q1 6 17 6 Q33 6 33 26 Z"/></svg></div>
+          <div><div class="nm">아쿠아필드 고양</div><div class="lc">고양 · 찜질방</div></div>
+          <div class="save">♡</div>
+        </div>
+        <div class="memo"><b>CURATOR'S MEMO</b>인피니티 노천탕에서 보는 노을. 주말은 웨이팅 있으니 오픈런.</div>
+      </div>
+      <div class="pcard">
+        <div class="top">
+          <div class="dot"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M1 26 Q1 6 17 6 Q33 6 33 26 Z"/></svg></div>
+          <div><div class="nm">온휴 스파</div><div class="lc">가평 · 온천</div></div>
+          <div class="save">♡</div>
+        </div>
+        <div class="memo"><b>CURATOR'S MEMO</b>계곡 옆 야외탕. 물소리 들으면서 반신욕 — 여기가 제일 조용함.</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ========== annotations ========== -->
+  <div class="anno">
+    <h3><span class="n">1</span>헤더 — 곡선 컴포넌트 재사용</h3>
+    <p>홈·사리스트 메인과 같은 곡선 SVG, fill만 리스트의 <b>cover_hue 파스텔</b>. 우하단에 그 리스트의 모티프 도형을 크게 — 메인 그리드 카드가 그대로 확대되어 열린 느낌(공유 전환 연출 가능).</p>
+
+    <h3><span class="n">2</span>2톤 타이틀 + 설명</h3>
+    <p>메인 카드와 동일한 2톤 스택(잉크 1행 + hue톤 2행) → 카드 = 페이지 표지가 1:1 대응. 설명, 큐레이터 메타(@·구독수·곳수·업데이트일), 해시태그 칩.</p>
+
+    <h3><span class="n">3</span>구독 + 공유</h3>
+    <p>구독 = 잉크색 풀폭 pill(주 행동), 공유 = 옆 원형 버튼. 구독 시 "MY SHELF에 꽂혔어요" 토스트로 메인의 선반 메타포와 연결. 스크롤 내리면 구독 pill이 하단 sticky로 축소되는 패턴도 가능.</p>
+
+    <h3><span class="n">4</span>THE LIST — A vs B</h3>
+    <p><b>A 목차형(추천):</b> 잡지 목차 그대로. 번호·인용선 메모라 "큐레이터가 쓴 글"의 톤이 살고 한 화면에 더 많이 보임. 행동 버튼이 적어 읽기 몰입형.<br><br>
+    <b>B 카드형:</b> 시설 단위 행동(♡ 저장, 탭→시설 상세)이 분명. 현 PlaceCard와 가까워 구현 빠름. 대신 무거워지고 에디토리얼 톤은 약해짐.<br><br>
+    절충: A 목차형 + 행 우측에 작은 ♡만 추가.</p>
+  </div>
+
+</div>
+</body>
+</html>
