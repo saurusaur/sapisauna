@@ -313,8 +313,8 @@ function buildLogCaches(blocks: LogBlockInput[], s: LogSessionInput): Record<str
     if (REST_BLOCKS.has(b.blockType) && b.score != null) c.rest_quality = b.score
     if (b.blockType === 'scrub') { c.scrub_score = b.score ?? null; c.scrub_cost = b.cost ?? null; c.scrub_type = b.variant ?? 'basic' }
     else if (b.blockType === 'massage') { c.massage_score = b.score ?? null; c.massage_cost = b.cost ?? null }
-    else if (b.blockType === 'snack') { c.snack_score = b.score ?? null; c.snack_memo = b.memo ?? null }
-    else if (b.blockType === 'restaurant') { c.restaurant_score = b.score ?? null; c.restaurant_memo = b.memo ?? null }
+    else if (b.blockType === 'snack') { c.snack_score = b.score ?? null; c.snack_memo = b.memo || null }
+    else if (b.blockType === 'restaurant') { c.restaurant_score = b.score ?? null; c.restaurant_memo = b.memo || null }
   }
   if (heatSec > 0) c.heat_time = Math.round(heatSec / 60)  // 분
   if (iceSec > 0) c.ice_time = iceSec                       // 초
@@ -333,7 +333,7 @@ async function insertBlocks(logId: string, blocks: LogBlockInput[]): Promise<voi
     duration_sec: b.durationSec ?? null,
     score: b.score ?? null,
     cost: b.cost ?? null,
-    memo: b.memo ?? null,
+    memo: b.memo || null,  // 빈문자열 → null 통일 (2026-06-13)
     variant: b.variant ?? null,
     norepeat: b.norepeat ?? false,
     is_extra: b.isExtra ?? false,

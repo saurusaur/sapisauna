@@ -45,8 +45,37 @@ delete from log_blocks
 where block_type = 'dry-sauna' and is_extra = false
   and temp is null and duration_sec is null and score is null and cost is null and memo is null;
 
--- 4. (표현 정규화) 세신 variant null → 'basic' — 코드상 동등이나 일관화
+-- 4. (표현 정규화) 세신 variant null → 'basic' — 표준 확정(2026-06-13). 새 폼도 'basic' 명시 저장으로 코드 수정됨
 update log_blocks set variant = 'basic' where block_type = 'scrub' and variant is null;
+
+-- 5. flag=false 잔존 열탕/급냉 온도 복원 (유저 확정 2026-06-13 "다 살려줘" — 현재 해당 24건 전부 어드민 시드)
+--    ⚠️ deep_logs를 읽으므로 반드시 030(DROP) 전에 실행!
+update logs l set very_hot_bath_temp = d.very_hot_bath_temp
+from deep_logs d
+where d.log_id = l.id and l.very_hot_bath_temp is null and d.very_hot_bath_temp is not null;
+
+update logs l set ice_bath_temp = d.ice_bath_temp
+from deep_logs d
+where d.log_id = l.id and l.ice_bath_temp is null and d.ice_bath_temp is not null;  -- 현재 0건(동일 규칙 보강용)
+
+-- 복원된 어드민 온도 → is_extra 블록 (033 규칙과 동일, 멱등)
+insert into log_blocks (log_id, seq, block_type, category, temp, norepeat, is_extra)
+select l.id, 4, 'very-hot-bath', 'heat', l.very_hot_bath_temp, true, true
+from logs l
+where l.user_id = '23c431c3-9b23-4779-bb27-13472e58090a' and l.very_hot_bath_temp is not null
+  and not exists (select 1 from log_blocks b where b.log_id = l.id and b.block_type = 'very-hot-bath');
+
+insert into log_blocks (log_id, seq, block_type, category, temp, norepeat, is_extra)
+select l.id, 12, 'ice-bath', 'ice', l.ice_bath_temp, true, true
+from logs l
+where l.user_id = '23c431c3-9b23-4779-bb27-13472e58090a' and l.ice_bath_temp is not null
+  and not exists (select 1 from log_blocks b where b.log_id = l.id and b.block_type = 'ice-bath');
+
+-- 6. 빈문자열 텍스트 → null 통일 (유저 확정 2026-06-13 — logs.memo 13·snack_memo 9·블록 memo 8건)
+update logs set memo = null where memo = '';
+update logs set snack_memo = null where snack_memo = '';
+update logs set restaurant_memo = null where restaurant_memo = '';
+update log_blocks set memo = null where memo = '';
 
 commit;
 
@@ -62,3 +91,9 @@ where l.id in ('4c37eb4e-8b49-40eb-8a1b-c1896edd8572')
 order by b.log_id, b.seq;
 -- V3. variant null 세신 = 0
 select count(*) from log_blocks where block_type = 'scrub' and variant is null;
+-- V4. 열탕 복원 확인 — flag=false 잔존인데 logs가 null인 건 = 0
+select count(*) from deep_logs d join logs l on l.id = d.log_id
+where d.very_hot_bath_temp is not null and l.very_hot_bath_temp is null;
+-- V5. 빈문자열 잔존 = 0
+select (select count(*) from logs where memo = '' or snack_memo = '' or restaurant_memo = '') as logs_empty,
+       (select count(*) from log_blocks where memo = '') as blocks_empty;
