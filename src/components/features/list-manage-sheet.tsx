@@ -19,7 +19,7 @@ interface ListManageSheetProps {
   onClose: () => void
   onUpdated: () => void
   onDeleted: () => void
-  initialView?: 'menu' | 'visibility'
+  initialView?: 'menu' | 'visibility' | 'edit'
 }
 
 type View = 'menu' | 'edit' | 'visibility'
@@ -148,6 +148,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
                 description: list.description || '',
                 cover_hue: list.cover_hue,
                 cover_emoji: list.cover_emoji ?? null,
+                creator_links: list.creator_links || {},
               }}
               onSubmit={async (data) => {
                 await listsService.updateList(list.id, {
@@ -156,6 +157,7 @@ export function ListManageSheet({ list, open, onClose, onUpdated, onDeleted, ini
                   tags: data.tags.length > 0 ? data.tags : [],
                   cover_hue: data.cover_hue,
                   cover_emoji: data.cover_emoji,
+                  creator_links: data.creator_links || {},
                 })
                 onUpdated()
                 showNotice('수정되었어요')

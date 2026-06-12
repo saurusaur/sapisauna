@@ -284,11 +284,13 @@ export async function getListItems(idOrSlug: string): Promise<ListItem[]> {
   const listId = await resolveListId(idOrSlug)
   if (!listId) return []
 
+  // 큐레이터 순서(sort_order) 우선, 미지정(null)은 추가순으로 뒤에
   const { data, error } = await supabase
     .from('list_items')
     .select('*, place:places!place_id(*, place_sources(*))')
     .eq('list_id', listId)
-    .order('created_at', { ascending: false })
+    .order('sort_order', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: true })
 
   if (error) throw error
   return (data || []).map((item) => ({
@@ -299,9 +301,11 @@ export async function getListItems(idOrSlug: string): Promise<ListItem[]> {
 
 // 장소를 리스트에 추가 + place_count 업데이트
 export async function addPlaceToList(listId: string, placeId: string, memo?: string): Promise<ListItem> {
+  // 새 장소는 맨 뒤 순서로 (sort_order = 현재 개수)
+  const nextOrder = await countPlaces(listId)
   const { data, error } = await supabase
     .from('list_items')
-    .insert({ list_id: listId, place_id: placeId, memo: memo || null })
+    .insert({ list_id: listId, place_id: placeId, memo: memo || null, sort_order: nextOrder })
     .select()
     .single()
 
@@ -356,6 +360,21 @@ async function countPlaces(listId: string): Promise<number> {
     .select('*', { count: 'exact', head: true })
     .eq('list_id', listId)
   return count ?? 0
+}
+
+// 큐레이터 순서 변경 — 정렬된 item id 배열을 받아 sort_order를 0부터 재부여
+export async function reorderListItems(listId: string, orderedItemIds: string[]): Promise<void> {
+  const results = await Promise.all(
+    orderedItemIds.map((itemId, index) =>
+      supabase
+        .from('list_items')
+        .update({ sort_order: index })
+        .eq('id', itemId)
+        .eq('list_id', listId)
+    )
+  )
+  const failed = results.find((r) => r.error)
+  if (failed?.error) throw failed.error
 }
 
 // 장소별 메모 수정
