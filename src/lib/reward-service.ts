@@ -12,12 +12,12 @@ import type { TribeId, RewardResult, SaList } from '@/types'
 /**
  * XP 지급 + 레벨업 체크 + 칭호 드롭
  * @param action - XP 행동 종류
- * @param meta - 추가 정보 (tribeId 등)
+ * @param meta - 추가 정보 (tribeId, 보너스 액션 — 한 번에 합산 지급, 마일스톤은 action 기준만)
  * @returns RewardResult | null (로그인 안 됐으면 null)
  */
 export async function grantReward(
   action: XpAction,
-  meta?: { tribeId?: TribeId }
+  meta?: { tribeId?: TribeId; bonuses?: XpAction[] }
 ): Promise<RewardResult | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -31,7 +31,7 @@ export async function grantReward(
 
   const oldXp = profile?.xp ?? 0
   const oldLevel = profile?.level ?? 0
-  const xpGained = XP_VALUES[action]
+  const xpGained = XP_VALUES[action] + (meta?.bonuses ?? []).reduce((s, b) => s + XP_VALUES[b], 0)
   const newTotalXp = oldXp + xpGained
   const newLevel = levelFromXp(newTotalXp)
   const leveledUp = newLevel > oldLevel
@@ -92,8 +92,8 @@ async function checkMilestones(
 ): Promise<string[]> {
   const titles: string[] = []
 
-  // 로그 관련 마일스톤 (short_log, deep_log)
-  if ((action === 'short_log' || action === 'deep_log') && meta?.tribeId) {
+  // 로그 관련 마일스톤
+  if (action === 'log' && meta?.tribeId) {
     const tribeId = meta.tribeId
     const milestones = TRIBE_LOG_MILESTONES[tribeId]
     if (milestones) {

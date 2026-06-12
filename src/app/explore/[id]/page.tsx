@@ -112,18 +112,10 @@ export default function PlaceDetailPage() {
   }
   const tempMetrics = [
     { label: '온탕', value: calcTempAvg('hot_bath_temp') },
-    { label: '건식', value: calcTempAvg('sauna_temp') },
+    { label: '건식', value: calcTempAvg('dry_sauna_temp') },
     { label: '냉탕', value: calcTempAvg('cold_bath_temp') },
-    { label: '한증막', value: calcTempAvg('jjim_temp') },
+    { label: '한증막', value: calcTempAvg('bulgama_temp') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
-
-  // 2-1. 딥로그 온도/청결도 (placeLogs 전체)
-  const calcDeepAvg = (field: 'very_hot_bath_temp' | 'ice_bath_temp' | 'cleanliness') => {
-    const vals = placeLogs
-      .filter(l => l.deep_log?.[field] != null)
-      .map(l => l.deep_log![field] as number)
-    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
-  }
 
   // 2-2. 주관적 점수 (userLogs — 어드민 제외)
   const calcScoreAvg = (field: keyof typeof userLogs[0], filterTribe?: string) => {
@@ -132,42 +124,45 @@ export default function PlaceDetailPage() {
     return vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null
   }
 
-  // 3. 트라이브별 서브 메트릭 (컬럼 표시)
-  // steam_sauna_temp는 이제 logs 테이블에 있음 → calcTempAvg 사용
-  const steamSaunaAvg = calcTempAvg('steam_sauna_temp')
-  const deepVeryHotBathAvg = calcDeepAvg('very_hot_bath_temp')
-  const iceBathAvg = calcDeepAvg('ice_bath_temp')
+  // 3. 트라이브별 서브 메트릭 (B안 확정 2026-06-12)
+  // 온도(객관, 전체 로그)와 평점(주관, 해당 트라이브 유저)을 그룹 분리.
+  // 신규 시설 배치: 소금→사우너 / 노천탕→목욕파 / 아이스방→찜질파.
+  // 온도는 트라이브 기록이 없어도 입력만 있으면 컬럼 노출 (temps ∪ scores 기준).
+  const tempOf = (field: Parameters<typeof calcTempAvg>[0], label: string) => {
+    const v = calcTempAvg(field)
+    return v != null ? [{ label, value: `${v}°C` }] : []
+  }
+  const scoreOf = (field: Parameters<typeof calcScoreAvg>[0], tribe: string, label: string) => {
+    const v = calcScoreAvg(field, tribe)
+    return v != null ? [{ label, value: `${v}/5` }] : []
+  }
 
-  const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
-    { tribeId: 'saunner', metrics: [
-      ...(steamSaunaAvg != null ? [{ label: '습식', value: `${steamSaunaAvg}°C` }] : []),
-      ...(iceBathAvg != null ? [{ label: '급냉탕', value: `${iceBathAvg}°C` }] : []),
-      ...(calcScoreAvg('totono_score', 'saunner') != null ? [{ label: '토토노우', value: `${calcScoreAvg('totono_score', 'saunner')}/5` }] : []),
-      ...(calcScoreAvg('revisit_score', 'saunner') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'saunner')}/5` }] : []),
-    ]},
-    { tribeId: 'bather', metrics: [
-      ...(deepVeryHotBathAvg != null ? [{ label: '열탕', value: `${deepVeryHotBathAvg}°C` }] : []),
-      ...(calcScoreAvg('water_quality', 'bather') != null ? [{ label: '수질', value: `${calcScoreAvg('water_quality', 'bather')}/5` }] : []),
-      ...(calcScoreAvg('revisit_score', 'bather') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'bather')}/5` }] : []),
-    ]},
-    { tribeId: 'jimi', metrics: [
-      ...(calcScoreAvg('sweat_quality', 'jimi') != null ? [{ label: '땀 만족도', value: `${calcScoreAvg('sweat_quality', 'jimi')}/5` }] : []),
-      ...(calcScoreAvg('rest_quality', 'jimi') != null ? [{ label: '휴식', value: `${calcScoreAvg('rest_quality', 'jimi')}/5` }] : []),
-      ...(calcScoreAvg('revisit_score', 'jimi') != null ? [{ label: '재방문', value: `${calcScoreAvg('revisit_score', 'jimi')}/5` }] : []),
-    ]},
-  ].filter(t => t.metrics.length > 0)
+  const tribeSubMetrics: { tribeId: string; temps: { label: string; value: string }[]; scores: { label: string; value: string }[] }[] = [
+    { tribeId: 'saunner',
+      temps: [...tempOf('steam_sauna_temp', '습식'), ...tempOf('salt_sauna_temp', '소금'), ...tempOf('ice_bath_temp', '급냉탕')],
+      scores: [...scoreOf('totono_score', 'saunner', '토토노우'), ...scoreOf('revisit_score', 'saunner', '재방문')],
+    },
+    { tribeId: 'bather',
+      temps: [...tempOf('very_hot_bath_temp', '열탕'), ...tempOf('open_air_bath_temp', '노천탕')],
+      scores: [...scoreOf('water_quality', 'bather', '수질'), ...scoreOf('revisit_score', 'bather', '재방문')],
+    },
+    { tribeId: 'jimi',
+      temps: [...tempOf('ice_room_temp', '아이스방')],
+      scores: [...scoreOf('sweat_quality', 'jimi', '땀 만족도'), ...scoreOf('rest_quality', 'jimi', '휴식'), ...scoreOf('revisit_score', 'jimi', '재방문')],
+    },
+  ].filter(t => t.temps.length > 0 || t.scores.length > 0)
 
   // 3. 평균 비용 (로그 데이터 최빈 통화 기준, Intl로 포맷)
-  const costLogs = placeLogs.filter(l => l.deep_log?.cost != null)
+  const costLogs = placeLogs.filter(l => l.cost != null)
   const currencyFreq: Record<string, number> = {}
   for (const l of costLogs) {
-    const cur = l.deep_log?.currency || 'KRW'
+    const cur = l.currency || 'KRW'
     currencyFreq[cur] = (currencyFreq[cur] || 0) + 1
   }
   const mainCurrency = Object.entries(currencyFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'KRW'
   const costEntries = costLogs
-    .filter(l => (l.deep_log?.currency || 'KRW') === mainCurrency)
-    .map(l => l.deep_log!.cost as number)
+    .filter(l => (l.currency || 'KRW') === mainCurrency)
+    .map(l => l.cost as number)
   const avgCost = costEntries.length > 0
     ? { amount: Math.round(costEntries.reduce((s, v) => s + v, 0) / costEntries.length), currency: mainCurrency }
     : null
@@ -175,37 +170,39 @@ export default function PlaceDetailPage() {
   // 4. 혼잡도 분포
   const crowdCounts: Record<string, number> = {}
   for (const log of userLogs) {
-    if (log.deep_log?.crowd) crowdCounts[log.deep_log.crowd] = (crowdCounts[log.deep_log.crowd] || 0) + 1
+    if (log.crowd) crowdCounts[log.crowd] = (crowdCounts[log.crowd] || 0) + 1
   }
   const crowdLabelMap = Object.fromEntries(DEEP_LOG.CROWD.options.map(o => [o.id, o.label]))
   const crowdDistribution = DEEP_LOG.CROWD.options.map(o => ({ id: o.id, count: crowdCounts[o.id] || 0 }))
   const crowdTotal = crowdDistribution.reduce((s, c) => s + c.count, 0)
 
-  // 5. 세신 만족도
-  const scrubLogs = userLogs.filter(l => l.deep_log?.has_scrub)
-  const scrubSatVals = scrubLogs.filter(l => l.deep_log?.scrub_satisfaction != null).map(l => l.deep_log!.scrub_satisfaction as number)
+  // 5. 세신 만족도 (평탄 캐시 — 세신·건강세신 = scrub_score)
+  const scrubSatVals = userLogs.filter(l => l.scrub_score != null).map(l => l.scrub_score as number)
   const scrubAvg = scrubSatVals.length > 0 ? scrubSatVals.reduce((s, v) => s + v, 0) / scrubSatVals.length : 0
 
-  // 5-1. 매점 점수
-  const storeScoreVals = userLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
+  // 5-1. 매점 점수 (구 store_* → snack_*)
+  const storeScoreVals = userLogs.filter(l => l.snack_score != null).map(l => l.snack_score as number)
   const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
 
   // 5-2. 추가 정보 메트릭 (청결도, 세신, 매점, 이용료 — 있는 것만)
   // 청결도: 주관적 → userLogs에서만 집계 (어드민 제외)
-  const userCleanlinessVals = userLogs.filter(l => l.deep_log?.cleanliness != null).map(l => l.deep_log!.cleanliness as number)
+  const userCleanlinessVals = userLogs.filter(l => l.cleanliness != null).map(l => l.cleanliness as number)
   const cleanlinessAvg = userCleanlinessVals.length > 0
     ? Math.round((userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length) * 10) / 10
     : null
-  // 5-3. 세신 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
-  const scrubCostByType = (typeFilter: (types: string[]) => boolean) => {
-    const vals = placeLogs
-      .filter(l => l.deep_log?.has_scrub && l.deep_log.scrub_cost != null && typeFilter(l.deep_log.scrub_types || []))
-      .map(l => l.deep_log!.scrub_cost as number)
-    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
-  }
-  const scrubOnlyAvg = scrubCostByType(t => t.includes('scrub') && !t.includes('massage'))
-  const massageOnlyAvg = scrubCostByType(t => t.includes('massage') && !t.includes('scrub'))
-  const scrubMassageAvg = scrubCostByType(t => t.includes('scrub') && t.includes('massage'))
+  // 5-3. 세신/마사지 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
+  // 세신=scrub_type 'basic', 건강세신(마사지세신)='withmassage', 마사지 단독=massage_cost
+  const avgOf = (vals: number[]) =>
+    vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
+  const scrubOnlyAvg = avgOf(placeLogs
+    .filter(l => l.scrub_cost != null && (l.scrub_type ?? 'basic') === 'basic')
+    .map(l => l.scrub_cost as number))
+  const scrubMassageAvg = avgOf(placeLogs
+    .filter(l => l.scrub_cost != null && l.scrub_type === 'withmassage')
+    .map(l => l.scrub_cost as number))
+  const massageOnlyAvg = avgOf(placeLogs
+    .filter(l => l.massage_cost != null)
+    .map(l => l.massage_cost as number))
 
   const additionalMetrics: { label: string; value: string }[] = []
   // 입장료
@@ -241,7 +238,7 @@ export default function PlaceDetailPage() {
     let logs = [...userLogs]
     switch (logSort) {
       case 'memo':
-        logs = logs.filter(l => l.deep_log?.memo)
+        logs = logs.filter(l => l.memo)
         logs.sort((a, b) => b.date.localeCompare(a.date))
         break
       case 'score':
@@ -495,19 +492,32 @@ export default function PlaceDetailPage() {
               {/* 트라이브별 서브 메트릭: 온도 메트릭과 동일 그리드 */}
               {tribeSubMetrics.length > 0 && (
               <div className={`pt-3 border-t border-stone-200 grid gap-x-6 ${tribeSubMetrics.length >= 3 ? 'grid-cols-3' : tribeSubMetrics.length >= 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-[160px]'}`}>
-                {tribeSubMetrics.map(({ tribeId, metrics }) => (
+                {tribeSubMetrics.map(({ tribeId, temps, scores }) => (
                   <div key={tribeId} className="py-1">
                     <p className="text-xs font-medium mb-2" style={{ color: `var(--color-${tribeId})` }}>
                       {TRIBE_EMOJI_MAP[tribeId]} {TRIBE_PERSONA_MAP[tribeId]}
                     </p>
-                    <div className="space-y-1.5">
-                      {metrics.map(m => (
-                        <div key={m.label} className="flex items-center justify-between text-xs">
-                          <span className="text-stone-500">{m.label}</span>
-                          <span className="font-bold text-stone-700">{m.value}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {/* 온도 그룹 ↔ 평점 그룹 사이만 살짝 더 띄움 (10px) */}
+                    {temps.length > 0 && (
+                      <div className="space-y-1.5">
+                        {temps.map(m => (
+                          <div key={m.label} className="flex items-center justify-between text-xs">
+                            <span className="text-stone-500">{m.label}</span>
+                            <span className="font-bold text-stone-700">{m.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {scores.length > 0 && (
+                      <div className={`space-y-1.5 ${temps.length > 0 ? 'mt-2.5' : ''}`}>
+                        {scores.map(m => (
+                          <div key={m.label} className="flex items-center justify-between text-xs">
+                            <span className="text-stone-500">{m.label}</span>
+                            <span className="font-bold text-stone-700">{m.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

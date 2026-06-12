@@ -12,8 +12,10 @@ export const IS_BETA = true
 // ============================================
 export const XP_VALUES = {
   welcome: 20,        // 가입 즉시
-  short_log: 20,      // 숏로그 INSERT
-  deep_log: 30,       // 딥로그 INSERT (독립 지급)
+  // 로그 = 단일 행동 (구 short_log/deep_log 2단 폐기 — v6 단일 폼)
+  log: 20,            // 로그 INSERT (기본 체크인)
+  log_routine: 15,    // 보너스: 루틴 상세(내 활동 블록의 온도·시간) 1개 이상 입력
+  log_detail: 15,     // 보너스: 세부 기록(더자세히·블록 평가·시설 온도) 1개 이상 입력
   place_created: 50,  // 장소 신규등록
   place_merged: 20,   // 장소 merge
   list_created: 30,   // 사-리스트 생성 (default 제외, user-type만)

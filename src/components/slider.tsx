@@ -12,6 +12,8 @@
 // ─────────────────────────────────────────────────────────
 // Slider
 // ─────────────────────────────────────────────────────────
+import { useRef } from 'react'
+
 export function Slider({
   label,
   value,
@@ -39,14 +41,85 @@ export function Slider({
   /** true이면 우측에 × 리셋 버튼 표시 */
   showReset?: boolean
   onReset?: () => void
-  /** "slider" = 기본 슬라이더, "chip" = 원형 넘버 칩 */
-  variant?: 'slider' | 'chip'
+  /** "slider"=기본, "chip"=넘버 칩, "seal"=도장 씰 평가, "stamp"=통일 온도 슬라이더 */
+  variant?: 'slider' | 'chip' | 'seal' | 'stamp'
 }) {
   // 현재 값 이하인 step 중 가장 큰 value의 label
   const descriptor = steps.length > 0
     ? [...steps].filter(s => s.value <= value).sort((a, b) => b.value - a.value)[0]?.label
       ?? steps[0]?.label
     : null
+
+  // ── seal / stamp 공용: 온도 바 드래그 ──
+  const barRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const applyBar = (clientX: number) => {
+    const el = barRef.current; if (!el) return
+    const r = el.getBoundingClientRect()
+    const p = Math.max(0, Math.min(1, (clientX - r.left) / r.width))
+    onChange(Math.round(min + p * (max - min)))
+  }
+
+  // ── seal variant (도장 씰 평가) ──
+  if (variant === 'seal') {
+    // 라벨 없는 리추얼 씰은 좁은 가운데 칸이라 약간 작게(22), 라벨 있는 평가/더자세히는 24
+    const cs = label ? 24 : 22
+    // 씰은 칸을 가득 채워 펼침 + 각 버튼 flex-1·py-2.5로 히트존 확대(원 크기는 유지)
+    const sealBtns = () => (
+      <div className={`flex items-center flex-1 min-w-0 ${inactive ? 'opacity-50' : ''}`}>
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button key={v} type="button" onClick={() => onChange(value === v ? 0 : v)} className="flex-1 flex items-center justify-center py-1.5 transition-transform active:scale-90">
+            <span className={`rounded-full relative shrink-0 ${value >= v ? 'shadow-sm' : ''}`} style={{ width: cs, height: cs, backgroundColor: value >= v ? 'var(--color-primary)' : 'var(--color-border)' }}>
+              {value >= v && <span className="absolute rounded-full pointer-events-none" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />}
+            </span>
+          </button>
+        ))}
+      </div>
+    )
+    // 라벨 없음(리추얼): 좌측 스텝 코멘트(빈 값이면 공백 — '—' 안 보임, 한 줄 고정), 씰을 칸 끝까지 펼침
+    // 씰 좌측 펼침 + 스텝 코멘트 우측 — 온도 슬라이더 라벨과 동일 축(right 13 = 트랙 border 1 + right 12)
+    // 씰 펼침 폭은 marginRight 48(기존 코멘트 40 + 갭 8)로 현행 비율 유지
+    if (!label) {
+      return (
+        <div className="relative flex items-center h-11">
+          <div className="flex flex-1 min-w-0" style={{ marginRight: 48 }}>
+            {sealBtns()}
+          </div>
+          <span className="absolute top-1/2 -translate-y-1/2 text-xs font-bold whitespace-nowrap" style={{ right: 13, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
+        </div>
+      )
+    }
+    // 라벨 있음(수질/또갈래요/청결도): 라벨 | [씰(칸 채움) + 단어(우측 끝, 폭 고정·2줄 고정 박스 → 줄바꿈해도 행 안 밀림)]
+    return (
+      <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+        <span className="text-[13px] font-bold text-stone-700 whitespace-nowrap">{label}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          {sealBtns()}
+          <span className="text-[10px] font-bold shrink-0 flex items-center justify-end text-right" style={{ width: 50, height: 26, lineHeight: '12px', wordBreak: 'keep-all', color: value ? 'var(--color-primary)' : 'var(--color-muted-fg)' }}>{value ? (descriptor ?? '') : ''}</span>
+        </div>
+      </div>
+    )
+  }
+
+  // ── stamp variant (통일 온도 슬라이더: t-stamp 트랙 + 드래그 + D2 라벨) ──
+  if (variant === 'stamp') {
+    const pct = Math.round(((value - min) / (max - min)) * 100)
+    return (
+      <div ref={barRef} className="relative h-11 rounded-xl overflow-hidden cursor-ew-resize touch-none select-none" style={{ backgroundColor: 'var(--color-card)', border: '1px solid var(--color-border)' }}
+        onPointerDown={(e) => { dragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); applyBar(e.clientX) }}
+        onPointerMove={(e) => { if (dragging.current) applyBar(e.clientX) }}
+        onPointerUp={() => { dragging.current = false }}>
+        <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
+        {/* 숫자 좌 · 스텝 라벨 우 (위치 스왑). 채움(빨강)이 덮으면 흰 글씨, 흰 트랙 위면 어두운 글씨로 자동 전환 */}
+        <span className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 text-base font-bold font-heading tabular-nums pointer-events-none ${pct > 12 ? 'text-white' : 'text-stone-800'}`}>{value}{unit}</span>
+        {descriptor && <span className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 text-xs font-bold pointer-events-none ${pct > 78 ? 'text-white' : 'text-stone-700'}`}>{descriptor}</span>}
+        {/* 핸들 = 평가 씰 동그라미와 동일 그래픽·크기(24px, 빨강+흰 이너링) */}
+        <span className="absolute top-1/2 rounded-full pointer-events-none shadow-md" style={{ left: `${pct}%`, width: 24, height: 24, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-primary)' }}>
+          <span className="absolute rounded-full" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />
+        </span>
+      </div>
+    )
+  }
 
   // ── chip variant ──
   if (variant === 'chip') {

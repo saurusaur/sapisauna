@@ -249,6 +249,16 @@ input[type="range"]::-moz-range-thumb {
   .sachek-nudge { animation: none; }
 }
 
+/* 사-첵 완료 버튼(활성) — 매우 간헐적·담백한 단일 팝(바운스 X). 버튼의 틸트/위치 transform 포함 */
+@keyframes fab-pop {
+  0%, 90%, 100% { transform: translate(62px, -15px) rotate(-15deg) scale(1); }
+  95% { transform: translate(62px, -15px) rotate(-15deg) scale(1.07); }
+}
+.fab-pop { animation: fab-pop 6s ease-in-out infinite; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) {
+  .fab-pop { animation: none; }
+}
+
 /* 홈 사-첵 포스트잇 CTA — 도장 뒤에서 왼쪽으로 슬라이드(1회) 후 수납 */
 .cta-postit {
   position: absolute;

@@ -4,13 +4,13 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- (없음)
+- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. ~~⓶ `/log/deep` 고아·구 함수 정리~~ **완료(2026-06-12** — deep 페이지·insertLog/updateLog/saveOrUpdateDeepLog·deep_log 타입 삭제, 시설온도=log_detail 보너스 분리**)**. **잔여**: ⓷ **백필 재실행(필수 — gap 로그 편집 시 캐시 유실 방지, SQL 에디터 수동, `supabase/029_backfill_rerun_gap.sql`)** → 검증(V0~V4=0) → 030 cleanup(구 컬럼+deep_logs DROP + 코드 폴백 제거) → **main 머지** ⓸ 스토리 연결. ⚠️ places.facilities `food→snack` 치환은 **030에 넣지 말 것 — 유저가 건별 검증·치환**(2026-06-12 지시). F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 
 <!-- 🎯 P0 최우선 — 모든 기록 기능의 기반 -->
 - [ ] [아키텍처/데이터] **로그·스키마 구조 재검토 (최우선)** — F1(블록 탭 기록=누른 순서가 루틴) 등 신규 기록 모델이 현재 `logs`/`deep_logs` 컬럼형 스키마(온도=개별 컬럼)와 맞는지 근본 재검토. 루틴 시퀀스(블록 순서)·세트·트라이브 기본블록을 어떻게 저장할지 결정. **데이터 전체의 기반 — 여기가 흔들리면 전부 흔들림.** F1·F3·F5의 선행조건. 드래프팅 핸드오프: `docs/handoff/handoff_20260604_log_schema_redesign.md` | priority: P0 | added: 2026-06-04
-- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
+- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — ※홈 리디자인은 **출시 완료(2026-06-06, PR #14→main)**, 이건 **유일한 잔여 후속**(카운트 현재 숨김). 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
 
 <!-- 🧪 사-피 방향성 (구현스케치 `docs/po/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
      페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/UX_DIRECTION_page_emphasis_20260604.md` -->
@@ -19,6 +19,7 @@
 - [ ] [기능] **F3 방문지 비교 → 개인 점수·인생 랭킹** — 둘씩 비교로 개인점수(0~10) 자동정렬(Beli식), 비교 누적=내 사우나 랭킹, 공개·비교→한 탭 SA리스트화(큐레이터 전환). 선행: 로그/스키마 재검토 | priority: P2 | added: 2026-06-04
 - [ ] [게임화/수익화] **F4 사우나 도장판** — 방문(체크인)=트라이브 무드 도장, 월별·시즌 테마 스킨 꾸미기, 완성 시 사우나펫 아이템(때수건·식혜·맥반석란)+경품 추첨(브랜드 스폰서=제휴 수익화). ※"사우나 펫"·"칭호"와 리워드 통합 검토 | priority: P2 | added: 2026-06-04
 - [ ] [UX] **F5 히스토리 캘린더 뷰 재설계** — 캘린더↔리스트 토글·KPI·인사이트·최근기록은 유지, '달력' 부분(주간 스트립/월 그리드)만 재설계 | priority: P2 | added: 2026-06-04
+- [ ] [UX/기능] **히스토리 루틴 섹션 블록모델 재설계** — ① 평균 루틴 카드(트라이브 탭의 HOT/ICE/REST/REPEAT): 새 기록법 기준 항목·단위 재검토 — ICE=침수(냉탕·급냉, 초) 캐시 의미는 확정(2026-06-12), 지미 아이스방(분) 슬롯 노출 여부, 평균의 의미(세트 반영?) 정의. ② 히스토리 상세 루틴 4뱃지(HEAT/ICE/PAUSE/RPT) → 블록 시퀀스(리추얼 타임라인) 렌더 전환 — 스토리 카드 타임라인과 동일 문법(영향분석 §11-4 (나) 잔여분). 전체 탭은 루틴 미표시 현행 유지 | priority: P1 | added: 2026-06-12
 - [ ] [기능] **F6 저장 = 큐레이션(자동 리스트화)** — 저장 쌓이면 테마 자동감지→리스트화 제안(노천탕·24시·도쿄…)+이름 추천→한 탭 생성, 공개 시 구독 유도. 콜드 공백은 FEATURED 선충전. ※"큐레이션 리스트 시드"=콜드공백, "구독 리스트 지도" 연계. **완전 후순위** | priority: P3 | added: 2026-06-04
 
 <!-- 🛠 어드민 페이지 — 스코핑 먼저 -->
@@ -33,7 +34,7 @@
 
 <!-- P1 — 베타 핵심 기능 -->
 - [ ] [UX] 뉴비 유저 사우나 용어 설명 팝업 — 처음 보는 유저를 위해 사우나 용어(아우프구스/세신/토토노이/노천탕/한증막/온탕/열탕/냉탕/급냉탕/건식/습식 등) 클릭 시 설명 팝오버. 트리거 후보: 로그 폼 라벨 옆 ⓘ 아이콘 / 장소 상세 시설 칩 클릭 / 온보딩 첫 진입 시 1회 가이드. 용어 사전 단일 소스(content.ts에 GLOSSARY 상수) | priority: P1 | added: 2026-04-30
-- [ ] [UX] 사우나 ID 유저 카드/페이지 — 유저 프로필 페이지를 '사우나 ID 카드' 컨셉으로 설계. 포함 정보: tribe, 선호 온도/시설유형, active 칭호, 방문 통계 등 (구성 아이디어 필요) | priority: P1 | added: 2026-04-07
+- [ ] [UX] 사우나 ID 유저 카드/페이지 — ※홈 상단 **스탬프(ID) 카드 1차 반영됨**(2026-06-06: 아바타·닉네임·칭호·레벨, 게스트 variant). 잔여 = **전용 프로필 페이지**(tribe·선호 온도/시설유형·방문 통계 등)로 확장 + 도장판 연동 | priority: P1 | added: 2026-04-07
 - [ ] [인프라] 도메인 구매 — 정식 출시 시. 베타는 Vercel URL로 충분 | priority: P3 | added: 2026-02-28
 
 <!-- P2 — 베타 중 개선 -->
@@ -59,6 +60,10 @@
 - [ ] [리마인더] 베타테스터 사용자 행동 분석 | priority: P3 | added: 2026-02-28
 
 ## Done
+
+### 2026-06-10
+- [x] [브랜딩] 앱 아이콘·이름·OG 이미지 — (1) **아이콘 원형 리뉴얼**: `sapi-logo.svg`→흰 원 96% 합성(sharp), 전 사이즈(파비콘·apple180·PWA192/512·마스커블512) + `src/app/icon.png`/`apple-icon.png` 파일컨벤션 연결 (2) **앱 이름 "사-피"**: manifest `name`/`short_name`("사우나 로그"→사-피)·iOS `appleWebApp.title` (3) **OG 이미지**(`public/og-image.png` 1200×630): 홈 히어로 구조(레드곡선·Oswald Bold "HELLO SA-PIEN"·틸트 네임카드·사피로고) + `openGraph`/`twitter` 메타 + `metadataBase`. Oswald는 resvg가 가변weight 무시 → fonttools static 700 인스턴싱. (4) 홈 게스트카드·OG 카드 문구 통일 "좋은 사우나 방문하고 사우나템 모으기!"(`STAMP_FILL_PROMPT`). 도구 sharp·@resvg/resvg-js devDep. 노트: `docs/po/브랜딩_에셋_노트_20260610.md` | priority: P1 | done: 2026-06-10
+- [x] [기획/문서] 친구 몰아주기 위임 준비 — 베타 출시용 친구 3명(개발자/UX/빌더) 위임 플랜·DB 스키마 레퍼런스(라이브 introspect 검증)·수집("방문=수집") 컨셉 브리프·어드민 친구용 구현스펙·노션 부탁 문서 작성. 어드민 스코프 §8 베타 재정의(CMS·모더레이션 제외, 5천 2티어운영 추가). `places.data_tier` 마이그레이션(031, 적용대기) + F4/F3 스키마 출발점 초안. 문서: `docs/po/친구_몰아주기_위임플랜_20260606.md` 외 | priority: P0 | done: 2026-06-10
 
 ### 2026-06-04
 - [x] [데이터] 카톡 DB Sync **Phase 4 완료 (국내 40 + 해외 16)** — (1) **국내 NEW 40건 등록**(places 256→296, naver+mapx_mapy, 어드민 logs/deep_logs. NEW 48→실신규 40: −5 silent중복 프록시미티검출 −3 좌표병합. 온도위반0·중복0) + enrich(NULL보강6·신규로그4·facilities/memo)·깨진 facilities 42곳·jjim Phase5·deep_log memo 손상 7건 (2) **해외 신규 16건 등록**(places 296→**312**, source=google·external_id=place_id·coordinate_source=google, cc JP14/US1/HK1. 23건 중 7건은 기존 시드라 제외). **핸드오프 전제 교정 3건**: ①7건 이미존재(시드)→신규16 ②`hotel-spa`는 026서 폐기→`hotel-premium`(INSERT CHECK 회피) ③16건 시설·온도·정식명 사용자 전수검토 반영(코코로노=Hotel Furukawa, 아리마/fuua=resort-spa 재분류, 아리마 건식94 enrich). 산출: `katalk-overseas-register.mjs`·`overseas-register-dryrun-20260604.md`·`overseas-existing7-verify-20260604.md` | priority: P1 | added: 2026-06-02 | done: 2026-06-04

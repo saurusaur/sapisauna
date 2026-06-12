@@ -54,8 +54,8 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
 
         {/* Line 3: 메모 (1줄 고정 — 없으면 빈 칸) */}
         <div className="h-[20px] overflow-hidden">
-          {log.deep_log?.memo && (
-            <p className="text-xs text-stone-600 leading-normal truncate pr-3">{log.deep_log.memo}</p>
+          {log.memo && (
+            <p className="text-xs text-stone-600 leading-normal truncate pr-3">{log.memo}</p>
           )}
         </div>
 
@@ -104,16 +104,16 @@ export default function UserLogCard({ log, onClick, showPlace = false, compact =
       </div>
 
       {/* Row2: 메모 (전체 표시) */}
-      {log.deep_log?.memo && (
-        <p className="text-sm text-stone-600 leading-relaxed mt-1.5">{log.deep_log.memo}</p>
+      {log.memo && (
+        <p className="text-sm text-stone-600 leading-relaxed mt-1.5">{log.memo}</p>
       )}
 
-      {/* Row3: 추천 메뉴 */}
-      {log.deep_log?.store_memo && (
+      {/* Row3: 추천 메뉴 (매점 우선, 없으면 식당) */}
+      {(log.snack_memo || log.restaurant_memo) && (
         <div className="flex items-center gap-1.5 mt-1.5">
           <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '14px' }}>restaurant</span>
           <span className="text-xs text-stone-500">추천 메뉴:</span>
-          <span className="text-xs font-medium text-stone-600">{log.deep_log.store_memo}</span>
+          <span className="text-xs font-medium text-stone-600">{log.snack_memo || log.restaurant_memo}</span>
         </div>
       )}
 

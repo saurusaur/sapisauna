@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { TRIBE_COLORS, MESSAGES } from '@/constants/content'
+import { hasLogDetail } from '@/lib/utils'
 import type { LogWithPlace } from '@/types'
 
 // 요일 헤더 (월요일 시작)
@@ -206,7 +207,7 @@ export default function HomeCalendar({
     const isOtherMonth = date.getMonth() !== referenceMonth
     const dayLogs = logsByDate[key] || []
     const hasLogs = dayLogs.length > 0
-    const hasDeepLog = dayLogs.some((log) => Boolean(log.deep_log))
+    const hasDeepLog = dayLogs.some((log) => hasLogDetail(log))
 
     // 점 색상: dotColor prop이 있으면 단일 색상, 없으면 트라이브별 자동 결정
     const resolvedDotColor = (() => {
