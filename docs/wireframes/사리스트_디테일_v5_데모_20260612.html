@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<!-- 🚧 확정 시안 — 구현 진행 중 (2026-06-13 기준)
-  - sa-list 디테일 리디자인의 현행 확정안. 구현: src/app/sa-list/[id]/ + curve-header (진행 중)
+<!-- ✅ 확정 시안 — 구현 완료 (2026-06-13, preview 커밋 0350540·3c7272c·d89a16f·7042084)
+  - 구현: src/app/sa-list/page.tsx(메인) + src/app/sa-list/[id]/sa-list-detail-client.tsx(디테일)
+    + curve-header(CurveHeader/CurveEdge) + list-cover-card + utils listToneColors/tagHue
+  - v5 차이 반영: 컬러존 플로우化(CurveEdge), 간격 10px, 오너 구독칩 제거
+  - 구현상 의도적 차이: 순서변경은 "길게 누르기"가 아닌 그립(점 6개) 드래그 — iOS touch-action 제약, 로그 페이지 검증 패턴
   - 구버전(v2~v4·컨셉·확정안 데모)은 docs/wireframes/archive/ -->
 
 <html lang="ko">
