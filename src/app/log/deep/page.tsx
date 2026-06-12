@@ -235,12 +235,10 @@ export default function DeepLog() {
         // 새 기록: INSERT
         logId = await insertLog(logData)
         await saveOrUpdateDeepLog(logId, deepLogData)
-        // 숏로그 + 딥로그 XP 각각 지급
+        // ⚠️ 고아 페이지 (v6 단일 폼으로 대체, 진입점 없음) — 컴파일 유지용 최소 치환.
+        // 구 short_log/deep_log 2단 보상은 폐기됨 → log + log_detail 보너스
         const tribeId = (logData.tribe_id as string) || undefined
-        const shortReward = await grantReward('short_log', { tribeId: tribeId as import('@/types').TribeId })
-        const deepReward = await grantReward('deep_log', { tribeId: tribeId as import('@/types').TribeId })
-        // 최종 결과만 pendingReward에 저장 (더 높은 레벨업 반영)
-        const finalReward = deepReward || shortReward
+        const finalReward = await grantReward('log', { tribeId: tribeId as import('@/types').TribeId, bonuses: ['log_detail'] })
         if (finalReward) {
           localStorage.setItem('pendingReward', JSON.stringify(finalReward))
         }

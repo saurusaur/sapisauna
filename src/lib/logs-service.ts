@@ -480,6 +480,8 @@ const CACHE_COL_BY_BLOCKTYPE: Record<string, string> = Object.fromEntries(
 // 시설 아님(카탈로그/순수행동) — 자동태깅 제외
 const NON_FACILITY_BLOCKS = new Set(['rest', 'other'])
 const REST_BLOCKS = new Set(['rest', 'outdoor-rest', 'indoor-rest', 'sleep-room'])
+// ice_time 캐시 = 침수 냉각(초)만 — 아이스방(분 체류)은 성격이 달라 제외 (2026-06-12 확정)
+const SUBMERSION_ICE_BLOCKS = new Set(['cold-bath', 'ice-bath'])
 
 // 블록 + 세션 → logs 캐시 컬럼 일괄 산출 (전 캐시 명시 → 편집 시 제거분 클리어)
 function buildLogCaches(blocks: LogBlockInput[], s: LogSessionInput): Record<string, unknown> {
@@ -515,7 +517,7 @@ function buildLogCaches(blocks: LogBlockInput[], s: LogSessionInput): Record<str
     const col = CACHE_COL_BY_BLOCKTYPE[b.blockType]
     if (col && b.temp != null) c[col] = b.temp
     if (b.category === 'heat') heatSec += b.durationSec ?? 0
-    else if (b.category === 'ice') iceSec += b.durationSec ?? 0
+    else if (SUBMERSION_ICE_BLOCKS.has(b.blockType)) iceSec += b.durationSec ?? 0
     else if (b.category === 'rest') restSec += b.durationSec ?? 0
     if (REST_BLOCKS.has(b.blockType) && b.score != null) c.rest_quality = b.score
     if (b.blockType === 'scrub') { c.scrub_score = b.score ?? null; c.scrub_cost = b.cost ?? null; c.scrub_type = b.variant ?? 'basic' }

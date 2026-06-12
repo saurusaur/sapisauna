@@ -358,7 +358,13 @@ export default function LogPage() {
       if (editId) { await updateLogWithBlocks(editId, session, blocks); logId = editId }
       else {
         logId = await insertLogWithBlocks(session, blocks)
-        const reward = await grantReward('short_log', { tribeId: logType })
+        // 보상 분화: 기본 log(20) + 루틴 상세(온도·시간) +15 + 세부 기록(더자세히·블록 평가) +15
+        const bonuses: ('log_routine' | 'log_detail')[] = []
+        if (blocks.some(b => b.temp != null || b.durationSec != null)) bonuses.push('log_routine')
+        if (session.cleanliness != null || session.crowd != null || session.companion != null
+          || session.cost != null || session.memo != null
+          || blocks.some(b => b.score != null || b.cost != null || b.memo != null)) bonuses.push('log_detail')
+        const reward = await grantReward('log', { tribeId: logType, bonuses })
         if (reward) localStorage.setItem('pendingReward', JSON.stringify(reward))
       }
       localStorage.setItem('savedLogId', logId)

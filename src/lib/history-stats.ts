@@ -191,14 +191,27 @@ export function getHeatTarget(tribe: string): number {
   return HEAT_TARGETS[tribe] ?? 57
 }
 
-/** 주간 heat exposure 계산: sum(heat_time * repeat), 둘 다 있는 로그만 */
+/**
+ * 로그 1건의 heat 노출(분) — 블록 모델 기준 재설계 (2026-06-12)
+ * - 블록 있는 로그(신규 폼): heat 블록 duration 합. norepeat 블록은 1회,
+ *   나머지는 ×전역 세트(repeat, 미입력=1) — "반복 제외" 의미를 정확히 반영.
+ * - 블록 없는 로그(어드민 시드·구폼 레거시): heat_time × repeat(미입력=1) 폴백.
+ */
+function logHeatMinutes(log: LogWithPlace): number {
+  if (log.blocks?.length) {
+    const rpt = log.repeat && log.repeat > 1 ? log.repeat : 1
+    const sec = log.blocks
+      .filter((b) => b.category === 'heat')
+      .reduce((s, b) => s + (b.duration_sec ?? 0) * (b.norepeat ? 1 : rpt), 0)
+    return sec / 60
+  }
+  if (log.heat_time != null) return log.heat_time * (log.repeat ?? 1)
+  return 0
+}
+
+/** 주간 heat exposure 계산: 로그별 logHeatMinutes 합 */
 export function computeWeeklyHeatMinutes(logs: LogWithPlace[]): number {
-  return logs.reduce((sum, log) => {
-    if (log.heat_time != null && log.repeat != null) {
-      return sum + log.heat_time * log.repeat
-    }
-    return sum
-  }, 0)
+  return Math.round(logs.reduce((sum, log) => sum + logHeatMinutes(log), 0))
 }
 
 /** 월간 주별 링 데이터 (2x2 그리드용) */
