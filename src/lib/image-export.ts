@@ -1,31 +1,22 @@
 /**
- * 스토리 카드 Canvas 렌더러 + 공유/다운로드 유틸리티 (v3.4)
+ * 스토리 카드 Canvas 렌더러 + 공유/다운로드 유틸리티 (v3.5)
  *
- * 프리뷰(src/app/story/page.tsx)의 v3.4 에디토리얼 디자인을 1080×1920 Canvas로 미러링.
- * 표시 데이터(히어로 온도·루틴 줄·압축 여부·점수)는 페이지가 계산한 값을 그대로 받는다
- * → 프리뷰와 내보내기가 항상 동일한 데이터 규칙을 공유.
+ * 레이아웃·컬러·그라데이션은 전부 공유 스펙(src/lib/story-card-spec.ts)에서 가져온다
+ * — 프리뷰(page.tsx)와 같은 값을 쓰므로 두 렌더러가 달라질 수 없음(단일 소스).
+ * 표시 데이터(히어로·루틴 줄·압축·점수)도 페이지가 계산한 값을 그대로 받는다.
  *
  * 수직 정렬: CSS 줄박스 공식(baseline = top + (행간·fs − (A+D))/2 + A)을
- * fontBoundingBox 메트릭으로 재현 — 프리뷰와 갭이 픽셀 단위로 일치 (textBaseline='alphabetic').
- *
- * 레이어 순서: 베이스색 → (사진: blur 7px·채도 .55·scale 1.04) → 오로라(SVG→Image)
- *             → 그레인(feTurbulence SVG, multiply .07 — 프리뷰와 동일 질감) → 텍스트/점/물결
- * 설계: docs/po/스토리_프로토타입_v3_20260609.html (좌표 = 프로토 300px × 3.6)
+ * fontBoundingBox 메트릭으로 재현 (textBaseline='alphabetic').
+ * 루틴 구분자는 글리프(—) 대신 실선 — 폰트 렌더링 차이까지 제거.
  */
 
 import { type StoryTribeId } from '@/constants/story-colors'
-
-const W = 1080
-const H = 1920
-const S = 3.6
-const px = (n: number) => Math.round(n * S)
-
-const INK = '#1c1917'
-const INK_M = 'rgba(28,25,23,0.38)'
-const STEAM_MARK = '/logo/sauna-steam-mark.svg'
-
-const DOT_COLOR: Record<StoryTribeId, string> = { saunner: '#F97316', bather: '#3B82F6', jimi: '#22C55E' }
-const TRIBE_EN: Record<StoryTribeId, string> = { saunner: 'SAUNNER', bather: 'BATHER', jimi: 'JIMI' }
+import {
+  CARD_W as W, CARD_H as H, SPEC, INK,
+  DOT_COLOR, TRIBE_EN, STEAM_MARK,
+  AURORA_DATA, AURORA_PHOTO_DATA, R1_GEO, R2_GEO, type TribeAurora,
+  GRAIN_SVG, GRAIN_TILE, GRAIN_ALPHA, PHOTO_FILTER, PHOTO_SCALE, spx,
+} from '@/lib/story-card-spec'
 
 // ─── 렌더 파라미터 (페이지가 계산한 표시 데이터를 그대로 전달) ───
 
@@ -40,92 +31,25 @@ export interface CardRenderParams {
   date: string
   bgPhoto?: string | null
   heroTemp: number | null // null → 물결 마크 폴백
-  metricLabel: string // TEMP DELTA / BATH TEMP / JJIMJIL TEMP
+  metricLabel: string
   routineLines: RoutineLineData[] // 오버플로(7줄 컷) 적용 후
   hiddenCount: number // 「+N 활동」
   repeat: number // >1 이면 세트줄
-  dense: boolean // 압축 모드 (11.5px·행간 1.58)
-  scoreLabel: string // TOTONOU / WATER / SWEAT
+  dense: boolean // 압축 모드
+  scoreLabel: string
   scoreValue: number | null // 1~5, 점 5개
   userNickname?: string
   userTitle?: string
 }
 
-// ─── 오로라 그라데이션 스펙 (page.tsx AURORA/AURORA_PHOTO와 동일 값) ───
+// ─── 오로라 SVG (스펙의 구조화 데이터 → SVG 래스터, CSS와 동일 값) ───
 
-type RadialStops = Array<[color: string, opacity: number, offset: number]>
-interface AuroraSpec {
-  r1: { cx: number; cy: number; rx: number; ry: number; stops: RadialStops }
-  r2: { cx: number; cy: number; rx: number; ry: number; stops: RadialStops }
-  base: Array<[color: string, opacity: number]> // 135deg linear: [from, to]
-  baseColor: string
-}
-
-const R1_GEO = { cx: 0.8 * W, cy: 0.26 * H, rx: 1.2 * W, ry: 0.85 * H }
-const R2_GEO = { cx: 0.1 * W, cy: 0.64 * H, rx: 0.9 * W, ry: 0.7 * H }
-
-function spec(
-  r1Stops: RadialStops,
-  r2Stops: RadialStops,
-  base: Array<[string, number]>,
-  baseColor: string,
-): AuroraSpec {
-  return { r1: { ...R1_GEO, stops: r1Stops }, r2: { ...R2_GEO, stops: r2Stops }, base, baseColor }
-}
-
-const AURORA: Record<StoryTribeId, AuroraSpec> = {
-  saunner: spec(
-    [['#F97316', 0.82, 0], ['#FB923C', 0.45, 0.3], ['#FFFFFF', 0, 0.62]],
-    [['#F472B6', 0.42, 0], ['#FFFFFF', 0, 0.55]],
-    [['#fdf6f0', 1], ['#ffffff', 1]],
-    '#fdf6f0',
-  ),
-  bather: spec(
-    [['rgb(40,120,160)', 0.8, 0], ['rgb(96,165,210)', 0.42, 0.32], ['#FFFFFF', 0, 0.64]],
-    [['rgb(125,211,222)', 0.45, 0], ['#FFFFFF', 0, 0.55]],
-    [['#eef6fa', 1], ['#ffffff', 1]],
-    '#eef6fa',
-  ),
-  jimi: spec(
-    [['rgb(34,170,90)', 0.78, 0], ['rgb(110,200,130)', 0.4, 0.32], ['#FFFFFF', 0, 0.64]],
-    [['rgb(190,220,140)', 0.45, 0], ['#FFFFFF', 0, 0.55]],
-    [['#f0f8f2', 1], ['#ffffff', 1]],
-    '#f0f8f2',
-  ),
-}
-
-// 사진 모드: 라디얼 강화 + 흰 베이스만 반투명(.38→.46)
-const AURORA_PHOTO: Record<StoryTribeId, AuroraSpec> = {
-  saunner: spec(
-    [['#F97316', 0.88, 0], ['#FB923C', 0.52, 0.3], ['#FFFFFF', 0, 0.62]],
-    [['#F472B6', 0.48, 0], ['#FFFFFF', 0, 0.55]],
-    [['#fdf6f0', 0.38], ['#ffffff', 0.46]],
-    'transparent',
-  ),
-  bather: spec(
-    [['rgb(40,120,160)', 0.86, 0], ['rgb(96,165,210)', 0.49, 0.32], ['#FFFFFF', 0, 0.64]],
-    [['rgb(125,211,222)', 0.52, 0], ['#FFFFFF', 0, 0.55]],
-    [['#eef6fa', 0.38], ['#ffffff', 0.46]],
-    'transparent',
-  ),
-  jimi: spec(
-    [['rgb(34,170,90)', 0.84, 0], ['rgb(110,200,130)', 0.47, 0.32], ['#FFFFFF', 0, 0.64]],
-    [['rgb(190,220,140)', 0.52, 0], ['#FFFFFF', 0, 0.55]],
-    [['#f0f8f2', 0.38], ['#ffffff', 0.46]],
-    'transparent',
-  ),
-}
-
-/**
- * 오로라 배경을 SVG로 생성 — CSS radial/linear-gradient를 1:1로 옮김
- * (Canvas createRadialGradient는 원형만 지원 → SVG 타원 그라데이션을 이미지로 래스터)
- */
 function auroraSvg(tribe: StoryTribeId, photoMode: boolean): string {
-  const s = (photoMode ? AURORA_PHOTO : AURORA)[tribe]
-  const radial = (id: string, g: AuroraSpec['r1']) =>
+  const a: TribeAurora = (photoMode ? AURORA_PHOTO_DATA : AURORA_DATA)[tribe]
+  const radial = (id: string, geo: typeof R1_GEO, stops: TribeAurora['r1']) =>
     `<radialGradient id="${id}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" ` +
-    `gradientTransform="translate(${g.cx},${g.cy}) scale(${g.rx},${g.ry})">` +
-    g.stops.map(([c, o, off]) => `<stop offset="${off}" stop-color="${c}" stop-opacity="${o}"/>`).join('') +
+    `gradientTransform="translate(${geo.cx * W},${geo.cy * H}) scale(${geo.rx * W},${geo.ry * H})">` +
+    stops.map(([rgb, o, off]) => `<stop offset="${off}" stop-color="rgb(${rgb})" stop-opacity="${o}"/>`).join('') +
     `</radialGradient>`
   // CSS 135deg: 중심 통과, 우하향 대각 방향
   const d = Math.SQRT1_2
@@ -136,25 +60,18 @@ function auroraSvg(tribe: StoryTribeId, photoMode: boolean): string {
   const y2 = H / 2 + (d * len) / 2
   const linear =
     `<linearGradient id="base" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">` +
-    `<stop offset="0" stop-color="${s.base[0][0]}" stop-opacity="${s.base[0][1]}"/>` +
-    `<stop offset="1" stop-color="${s.base[1][0]}" stop-opacity="${s.base[1][1]}"/>` +
+    `<stop offset="0" stop-color="rgb(${a.base[0][0]})" stop-opacity="${a.base[0][1]}"/>` +
+    `<stop offset="1" stop-color="rgb(${a.base[1][0]})" stop-opacity="${a.base[1][1]}"/>` +
     `</linearGradient>`
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">` +
-    `<defs>${radial('r1', s.r1)}${radial('r2', s.r2)}${linear}</defs>` +
+    `<defs>${radial('r1', R1_GEO, a.r1)}${radial('r2', R2_GEO, a.r2)}${linear}</defs>` +
     `<rect width="${W}" height="${H}" fill="url(#base)"/>` +
     `<rect width="${W}" height="${H}" fill="url(#r2)"/>` +
     `<rect width="${W}" height="${H}" fill="url(#r1)"/>` +
     `</svg>`
   )
 }
-
-// 그레인: 프리뷰(CSS)와 동일한 feTurbulence SVG 타일 (픽셀 노이즈 대체 — "지직거림" 해결)
-const GRAIN_TILE = 240
-const GRAIN_SVG =
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${GRAIN_TILE}" height="${GRAIN_TILE}">` +
-  `<filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter>` +
-  `<rect width="100%" height="100%" filter="url(#n)"/></svg>`
 
 // ─── 유틸리티 ───
 
@@ -216,38 +133,32 @@ function setLetterSpacing(ctx: CanvasRenderingContext2D, spacingPx: number) {
 }
 
 function formatTopDate(dateStr: string): string {
-  // v3.4: 요일 제거
-  return dateStr.slice(0, 10).replace(/-/g, '.')
+  return dateStr.slice(0, 10).replace(/-/g, '.') // 요일 없음
 }
 
 // ─── CSS 줄박스 ↔ Canvas baseline 변환 ───
-// CSS: 글리프 영역(A+D)이 줄박스(행간×fs) 안에 수직 중앙 → baseline = top + (lineH − (A+D))/2 + A
-// lh=null 이면 line-height:normal(콘텐츠 높이=A+D) → baseline = top + A
-interface FontMetricsCache {
-  [font: string]: { A: number; D: number }
-}
-
 function makeTypo(ctx: CanvasRenderingContext2D) {
-  const cache: FontMetricsCache = {}
+  const cache: Record<string, { A: number; D: number; xh: number }> = {}
   const metrics = (font: string) => {
     if (!cache[font]) {
       const prev = ctx.font
       ctx.font = font
       const m = ctx.measureText('Mg')
-      cache[font] = { A: m.fontBoundingBoxAscent, D: m.fontBoundingBoxDescent }
+      const xm = ctx.measureText('x')
+      cache[font] = { A: m.fontBoundingBoxAscent, D: m.fontBoundingBoxDescent, xh: xm.actualBoundingBoxAscent }
       ctx.font = prev
     }
     return cache[font]
   }
   return {
     metrics,
-    // CSS top → canvas alphabetic baseline y
+    // CSS top → canvas alphabetic baseline y (lh=null → line-height:normal)
     baseline(cssTop: number, fs: number, lh: number | null, font: string): number {
       const { A, D } = metrics(font)
       const lineH = lh != null ? lh * fs : A + D
       return cssTop + (lineH - (A + D)) / 2 + A
     },
-    // 줄박스의 수직 중앙 (도트·점·장식라인 정렬용)
+    // 줄박스 수직 중앙 (도트·점 정렬용)
     centerY(cssTop: number, fs: number, lh: number | null, font: string): number {
       const { A, D } = metrics(font)
       const lineH = lh != null ? lh * fs : A + D
@@ -275,18 +186,18 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   const typo = makeTypo(ctx)
 
   const hasBg = !!p.bgPhoto
-  const PAD = px(20) // v3.4: 여백 20 통일
+  const PAD = SPEC.pad
 
   // ── 배경: 베이스색 → (사진) → 오로라 → 그레인 ──
-  ctx.fillStyle = hasBg ? '#ffffff' : AURORA[p.tribeId].baseColor
+  ctx.fillStyle = hasBg ? '#ffffff' : AURORA_DATA[p.tribeId].baseColor
   ctx.fillRect(0, 0, W, H)
 
   if (p.bgPhoto) {
     const photo = await loadImage(p.bgPhoto)
     ctx.save()
-    ctx.filter = 'blur(7px) saturate(0.55)' // page.tsx 사진 레이어와 동일
+    ctx.filter = PHOTO_FILTER
     ctx.translate(W / 2, H / 2)
-    ctx.scale(1.04, 1.04)
+    ctx.scale(PHOTO_SCALE, PHOTO_SCALE)
     ctx.translate(-W / 2, -H / 2)
     drawCoverFit(ctx, photo, W, H)
     ctx.restore()
@@ -299,9 +210,9 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   try {
     const grain = await svgToImage(GRAIN_SVG)
     ctx.save()
-    ctx.globalAlpha = 0.07
+    ctx.globalAlpha = GRAIN_ALPHA
     ctx.globalCompositeOperation = 'multiply'
-    const T = px(GRAIN_TILE)
+    const T = spx(GRAIN_TILE)
     for (let y = 0; y < H; y += T) {
       for (let x = 0; x < W; x += T) {
         ctx.drawImage(grain, x, y, T, T)
@@ -312,121 +223,111 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
     // 그레인 실패 시 생략 (장식 레이어)
   }
 
-  // ── 상단: 좌=날짜 / 우=메트릭 라벨 (top 72) ──
-  const topY = px(72)
-  const topFs = px(11)
-  const topFont = `700 ${topFs}px ${BODY}`
+  // ── 상단: 좌=날짜 / 우=메트릭 라벨 ──
+  const topFont = `700 ${SPEC.top.fs}px ${BODY}`
   ctx.fillStyle = INK
   ctx.font = topFont
-  setLetterSpacing(ctx, topFs * 0.08)
-  ctx.fillText(formatTopDate(p.date), PAD, typo.baseline(topY, topFs, null, topFont))
+  setLetterSpacing(ctx, SPEC.top.fs * SPEC.top.dateLs)
+  ctx.fillText(formatTopDate(p.date), PAD, typo.baseline(SPEC.top.y, SPEC.top.fs, null, topFont))
 
   if (p.heroTemp != null) {
-    setLetterSpacing(ctx, topFs * 0.14)
+    setLetterSpacing(ctx, SPEC.top.fs * SPEC.top.metricLs)
     ctx.textAlign = 'right'
-    ctx.fillText(p.metricLabel.toUpperCase(), W - PAD, typo.baseline(topY, topFs, null, topFont))
+    ctx.fillText(p.metricLabel.toUpperCase(), W - PAD, typo.baseline(SPEC.top.y, SPEC.top.fs, null, topFont))
     ctx.textAlign = 'left'
   }
   setLetterSpacing(ctx, 0)
 
-  // ── 히어로: 온도 대형(° 중심=카드 모서리 반잘림) 또는 물결 마크 폴백 (top 96) ──
-  const heroTop = px(96)
+  // ── 히어로: 온도 대형(° 중심=카드 모서리 반잘림) 또는 물결 마크 폴백 ──
   if (p.heroTemp != null) {
-    const heroFs = px(130)
-    const degFs = px(36)
+    const { fs: heroFs, degFs, top: heroTop, lh: heroLh, ls: heroLs, gap } = SPEC.hero
     const heroFont = `700 ${heroFs}px ${OSWALD}`
     const degFont = `700 ${degFs}px ${OSWALD}`
     ctx.font = heroFont
-    setLetterSpacing(ctx, heroFs * -0.03)
+    setLetterSpacing(ctx, heroFs * heroLs)
     const numText = String(p.heroTemp)
     const numW = ctx.measureText(numText).width
     setLetterSpacing(ctx, 0)
     ctx.font = degFont
     const degW = ctx.measureText('°').width
-    // ° 중심 = 카드 우측 모서리 (정확히 반잘림) — canvas가 우측을 자동 클립
-    const xDeg = W - degW / 2
-    const xNum = xDeg - px(2) - numW
-    const heroBaseline = typo.baseline(heroTop, heroFs, 0.84, heroFont)
+    // ° 글리프 중심 = 카드 우측 모서리 → 좌측 절반만 보임 (canvas가 우측 자동 클립)
+    const xDegLeft = W - degW / 2
+    const xNum = xDegLeft - gap - numW
+
+    const heroBaseline = typo.baseline(heroTop, heroFs, heroLh, heroFont)
     const heroA = typo.metrics(heroFont).A
     const grad = ctx.createLinearGradient(0, heroBaseline - heroA, 0, heroBaseline)
-    grad.addColorStop(0, '#3a3330')
-    grad.addColorStop(0.55, '#1c1917')
+    grad.addColorStop(0, SPEC.hero.gradFrom)
+    grad.addColorStop(SPEC.hero.gradStop, SPEC.hero.gradTo)
     ctx.fillStyle = grad
     ctx.font = heroFont
-    setLetterSpacing(ctx, heroFs * -0.03)
+    setLetterSpacing(ctx, heroFs * heroLs)
     ctx.fillText(numText, xNum, heroBaseline)
     setLetterSpacing(ctx, 0)
-    // ° — CSS vertical-align:top: ° 글리프 상단을 숫자 줄박스 상단에 정렬
+    // ° — CSS vertical-align:top 재현 (줄박스 상단 기준)
     ctx.font = degFont
-    const degBaseline = typo.baseline(heroTop, degFs, null, degFont) // 줄박스 상단 기준 첫 줄
-    ctx.fillText('°', xDeg - degW / 2, degBaseline)
+    ctx.fillText('°', xDegLeft, typo.baseline(heroTop, degFs, null, degFont))
   } else {
-    // 폴백: 물결 마크 (right 20 — 라벨 우측 축 정렬, width 120)
     const mark = await loadImage(STEAM_MARK)
-    const mw = px(120)
+    const mw = SPEC.fallbackMark.w
     const mh = mw * (mark.naturalHeight / mark.naturalWidth)
     ctx.save()
-    ctx.globalAlpha = 0.88
-    ctx.drawImage(mark, W - PAD - mw, heroTop, mw, mh)
+    ctx.globalAlpha = SPEC.fallbackMark.alpha
+    ctx.drawImage(mark, W - PAD - mw, SPEC.hero.top, mw, mh)
     ctx.restore()
   }
 
-  // ── 워터마크: 물결 날짜 아래 (v3.4 — IG 프로필칩 회피), 폴백 시에도 유지 ──
+  // ── 워터마크: 물결 날짜 아래 (폴백 시에도 유지) ──
   {
     const mark = await loadImage(STEAM_MARK)
-    const mw = px(20)
+    const mw = SPEC.watermark.w
     const mh = mw * (mark.naturalHeight / mark.naturalWidth)
     ctx.save()
-    ctx.globalAlpha = 0.11
-    ctx.drawImage(mark, PAD, px(92), mw, mh)
+    ctx.globalAlpha = SPEC.watermark.alpha
+    ctx.drawImage(mark, SPEC.watermark.x, SPEC.watermark.y, mw, mh)
     ctx.restore()
   }
 
-  // ── 좌중: 사우나명 (top 230, line-height 1) ──
-  const placeFs = px(12.5)
-  const placeFont = `700 ${placeFs}px ${BODY}`
+  // ── 좌중: 사우나명 ──
+  const placeFont = `700 ${SPEC.place.fs}px ${BODY}`
   ctx.fillStyle = INK
   ctx.font = placeFont
-  setLetterSpacing(ctx, placeFs * 0.01)
-  ctx.fillText(p.placeName, PAD, typo.baseline(px(230), placeFs, 1, placeFont), px(200))
+  setLetterSpacing(ctx, SPEC.place.fs * SPEC.place.ls)
+  ctx.fillText(p.placeName, PAD, typo.baseline(SPEC.place.top, SPEC.place.fs, SPEC.place.lh, placeFont), SPEC.place.maxW)
   setLetterSpacing(ctx, 0)
 
-  // ── 루틴 타임라인 + (+N) + 세트 + 점수 (top 256) ──
-  // v3.4: 비압축 행간 1.8 (줄 사이 시각 갭 10px) / 압축 1.58
-  const fs = p.dense ? px(11.5) : px(12.5)
-  const lh = p.dense ? 1.58 : 1.8
+  // ── 루틴 타임라인 + (+N) + 세트 + 점수 ──
+  const fs = p.dense ? SPEC.routine.denseFs : SPEC.routine.fs
+  const lh = p.dense ? SPEC.routine.denseLh : SPEC.routine.lh
   const lineH = fs * lh
   const nameFont = `700 ${fs}px ${BODY}`
   const valFont = `400 ${fs}px ${BODY}`
-  let y = px(256)
+  let y = SPEC.routine.top
 
-  const dashMargin = px(6)
+  const { dash, bare } = SPEC.routine
   for (const ln of p.routineLines) {
     const by = typo.baseline(y, fs, lh, nameFont)
     let x = PAD
     ctx.font = nameFont
-    setLetterSpacing(ctx, fs * 0.01)
+    setLetterSpacing(ctx, fs * SPEC.routine.ls)
     ctx.fillStyle = INK
     ctx.fillText(ln.name, x, by)
     x += ctx.measureText(ln.name).width
 
     if (ln.parts.length === 0) {
-      // bare: 이름 뒤 장식 라인 (폭 135), 줄박스 수직 중앙
-      const lineEnd = PAD + px(135)
-      const cy = y + lineH / 2
-      ctx.strokeStyle = 'rgba(28,25,23,0.22)'
-      ctx.lineWidth = 5 // 1.5px × 3.6
-      ctx.beginPath()
-      ctx.moveTo(x + px(11), cy)
-      ctx.lineTo(lineEnd, cy)
-      ctx.stroke()
+      // bare: 이름 뒤 장식 라인 — 줄박스 수직 중앙 + raise 보정 (구분 실선과 동일 룩)
+      const cy = y + lineH / 2 - dash.raise
+      ctx.fillStyle = bare.color
+      ctx.fillRect(x + bare.ruleGap, cy - bare.ruleH / 2, PAD + bare.w - (x + bare.ruleGap), bare.ruleH)
     } else {
       ctx.font = valFont
+      // 구분 실선의 수직 중앙 = CSS vertical-align:middle (baseline − x-height/2) + raise 보정 (v3.5.1)
+      const midY = by - typo.metrics(valFont).xh / 2 - dash.raise
       for (const part of ln.parts) {
-        ctx.fillStyle = INK_M
-        x += dashMargin
-        ctx.fillText('—', x, by)
-        x += ctx.measureText('—').width + dashMargin
+        x += dash.margin
+        ctx.fillStyle = dash.color
+        ctx.fillRect(x, midY - dash.h / 2, dash.w, dash.h)
+        x += dash.w + dash.margin
         ctx.fillStyle = INK
         ctx.fillText(part, x, by)
         x += ctx.measureText(part).width
@@ -437,12 +338,12 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   }
 
   if (p.hiddenCount > 0) {
-    const hFs = px(11.5)
-    const hFont = `400 ${hFs}px ${BODY}`
+    const { fs: mFs, lh: mLh } = SPEC.routine.more
+    const mFont = `400 ${mFs}px ${BODY}`
     ctx.fillStyle = INK
-    ctx.font = hFont
-    ctx.fillText(`+ ${p.hiddenCount} 활동`, PAD, typo.baseline(y, hFs, 1.58, hFont))
-    y += hFs * 1.58
+    ctx.font = mFont
+    ctx.fillText(`+ ${p.hiddenCount} 활동`, PAD, typo.baseline(y, mFs, mLh, mFont))
+    y += mFs * mLh
   }
 
   if (p.repeat > 1) {
@@ -450,14 +351,13 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
     let x = PAD
     ctx.fillStyle = INK
     ctx.font = nameFont
-    setLetterSpacing(ctx, fs * 0.01)
+    setLetterSpacing(ctx, fs * SPEC.routine.ls)
     ctx.fillText('세트', x, by)
-    x += ctx.measureText('세트').width + dashMargin
-    // × — 더 얇고 살짝 크게, 잉크색(v3.4), baseline 공유 + vertical-align -1px(×3.6)
-    const xFs = px(15)
-    ctx.font = `300 ${xFs}px ${BODY}`
-    ctx.fillText('×', x, by + px(1))
-    x += ctx.measureText('×').width + dashMargin
+    x += ctx.measureText('세트').width + dash.margin
+    // × — 얇고 살짝 크게, 잉크색, baseline 공유 + drop
+    ctx.font = `300 ${SPEC.routine.x.fs}px ${BODY}`
+    ctx.fillText('×', x, by + SPEC.routine.x.drop)
+    x += ctx.measureText('×').width + dash.margin
     ctx.font = valFont
     ctx.fillText(String(p.repeat), x, by)
     setLetterSpacing(ctx, 0)
@@ -465,79 +365,73 @@ export async function renderCard(p: CardRenderParams): Promise<Blob> {
   }
 
   if (p.scoreValue != null) {
-    const sFs = px(12)
-    const sFont = `700 ${sFs}px ${BODY}`
-    const sy = y + (p.dense ? px(9) : px(12))
+    const sFont = `700 ${SPEC.score.fs}px ${BODY}`
+    const sy = y + (p.dense ? SPEC.score.denseMt : SPEC.score.mt)
     ctx.fillStyle = INK
     ctx.font = sFont
-    ctx.fillText(p.scoreLabel, PAD, typo.baseline(sy, sFs, null, sFont))
+    ctx.fillText(p.scoreLabel, PAD, typo.baseline(sy, SPEC.score.fs, null, sFont))
     const labelW = ctx.measureText(p.scoreLabel).width
-    // 점 5개 — 라벨 줄박스 수직 중앙에 정렬 (flex align-center 재현)
-    const pipD = px(7)
-    const pipGap = px(4)
-    const cy = typo.centerY(sy, sFs, null, sFont)
-    let cx = PAD + labelW + px(8) + pipD / 2
+    const cy = typo.centerY(sy, SPEC.score.fs, null, sFont)
+    let cx = PAD + labelW + SPEC.score.pipMl + SPEC.score.pipD / 2
     for (let n = 1; n <= 5; n++) {
       ctx.beginPath()
       if (n <= p.scoreValue) {
-        ctx.arc(cx, cy, pipD / 2, 0, Math.PI * 2)
+        ctx.arc(cx, cy, SPEC.score.pipD / 2, 0, Math.PI * 2)
         ctx.fillStyle = INK
         ctx.fill()
       } else {
-        ctx.arc(cx, cy, (pipD - 2) / 2, 0, Math.PI * 2)
+        ctx.arc(cx, cy, (SPEC.score.pipD - SPEC.score.pipStroke) / 2, 0, Math.PI * 2)
         ctx.strokeStyle = INK
-        ctx.lineWidth = 2
+        ctx.lineWidth = SPEC.score.pipStroke
         ctx.stroke()
       }
-      cx += pipD + pipGap
+      cx += SPEC.score.pipD + SPEC.score.pipGap
     }
   }
 
-  // ── 하단 우측 스택 (v3.4): 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래, 갭 10, bottom 72 ──
-  const rowFs = px(11)
-  const tribeFont = `italic 700 ${rowFs}px ${OSWALD}`
-  const nameFontFoot = `700 ${rowFs}px ${BODY}`
-  const titleFs = px(10.5)
+  // ── 하단 우측 스택: 트라이브명+도트 위 / 칭호·닉네임 아래 (lh1 + 갭, 우측 정렬) ──
+  const { fs: fFs, lh: fLh, gap: fGap, dotD, dotGap, titleFs, tribeLs, nameLs, sep, bottom } = SPEC.foot
+  const tribeFont = `italic 700 ${fFs}px ${OSWALD}`
+  const nameFont2 = `700 ${fFs}px ${BODY}`
   const titleFont = `400 ${titleFs}px ${BODY}`
 
-  const tribeH = typo.contentH(tribeFont)
-  const nameH = typo.contentH(nameFontFoot)
-  const stackBottom = H - px(72)
-  const nameTop = stackBottom - nameH
-  const tribeTop = nameTop - px(10) - tribeH
+  // lh=1 → 줄박스 높이 = fs
+  const nameTop = H - bottom - fFs
+  const tribeTop = nameTop - fGap - fFs
 
-  // 트라이브명 + 도트 (이름 먼저, 도트 뒤 — 우측 정렬)
-  const dotD = px(11)
+  // 트라이브명 + 도트 (이름 먼저, 도트 뒤)
   ctx.font = tribeFont
-  setLetterSpacing(ctx, rowFs * 0.06)
+  setLetterSpacing(ctx, fFs * tribeLs)
   const tribeText = TRIBE_EN[p.tribeId]
   const tribeW = ctx.measureText(tribeText).width
-  const dotCx = W - PAD - dotD / 2
-  const tribeX = W - PAD - dotD - px(7) - tribeW
   ctx.fillStyle = INK
-  ctx.fillText(tribeText, tribeX, typo.baseline(tribeTop, rowFs, null, tribeFont))
+  ctx.fillText(tribeText, W - PAD - dotD - dotGap - tribeW, typo.baseline(tribeTop, fFs, fLh, tribeFont))
   setLetterSpacing(ctx, 0)
   ctx.beginPath()
-  ctx.arc(dotCx, tribeTop + tribeH / 2, dotD / 2, 0, Math.PI * 2)
+  ctx.arc(W - PAD - dotD / 2, tribeTop + fFs / 2, dotD / 2, 0, Math.PI * 2)
   ctx.fillStyle = DOT_COLOR[p.tribeId]
   ctx.fill()
 
-  // 칭호(일반·-0.5px 보정) · 닉네임(bold) — 자간 .02em, 우측 정렬
+  // 칭호 · 닉네임 — 점 양쪽 균일 갭(sep), 우측 정렬
   const nickname = p.userNickname || 'SA-PIEN'
-  ctx.font = nameFontFoot
-  setLetterSpacing(ctx, rowFs * 0.02)
+  ctx.font = nameFont2
+  setLetterSpacing(ctx, fFs * nameLs)
   const nickW = ctx.measureText(nickname).width
   ctx.fillStyle = INK
-  ctx.fillText(nickname, W - PAD - nickW, typo.baseline(nameTop, rowFs, null, nameFontFoot))
+  const nameBaseline = typo.baseline(nameTop, fFs, fLh, nameFont2)
+  ctx.fillText(nickname, W - PAD - nickW, nameBaseline)
 
   if (p.userTitle) {
-    const titleText = `${p.userTitle} · `
     ctx.font = titleFont
-    setLetterSpacing(ctx, titleFs * 0.02)
-    const titleW = ctx.measureText(titleText).width
-    // 작은 폰트를 닉네임 줄박스 수직 중앙에 (flex align-center 재현)
-    const titleBaseline = typo.centerY(nameTop, rowFs, null, nameFontFoot) - typo.contentH(titleFont) / 2 + typo.metrics(titleFont).A
-    ctx.fillText(titleText, W - PAD - nickW - titleW, titleBaseline)
+    setLetterSpacing(ctx, titleFs * nameLs)
+    const dotW = ctx.measureText('·').width
+    const titleW = ctx.measureText(p.userTitle).width
+    // 작은 폰트(칭호·점)를 닉네임 줄박스(fs, lh1) 수직 중앙에 — flex align-center 재현
+    const smallBaseline = typo.baseline(nameTop + (fFs - titleFs) / 2, titleFs, 1, titleFont)
+    const xDot = W - PAD - nickW - sep - dotW
+    const xTitle = xDot - sep - titleW
+    ctx.fillText('·', xDot, smallBaseline)
+    ctx.fillText(p.userTitle, xTitle, smallBaseline)
   }
   setLetterSpacing(ctx, 0)
 

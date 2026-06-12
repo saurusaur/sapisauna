@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스토리 페이지 리디자인 시안 — 2026.06.11</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0c0a09; font-family:-apple-system,'Segoe UI',sans-serif; color:#e7e5e4; padding:32px 16px 80px; }
+  h1 { font-size:18px; text-align:center; margin-bottom:6px; }
+  .sub { text-align:center; color:#a8a29e; font-size:12px; margin-bottom:28px; line-height:1.6; }
+  .section-title { font-size:14px; font-weight:700; color:#fafaf9; margin:40px 8px 14px; border-left:3px solid #cc1a1a; padding-left:10px; }
+  .note { font-size:11px; color:#a8a29e; margin:0 8px 18px; line-height:1.6; }
+  .row { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+  .font-h { font-family:'Oswald',sans-serif; }
+  .cap { text-align:center; font-size:11px; color:#facc15; margin-top:10px; font-weight:600; }
+  .pick { outline:3px solid #cc1a1a; outline-offset:3px; }
+  .ms { font-family:'Material Symbols Outlined'; font-weight:normal; font-style:normal; line-height:1; letter-spacing:normal;
+        text-transform:none; display:inline-block; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased; }
+
+  /* 폰 프레임 */
+  .phone { width:320px; height:660px; border-radius:32px; overflow:hidden; position:relative; flex-shrink:0;
+           background:linear-gradient(135deg,#f5f2ef 0%, #ede8e3 100%); box-shadow:0 16px 50px rgba(0,0,0,.55); }
+
+  /* ── 미니 스토리 카드 (공용 placeholder, v3.4 축약) ── */
+  .mini-card { width:208px; height:370px; border-radius:18px; overflow:hidden; position:relative; margin:0 auto;
+               box-shadow:0 18px 40px rgba(0,0,0,.28), 0 6px 16px rgba(0,0,0,.12);
+               background:
+                 radial-gradient(120% 85% at 80% 26%, rgba(249,115,22,.82) 0%, rgba(251,146,60,.45) 30%, rgba(255,255,255,0) 62%),
+                 radial-gradient(90% 70% at 10% 64%, rgba(244,114,182,.42) 0%, rgba(255,255,255,0) 55%),
+                 linear-gradient(135deg,#fdf6f0 0%, #fff 100%); }
+  .mc-top { position:absolute; left:14px; right:14px; top:48px; display:flex; justify-content:space-between; font-size:8px; font-weight:700; color:#1c1917; }
+  .mc-hero { position:absolute; right:-5px; top:66px; font-weight:700; font-size:88px; line-height:.84; letter-spacing:-.03em; color:#1c1917; }
+  .mc-hero .u { font-size:25px; vertical-align:top; }
+  .mc-place { position:absolute; left:14px; top:158px; font-weight:700; font-size:9px; color:#1c1917; }
+  .mc-routine { position:absolute; left:14px; top:176px; font-size:8.5px; line-height:1.8; color:#1c1917; }
+  .mc-routine b { font-weight:700; }
+  .mc-routine .dd { color:rgba(28,25,23,.38); margin:0 4px; }
+  .mc-score { font-weight:700; margin-top:8px; display:flex; align-items:center; gap:5px; }
+  .mc-pips { display:inline-flex; gap:3px; }
+  .mc-pip { width:5px; height:5px; border-radius:50%; background:#1c1917; }
+  .mc-pip.off { background:none; border:.5px solid #1c1917; }
+  .mc-foot { position:absolute; right:14px; bottom:50px; display:flex; flex-direction:column; align-items:flex-end; gap:7px; color:#1c1917; }
+  .mc-tribe { display:inline-flex; align-items:center; gap:5px; font-family:'Oswald'; font-weight:700; font-style:italic; font-size:8px; letter-spacing:.06em; }
+  .mc-dot { width:8px; height:8px; border-radius:50%; background:#F97316; }
+  .mc-name { font-size:8px; font-weight:700; }
+  .mc-name .t { font-weight:400; font-size:7.5px; }
+
+  /* ── 공통 UI 토큰 ── */
+  .glass { background:hsla(0,0%,100%,.55); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+           border:0.5px solid hsla(0,0%,100%,.6);
+           box-shadow:0 3px 12px -3px hsla(0,10%,15%,.10), 0 1px 3px -1px hsla(0,10%,15%,.06); }
+  .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:44px; border-radius:12px;
+                 background:#cc1a1a; color:#fff; font-size:13px; font-weight:600;
+                 box-shadow:0 8px 30px -4px rgba(204,26,26,.4), 0 4px 12px -2px rgba(0,0,0,.12); }
+  .btn-primary .ms { font-size:17px; }
+  .chip-btn { display:flex; align-items:center; justify-content:center; gap:5px; height:36px; border-radius:9999px; padding:0 14px;
+              background:hsla(0,0%,100%,.55); border:1px solid #e2deda; color:#57534e; font-size:11.5px; font-weight:600;
+              backdrop-filter:blur(8px); }
+  .chip-btn .ms { font-size:15px; color:#78716c; }
+  .text-link { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:#a8a29e; font-weight:500; }
+  .text-link .ms { font-size:14px; }
+  .bg-change { position:absolute; display:flex; align-items:center; gap:4px; height:26px; padding:0 10px; border-radius:9999px;
+               background:hsla(0,0%,100%,.55); border:1px solid #e2deda; backdrop-filter:blur(8px);
+               font-size:9.5px; font-weight:600; color:#57534e; }
+  .bg-change .ms { font-size:12px; color:#78716c; }
+
+  /* 레드 곡선 헤더 (B안) */
+  .red-head { position:absolute; left:0; right:0; top:0; height:118px; background:#cc1a1a; }
+  .red-head svg { position:absolute; bottom:-23px; left:0; width:100%; height:24px; display:block; }
+  .red-head .hi { position:absolute; left:20px; top:34px; color:#fff; }
+  .red-head .hi .big { font-family:'Oswald'; font-weight:700; font-style:italic; font-size:21px; letter-spacing:.02em; line-height:1; }
+  .red-head .hi .sm { font-size:10px; opacity:.85; margin-top:5px; font-weight:500; }
+
+  /* 도장 FAB (C안) */
+  .stamp-fab { position:absolute; width:84px; height:84px; border-radius:50%; background:#cc1a1a; color:#fff;
+               display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+               transform:rotate(-12deg);
+               box-shadow:0 16px 36px -10px rgba(204,26,26,.45), 0 6px 16px -6px rgba(0,0,0,.18);
+               border:3px dashed rgba(255,255,255,.45); }
+  .stamp-fab .ms { font-size:24px; }
+  .stamp-fab span.lb { font-family:'Oswald'; font-weight:700; font-size:11px; letter-spacing:.08em; }
+</style>
+</head>
+<body>
+  <h1>스토리 페이지 리디자인 — 카드 주변 크롬 3안</h1>
+  <div class="sub">디자인 언어: primary #cc1a1a · 글래스(blur 12) · radius 12 · Oswald 헤딩 · bath-tile 배경 · 도장/fab-pop 모티프<br>현재: 빨간 사각 버튼 3개 + 회색 텍스트 링크 — 홈/로그 시스템과 불일치</div>
+
+  <!-- ════ A안 ════ -->
+  <div class="section-title">A안 — 미니멀 글래스 액션바 (주 액션 1개로 압축)</div>
+  <div class="note">Hick's Law: 핵심 목표 = 인스타 공유 → <b>btn-primary 풀폭 1개</b>. 저장·기록보기는 글래스 칩으로 강등. 배경변경은 글래스 칩으로 카드 우상단 유지. 최하단 텍스트 링크(추가 기록·홈) 유지.</div>
+  <div class="row">
+    <div class="phone pick">
+      <div style="position:absolute; left:0; right:0; top:22px; text-align:center;">
+        <div class="font-h" style="font-style:italic; font-weight:700; font-size:15px; color:#2a2222; letter-spacing:.03em;">SAUNA CHECKED!</div>
+        <div style="font-size:9.5px; color:#a8a29e; margin-top:3px; font-weight:500;">오늘의 사우나 카드가 완성됐어요</div>
+      </div>
+      <div style="position:absolute; left:0; right:0; top:64px;">
+        <div class="mini-card">
+          <div class="mc-top"><span>2026.06.10</span><span style="letter-spacing:.1em">TEMP DELTA</span></div>
+          <div class="mc-hero font-h">70<span class="u">°</span></div>
+          <div class="mc-place">동탄사우나</div>
+          <div class="mc-routine">
+            <div><b>건식</b><span class="dd">—</span>85°<span class="dd">—</span>12분</div>
+            <div><b>냉탕</b><span class="dd">—</span>15°<span class="dd">—</span>40초</div>
+            <div><b>세트</b><span class="dd">×</span>3</div>
+            <div class="mc-score">TOTONOU<span class="mc-pips"><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip off"></span></span></div>
+          </div>
+          <div class="mc-foot">
+            <span class="mc-tribe">SAUNNER<span class="mc-dot"></span></span>
+            <span class="mc-name"><span class="t">사우나마스터 · </span>STELLA</span>
+          </div>
+        </div>
+        <div class="bg-change" style="top:-8px; right:36px;"><span class="ms">add_photo_alternate</span>배경</div>
+      </div>
+      <!-- 글래스 액션바 -->
+      <div class="glass" style="position:absolute; left:16px; right:16px; bottom:64px; border-radius:16px; padding:12px;">
+        <div class="btn-primary"><span class="ms">ios_share</span>스토리 공유하기</div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <div class="chip-btn" style="flex:1"><span class="ms">download</span>이미지 저장</div>
+          <div class="chip-btn" style="flex:1"><span class="ms">description</span>기록 보기</div>
+        </div>
+      </div>
+      <div style="position:absolute; left:0; right:0; bottom:24px; display:flex; justify-content:center; gap:18px;">
+        <span class="text-link"><span class="ms">add_circle</span>추가 기록</span>
+        <span class="text-link"><span class="ms">home</span>홈으로</span>
+      </div>
+    </div>
+  </div>
+  <div class="cap">★A안 — 글래스 액션바 + primary CTA 1개 (구현 난이도 낮음, 기존 토큰만 사용)</div>
+
+  <!-- ════ B안 ════ -->
+  <div class="section-title">B안 — 홈 무드: 레드 곡선 헤더 + 카드 겹침</div>
+  <div class="note">홈의 레드영역·곡선·겹침 배치를 가져와 "완료 축하" 무드 강화. 카드가 레드 헤더에 살짝 겹침(홈 ID카드 패턴). 컨페티와 시너지. 액션바는 A안과 동일.</div>
+  <div class="row">
+    <div class="phone">
+      <div class="red-head">
+        <div class="hi">
+          <div class="big">SAUNA CHECKED!</div>
+          <div class="sm">2026.06.10 · 동탄사우나</div>
+        </div>
+        <svg viewBox="0 0 320 24" preserveAspectRatio="none"><path d="M0,0 L320,0 L320,8 Q160,30 0,8 Z" fill="#cc1a1a"/></svg>
+      </div>
+      <div style="position:absolute; left:0; right:0; top:88px;">
+        <div class="mini-card" style="transform:rotate(-2deg);">
+          <div class="mc-top"><span>2026.06.10</span><span style="letter-spacing:.1em">TEMP DELTA</span></div>
+          <div class="mc-hero font-h">70<span class="u">°</span></div>
+          <div class="mc-place">동탄사우나</div>
+          <div class="mc-routine">
+            <div><b>건식</b><span class="dd">—</span>85°<span class="dd">—</span>12분</div>
+            <div><b>냉탕</b><span class="dd">—</span>15°<span class="dd">—</span>40초</div>
+            <div><b>세트</b><span class="dd">×</span>3</div>
+            <div class="mc-score">TOTONOU<span class="mc-pips"><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip off"></span></span></div>
+          </div>
+          <div class="mc-foot">
+            <span class="mc-tribe">SAUNNER<span class="mc-dot"></span></span>
+            <span class="mc-name"><span class="t">사우나마스터 · </span>STELLA</span>
+          </div>
+        </div>
+        <div class="bg-change" style="top:-6px; right:30px; transform:rotate(2deg);"><span class="ms">add_photo_alternate</span>배경</div>
+      </div>
+      <div class="glass" style="position:absolute; left:16px; right:16px; bottom:64px; border-radius:16px; padding:12px;">
+        <div class="btn-primary"><span class="ms">ios_share</span>스토리 공유하기</div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <div class="chip-btn" style="flex:1"><span class="ms">download</span>이미지 저장</div>
+          <div class="chip-btn" style="flex:1"><span class="ms">description</span>기록 보기</div>
+        </div>
+      </div>
+      <div style="position:absolute; left:0; right:0; bottom:24px; display:flex; justify-content:center; gap:18px;">
+        <span class="text-link"><span class="ms">add_circle</span>추가 기록</span>
+        <span class="text-link"><span class="ms">home</span>홈으로</span>
+      </div>
+    </div>
+  </div>
+  <div class="cap">B안 — 레드 헤더 + 카드 -2° 기울임 (홈 무드 연속성, 난이도 중)</div>
+
+  <!-- ════ C안 ════ -->
+  <div class="section-title">C안 — 로그 무드: 도장 공유 FAB</div>
+  <div class="note">로그 저장 버튼(사첵 도장)의 자매 패턴 — 카드 우하단에 기울어진 원형 도장 FAB(공유). fab-pop 6s 애니메이션 재사용. 보조 액션은 카드 아래 글래스 칩 한 줄.</div>
+  <div class="row">
+    <div class="phone">
+      <div style="position:absolute; left:0; right:0; top:22px; text-align:center;">
+        <div class="font-h" style="font-style:italic; font-weight:700; font-size:15px; color:#2a2222; letter-spacing:.03em;">SAUNA CHECKED!</div>
+        <div style="font-size:9.5px; color:#a8a29e; margin-top:3px; font-weight:500;">카드를 인스타에 자랑해보세요</div>
+      </div>
+      <div style="position:absolute; left:0; right:0; top:64px;">
+        <div class="mini-card">
+          <div class="mc-top"><span>2026.06.10</span><span style="letter-spacing:.1em">TEMP DELTA</span></div>
+          <div class="mc-hero font-h">70<span class="u">°</span></div>
+          <div class="mc-place">동탄사우나</div>
+          <div class="mc-routine">
+            <div><b>건식</b><span class="dd">—</span>85°<span class="dd">—</span>12분</div>
+            <div><b>냉탕</b><span class="dd">—</span>15°<span class="dd">—</span>40초</div>
+            <div><b>세트</b><span class="dd">×</span>3</div>
+            <div class="mc-score">TOTONOU<span class="mc-pips"><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip"></span><span class="mc-pip off"></span></span></div>
+          </div>
+          <div class="mc-foot">
+            <span class="mc-tribe">SAUNNER<span class="mc-dot"></span></span>
+            <span class="mc-name"><span class="t">사우나마스터 · </span>STELLA</span>
+          </div>
+        </div>
+        <div class="bg-change" style="top:-8px; right:36px;"><span class="ms">add_photo_alternate</span>배경</div>
+        <!-- 도장 FAB: 카드 우하단 겹침 -->
+        <div class="stamp-fab" style="right:22px; bottom:-30px;">
+          <span class="ms">ios_share</span>
+          <span class="lb">SHARE</span>
+        </div>
+      </div>
+      <div style="position:absolute; left:16px; right:16px; bottom:64px; display:flex; gap:8px;">
+        <div class="chip-btn" style="flex:1"><span class="ms">download</span>저장</div>
+        <div class="chip-btn" style="flex:1"><span class="ms">description</span>기록 보기</div>
+        <div class="chip-btn" style="flex:1"><span class="ms">add_circle</span>추가 기록</div>
+      </div>
+      <div style="position:absolute; left:0; right:0; bottom:24px; display:flex; justify-content:center;">
+        <span class="text-link"><span class="ms">home</span>홈으로</span>
+      </div>
+    </div>
+  </div>
+  <div class="cap">C안 — 도장 SHARE FAB(rotate -12° + fab-pop) (브랜드 개성 최대, 난이도 중)</div>
+
+</body>
+</html>

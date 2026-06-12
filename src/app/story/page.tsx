@@ -38,58 +38,15 @@ import confetti from 'canvas-confetti'
 import SteamCardReveal from '@/components/features/steam-card-reveal'
 import type { RewardResult } from '@/types'
 import { getPrimaryTempDelta, getJimiHeadlineTemp } from '@/lib/sauna-temp-helpers'
+import {
+  CARD_W, CARD_H, spx, SPEC, INK, DOT_COLOR, TRIBE_EN, METRIC_LABEL, SCORE_LABEL,
+  STEAM_MARK, cssAurora, GRAIN_URI, GRAIN_ALPHA, GRAIN_TILE, PHOTO_FILTER, PHOTO_SCALE,
+} from '@/lib/story-card-spec'
 
-// ── v3 디자인 토큰 ──────────────────────────────────────
-// 카드는 1080×1920 native, 프로토타입(300px)의 3.6배 → px() 헬퍼로 변환
-const S = 3.6
-const px = (n: number) => Math.round(n * S)
-
-const INK = '#1c1917'
-const INK_D = 'rgba(28,25,23,0.55)'
-const INK_M = 'rgba(28,25,23,0.38)'
-
-const STEAM_MARK = '/logo/sauna-steam-mark.svg'
-
-// 트라이브별 오로라 그라데이션 (밝은 배경 + 다크 잉크)
-const AURORA: Record<StoryTribeId, string> = {
-  saunner:
-    'radial-gradient(120% 85% at 80% 26%, rgba(249,115,22,.82) 0%, rgba(251,146,60,.45) 30%, rgba(255,255,255,0) 62%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(244,114,182,.42) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,#fdf6f0 0%, #fff 100%)',
-  bather:
-    'radial-gradient(120% 85% at 80% 26%, rgba(40,120,160,.8) 0%, rgba(96,165,210,.42) 32%, rgba(255,255,255,0) 64%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(125,211,222,.45) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,#eef6fa 0%, #fff 100%)',
-  jimi:
-    'radial-gradient(120% 85% at 80% 26%, rgba(34,170,90,.78) 0%, rgba(110,200,130,.4) 32%, rgba(255,255,255,0) 64%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(190,220,140,.45) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,#f0f8f2 0%, #fff 100%)',
-}
-// 사진 모드 오버레이: 라디얼 강화 + 흰 베이스만 반투명(.38→.46) — "원래 배경 뒤에 사진이 비치는" 구조 (2026-06-10 확정)
-const AURORA_PHOTO: Record<StoryTribeId, string> = {
-  saunner:
-    'radial-gradient(120% 85% at 80% 26%, rgba(249,115,22,.88) 0%, rgba(251,146,60,.52) 30%, rgba(255,255,255,0) 62%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(244,114,182,.48) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,rgba(253,246,240,.38) 0%, rgba(255,255,255,.46) 100%)',
-  bather:
-    'radial-gradient(120% 85% at 80% 26%, rgba(40,120,160,.86) 0%, rgba(96,165,210,.49) 32%, rgba(255,255,255,0) 64%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(125,211,222,.52) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,rgba(238,246,250,.38) 0%, rgba(255,255,255,.46) 100%)',
-  jimi:
-    'radial-gradient(120% 85% at 80% 26%, rgba(34,170,90,.84) 0%, rgba(110,200,130,.47) 32%, rgba(255,255,255,0) 64%),' +
-    'radial-gradient(90% 70% at 10% 64%, rgba(190,220,140,.52) 0%, rgba(255,255,255,0) 55%),' +
-    'linear-gradient(135deg,rgba(240,248,242,.38) 0%, rgba(255,255,255,.46) 100%)',
-}
-
-// 그레인 노이즈 타일 (그라데이션 밴딩 방지) — SVG feTurbulence
-const GRAIN_URI =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"
-
-// 실제 앱 트라이브 컬러 토큰 (점색)
-const DOT_COLOR: Record<StoryTribeId, string> = { saunner: '#F97316', bather: '#3B82F6', jimi: '#22C55E' }
-const TRIBE_EN: Record<StoryTribeId, string> = { saunner: 'SAUNNER', bather: 'BATHER', jimi: 'JIMI' }
-const METRIC_LABEL: Record<StoryTribeId, string> = { saunner: 'TEMP DELTA', bather: 'BATH TEMP', jimi: 'JJIMJIL TEMP' }
-const SCORE_LABEL: Record<StoryTribeId, string> = { saunner: 'TOTONOU', bather: 'WATER', jimi: 'SWEAT' }
+// ── v3.5: 디자인 토큰·레이아웃은 공유 스펙(story-card-spec)이 단일 소스 ──
+// 프리뷰와 Canvas(image-export)가 같은 값을 import → 두 렌더러가 달라질 수 없음
+const px = spx
+const INK_D = 'rgba(28,25,23,0.55)' // 페이지 크롬(배경변경 버튼) 전용
 
 // 블록 → 카탈로그 정의 (마사지세신은 variant로 구분)
 function blockDef(b: LogBlock) {
@@ -123,7 +80,7 @@ export default function Story() {
   const [isExporting, setIsExporting] = useState(false)
   const [cardScale, setCardScale] = useState(() => {
     if (typeof window !== 'undefined') {
-      return (Math.min(window.innerWidth, 448) - 80) / 1080
+      return (Math.min(window.innerWidth, 448) - 80) / CARD_W
     }
     return 0.28
   })
@@ -147,7 +104,7 @@ export default function Story() {
     const updateScale = () => {
       if (containerRef.current) {
         const availableWidth = containerRef.current.offsetWidth
-        setCardScale(availableWidth / 1080)
+        setCardScale(availableWidth / CARD_W)
       }
     }
     updateScale()
@@ -291,7 +248,7 @@ export default function Story() {
     )
   }
 
-  const tribe = (log.tribe_id as StoryTribeId) in AURORA ? (log.tribe_id as StoryTribeId) : 'saunner'
+  const tribe = (log.tribe_id as StoryTribeId) in DOT_COLOR ? (log.tribe_id as StoryTribeId) : 'saunner'
 
   // 히어로 온도 (없으면 null → 물결 마크 폴백)
   const heroTemp: number | null = (() => {
@@ -338,7 +295,7 @@ export default function Story() {
         <div
           ref={containerRef}
           className="relative w-full mb-4 flex justify-center"
-          style={{ height: cardScale ? 1920 * cardScale + 16 : 0 }}
+          style={{ height: cardScale ? CARD_H * cardScale + 16 : 0 }}
         >
           {/* 배경 변경 버튼 */}
           <input ref={photoInputRef} type="file" accept="image/*" onChange={handleAddPhoto} className="hidden" />
@@ -360,40 +317,40 @@ export default function Story() {
           <div
             className="absolute top-0 overflow-hidden"
             style={{
-              width: 1080,
-              height: 1920,
+              width: CARD_W,
+              height: CARD_H,
               transform: `scale(${cardScale})`,
               transformOrigin: 'top center',
               borderRadius: px(26),
               boxShadow: '0 24px 80px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.06)',
-              background: bgPhoto ? undefined : AURORA[tribe],
+              background: bgPhoto ? undefined : cssAurora(tribe, false),
             }}
           >
-            {/* 사진 모드: 사진(블러·저채도 .55) 뒤 + 오로라 오버레이(흰 베이스만 반투명) */}
+            {/* 사진 모드: 사진(블러·저채도) 뒤 + 오로라 오버레이(흰 베이스만 반투명) */}
             {bgPhoto && (
               <>
                 <div
                   style={{
                     position: 'absolute', inset: 0,
                     backgroundImage: `url(${bgPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center',
-                    filter: 'blur(7px) saturate(0.55)', transform: 'scale(1.04)',
+                    filter: PHOTO_FILTER, transform: `scale(${PHOTO_SCALE})`,
                   }}
                 />
-                <div style={{ position: 'absolute', inset: 0, background: AURORA_PHOTO[tribe] }} />
+                <div style={{ position: 'absolute', inset: 0, background: cssAurora(tribe, true) }} />
               </>
             )}
             {/* 그레인 (그라데이션 밴딩 방지) */}
             <div
               style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.07, mixBlendMode: 'multiply',
-                backgroundImage: `url("${GRAIN_URI}")`, backgroundSize: `${px(240)}px ${px(240)}px`,
+                position: 'absolute', inset: 0, pointerEvents: 'none', opacity: GRAIN_ALPHA, mixBlendMode: 'multiply',
+                backgroundImage: `url("${GRAIN_URI}")`, backgroundSize: `${px(GRAIN_TILE)}px ${px(GRAIN_TILE)}px`,
               }}
             />
 
-            {/* 상단: 좌=날짜 / 우=메트릭 라벨 (v3.4: 여백 20) */}
-            <div style={{ position: 'absolute', left: px(20), right: px(20), top: px(72), display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.08em', color: INK }}>{formatTopDate()}</span>
-              <span style={{ fontSize: px(11), fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'right', color: INK, maxWidth: px(130) }}>
+            {/* 상단: 좌=날짜 / 우=메트릭 라벨 */}
+            <div style={{ position: 'absolute', left: SPEC.pad, right: SPEC.pad, top: SPEC.top.y, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: SPEC.top.fs, fontWeight: 700, letterSpacing: `${SPEC.top.dateLs}em`, color: INK }}>{formatTopDate()}</span>
+              <span style={{ fontSize: SPEC.top.fs, fontWeight: 700, letterSpacing: `${SPEC.top.metricLs}em`, textTransform: 'uppercase', textAlign: 'right', color: INK, maxWidth: SPEC.top.metricMaxW }}>
                 {fallbackHero ? '' : METRIC_LABEL[tribe]}
               </span>
             </div>
@@ -401,42 +358,43 @@ export default function Story() {
             {/* 히어로: 온도 대형(° 중심=모서리 반잘림) 또는 물결 마크 폴백 (라벨 슬롯은 비움) */}
             {fallbackHero ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: px(20), top: px(96), width: px(120), opacity: 0.88 }} />
+              <img src={STEAM_MARK} alt="" style={{ position: 'absolute', right: SPEC.pad, top: SPEC.hero.top, width: SPEC.fallbackMark.w, opacity: SPEC.fallbackMark.alpha }} />
             ) : (
               <div
                 className="font-heading"
                 style={{
-                  position: 'absolute', right: px(-7), top: px(96), fontWeight: 700, fontSize: px(130),
-                  lineHeight: 0.84, letterSpacing: '-0.03em',
-                  backgroundImage: 'linear-gradient(160deg,#3a3330 0%, #1c1917 55%)',
+                  position: 'absolute', right: SPEC.hero.previewRight, top: SPEC.hero.top, fontWeight: 700, fontSize: SPEC.hero.fs,
+                  lineHeight: SPEC.hero.lh, letterSpacing: `${SPEC.hero.ls}em`,
+                  backgroundImage: `linear-gradient(160deg,${SPEC.hero.gradFrom} 0%, ${SPEC.hero.gradTo} ${SPEC.hero.gradStop * 100}%)`,
                   WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
                 }}
               >
                 {heroTemp}
-                <span style={{ fontSize: px(36), verticalAlign: 'top', marginLeft: px(2) }}>°</span>
+                <span style={{ fontSize: SPEC.hero.degFs, verticalAlign: 'top', marginLeft: SPEC.hero.gap }}>°</span>
               </div>
             )}
 
             {/* 좌중: 사우나명 */}
-            <div style={{ position: 'absolute', left: px(20), top: px(230), fontWeight: 700, fontSize: px(12.5), lineHeight: 1, letterSpacing: '0.01em', color: INK, maxWidth: px(200) }}>
+            <div style={{ position: 'absolute', left: SPEC.pad, top: SPEC.place.top, fontWeight: 700, fontSize: SPEC.place.fs, lineHeight: SPEC.place.lh, letterSpacing: `${SPEC.place.ls}em`, color: INK, maxWidth: SPEC.place.maxW }}>
               {log.place_name}
             </div>
 
             {/* 루틴 타임라인 + (+N 활동) + 세트 + 요약 점수(블랙 점 5개) */}
-            <div style={{ position: 'absolute', left: px(20), top: px(256), right: px(20) }}>
+            <div style={{ position: 'absolute', left: SPEC.pad, top: SPEC.routine.top, right: SPEC.pad }}>
               {routineLines.map((ln, i) =>
                 ln.parts.length === 0 ? (
-                  // 온도/시간 없는 활동: 이름 뒤 장식 라인 (bare, 폭 135)
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', width: px(135), fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
+                  // 온도/시간 없는 활동: 이름 뒤 장식 라인 (bare)
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', width: SPEC.routine.bare.w, fontSize: dense ? SPEC.routine.denseFs : SPEC.routine.fs, lineHeight: dense ? SPEC.routine.denseLh : SPEC.routine.lh, letterSpacing: `${SPEC.routine.ls}em`, color: INK }}>
                     <span style={{ fontWeight: 700 }}>{ln.name}</span>
-                    <span style={{ flex: 1, height: 0, marginLeft: px(11), borderTop: '5px solid rgba(28,25,23,0.22)' }} />
+                    <span style={{ flex: 1, height: 0, marginLeft: SPEC.routine.bare.ruleGap, borderTop: `${SPEC.routine.bare.ruleH}px solid ${SPEC.routine.bare.color}`, position: 'relative', top: -SPEC.routine.dash.raise }} />
                   </div>
                 ) : (
-                  <div key={i} style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
+                  <div key={i} style={{ fontSize: dense ? SPEC.routine.denseFs : SPEC.routine.fs, lineHeight: dense ? SPEC.routine.denseLh : SPEC.routine.lh, letterSpacing: `${SPEC.routine.ls}em`, color: INK }}>
                     <span style={{ fontWeight: 700 }}>{ln.name}</span>
                     {ln.parts.map((p, j) => (
                       <span key={j}>
-                        <span style={{ margin: `0 ${px(6)}px`, color: INK_M }}>—</span>
+                        {/* 구분 라인: 글리프(—) 대신 실선 — 잉크색·1px·정중앙 (v3.5.1) */}
+                        <span style={{ display: 'inline-block', width: SPEC.routine.dash.w, height: SPEC.routine.dash.h, background: SPEC.routine.dash.color, margin: `0 ${SPEC.routine.dash.margin}px`, verticalAlign: 'middle', position: 'relative', top: -SPEC.routine.dash.raise }} />
                         {p}
                       </span>
                     ))}
@@ -444,26 +402,26 @@ export default function Story() {
                 )
               )}
               {hiddenCount > 0 && (
-                <div style={{ fontSize: px(11.5), lineHeight: 1.58, color: INK }}>+ {hiddenCount} 활동</div>
+                <div style={{ fontSize: SPEC.routine.more.fs, lineHeight: SPEC.routine.more.lh, color: INK }}>+ {hiddenCount} 활동</div>
               )}
               {repeat > 1 && (
-                <div style={{ fontSize: px(dense ? 11.5 : 12.5), lineHeight: dense ? 1.58 : 1.8, letterSpacing: '0.01em', color: INK }}>
+                <div style={{ fontSize: dense ? SPEC.routine.denseFs : SPEC.routine.fs, lineHeight: dense ? SPEC.routine.denseLh : SPEC.routine.lh, letterSpacing: `${SPEC.routine.ls}em`, color: INK }}>
                   <span style={{ fontWeight: 700 }}>세트</span>
-                  {/* ×는 살짝 내려 숫자와 높이 정렬, 색상은 잉크 통일 (v3.4) */}
-                  <span style={{ margin: `0 ${px(6)}px`, color: INK, fontWeight: 300, fontSize: px(15), verticalAlign: px(-1) }}>×</span>
+                  {/* ×는 살짝 내려 숫자와 높이 정렬, 잉크색 */}
+                  <span style={{ margin: `0 ${SPEC.routine.dash.margin}px`, color: INK, fontWeight: 300, fontSize: SPEC.routine.x.fs, verticalAlign: -SPEC.routine.x.drop }}>×</span>
                   {repeat}
                 </div>
               )}
               {nowScoreVal != null && (
-                <div style={{ display: 'flex', alignItems: 'center', fontSize: px(12), fontWeight: 700, marginTop: px(dense ? 9 : 12), color: INK }}>
+                <div style={{ display: 'flex', alignItems: 'center', fontSize: SPEC.score.fs, fontWeight: 700, marginTop: dense ? SPEC.score.denseMt : SPEC.score.mt, color: INK }}>
                   {SCORE_LABEL[tribe]}
-                  <span style={{ display: 'inline-flex', marginLeft: px(8), gap: px(4) }}>
+                  <span style={{ display: 'inline-flex', marginLeft: SPEC.score.pipMl, gap: SPEC.score.pipGap }}>
                     {[1, 2, 3, 4, 5].map((n) => (
                       <span
                         key={n}
                         style={{
-                          width: px(7), height: px(7), borderRadius: '50%',
-                          ...(n <= nowScoreVal ? { background: INK } : { border: `2px solid ${INK}` }),
+                          width: SPEC.score.pipD, height: SPEC.score.pipD, borderRadius: '50%',
+                          ...(n <= nowScoreVal ? { background: INK } : { border: `${SPEC.score.pipStroke}px solid ${INK}` }),
                         }}
                       />
                     ))}
@@ -472,19 +430,24 @@ export default function Story() {
               )}
             </div>
 
-            {/* 워터마크: 물결 마크 날짜 아래 (v3.4 — IG 프로필칩 회피), 폴백 시에도 유지 */}
+            {/* 워터마크: 물결 마크 날짜 아래 (IG 프로필칩 회피), 폴백 시에도 유지 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={STEAM_MARK} alt="" style={{ position: 'absolute', left: px(20), top: px(92), width: px(20), opacity: 0.11 }} />
+            <img src={STEAM_MARK} alt="" style={{ position: 'absolute', left: SPEC.watermark.x, top: SPEC.watermark.y, width: SPEC.watermark.w, opacity: SPEC.watermark.alpha }} />
 
-            {/* 하단 우측 스택 (v3.4): 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래, 갭 10, bottom 72(IG 답장바 회피) */}
-            <div style={{ position: 'absolute', right: px(20), bottom: px(72), display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: px(10) }}>
-              <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: px(7), fontSize: px(11), fontWeight: 700, fontStyle: 'italic', letterSpacing: '0.06em', color: INK }}>
+            {/* 하단 우측 스택: 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래 — 줄박스 lh1 + 갭 10(루틴 줄 갭과 동일 체감, v3.5) */}
+            <div style={{ position: 'absolute', right: SPEC.pad, bottom: SPEC.foot.bottom, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: SPEC.foot.gap }}>
+              <span className="font-heading" style={{ display: 'inline-flex', alignItems: 'center', gap: SPEC.foot.dotGap, fontSize: SPEC.foot.fs, lineHeight: SPEC.foot.lh, fontWeight: 700, fontStyle: 'italic', letterSpacing: `${SPEC.foot.tribeLs}em`, color: INK }}>
                 {TRIBE_EN[tribe]}
-                <span style={{ width: px(11), height: px(11), borderRadius: '50%', background: DOT_COLOR[tribe] }} />
+                <span style={{ width: SPEC.foot.dotD, height: SPEC.foot.dotD, borderRadius: '50%', background: DOT_COLOR[tribe] }} />
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: px(11), fontWeight: 700, letterSpacing: '0.02em', color: INK }}>
-                {/* 한글 칭호가 영문 닉네임보다 미세하게 커 보여 -0.5px 보정 */}
-                {log.user_title && <span style={{ fontWeight: 400, fontSize: px(10.5) }}>{log.user_title} · </span>}
+              <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: SPEC.foot.fs, lineHeight: SPEC.foot.lh, fontWeight: 700, letterSpacing: `${SPEC.foot.nameLs}em`, color: INK }}>
+                {/* 칭호(-0.5px 보정) · 점 양쪽 균일 갭 (v3.5) */}
+                {log.user_title && (
+                  <>
+                    <span style={{ fontWeight: 400, fontSize: SPEC.foot.titleFs }}>{log.user_title}</span>
+                    <span style={{ fontWeight: 400, fontSize: SPEC.foot.titleFs, margin: `0 ${SPEC.foot.sep}px` }}>·</span>
+                  </>
+                )}
                 <span style={{ fontWeight: 700 }}>{log.user_nickname || 'SA-PIEN'}</span>
               </span>
             </div>

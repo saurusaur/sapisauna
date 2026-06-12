@@ -59,12 +59,14 @@
   /* 칸 없이 인라인 흐름 — em-dash 글리프 구분 */
   .r-line { font-size:12.5px; letter-spacing:.01em; line-height:1.8; } /* v3.4: 줄 사이 시각 갭 10px */
   .r-line .nm { font-weight:700; }
-  .r-line .d { margin:0 6px; color:rgba(28,25,23,.38); }         /* em-dash 글리프 (샤프) */
+    /* v3.5: 구분자 = 실선 (글리프 폰트차 제거, .38→.6 진하게, 수직 중앙) */
+  .r-line .d { display:inline-block; width:10px; height:0.8px; background:#1c1917; vertical-align:middle; position:relative; top:-1px; margin:0 6px; font-size:0; color:transparent; } /* v3.5.1: 잉크색·0.8px·정중앙 */
+  .r-line .d.x { display:inline; width:auto; height:auto; background:none; color:#1c1917; }
   .r-line .d.x { font-weight:300; font-size:15px; vertical-align:-1px; color:#1c1917; }              /* 세트 × — 더 얇고 살짝 크게 */
   /* 루틴 정보(온도/시간) 없는 활동: 이름 뒤 라인 쭉 */
   .r-line.bare { display:flex; align-items:center; width:135px; } /* v3.3: 150→135 */
   .r-line.bare .nm { flex:none; }
-  .r-line.bare::after { content:""; flex:1; height:0; margin-left:11px; border-top:1.5px solid rgba(28,25,23,.22); }
+  .r-line.bare::after { content:""; flex:1; height:0; margin-left:11px; border-top:0.8px solid #1c1917; position:relative; top:-1px; } /* v3.5.1: 구분 실선과 동일 */
   .now-line { font-size:12px; font-weight:700; margin-top:12px; display:flex; align-items:center; }
   /* v3.1: 요약 점수 = 블랙 점 5개 (채움=잉크 원 / 빈=잉크 얇은 테두리 원) */
   .pips { display:inline-flex; margin-left:8px; gap:4px; }
@@ -72,16 +74,17 @@
   .pip.on  { background:#1c1917; }
   .pip.off { border:.5px solid #1c1917; }
   /* v3.1: 칭호(일반) · 닉네임(bold) */
-  .title-inline { font-weight:400; font-size:10.5px; } /* 한글 칭호가 영문 닉네임보다 미세하게 커 보여 -0.5px 보정 */
+    .title-inline { font-weight:400; font-size:10.5px; } /* 칭호 -0.5px 보정 */
+  .sep { font-weight:400; font-size:10.5px; margin:0 4px; } /* v3.5: 점 양쪽 균일 갭 */
   .nick { font-weight:700; }
 
   /* 하단 */
   .foot { position:absolute; right:20px; bottom:72px; display:flex; flex-direction:column; align-items:flex-end; gap:10px; } /* v3.4: 우측 스택, IG 답장바 회피 */
   .foot .big { font-size:22px; font-weight:700; line-height:.95; letter-spacing:-.01em; }
-  .foot .r2 { display:flex; flex-direction:column; align-items:flex-end; gap:10px; font-size:11px; font-weight:700; letter-spacing:.02em; }
+  .foot .r2 { display:flex; flex-direction:column; align-items:flex-end; gap:10px; font-size:11px; line-height:1; font-weight:700; letter-spacing:.02em; }
   .dot { display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:middle; margin-right:7px; }
   /* v3.3: 하단 좌측 = 점 + 트라이브명(Oswald bold, 점과 높이 정렬). 대형 트라이브명 제거 */
-  .tribe-sm { display:inline-flex; align-items:center; gap:7px; font-family:'Oswald',sans-serif; font-weight:700; font-style:italic; font-size:11px; letter-spacing:.06em; color:#1c1917; }
+  .tribe-sm { display:inline-flex; align-items:center; gap:7px; font-family:'Oswald',sans-serif; font-weight:700; font-style:italic; font-size:11px; line-height:1; letter-spacing:.06em; color:#1c1917; }
   .tribe-sm .dot { margin-right:0; }
 
   /* 워터마크 — sauna-stamp 물결(steam) 마크, 엄청 연하게·작게 (닉네임 위 우측) */
@@ -112,7 +115,12 @@
      · 여백 20px 통일(히어로 제외) · ° 중심=카드 모서리 반잘림(right -7px, Canvas는 measureText('°')/2)
      · 날짜 요일 제거 · 세트 × 잉크색 · 루틴 비압축 행간 1.8(줄 갭 10px)
      · 물결 워터마크 = 날짜 아래(20,92) — IG 프로필칩 회피
-     · 하단 = 우측 정렬 스택(bottom 72 — IG 답장바 회피): 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래, 갭 10px */
+     · 하단 = 우측 정렬 스택(bottom 72 — IG 답장바 회피): 트라이브명+도트(이름 먼저) 위 / 칭호·닉네임 아래, 갭 10px
+     ── v3.5 (2026-06-11) ──
+     · 루틴 구분자·bare 라인 = 실선 0.8px, 잉크 #1c1917 동일, middle −1px 정중앙 / 닉네임은 항상 영문(앱 설정)
+     · 하단 줄박스 line-height:1 + 갭 10px = 루틴 줄 갭과 동일 체감
+     · 칭호·점·닉네임 갭 균일(점 양쪽 4px)
+     · 코드: 레이아웃 단일 소스 = src/lib/story-card-spec.ts (프리뷰·Canvas 공유) */
 </style>
 </head>
 <body>
@@ -139,7 +147,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
@@ -156,7 +164,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">BATHER<span class="dot" style="background:#3B82F6"></span></span><span class="ink-d"><span class="title-inline">목욕의신 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">BATHER<span class="dot" style="background:#3B82F6"></span></span><span class="ink-d"><span class="title-inline">목욕의신</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
@@ -174,7 +182,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">JIMI<span class="dot" style="background:#22C55E"></span></span><span class="ink-d"><span class="title-inline">찜질장인 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">JIMI<span class="dot" style="background:#22C55E"></span></span><span class="ink-d"><span class="title-inline">찜질장인</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
   </div>
@@ -193,7 +201,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
@@ -206,7 +214,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
@@ -222,7 +230,7 @@
         <div class="now-line ink">TOTONOU<span class="pips"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip off"></span></span></div>
       </div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
@@ -235,7 +243,7 @@
       </div>
       <div class="watermark"><img src="../../public/logo/sauna-steam-mark.svg" alt=""></div>
       <div class="foot">
-        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터 · </span><span class="nick">스텔라</span></span></div>
+        <div class="r2"><span class="tribe-sm">SAUNNER<span class="dot" style="background:#F97316"></span></span><span class="ink-d"><span class="title-inline">사우나마스터</span><span class="sep">·</span><span class="nick">STELLA</span></span></div>
       </div>
     </div></div>
 
