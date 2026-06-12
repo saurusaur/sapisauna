@@ -4,7 +4,7 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. ~~⓶ `/log/deep` 고아·구 함수 정리~~ **완료(2026-06-12** — deep 페이지·insertLog/updateLog/saveOrUpdateDeepLog·deep_log 타입 삭제, 시설온도=log_detail 보너스 분리**)**. ~~⓷ 백필 재실행(V0~V4=0 확인)·**main 머지**~~ **완료(2026-06-13, PR #17 `e09ed82` 프로덕션 배포 success)**. **잔여**: ⓐ 배포 후 백필 1회 재실행(`supabase/029_backfill_rerun_gap.sql`, 멱등) ⓑ 프로덕션 새 폼 스모크 ⓒ **030 cleanup**(구 컬럼+deep_logs DROP) + 코드 폴백 제거 커밋 ⓓ `032_food_to_restaurant.sql` 실행 + **매점 건별 snack 수정(유저)** ⓸ 스토리 연결. F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
+- [x] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029~034 마이그레이션 + v6 단일폼 + 표시면 평탄화 + is_extra 분리 + 리워드 분화(log/routine/detail) + main 배포(PR #17·18·19) + **030 contract 완료**. 무손실 검증 LOSS 0(8버킷 블라인드, `docs/po/마이그레이션_무손실_대조리포트_20260613.md`). 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md` | done: 2026-06-13 F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 
@@ -27,6 +27,11 @@
 
 - [ ] [데이터] resort-spa 재분류 일괄 검토 — `PHASE_LOG.md` 메모의 워터파크/메가 데이온천 후보 15곳(아쿠아필드 고양/안성/하남·스파랜드류·이천 테르메덴·Therme Erding 등) 중 현재 public-bath/hotel-spa 잔존분을 026 정의에 맞춰 resort-spa로 전환 검토 | priority: P2 | added: 2026-06-04
 - [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
+
+<!-- 로그 컷오버 후속 (2026-06-13) -->
+- [ ] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** — `supabase/032_food_to_restaurant.sql`(일괄 치환+검증 목록) 유저 수동 실행 → restaurant 태그 장소 훑으며 매점인 곳만 snack으로 | priority: P1 | added: 2026-06-13
+- [ ] [검증] **블록 모델 프로덕션 검증 스위프** — ① 식당(restaurant) 블록: 실데이터 0건인 신규 경로 — 기록→타임라인→히스토리 상세→장소 집계 전 구간 ② 추천메뉴(snack/restaurant memo) 표시 ③ 기본세신 가격 행(저장→편집 복원→장소 세신가격 집계) ④ 시설온도 is_extra 편집 복원 ⑤ 메모 auto-grow — 실기기 | priority: P1 | added: 2026-06-13
+- [ ] [데이터] **친구 테스트 로그 정리** — 6/9 작성 테스트 로그(킹스호텔·쉐레이암반수·아트리·죽전누리 등, 입장료 900만/세신 90만 아웃라이어 포함) 친구가 직접 삭제 예정 — 완료 확인만 | priority: P2 | added: 2026-06-13
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
