@@ -358,12 +358,14 @@ export default function LogPage() {
       if (editId) { await updateLogWithBlocks(editId, session, blocks); logId = editId }
       else {
         logId = await insertLogWithBlocks(session, blocks)
-        // 보상 분화: 기본 log(20) + 루틴 상세(온도·시간) +15 + 세부 기록(더자세히·블록 평가) +15
+        // 보상 분화: 기본 log(20) + 루틴 상세 +15 + 세부 기록 +15
+        // 루틴 = 내가 한 활동(picked)의 온도·시간만. 더자세히의 시설 온도(facTemps)는 세부 기록으로 집계 (2026-06-12 확정)
         const bonuses: ('log_routine' | 'log_detail')[] = []
-        if (blocks.some(b => b.temp != null || b.durationSec != null)) bonuses.push('log_routine')
+        if (picked.some(p => p.temp != null || p.durationSec != null)) bonuses.push('log_routine')
+        const hasFacTemps = Object.keys(facTemps).some(id => BLOCK_TYPE_MAP[id] && !isPicked(id))
         if (session.cleanliness != null || session.crowd != null || session.companion != null
-          || session.cost != null || session.memo != null
-          || blocks.some(b => b.score != null || b.cost != null || b.memo != null)) bonuses.push('log_detail')
+          || session.cost != null || session.memo != null || hasFacTemps
+          || picked.some(p => p.score != null || p.cost != null || p.memo != null)) bonuses.push('log_detail')
         const reward = await grantReward('log', { tribeId: logType, bonuses })
         if (reward) localStorage.setItem('pendingReward', JSON.stringify(reward))
       }
