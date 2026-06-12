@@ -309,19 +309,19 @@ const DETAIL_FIELDS: Record<string, { field: string; shortLabel: string; unit: s
     { field: 'water_quality', shortLabel: QUICK_LOG.BATHER.WATER_QUALITY.shortLabel, unit: '/5' },
   ],
   jimi: [
-    { field: 'jjim_temp', shortLabel: QUICK_LOG.JIMI.JJIM_TEMP.shortLabel, unit: '°' },
+    { field: 'bulgama_temp', shortLabel: QUICK_LOG.JIMI.JJIM_TEMP.shortLabel, unit: '°' },
     { field: 'sweat_quality', shortLabel: QUICK_LOG.JIMI.SWEAT_QUALITY.shortLabel, unit: '/5' },
     { field: 'rest_quality', shortLabel: QUICK_LOG.JIMI.REST_QUALITY.shortLabel, unit: '/5' },
   ],
 }
 
-export function getDetailText(log: { tribe_id: string; sauna_temp?: number; steam_sauna_temp?: number; primary_sauna_kind?: 'dry' | 'steam'; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; jjim_temp?: number; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
+export function getDetailText(log: { tribe_id: string; dry_sauna_temp?: number | null; steam_sauna_temp?: number; primary_sauna_kind?: 'dry' | 'steam'; cold_bath_temp?: number; repeat?: number; hot_bath_temp?: number; water_quality?: number; bulgama_temp?: number | null; sweat_quality?: number; rest_quality?: number; totono_score?: number }): string {
   const parts: string[] = []
   // 사우너: 주 이용 사우나(건식/습식) 우선 표시
   if (log.tribe_id === 'saunner') {
     const isSteam = log.primary_sauna_kind === 'steam'
-      || (log.primary_sauna_kind == null && log.sauna_temp == null && log.steam_sauna_temp != null)
-    const value = isSteam ? log.steam_sauna_temp : log.sauna_temp
+      || (log.primary_sauna_kind == null && log.dry_sauna_temp == null && log.steam_sauna_temp != null)
+    const value = isSteam ? log.steam_sauna_temp : log.dry_sauna_temp
     if (value != null) {
       const label = isSteam ? '습식' : (QUICK_LOG.SAUNER.SAUNA_TEMP.shortLabel as string)
       parts.push(`${label} ${value}°`)
@@ -333,4 +333,20 @@ export function getDetailText(log: { tribe_id: string; sauna_temp?: number; stea
     if (val != null) parts.push(`${shortLabel} ${val}${unit}`)
   }
   return parts.join(' · ')
+}
+
+/**
+ * 상세 기록(구 딥로그) 존재 여부 — 평탄 캐시 필드 기준.
+ * record-card 이중링/캘린더 점/히스토리 상세 카드 노출 판단에 공유.
+ */
+export function hasLogDetail(log: {
+  cleanliness?: number | null; crowd?: string | null; companion?: string | null
+  cost?: number | null; memo?: string | null
+  scrub_score?: number | null; massage_score?: number | null
+  snack_score?: number | null; restaurant_score?: number | null
+}): boolean {
+  return log.cleanliness != null || log.crowd != null || log.companion != null
+    || log.cost != null || log.memo != null
+    || log.scrub_score != null || log.massage_score != null
+    || log.snack_score != null || log.restaurant_score != null
 }

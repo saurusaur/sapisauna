@@ -112,18 +112,10 @@ export default function PlaceDetailPage() {
   }
   const tempMetrics = [
     { label: '온탕', value: calcTempAvg('hot_bath_temp') },
-    { label: '건식', value: calcTempAvg('sauna_temp') },
+    { label: '건식', value: calcTempAvg('dry_sauna_temp') },
     { label: '냉탕', value: calcTempAvg('cold_bath_temp') },
-    { label: '한증막', value: calcTempAvg('jjim_temp') },
+    { label: '한증막', value: calcTempAvg('bulgama_temp') },
   ].filter(m => m.value !== null) as { label: string; value: number }[]
-
-  // 2-1. 딥로그 온도/청결도 (placeLogs 전체)
-  const calcDeepAvg = (field: 'very_hot_bath_temp' | 'ice_bath_temp' | 'cleanliness') => {
-    const vals = placeLogs
-      .filter(l => l.deep_log?.[field] != null)
-      .map(l => l.deep_log![field] as number)
-    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
-  }
 
   // 2-2. 주관적 점수 (userLogs — 어드민 제외)
   const calcScoreAvg = (field: keyof typeof userLogs[0], filterTribe?: string) => {
@@ -133,10 +125,10 @@ export default function PlaceDetailPage() {
   }
 
   // 3. 트라이브별 서브 메트릭 (컬럼 표시)
-  // steam_sauna_temp는 이제 logs 테이블에 있음 → calcTempAvg 사용
+  // 열탕/급냉도 029 평탄화로 logs 캐시 → 전부 calcTempAvg 사용
   const steamSaunaAvg = calcTempAvg('steam_sauna_temp')
-  const deepVeryHotBathAvg = calcDeepAvg('very_hot_bath_temp')
-  const iceBathAvg = calcDeepAvg('ice_bath_temp')
+  const deepVeryHotBathAvg = calcTempAvg('very_hot_bath_temp')
+  const iceBathAvg = calcTempAvg('ice_bath_temp')
 
   const tribeSubMetrics: { tribeId: string; metrics: { label: string; value: string }[] }[] = [
     { tribeId: 'saunner', metrics: [
@@ -158,16 +150,16 @@ export default function PlaceDetailPage() {
   ].filter(t => t.metrics.length > 0)
 
   // 3. 평균 비용 (로그 데이터 최빈 통화 기준, Intl로 포맷)
-  const costLogs = placeLogs.filter(l => l.deep_log?.cost != null)
+  const costLogs = placeLogs.filter(l => l.cost != null)
   const currencyFreq: Record<string, number> = {}
   for (const l of costLogs) {
-    const cur = l.deep_log?.currency || 'KRW'
+    const cur = l.currency || 'KRW'
     currencyFreq[cur] = (currencyFreq[cur] || 0) + 1
   }
   const mainCurrency = Object.entries(currencyFreq).sort((a, b) => b[1] - a[1])[0]?.[0] || 'KRW'
   const costEntries = costLogs
-    .filter(l => (l.deep_log?.currency || 'KRW') === mainCurrency)
-    .map(l => l.deep_log!.cost as number)
+    .filter(l => (l.currency || 'KRW') === mainCurrency)
+    .map(l => l.cost as number)
   const avgCost = costEntries.length > 0
     ? { amount: Math.round(costEntries.reduce((s, v) => s + v, 0) / costEntries.length), currency: mainCurrency }
     : null
@@ -175,37 +167,39 @@ export default function PlaceDetailPage() {
   // 4. 혼잡도 분포
   const crowdCounts: Record<string, number> = {}
   for (const log of userLogs) {
-    if (log.deep_log?.crowd) crowdCounts[log.deep_log.crowd] = (crowdCounts[log.deep_log.crowd] || 0) + 1
+    if (log.crowd) crowdCounts[log.crowd] = (crowdCounts[log.crowd] || 0) + 1
   }
   const crowdLabelMap = Object.fromEntries(DEEP_LOG.CROWD.options.map(o => [o.id, o.label]))
   const crowdDistribution = DEEP_LOG.CROWD.options.map(o => ({ id: o.id, count: crowdCounts[o.id] || 0 }))
   const crowdTotal = crowdDistribution.reduce((s, c) => s + c.count, 0)
 
-  // 5. 세신 만족도
-  const scrubLogs = userLogs.filter(l => l.deep_log?.has_scrub)
-  const scrubSatVals = scrubLogs.filter(l => l.deep_log?.scrub_satisfaction != null).map(l => l.deep_log!.scrub_satisfaction as number)
+  // 5. 세신 만족도 (평탄 캐시 — 세신·건강세신 = scrub_score)
+  const scrubSatVals = userLogs.filter(l => l.scrub_score != null).map(l => l.scrub_score as number)
   const scrubAvg = scrubSatVals.length > 0 ? scrubSatVals.reduce((s, v) => s + v, 0) / scrubSatVals.length : 0
 
-  // 5-1. 매점 점수
-  const storeScoreVals = userLogs.filter(l => l.deep_log?.store_score != null).map(l => l.deep_log!.store_score as number)
+  // 5-1. 매점 점수 (구 store_* → snack_*)
+  const storeScoreVals = userLogs.filter(l => l.snack_score != null).map(l => l.snack_score as number)
   const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
 
   // 5-2. 추가 정보 메트릭 (청결도, 세신, 매점, 이용료 — 있는 것만)
   // 청결도: 주관적 → userLogs에서만 집계 (어드민 제외)
-  const userCleanlinessVals = userLogs.filter(l => l.deep_log?.cleanliness != null).map(l => l.deep_log!.cleanliness as number)
+  const userCleanlinessVals = userLogs.filter(l => l.cleanliness != null).map(l => l.cleanliness as number)
   const cleanlinessAvg = userCleanlinessVals.length > 0
     ? Math.round((userCleanlinessVals.reduce((s, v) => s + v, 0) / userCleanlinessVals.length) * 10) / 10
     : null
-  // 5-3. 세신 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
-  const scrubCostByType = (typeFilter: (types: string[]) => boolean) => {
-    const vals = placeLogs
-      .filter(l => l.deep_log?.has_scrub && l.deep_log.scrub_cost != null && typeFilter(l.deep_log.scrub_types || []))
-      .map(l => l.deep_log!.scrub_cost as number)
-    return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
-  }
-  const scrubOnlyAvg = scrubCostByType(t => t.includes('scrub') && !t.includes('massage'))
-  const massageOnlyAvg = scrubCostByType(t => t.includes('massage') && !t.includes('scrub'))
-  const scrubMassageAvg = scrubCostByType(t => t.includes('scrub') && t.includes('massage'))
+  // 5-3. 세신/마사지 타입별 가격 집계 (placeLogs 전체 — 어드민 포함)
+  // 세신=scrub_type 'basic', 건강세신(마사지세신)='withmassage', 마사지 단독=massage_cost
+  const avgOf = (vals: number[]) =>
+    vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : null
+  const scrubOnlyAvg = avgOf(placeLogs
+    .filter(l => l.scrub_cost != null && (l.scrub_type ?? 'basic') === 'basic')
+    .map(l => l.scrub_cost as number))
+  const scrubMassageAvg = avgOf(placeLogs
+    .filter(l => l.scrub_cost != null && l.scrub_type === 'withmassage')
+    .map(l => l.scrub_cost as number))
+  const massageOnlyAvg = avgOf(placeLogs
+    .filter(l => l.massage_cost != null)
+    .map(l => l.massage_cost as number))
 
   const additionalMetrics: { label: string; value: string }[] = []
   // 입장료
@@ -241,7 +235,7 @@ export default function PlaceDetailPage() {
     let logs = [...userLogs]
     switch (logSort) {
       case 'memo':
-        logs = logs.filter(l => l.deep_log?.memo)
+        logs = logs.filter(l => l.memo)
         logs.sort((a, b) => b.date.localeCompare(a.date))
         break
       case 'score':

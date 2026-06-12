@@ -100,17 +100,28 @@ export function getPrimaryTempDelta(
  * (탕 온도는 찜질 메트릭이 아니므로 제외)
  * 하나도 없으면 null.
  */
+export interface JimiHeadlineTemp {
+  /** 최고 온도 (°C) */
+  value: number
+  /** 그 온도가 실제 어느 시설인지 — "한증막" / "소금사우나" / "건식" / "습식" */
+  labelKr: string
+}
+
 export function getJimiHeadlineTemp(log: {
   bulgama_temp?: number | null
   salt_sauna_temp?: number | null
   dry_sauna_temp?: number | null
   steam_sauna_temp?: number | null
-}): number | null {
-  const temps = [
-    log.bulgama_temp,
-    log.salt_sauna_temp,
-    log.dry_sauna_temp,
-    log.steam_sauna_temp,
-  ].filter((t): t is number => t != null)
-  return temps.length ? Math.max(...temps) : null
+}): JimiHeadlineTemp | null {
+  const candidates: Array<[number | null | undefined, string]> = [
+    [log.bulgama_temp, '한증막'],
+    [log.salt_sauna_temp, '소금사우나'],
+    [log.dry_sauna_temp, '건식'],
+    [log.steam_sauna_temp, '습식'],
+  ]
+  let best: JimiHeadlineTemp | null = null
+  for (const [t, labelKr] of candidates) {
+    if (t != null && (best == null || t > best.value)) best = { value: t, labelKr }
+  }
+  return best
 }

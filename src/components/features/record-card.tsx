@@ -1,5 +1,5 @@
 import { TRIBE_EMOJI_MAP } from '@/constants/content'
-import { formatShortDate, getDetailText } from '@/lib/utils'
+import { formatShortDate, getDetailText, hasLogDetail } from '@/lib/utils'
 import type { LogWithPlace } from '@/types'
 import ScoreBadge from './score-badge'
 
@@ -10,7 +10,7 @@ interface RecordCardProps {
 
 export default function RecordCard({ log, onClick }: RecordCardProps) {
 
-    const hasDeepLog = Boolean(log.deep_log)
+    const hasDeepLog = hasLogDetail(log)
 
     return (
         <button

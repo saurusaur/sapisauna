@@ -23,9 +23,14 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   const userNickname = (userJoin?.nickname as string) || undefined
   const userTitle = (userJoin?.active_title as string) || undefined
 
-  // deep_logs 조인 (1:1)
+  // deep_logs 조인 (1:1) — 030 DROP 전까지 레거시 폴백 소스로만 사용
   const deepLogs = row.deep_logs as Array<Record<string, unknown>> | null
   const dl = deepLogs?.[0]
+
+  // 레거시 세신 분리 규칙 (029 백필과 동일): 둘 다→scrub(withmassage), 세신만→scrub(basic), 마사지만→massage
+  const legacyScrubTypes = (dl?.scrub_types as string[]) || []
+  const legacyHasScrub = legacyScrubTypes.includes('scrub')
+  const legacyHasMassage = legacyScrubTypes.includes('massage')
 
   // log_blocks 조인 (1:N, seq 정렬)
   const blockRows = (row.log_blocks as Array<Record<string, unknown>> | null) || []
@@ -77,27 +82,29 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     jjim_temp: row.jjim_temp as number | undefined,
     bath_gender: row.bath_gender as BathGender | undefined,
     // ── 신규 평탄 캐시 (029, 블록서 파생) ──
-    dry_sauna_temp: row.dry_sauna_temp as number | null,
-    bulgama_temp: row.bulgama_temp as number | null,
-    rest_time: row.rest_time as number | null,
-    very_hot_bath_temp: row.very_hot_bath_temp as number | null,
-    ice_bath_temp: row.ice_bath_temp as number | null,
+    // 새 캐시 우선 + 레거시(구컬럼·deep_logs) 폴백 — 030 백필·DROP 후 폴백 제거 가능.
+    // 표시면은 전부 이 평탄 필드만 읽는다 (deep_log 직접 참조 금지).
+    dry_sauna_temp: (row.dry_sauna_temp ?? row.sauna_temp) as number | null,
+    bulgama_temp: (row.bulgama_temp ?? row.jjim_temp) as number | null,
+    rest_time: (row.rest_time ?? row.pause_time) as number | null,
+    very_hot_bath_temp: (row.very_hot_bath_temp ?? dl?.very_hot_bath_temp ?? null) as number | null,
+    ice_bath_temp: (row.ice_bath_temp ?? dl?.ice_bath_temp ?? null) as number | null,
     salt_sauna_temp: row.salt_sauna_temp as number | null,
     open_air_bath_temp: row.open_air_bath_temp as number | null,
     ice_room_temp: row.ice_room_temp as number | null,
-    cleanliness: row.cleanliness as number | null,
-    crowd: row.crowd as string | null,
-    companion: row.companion as string | null,
-    cost: row.cost as number | null,
-    currency: row.currency as string | null,
-    memo: row.memo as string | null,
-    scrub_score: row.scrub_score as number | null,
-    scrub_cost: row.scrub_cost as number | null,
-    scrub_type: row.scrub_type as string | null,
-    massage_score: row.massage_score as number | null,
-    massage_cost: row.massage_cost as number | null,
-    snack_score: row.snack_score as number | null,
-    snack_memo: row.snack_memo as string | null,
+    cleanliness: (row.cleanliness ?? dl?.cleanliness ?? null) as number | null,
+    crowd: (row.crowd ?? dl?.crowd ?? null) as string | null,
+    companion: (row.companion ?? dl?.companion ?? null) as string | null,
+    cost: (row.cost ?? dl?.cost ?? null) as number | null,
+    currency: (row.currency ?? dl?.currency ?? null) as string | null,
+    memo: (row.memo ?? dl?.memo ?? null) as string | null,
+    scrub_score: (row.scrub_score ?? (legacyHasScrub ? dl?.scrub_satisfaction : null) ?? null) as number | null,
+    scrub_cost: (row.scrub_cost ?? (legacyHasScrub ? dl?.scrub_cost : null) ?? null) as number | null,
+    scrub_type: (row.scrub_type ?? (legacyHasScrub ? (legacyHasMassage ? 'withmassage' : 'basic') : null)) as string | null,
+    massage_score: (row.massage_score ?? (legacyHasMassage && !legacyHasScrub ? dl?.scrub_satisfaction : null) ?? null) as number | null,
+    massage_cost: (row.massage_cost ?? (legacyHasMassage && !legacyHasScrub ? dl?.scrub_cost : null) ?? null) as number | null,
+    snack_score: (row.snack_score ?? dl?.store_score ?? null) as number | null,
+    snack_memo: (row.snack_memo ?? dl?.store_memo ?? null) as string | null,
     restaurant_score: row.restaurant_score as number | null,
     restaurant_memo: row.restaurant_memo as string | null,
     blocks,

@@ -170,7 +170,7 @@ export function computeRoutine(logs: LogWithPlace[]): RoutineData {
   return {
     avgHeatTime: safeAvg(logs.map((l) => l.heat_time)),
     avgIceTime: safeAvg(logs.map((l) => l.ice_time)),
-    avgPauseTime: safeAvg(logs.map((l) => l.pause_time)),
+    avgPauseTime: safeAvg(logs.map((l) => l.rest_time)),
     avgRepeat: safeAvg(logs.map((l) => l.repeat)),
   }
 }
@@ -287,8 +287,8 @@ export function computeSaunnerInsight(logs: LogWithPlace[], tribe: string = 'sau
 
   // 건식 ΔT 평균
   const dryDiffs = logs
-    .filter((l) => l.sauna_temp != null && l.cold_bath_temp != null)
-    .map((l) => l.sauna_temp! - l.cold_bath_temp!)
+    .filter((l) => l.dry_sauna_temp != null && l.cold_bath_temp != null)
+    .map((l) => l.dry_sauna_temp! - l.cold_bath_temp!)
   const avgDryTempDiff = dryDiffs.length > 0
     ? round1(dryDiffs.reduce((a, b) => a + b, 0) / dryDiffs.length)
     : null
@@ -331,7 +331,7 @@ export function computeJimiInsight(logs: LogWithPlace[], tribe: string = 'jimi')
   return {
     weeklyHeatMinutes: computeWeeklyHeatMinutes(logs),
     heatTarget: getHeatTarget(tribe),
-    avgJjimTemp: safeAvg(logs.map((l) => l.jjim_temp)),
+    avgJjimTemp: safeAvg(logs.map((l) => l.bulgama_temp)),
     avgSweatQuality: safeAvg(logs.map((l) => l.sweat_quality)),
   }
 }

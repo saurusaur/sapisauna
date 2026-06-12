@@ -4,11 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
 import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@/constants/content'
-import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress } from '@/lib/utils'
-import { getPrimaryTempDelta } from '@/lib/sauna-temp-helpers'
+import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress, hasLogDetail } from '@/lib/utils'
+import { getPrimaryTempDelta, getJimiHeadlineTemp } from '@/lib/sauna-temp-helpers'
 import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
 import { deleteLog } from '@/lib/logs-service'
-import { buildQuickEditSession, buildDeepEntrySession, saveEditSession } from '@/lib/log-edit-session'
+import { buildQuickEditSession, saveEditSession } from '@/lib/log-edit-session'
 import { captureError } from '@/lib/error-logger'
 import RecordCard from '@/components/features/record-card'
 import ScoreBadge from '@/components/features/score-badge'
@@ -73,7 +73,9 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
 
   // 타입별 메인 메트릭 (스토리와 동일 로직)
   // 사우너: primary_sauna_kind 기반 ΔT. 습식이 primary면 STEAM TEMP DELTA 라벨.
+  // 지미: 때면 시설(한증막/소금/건식/습식) 최고 온도 + 어느 시설인지 라벨.
   const saunnerPrimary = log.tribe_id === 'saunner' ? getPrimaryTempDelta(log) : null
+  const jimiHeadline = log.tribe_id === 'jimi' ? getJimiHeadlineTemp(log) : null
   const getMainMetricValue = (): number | null => {
     switch (log.tribe_id) {
       case 'saunner':
@@ -81,7 +83,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
       case 'bather':
         return log.hot_bath_temp || 40
       case 'jimi':
-        return log.jjim_temp || null
+        return jimiHeadline?.value ?? null
       default:
         return null
     }
@@ -90,20 +92,22 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
   const mainMetricValue = getMainMetricValue()
   const mainMetricLabel = log.tribe_id === 'saunner' && saunnerPrimary
     ? saunnerPrimary.primary.labelEn
-    : (COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || '')
+    : log.tribe_id === 'jimi' && jimiHeadline
+      ? `${COMPUTED_METRICS.jimi.labelEn} · ${jimiHeadline.labelKr}`
+      : (COMPUTED_METRICS[log.tribe_id as keyof typeof COMPUTED_METRICS]?.labelEn || '')
 
   // 루틴 뱃지 (항상 4개 표시, 미입력은 '-')
   const routineBadges = log.tribe_id === 'jimi'
     ? [
         { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
-        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.rest_time || null, label: 'PAUSE', suffix: 'm' },
         { value: log.repeat || null, label: 'RPT', suffix: 'set' },
         { value: log.sweat_quality || null, label: 'SWEAT', suffix: '/5' },
       ]
     : [
         { value: log.heat_time || null, label: 'HEAT', suffix: 'm' },
         { value: log.ice_time || null, label: 'ICE', suffix: 's' },
-        { value: log.pause_time || null, label: 'PAUSE', suffix: 'm' },
+        { value: log.rest_time || null, label: 'PAUSE', suffix: 'm' },
         { value: log.repeat || null, label: 'RPT', suffix: 'set' },
       ]
 
@@ -275,13 +279,13 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* ── 3. 딥 리뷰 카드 ── */}
-        {!log.deep_log && (
+        {/* ── 3. 상세 기록 카드 (평탄 캐시 — 구 deep_logs 흡수) ── */}
+        {!hasLogDetail(log) && (
           <div>
             <button
               onClick={() => {
-                saveEditSession(buildDeepEntrySession(log))
-                router.push('/log/deep')
+                saveEditSession(buildQuickEditSession(log))
+                router.push('/log')
               }}
               className="w-full h-[104px] glass-card-light rounded-xl flex flex-col items-center justify-center text-center hover:bg-white/30 transition-colors"
             >
@@ -290,52 +294,52 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                 className="text-xs font-medium underline underline-offset-2"
                 style={{ color: 'var(--color-primary)' }}
               >
-                딥로그 추가하기
+                더 자세히 기록하기
               </span>
             </button>
           </div>
         )}
-        {log.deep_log && (
+        {hasLogDetail(log) && (
           <div>
             <div className="glass-card-light rounded-xl p-4 space-y-3">
-              {log.deep_log.companion && (
+              {log.companion && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">동행</span>
                   <span className="text-sm font-medium text-stone-700">
-                    {findOption(DEEP_LOG.COMPANION.options, log.deep_log.companion)?.label ?? log.deep_log.companion}
+                    {findOption(DEEP_LOG.COMPANION.options, log.companion)?.label ?? log.companion}
                   </span>
                 </div>
               )}
-              {log.deep_log.crowd && (
+              {log.crowd && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">혼잡도</span>
                   <span className="text-sm font-medium text-stone-700">
-                    {findOption(DEEP_LOG.CROWD.options, log.deep_log.crowd)?.label ?? log.deep_log.crowd}
+                    {findOption(DEEP_LOG.CROWD.options, log.crowd)?.label ?? log.crowd}
                   </span>
                 </div>
               )}
-              {log.deep_log.cleanliness != null && (
+              {log.cleanliness != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">청결도</span>
                   <span className="text-sm font-medium text-stone-700">
-                    <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.CLEANLINESS.steps.find(s => s.value === log.deep_log!.cleanliness)?.label ?? ''}</span>
-                    {log.deep_log.cleanliness}<span className="text-xs text-stone-400">/5</span>
+                    <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.CLEANLINESS.steps.find(s => s.value === log.cleanliness)?.label ?? ''}</span>
+                    {log.cleanliness}<span className="text-xs text-stone-400">/5</span>
                   </span>
                 </div>
               )}
-              {log.deep_log.cost && (
+              {log.cost != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">비용</span>
                   <span className="text-sm font-medium text-stone-700">
-                    {log.deep_log.currency || 'KRW'} {log.deep_log.cost.toLocaleString()}
+                    {log.currency || 'KRW'} {log.cost.toLocaleString()}
                   </span>
                 </div>
               )}
               {/* 사우나 디테일: 사우너는 메인 메트릭에서 primary 표시하므로 여기선 비사우너만 노출 */}
-              {log.tribe_id !== 'saunner' && log.sauna_temp != null && (
+              {log.tribe_id !== 'saunner' && log.dry_sauna_temp != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">건식 사우나</span>
-                  <span className="text-sm font-medium text-stone-700">{log.sauna_temp}°C</span>
+                  <span className="text-sm font-medium text-stone-700">{log.dry_sauna_temp}°C</span>
                 </div>
               )}
               {log.tribe_id !== 'saunner' && log.steam_sauna_temp != null && (
@@ -350,69 +354,124 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium text-stone-700">{log.hot_bath_temp}°C</span>
                 </div>
               )}
-              {log.deep_log.has_very_hot_bath && log.deep_log.very_hot_bath_temp != null && (
+              {log.very_hot_bath_temp != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">열탕</span>
-                  <span className="text-sm font-medium text-stone-700">{log.deep_log.very_hot_bath_temp}°C</span>
+                  <span className="text-sm font-medium text-stone-700">{log.very_hot_bath_temp}°C</span>
                 </div>
               )}
-              {log.deep_log.has_ice_bath && log.deep_log.ice_bath_temp != null && (
+              {log.ice_bath_temp != null && (
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-stone-400">급냉탕</span>
-                  <span className="text-sm font-medium text-stone-700">{log.deep_log.ice_bath_temp}°C</span>
+                  <span className="text-sm font-medium text-stone-700">{log.ice_bath_temp}°C</span>
                 </div>
               )}
-              {log.deep_log.has_scrub && (
+              {/* 신규 온도 시설 (029 캐시) — 지미 메인(한증막/소금)과 중복돼도 상세 나열은 유지 */}
+              {log.tribe_id !== 'jimi' && log.bulgama_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">한증막</span>
+                  <span className="text-sm font-medium text-stone-700">{log.bulgama_temp}°C</span>
+                </div>
+              )}
+              {log.salt_sauna_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">소금사우나</span>
+                  <span className="text-sm font-medium text-stone-700">{log.salt_sauna_temp}°C</span>
+                </div>
+              )}
+              {log.open_air_bath_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">노천탕</span>
+                  <span className="text-sm font-medium text-stone-700">{log.open_air_bath_temp}°C</span>
+                </div>
+              )}
+              {log.ice_room_temp != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">아이스방</span>
+                  <span className="text-sm font-medium text-stone-700">{log.ice_room_temp}°C</span>
+                </div>
+              )}
+              {(log.scrub_score != null || log.scrub_cost != null) && (
                 <>
                   <div className="flex justify-between items-baseline">
                     <span className="text-xs text-stone-400">
-                      {log.deep_log.scrub_types?.length
-                        ? log.deep_log.scrub_types.map(t => t === 'scrub' ? '세신' : '마사지').join(' + ')
-                        : '세신'}
+                      {log.scrub_type === 'withmassage' ? '건강세신' : '세신'}
                     </span>
-                    {log.deep_log.scrub_cost != null && (
+                    {log.scrub_cost != null && (
                       <span className="text-sm font-medium text-stone-700">
-                        {log.deep_log.currency || 'KRW'} {log.deep_log.scrub_cost.toLocaleString()}
+                        {log.currency || 'KRW'} {log.scrub_cost.toLocaleString()}
                       </span>
                     )}
                   </div>
-                  {log.deep_log.scrub_satisfaction != null && (
+                  {log.scrub_score != null && (
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-stone-400">만족도</span>
                       <span className="text-sm font-medium text-stone-700">
-                        <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.deep_log!.scrub_satisfaction)?.label ?? ''}</span>
-                        {log.deep_log.scrub_satisfaction}<span className="text-xs text-stone-400">/5</span>
+                        <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.scrub_score)?.label ?? ''}</span>
+                        {log.scrub_score}<span className="text-xs text-stone-400">/5</span>
                       </span>
                     </div>
                   )}
                 </>
               )}
-              {log.deep_log.has_store && (
+              {(log.massage_score != null || log.massage_cost != null) && (
                 <>
-                  {log.deep_log.store_score && (
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-xs text-stone-400">매점</span>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-stone-400">마사지</span>
+                    {log.massage_cost != null && (
                       <span className="text-sm font-medium text-stone-700">
-                        <span className="text-xs text-stone-400 mr-1">{log.deep_log.store_score >= 4 ? '만족' : log.deep_log.store_score >= 3 ? '보통' : '아쉬움'}</span>
-                        {log.deep_log.store_score}<span className="text-xs text-stone-400">/5</span>
+                        {log.currency || 'KRW'} {log.massage_cost.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  {log.massage_score != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-stone-400">만족도</span>
+                      <span className="text-sm font-medium text-stone-700">
+                        <span className="text-xs text-stone-400 mr-1">{DEEP_LOG.SCRUB.satisfaction.steps.find(s => s.value === log.massage_score)?.label ?? ''}</span>
+                        {log.massage_score}<span className="text-xs text-stone-400">/5</span>
                       </span>
                     </div>
                   )}
-                  {log.deep_log.store_memo && (
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-xs text-stone-400">추천 메뉴</span>
-                      <span className="text-sm font-medium text-stone-700">{log.deep_log.store_memo}</span>
-                    </div>
-                  )}
                 </>
+              )}
+              {log.snack_score != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">매점</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    <span className="text-xs text-stone-400 mr-1">{log.snack_score >= 4 ? '만족' : log.snack_score >= 3 ? '보통' : '아쉬움'}</span>
+                    {log.snack_score}<span className="text-xs text-stone-400">/5</span>
+                  </span>
+                </div>
+              )}
+              {log.snack_memo && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">추천 메뉴</span>
+                  <span className="text-sm font-medium text-stone-700">{log.snack_memo}</span>
+                </div>
+              )}
+              {log.restaurant_score != null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">식당</span>
+                  <span className="text-sm font-medium text-stone-700">
+                    <span className="text-xs text-stone-400 mr-1">{log.restaurant_score >= 4 ? '만족' : log.restaurant_score >= 3 ? '보통' : '아쉬움'}</span>
+                    {log.restaurant_score}<span className="text-xs text-stone-400">/5</span>
+                  </span>
+                </div>
+              )}
+              {log.restaurant_memo && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs text-stone-400">식당 추천 메뉴</span>
+                  <span className="text-sm font-medium text-stone-700">{log.restaurant_memo}</span>
+                </div>
               )}
 
               {/* 메모 — 별도 glass tile */}
             </div>
 
-            {log.deep_log.memo && (
+            {log.memo && (
               <div className="glass-card-light rounded-xl p-4 mt-3">
-                <p className="text-sm text-stone-600 leading-relaxed">{log.deep_log.memo}</p>
+                <p className="text-sm text-stone-600 leading-relaxed">{log.memo}</p>
               </div>
             )}
           </div>
