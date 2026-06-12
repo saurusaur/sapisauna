@@ -10,6 +10,7 @@ import ProfileCard from '@/components/features/profile-card'
 import TribePicksCard from '@/components/features/tribe-picks-card'
 import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
 import SaunaStamp from '@/components/svg/sauna-stamp'
+import CurveHeader from '@/components/ui/curve-header'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 import { MESSAGES } from '@/constants/content'
@@ -57,13 +58,8 @@ export default function Home() {
 
   return (
     <div className="relative min-h-dvh pb-24 bath-tile-bg overflow-hidden">
-      {/* ── 상단 레드 영역 + 살짝 곡선 ── */}
-      <div className="absolute top-0 left-0 right-0 h-[286px] z-0" style={{ backgroundColor: 'var(--color-primary)' }} />
-      <div className="absolute left-0 right-0 z-0 leading-none" style={{ top: '278px' }} aria-hidden>
-        <svg viewBox="0 0 393 34" preserveAspectRatio="none" className="block w-full h-[34px]">
-          <path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill="var(--color-primary)" />
-        </svg>
-      </div>
+      {/* ── 상단 레드 영역 + 살짝 곡선 (공용 CurveHeader) ── */}
+      <CurveHeader color="var(--color-primary)" height={286} />
 
       {/* ── 헤더 ── */}
       <header className="relative z-[3] px-6 pt-8 pb-2">

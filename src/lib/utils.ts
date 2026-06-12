@@ -144,7 +144,7 @@ export const STORAGE_KEYS = {
 // — 프로필: HSL 파스텔, 리스트: OKLCH perceptual-uniform
 // DB에는 hue(0~360)만 저장. hex는 렌더 시점에 계산.
 // ============================================
-import { formatHex, clampChroma } from 'culori'
+import { formatHex, formatRgb, clampChroma } from 'culori'
 
 /** 프로필 아이콘 색상 톤 — 맑은 파스텔 (HSL) */
 export const COVER_TONE = { s: 38, l: 82 } as const
@@ -173,6 +173,68 @@ export function listCoverHex(hue: number): string {
 /** 리스트 커버 배경색 — hue NULL이면 기본 스톤 회색 */
 export function listBgColor(hue: number | null | undefined): string {
   return hue == null ? '#78716c' : listCoverHex(hue)
+}
+
+// ============================================
+// 리스트 hue 4톤 파생 (사리스트 리디자인)
+// — 유저가 고른 cover_hue 하나에서 화면 전체 톤을 함수로 생성.
+//   bg: 연한 파스텔(잉크 글자용 헤더/카드 배경)
+//   accent: 라벨·아이콘·버튼 텍스트
+//   accentSoft: 비활성/placeholder
+//   tint: 메모 박스 등 반투명 배경 (rgba)
+// 기존 LIST_COVER_TONE(l .70)은 흰 글자용 진한 커버 — 용도가 다르므로 유지.
+// ============================================
+export const LIST_DERIVED_TONES = {
+  bg: { l: 0.88, c: 0.07 },
+  accent: { l: 0.58, c: 0.1 },
+  accentSoft: { l: 0.7, c: 0.07 },
+  tint: { l: 0.85, c: 0.09, alpha: 0.32 },
+} as const
+
+export interface ListToneColors {
+  bg: string
+  accent: string
+  accentSoft: string
+  tint: string
+}
+
+/** OKLCH(l, c, hue) → hex. gamut 밖이면 chroma 클램핑 */
+function listToneHex(hue: number, l: number, c: number): string {
+  const color = clampChroma({ mode: 'oklch', l, c, h: hue }, 'oklch')
+  return formatHex(color) ?? '#78716c'
+}
+
+/** cover_hue → 4톤 세트. hue NULL이면 스톤 계열 폴백 */
+export function listToneColors(hue: number | null | undefined): ListToneColors {
+  if (hue == null) {
+    return {
+      bg: '#e8e4e0',
+      accent: '#78716c',
+      accentSoft: '#a8a29e',
+      tint: 'rgba(168, 162, 158, 0.18)',
+    }
+  }
+  const t = LIST_DERIVED_TONES
+  const tintColor = clampChroma(
+    { mode: 'oklch', l: t.tint.l, c: t.tint.c, h: hue },
+    'oklch'
+  )
+  const tintRgb = formatRgb({ ...tintColor, alpha: t.tint.alpha })
+  return {
+    bg: listToneHex(hue, t.bg.l, t.bg.c),
+    accent: listToneHex(hue, t.accent.l, t.accent.c),
+    accentSoft: listToneHex(hue, t.accentSoft.l, t.accentSoft.c),
+    tint: tintRgb ?? 'rgba(168, 162, 158, 0.18)',
+  }
+}
+
+/** 태그 문자열 → 결정적 hue(0~360). 태그 타일 색상용 */
+export function tagHue(tag: string): number {
+  let hash = 0
+  for (let i = 0; i < tag.length; i++) {
+    hash = (hash * 31 + tag.charCodeAt(i)) >>> 0
+  }
+  return hash % 360
 }
 
 /** 프로필 아이콘 배경색 — hue NULL이면 fallback(트라이브 색 등) */
