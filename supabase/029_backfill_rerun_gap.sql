@@ -199,11 +199,29 @@ where l.user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
   and not exists (select 1 from log_blocks b where b.log_id = l.id and b.block_type = 'cold-bath')
   and not exists (select 1 from log_blocks i where i.log_id = l.id and i.category = 'ice' and i.duration_sec is not null);
 
+-- ---------------------------------------------------------------------
+-- E. 스테일 vocab 정리 (V5에서 'store' 5건 발견, 2026-06-12)
+--    구버전 029가 합성한 block_type='store' → 표준 'snack'으로.
+--    같은 로그에 snack이 이미 있으면(이번 재실행 C가 생성) store는 중복 → 삭제.
+-- ---------------------------------------------------------------------
+delete from log_blocks b
+where b.block_type = 'store'
+  and exists (select 1 from log_blocks s where s.log_id = b.log_id and s.block_type = 'snack');
+
+update log_blocks set block_type = 'snack' where block_type = 'store';
+
 commit;
 
 -- =====================================================================
 -- 검증 (트랜잭션 밖, 결과를 공유해주세요)
 -- =====================================================================
+-- V0. 스테일 vocab 잔존 = 0이어야 함 (표준 20종 외 block_type)
+select block_type, count(*) from log_blocks
+where block_type not in ('dry-sauna','steam-sauna','hot-bath','very-hot-bath','bulgama','salt-sauna','open-air-bath',
+                         'cold-bath','ice-bath','ice-room','rest','outdoor-rest','indoor-rest',
+                         'aufguss','sleep-room','scrub','massage','snack','restaurant','other')
+group by 1;
+
 -- V1. 블록 없는 유저 로그(루틴/온도/평가 입력이 있는데) = 0이어야 함
 select count(*) as missing_blocks from logs l
 where l.user_id <> '23c431c3-9b23-4779-bb27-13472e58090a'
