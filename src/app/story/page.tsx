@@ -20,7 +20,12 @@
  *  - 목욕파 히어로: 온탕 우선, 루틴상 열탕 시간이 더 길면 열탕
  *  - 온도 미입력(폴백): 물결 마크를 히어로로
  *  - 설계: docs/po/스토리_프로토타입_v3_20260609.html · 결정 데모: docs/po/스토리_개선제안_데모_20260610.html
- *  ⚠️ Canvas 내보내기(image-export.ts)는 별도 미러링 필요 (TODO)
+ *
+ * v3.6 페이지 크롬 (2026-06-12, 시안: docs/po/스토리페이지_리디자인_시안_20260611.html):
+ *  - 레드 곡선 헤더(SAUNA CHECKED + 오늘의 사우나 카드 완성!, 타이틀↔서브 10px·서브↔카드 20px)
+ *  - 도장 공유 FAB(레드+화이트 링 2px+공유 심볼, 우측 10°, 카드 우하단 겹침)
+ *  - 하단 글래스 원형 버튼 4개: 저장·추가 기록·기록 보기·홈으로
+ *  - 카드 프리뷰 라운드 앱 표준(px(14))으로 축소
  */
 'use client'
 
@@ -262,7 +267,7 @@ export default function Story() {
       if (hot != null && very != null) return durOf('very-hot-bath') > durOf('hot-bath') ? very : hot
       return hot ?? very
     }
-    return getJimiHeadlineTemp(log)
+    return getJimiHeadlineTemp(log)?.value ?? null
   })()
 
   // 요약줄 점수 (트라이브 시그니처 품질)
@@ -290,11 +295,26 @@ export default function Story() {
 
   return (
     <div className="min-h-dvh bath-tile-bg overflow-hidden">
-      <main className="px-10 pt-12 pb-8">
-        {/* 9:16 카드 프리뷰 — 1080×1920 고정, scale로 축소 표시 */}
+      {/* 레드 곡선 헤더 (홈 무드) — v3.6 페이지 크롬 */}
+      <div className="relative" style={{ backgroundColor: 'var(--color-primary)' }}>
+        {/* 간격: 타이틀↔서브 10px, 서브↔카드 20px(pb-5 + main mt 0) */}
+        <div className="pt-14 pb-5 text-center text-white">
+          <div className="font-heading italic font-bold" style={{ fontSize: 26, letterSpacing: '0.03em', lineHeight: 1 }}>
+            SAUNA CHECKED
+          </div>
+          <p className="text-[12px] font-semibold opacity-90" style={{ marginTop: 10 }}>오늘의 사우나 카드 완성!</p>
+        </div>
+        {/* 하단 곡선 */}
+        <svg className="absolute left-0 w-full" style={{ bottom: -23, height: 24 }} viewBox="0 0 320 24" preserveAspectRatio="none" aria-hidden>
+          <path d="M0,0 L320,0 L320,8 Q160,30 0,8 Z" fill="var(--color-primary)" />
+        </svg>
+      </div>
+
+      <main className="px-10 pb-10">
+        {/* 9:16 카드 프리뷰 — 1080×1920 고정, scale로 축소 표시. 레드 헤더에 살짝 겹침 */}
         <div
           ref={containerRef}
-          className="relative w-full mb-4 flex justify-center"
+          className="relative w-full flex justify-center z-[5]"
           style={{ height: cardScale ? CARD_H * cardScale + 16 : 0 }}
         >
           {/* 배경 변경 버튼 */}
@@ -321,7 +341,7 @@ export default function Story() {
               height: CARD_H,
               transform: `scale(${cardScale})`,
               transformOrigin: 'top center',
-              borderRadius: px(26),
+              borderRadius: px(14), // v3.6: 앱 표준 라운드(rounded-2xl 체감)로 축소
               boxShadow: '0 24px 80px rgba(0,0,0,0.35), 0 8px 32px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.06)',
               background: bgPhoto ? undefined : cssAurora(tribe, false),
             }}
@@ -452,39 +472,65 @@ export default function Story() {
               </span>
             </div>
           </div>
+          {/* 도장 공유 FAB — 카드 우하단 겹침, 우측 10° (시안 v2.2) */}
+          <div className="absolute z-10" style={{ right: -28, bottom: -34, transform: 'rotate(10deg)' }}>
+            {exportMessage?.source === 'share' && (
+              <span className={`absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold animate-fade-in whitespace-nowrap ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
+                {exportMessage.text}
+              </span>
+            )}
+            <button
+              onClick={() => handleExport('share')}
+              disabled={isExporting}
+              className="relative flex flex-col items-center justify-center text-white rounded-full transition-all hover:scale-105 active:scale-[0.96] active:brightness-90 disabled:opacity-50"
+              style={{
+                width: 88, height: 88,
+                backgroundColor: 'var(--color-primary)',
+                boxShadow: '0 16px 36px -10px rgba(204,26,26,0.45), 0 6px 16px -6px rgba(0,0,0,0.18)',
+              }}
+            >
+              {/* 도장 링 (화이트 2px) */}
+              <span className="absolute rounded-full border-2 border-white" style={{ inset: 6 }} aria-hidden />
+              <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>ios_share</span>
+              <span className="text-[11px] font-semibold mt-0.5">공유</span>
+            </button>
+          </div>
         </div>
 
-        {/* 액션 버튼 */}
-        <div className="flex justify-center gap-6 mb-5">
-          <div className="relative flex flex-col items-center">
+        {/* 하단 액션: 글래스 원형 버튼 4개 — 저장 · 추가 기록 · 기록 보기 · 홈으로 */}
+        <div className="flex justify-center gap-6 mt-14">
+          <div className="relative flex flex-col items-center gap-1.5">
             {exportMessage?.source === 'download' && (
-              <span className={`absolute -top-5 text-xs font-semibold animate-fade-in ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
+              <span className={`absolute -top-5 text-xs font-semibold animate-fade-in whitespace-nowrap ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
                 {exportMessage.text}
               </span>
             )}
             <button onClick={() => handleExport('download')} disabled={isExporting} className="flex flex-col items-center gap-1.5 disabled:opacity-50">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
-                style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>download</span>
-              </div>
-              <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>저장</span>
+              <span
+                className="w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-[0.96] active:brightness-95"
+                style={{ background: 'hsla(0,0%,100%,.6)', border: '0.5px solid hsla(0,0%,100%,.7)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: '0 3px 12px -3px hsla(0,10%,15%,.12), 0 1px 3px -1px hsla(0,10%,15%,.08)' }}
+              >
+                <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>download</span>
+              </span>
+              <span className="text-[11px] font-semibold text-stone-500">저장</span>
             </button>
           </div>
 
-          <div className="relative flex flex-col items-center">
-            {exportMessage?.source === 'share' && (
-              <span className={`absolute -top-5 text-xs font-semibold animate-fade-in ${exportMessage.type === 'success' ? 'text-stone-500' : 'text-red-500'}`}>
-                {exportMessage.text}
-              </span>
-            )}
-            <button onClick={() => handleExport('share')} disabled={isExporting} className="flex flex-col items-center gap-1.5 disabled:opacity-50">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
-                style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>share</span>
-              </div>
-              <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>공유</span>
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('savedLogId')
+              router.push('/log')
+            }}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-[0.96] active:brightness-95"
+              style={{ background: 'hsla(0,0%,100%,.6)', border: '0.5px solid hsla(0,0%,100%,.7)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: '0 3px 12px -3px hsla(0,10%,15%,.12), 0 1px 3px -1px hsla(0,10%,15%,.08)' }}
+            >
+              <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>add_circle</span>
+            </span>
+            <span className="text-[11px] font-semibold text-stone-500">추가 기록</span>
+          </button>
 
           <button
             onClick={() => {
@@ -493,35 +539,29 @@ export default function Story() {
             }}
             className="flex flex-col items-center gap-1.5"
           >
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 active:scale-[0.96] active:brightness-90"
-              style={{ backgroundColor: 'var(--color-primary)', boxShadow: '0 4px 16px rgba(204,26,26,0.35), 0 2px 6px rgba(0,0,0,0.15)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>description</span>
-            </div>
-            <span className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>기록 보기</span>
+            <span
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-[0.96] active:brightness-95"
+              style={{ background: 'hsla(0,0%,100%,.6)', border: '0.5px solid hsla(0,0%,100%,.7)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: '0 3px 12px -3px hsla(0,10%,15%,.12), 0 1px 3px -1px hsla(0,10%,15%,.08)' }}
+            >
+              <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>description</span>
+            </span>
+            <span className="text-[11px] font-semibold text-stone-500">기록 보기</span>
           </button>
-        </div>
 
-        {/* 하단 네비게이션 */}
-        <div className="flex justify-center gap-6">
-          <button
-            onClick={() => {
-              localStorage.removeItem('savedLogId')
-              router.push('/log')
-            }}
-            className="flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 transition-colors"
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
-            추가 기록
-          </button>
           <button
             onClick={() => {
               localStorage.removeItem('savedLogId')
               router.push('/home')
             }}
-            className="flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            className="flex flex-col items-center gap-1.5"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>home</span>
-            홈으로
+            <span
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-[0.96] active:brightness-95"
+              style={{ background: 'hsla(0,0%,100%,.6)', border: '0.5px solid hsla(0,0%,100%,.7)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: '0 3px 12px -3px hsla(0,10%,15%,.12), 0 1px 3px -1px hsla(0,10%,15%,.08)' }}
+            >
+              <span className="material-symbols-outlined text-stone-600" style={{ fontSize: '22px' }}>home</span>
+            </span>
+            <span className="text-[11px] font-semibold text-stone-500">홈으로</span>
           </button>
         </div>
       </main>
