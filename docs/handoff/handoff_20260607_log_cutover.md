@@ -5,11 +5,11 @@
 > 잔여 후속은 BACKLOG 참조 (032 건별검증·식당/메모 프로덕션 검증·루틴 섹션 재설계 P1).
 > 아래 본문은 역사 기록.
 
-작성 2026-06-07 / 최종갱신 2026-06-12 / 브랜치 **preview** (프로덕션 main 미머지) / **상태: 029 + 코드 컷오버 1~4단계 + 입력 폼 디자인 + 5단계 표시면 평탄화 7/7 완료 (2026-06-12, 감사 SSOT `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`). 같은 날: 리워드 분화(log+routine/detail), ice_time=침수만, heat=블록 계산, explore 신규온도 B안. 잔여=§3 #4(고아 정리)·#5(백필 재실행→030→머지)·루틴 섹션 재설계(BACKLOG P1). ✅스토리 연결 완료(2026-06-13, handoff_20260610_story_redesign.md 마감 — 카드 v3.5+Canvas+페이지 크롬 v3.6). ✅추가(2026-06-12): 온도 슬라이더 숫자 좌·라벨 우 스왑 + 평가 씰 좌·코멘트 우 정렬(slider.tsx, 시안 docs/po/archive/로그_루틴_슬라이더정렬_시안). 구버전 프로토타입(v2~v5·interactive·와이어프레임)은 docs/po/archive/ — 디자인 기준은 v6 유일.**
+작성 2026-06-07 / 최종갱신 2026-06-12 / 브랜치 **preview** (프로덕션 main 미머지) / **상태: 029 + 코드 컷오버 1~4단계 + 입력 폼 디자인 + 5단계 표시면 평탄화 7/7 완료 (2026-06-12, 감사 SSOT `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`). 같은 날: 리워드 분화(log+routine/detail), ice_time=침수만, heat=블록 계산, explore 신규온도 B안. 잔여=§3 #4(고아 정리)·#5(백필 재실행→030→머지)·루틴 섹션 재설계(BACKLOG P1). ✅스토리 연결 완료(2026-06-13, handoff_20260610_story_redesign.md 마감 — 카드 v3.5+Canvas+페이지 크롬 v3.6). ✅추가(2026-06-12): 온도 슬라이더 숫자 좌·라벨 우 스왑 + 평가 씰 좌·코멘트 우 정렬(slider.tsx, 시안 docs/po/archive/로그_루틴_슬라이더정렬_시안). 구버전 프로토타입(v2~v5·interactive·와이어프레임)은 docs/wireframes/archive/ — 디자인 기준은 v6 유일.**
 
 > ⭐ **최종 디자인·구현 요약은 맨 아래 §12 참조** (이 세션 다듬기 완료분). 디자인 기준은 메모리 `feedback-ui-spacing-rule`(10/40)·`feedback-typography-scale`.
 
-> SSOT: `docs/po/PLAN_로그_컷오버_20260606.md` (컷오버 정본) · `docs/po/로그_스키마_매핑_영향분석_20260605.md` (스키마) · 디자인 `docs/po/로그_프로토타입_v6_20260606.html` · 메모리핀 `project-log-schema-redesign`
+> SSOT: `docs/po/archive/PLAN_로그_컷오버_20260606.md` (컷오버 정본) · `docs/po/로그_스키마_매핑_영향분석_20260605.md` (스키마) · 디자인 `docs/wireframes/[final]_로그_프로토타입_v6_20260606.html` · 메모리핀 `project-log-schema-redesign`
 
 ---
 

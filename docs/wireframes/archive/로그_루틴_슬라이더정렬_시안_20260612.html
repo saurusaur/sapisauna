@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>로그 루틴 — 슬라이더·평가 정렬 시안 v2 (실코드 구조) — 2026.06.12</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif; background:#e9e4de; padding:40px 30px; color:#2a2222; }
+  h1 { font-size:20px; font-style:italic; font-weight:800; margin-bottom:6px; }
+  .sub { font-size:13px; color:#78716c; margin-bottom:26px; max-width:760px; line-height:1.6; }
+  .row { display:flex; gap:34px; align-items:flex-start; flex-wrap:wrap; }
+  .col { width:340px; }
+  .concept-label { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .concept-desc { font-size:12px; color:#78716c; line-height:1.5; margin-bottom:14px; min-height:36px; }
+  .ms { font-family:'Material Symbols Outlined'; font-weight:normal; line-height:1; display:inline-block; -webkit-font-smoothing:antialiased; }
+  .cap { font-size:11px; color:#b45309; margin-top:14px; font-weight:600; max-width:760px; line-height:1.6; }
+
+  /* 로그 페이지 토큰 (T.card #faf8f6 / T.slot #e8e4e0 / border #e2deda / primary #cc1a1a) */
+  .panel { background:#fff; border-radius:20px; padding:16px 14px; box-shadow:0 10px 26px -14px rgba(0,0,0,.25); }
+
+  /* 실코드 행 구조: grid 52px | 1fr | 86px */
+  .rrow { display:grid; grid-template-columns:52px 1fr 86px; gap:8px; align-items:center; margin-bottom:10px; position:relative; }
+
+  /* 노드 (w-11 h-11 빨간 원 + 아이콘 + 한글 라벨) + 연결선 */
+  .node { position:relative; display:flex; align-items:center; justify-content:center; height:44px; }
+  .node .circ { width:44px; height:44px; border-radius:50%; background:#cc1a1a; color:#faf8f6; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 3px 8px -2px rgba(0,0,0,.25); position:relative; z-index:2; }
+  .node .circ .ms { font-size:17px; }
+  .node .circ .lb { font-size:9px; font-weight:700; line-height:1; margin-top:2px; }
+  .node .link { position:absolute; width:4px; top:100%; height:10px; left:50%; transform:translateX(-50%); border-radius:2px; background:#cc1a1a; }
+
+  /* stamp 온도 슬라이더 (h-11 rounded-xl 박스 트랙) */
+  .stamp { position:relative; height:44px; border-radius:12px; overflow:hidden; background:#faf8f6; border:1px solid #e2deda; }
+  .stamp .fillbar { position:absolute; top:0; bottom:0; left:0; background:#cc1a1a; opacity:.9; }
+  .stamp .handle { position:absolute; top:50%; width:24px; height:24px; border-radius:50%; background:#cc1a1a; transform:translate(-50%,-50%); box-shadow:0 2px 6px rgba(0,0,0,.25); z-index:3; }
+  .stamp .handle::after { content:""; position:absolute; inset:6px; border-radius:50%; border:1.5px solid #faf8f6; }
+  .stamp .lab { position:absolute; top:50%; transform:translateY(-50%); font-size:12px; font-weight:700; z-index:2; }
+  .stamp .num { position:absolute; top:50%; transform:translateY(-50%); font-size:16px; font-weight:700; z-index:2; font-family:'Oswald'; font-variant-numeric:tabular-nums; }
+
+  /* 평가 씰 */
+  .seal { width:24px; height:24px; border-radius:50%; position:relative; flex-shrink:0; }
+  .seal.on { background:#cc1a1a; box-shadow:0 1px 2px rgba(0,0,0,.15); }
+  .seal.on::after { content:""; position:absolute; inset:6px; border-radius:50%; border:1.5px solid #faf8f6; }
+  .seal.off { background:#e2deda; }
+  .scomment { font-size:12px; font-weight:700; color:#cc1a1a; }
+  /* 현재: 박스 없음, 코멘트 좌(40px) + 씰 flex 펼침 */
+  .sealrow-cur { display:flex; align-items:center; height:44px; gap:8px; }
+  /* 수정안: 현행 구조 100% 유지, 순서만 스왑. 코멘트는 슬라이더 라벨과 동일 축(셀 우측 13px = 트랙 border 1 + right 12)에 절대 고정 */
+  .sealrow-new { position:relative; display:flex; align-items:center; height:44px; }
+  .sealrow-new .seals { display:flex; flex:1; margin-right:48px; } /* 씰 펼침 폭 = 현행(코멘트 40+갭 8 제외)과 동일 */
+  .sealrow-new .scomment { position:absolute; right:13px; top:50%; transform:translateY(-50%); }
+
+  /* 시간 셀 (− 12분 +) / 가격 입력 */
+  .timecell { display:flex; align-items:center; justify-content:space-between; height:44px; }
+  .timecell .pm { width:28px; height:28px; border-radius:50%; background:#e8e4e0; display:flex; align-items:center; justify-content:center; font-size:15px; color:#57534e; }
+  .timecell b { font-family:'Oswald'; font-size:16px; color:#292524; }
+  .timecell b small { font-family:-apple-system,sans-serif; font-size:11px; font-weight:700; }
+  .pricecell { height:44px; border-radius:12px; background:#e8e4e0; display:flex; align-items:center; justify-content:center; font-size:13px; color:#a8a29e; font-weight:600; }
+</style>
+</head>
+<body>
+<h1>로그 루틴 — 온도 슬라이더 · 평가 정렬 시안 v2 (실코드 구조)</h1>
+<p class="sub">실제 행 구조(노드 52px | 미들 | 시간 86px) 기준. 변경: <b>모든 크기·비율·구조·디자인 현행 유지, 좌우 위치만 스왑</b> — ① 슬라이더: 숫자 좌 ↔ 라벨 우 ② 평가: 씰(펼침 그대로) 좌 ↔ 스텝 코멘트(40px) 우.</p>
+
+<div class="row">
+
+  <!-- ════ 현재 ════ -->
+  <div class="col">
+    <div class="concept-label">현재</div>
+    <div class="concept-desc">슬라이더: 라벨 좌·숫자 우. 평가: 박스 없음, 코멘트 좌 + 씰이 셀 전체에 펼쳐짐.</div>
+    <div class="panel">
+      <div class="rrow">
+        <div class="node"><span class="link"></span><span class="circ"><span class="ms">sauna</span><span class="lb">건식</span></span></div>
+        <div class="stamp">
+          <div class="fillbar" style="width:44%;"></div>
+          <span class="lab" style="left:12px; color:#fff;">뜨끈</span>
+          <span class="num" style="right:12px; color:#292524;">85°C</span>
+          <span class="handle" style="left:44%;"></span>
+        </div>
+        <div class="timecell"><span class="pm">−</span><b>12<small>분</small></b><span class="pm">＋</span></div>
+      </div>
+      <div class="rrow">
+        <div class="node"><span class="link"></span><span class="circ"><span class="ms">ac_unit</span><span class="lb">냉탕</span></span></div>
+        <div class="stamp">
+          <div class="fillbar" style="width:36%;"></div>
+          <span class="lab" style="left:12px; color:#fff;">시원</span>
+          <span class="num" style="right:12px; color:#292524;">15°C</span>
+          <span class="handle" style="left:36%;"></span>
+        </div>
+        <div class="timecell"><span class="pm">−</span><b>40<small>초</small></b><span class="pm">＋</span></div>
+      </div>
+      <div class="rrow">
+        <div class="node"><span class="circ"><span class="ms">spa</span><span class="lb">세신</span></span></div>
+        <div class="sealrow-cur">
+          <span class="scomment" style="width:40px; padding-left:12px; flex-shrink:0;">시원</span>
+          <div style="display:flex; flex:1;">
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal off"></span></span>
+          </div>
+        </div>
+        <div class="pricecell">₩</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 수정안 ════ -->
+  <div class="col">
+    <div class="concept-label">수정안 ★</div>
+    <div class="concept-desc">크기·비율·구조 전부 현행 그대로 — <b>요소 좌우 순서만 스왑</b>: 슬라이더(숫자↔라벨), 평가(씰↔코멘트).</div>
+    <div class="panel">
+      <div class="rrow">
+        <div class="node"><span class="link"></span><span class="circ"><span class="ms">sauna</span><span class="lb">건식</span></span></div>
+        <div class="stamp">
+          <div class="fillbar" style="width:44%;"></div>
+          <span class="num" style="left:12px; color:#fff;">85°C</span>
+          <span class="lab" style="right:12px; color:#292524;">뜨끈</span>
+          <span class="handle" style="left:44%;"></span>
+        </div>
+        <div class="timecell"><span class="pm">−</span><b>12<small>분</small></b><span class="pm">＋</span></div>
+      </div>
+      <div class="rrow">
+        <div class="node"><span class="link"></span><span class="circ"><span class="ms">ac_unit</span><span class="lb">냉탕</span></span></div>
+        <div class="stamp">
+          <div class="fillbar" style="width:36%;"></div>
+          <span class="num" style="left:12px; color:#fff;">15°C</span>
+          <span class="lab" style="right:12px; color:#292524;">시원</span>
+          <span class="handle" style="left:36%;"></span>
+        </div>
+        <div class="timecell"><span class="pm">−</span><b>40<small>초</small></b><span class="pm">＋</span></div>
+      </div>
+      <div class="rrow">
+        <div class="node"><span class="circ"><span class="ms">spa</span><span class="lb">세신</span></span></div>
+        <div class="sealrow-new">
+          <div class="seals">
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal on"></span></span>
+            <span style="flex:1; display:flex; justify-content:center;"><span class="seal off"></span></span>
+          </div>
+          <span class="scomment">시원</span>
+        </div>
+        <div class="pricecell">₩</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="cap">구현 메모: ① 코드 변경 최소: stamp variant .lab/.num left↔right 스왑 / seal variant(label 없음) 코멘트를 절대 위치 right 13px(슬라이더 라벨 축 = 트랙 border 1 + right 12)로 — 시간카운터·가격박스처럼 행 간 축이 정확히 일치. 씰 펼침 폭은 margin-right 48로 현행 비율 유지. ② 숫자 좌측 이동 시 글자색은 기존 로직(채움 겹침 기준 흰↔진회색 자동 전환) 재사용 — 좌측은 pct&lt;12에서 진회색. ③ 씰 히트존은 버튼 패딩으로 유지.</div>
+</body>
+</html>

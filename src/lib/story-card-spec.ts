@@ -5,7 +5,7 @@
  * 이 모듈의 값만 사용한다 → 두 렌더러가 달라질 수 없는 구조(원천 차단).
  *
  * 좌표 체계: 1080×1920 native. 프로토타입(300px)의 3.6배 — spx(프로토값) = native값.
- * 디자인 SSOT: docs/po/스토리_프로토타입_v3_20260609.html
+ * 디자인 SSOT: docs/wireframes/[final]_스토리_프로토타입_v3_20260609.html
  */
 
 import type { StoryTribeId } from '@/constants/story-colors'
