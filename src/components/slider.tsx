@@ -77,11 +77,15 @@ export function Slider({
       </div>
     )
     // 라벨 없음(리추얼): 좌측 스텝 코멘트(빈 값이면 공백 — '—' 안 보임, 한 줄 고정), 씰을 칸 끝까지 펼침
+    // 씰 좌측 펼침 + 스텝 코멘트 우측 — 온도 슬라이더 라벨과 동일 축(right 13 = 트랙 border 1 + right 12)
+    // 씰 펼침 폭은 marginRight 48(기존 코멘트 40 + 갭 8)로 현행 비율 유지
     if (!label) {
       return (
-        <div className="flex items-center gap-2 h-11">
-          <span className="text-xs font-bold shrink-0 text-left pl-3 whitespace-nowrap overflow-hidden" style={{ width: 40, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
-          {sealBtns()}
+        <div className="relative flex items-center h-11">
+          <div className="flex flex-1 min-w-0" style={{ marginRight: 48 }}>
+            {sealBtns()}
+          </div>
+          <span className="absolute top-1/2 -translate-y-1/2 text-xs font-bold whitespace-nowrap" style={{ right: 13, color: 'var(--color-primary)' }}>{value ? (descriptor ?? '') : ''}</span>
         </div>
       )
     }
@@ -106,9 +110,9 @@ export function Slider({
         onPointerMove={(e) => { if (dragging.current) applyBar(e.clientX) }}
         onPointerUp={() => { dragging.current = false }}>
         <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, backgroundColor: 'var(--color-primary)', opacity: 0.9 }} />
-        {/* 채움(빨강)이 덮으면 흰 글씨, 흰 트랙 위면 어두운 글씨로 자동 전환 */}
-        {descriptor && <span className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 text-xs font-bold pointer-events-none ${pct > 12 ? 'text-white' : 'text-stone-700'}`}>{descriptor}</span>}
-        <span className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 text-base font-bold font-heading tabular-nums pointer-events-none ${pct > 78 ? 'text-white' : 'text-stone-800'}`}>{value}{unit}</span>
+        {/* 숫자 좌 · 스텝 라벨 우 (위치 스왑). 채움(빨강)이 덮으면 흰 글씨, 흰 트랙 위면 어두운 글씨로 자동 전환 */}
+        <span className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 text-base font-bold font-heading tabular-nums pointer-events-none ${pct > 12 ? 'text-white' : 'text-stone-800'}`}>{value}{unit}</span>
+        {descriptor && <span className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 text-xs font-bold pointer-events-none ${pct > 78 ? 'text-white' : 'text-stone-700'}`}>{descriptor}</span>}
         {/* 핸들 = 평가 씰 동그라미와 동일 그래픽·크기(24px, 빨강+흰 이너링) */}
         <span className="absolute top-1/2 rounded-full pointer-events-none shadow-md" style={{ left: `${pct}%`, width: 24, height: 24, transform: 'translate(-50%,-50%)', backgroundColor: 'var(--color-primary)' }}>
           <span className="absolute rounded-full" style={{ inset: 6, border: '1.5px solid var(--color-card)' }} />
