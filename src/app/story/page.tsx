@@ -277,7 +277,8 @@ export default function Story() {
   // 줄 수(활동+세트) 기준: ≤6 기본 / 7 압축(11.5px·행간 1.58) / >7 beyond 제외 → 그래도 넘으면 활동 + 「+N 활동」 + 세트 = 7줄 컷
   const repeat = log.repeat ?? 0
   const setLine = repeat > 1 ? 1 : 0
-  const allLines = (log.blocks ?? []).slice().sort((a, b) => a.seq - b.seq).map(blockLine)
+  // is_extra(루틴 외 시설 온도 제보)는 타임라인 제외 — 루틴 활동만
+  const allLines = (log.blocks ?? []).filter((b) => !b.is_extra).slice().sort((a, b) => a.seq - b.seq).map(blockLine)
   let routineLines = allLines
   let hiddenCount = 0
   if (routineLines.length + setLine > 7) {

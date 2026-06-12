@@ -99,6 +99,7 @@ export interface LogBlock {
   memo?: string | null          // 매점/식당 추천메뉴 / 기타
   variant?: string | null       // 세신 종류 등 서브타입 ('basic' | 'withmassage')
   norepeat?: boolean
+  is_extra?: boolean            // true = 루틴 외 시설 온도 제보 (타임라인 제외, 편집 시 facTemps로 복원)
 }
 
 // DB 로그 + 장소 조인 타입

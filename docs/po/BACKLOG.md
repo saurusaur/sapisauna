@@ -4,7 +4,7 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. ~~⓶ `/log/deep` 고아·구 함수 정리~~ **완료(2026-06-12** — deep 페이지·insertLog/updateLog/saveOrUpdateDeepLog·deep_log 타입 삭제, 시설온도=log_detail 보너스 분리**)**. **잔여**: ⓷ **백필 재실행(필수 — gap 로그 편집 시 캐시 유실 방지, SQL 에디터 수동, `supabase/029_backfill_rerun_gap.sql`)** → 검증(V0~V4=0) → 030 cleanup(구 컬럼+deep_logs DROP + 코드 폴백 제거) → **main 머지** ⓸ 스토리 연결. ⚠️ places.facilities `food→snack` 치환은 **030에 넣지 말 것 — 유저가 건별 검증·치환**(2026-06-12 지시). F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
+- [~] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029 스키마 + `insertLogWithBlocks` + v6 블록 단일폼 **구현·디자인 다듬기 완료(preview 푸시)**. 입력 UI 최종 디자인 정리: `docs/handoff/handoff_20260607_log_cutover.md` §12. ~~⓵ 5단계 표시면 평탄화~~ **완료(2026-06-12**, 리워드 분화 log+routine/detail·heat 블록계산·ice 캐시 재정의·explore B안 포함 — 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`**)**. ~~⓶ `/log/deep` 고아·구 함수 정리~~ **완료(2026-06-12** — deep 페이지·insertLog/updateLog/saveOrUpdateDeepLog·deep_log 타입 삭제, 시설온도=log_detail 보너스 분리**)**. ~~⓷ 백필 재실행(V0~V4=0 확인)·**main 머지**~~ **완료(2026-06-13, PR #17 `e09ed82` 프로덕션 배포 success)**. **잔여**: ⓐ 배포 후 백필 1회 재실행(`supabase/029_backfill_rerun_gap.sql`, 멱등) ⓑ 프로덕션 새 폼 스모크 ⓒ **030 cleanup**(구 컬럼+deep_logs DROP) + 코드 폴백 제거 커밋 ⓓ `032_food_to_restaurant.sql` 실행 + **매점 건별 snack 수정(유저)** ⓸ 스토리 연결. F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 
