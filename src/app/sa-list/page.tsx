@@ -1,6 +1,6 @@
 /**
- * SA-리스트 홈 — 단일 세로 스크롤
- * Featured 캐러셀 → 내 리스트 가로카드 → 인기 태그(Phase2) → 인기/최신 피드
+ * SA-리스트 홈 — 디스커버리 리디자인 (2026-06)
+ * 레드 돔 헤더 → 이주의 사피픽 캐러셀 → MY SHELF(책등) → BROWSE BY TAG(타일) → 전체 피드
  */
 
 'use client'
@@ -14,22 +14,25 @@ import { useAuth } from '@/contexts/auth-context'
 import { useUser } from '@/contexts/user-context'
 import { useToast } from '@/contexts/toast-context'
 import { useSavePlace } from '@/contexts/save-place-context'
-import { TRIBES } from '@/constants/content'
-import * as listsService from '@/lib/lists-service'
 import type { PublicListSort } from '@/lib/lists-service'
-import { listBgColor } from '@/lib/utils'
+import { listToneColors, tagHue } from '@/lib/utils'
 import BottomNav from '@/components/bottom-nav'
 import DataState from '@/components/ui/data-state'
 import ContentLoader from '@/components/ui/content-loader'
+import CurveHeader from '@/components/ui/curve-header'
 import CreateListSheet from '@/components/features/create-list-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
-import FeaturedSaListCarousel from '@/components/features/featured-sa-list-carousel'
+import ListCoverCard from '@/components/features/list-cover-card'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
-const MY_CARD_LIMIT = 5
+const SHELF_LIMIT = 10
+/** 사피픽 카드 세로 스태거 오프셋 (홈 캐러셀 문법) */
+const PICK_STAGGER = [2, 18, 8, 22, 12]
+/** 태그 결과 모자이크 높이 패턴 */
+const MOSAIC_HEIGHTS = [150, 122, 118, 146]
 
 export default function SaListPage() {
   const router = useRouter()
@@ -42,9 +45,9 @@ export default function SaListPage() {
   const { myLists, loading: myLoading, refreshMyLists } = useSavePlace()
   const { data: subscribedLists, loading: subLoading, refresh: refreshSubscribed } = useSubscribedLists()
   const { data: featuredLists, loading: featuredLoading } = useFeaturedPublicLists()
-  const { data: popularTags } = usePopularTags(5)
+  const { data: popularTags } = usePopularTags(4)
 
-  // Z3: 상단 섹션들 초기 로딩 게이트 (피드 재쿼리는 섹션 내부 DataState가 처리)
+  // 상단 섹션들 초기 로딩 게이트 (피드 재쿼리는 섹션 내부 DataState가 처리)
   const initialLoading = myLoading || subLoading || featuredLoading
 
   // 검색 + 태그 필터
@@ -64,10 +67,10 @@ export default function SaListPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [searchInput])
 
-  // 검색어 또는 태그 → 피드 필터
+  // 텍스트 검색 → 큐레이션 숨기고 피드를 검색 결과로 전환
+  // 태그 선택 → BROWSE BY TAG 안에서 인라인 결과 (다른 섹션 유지)
   const feedSearch = activeTag || debouncedSearch || undefined
-  // 검색/필터 중이면 상단 큐레이션 섹션을 숨겨 결과에 집중
-  const isSearching = !!feedSearch
+  const isTextSearching = !activeTag && !!debouncedSearch
 
   // 피드 정렬
   const [feedSort, setFeedSort] = useState<PublicListSort>('popular')
@@ -79,18 +82,10 @@ export default function SaListPage() {
 
   const viewerNick = profile?.nickname ?? null
 
-  // 구독 ID Set (Featured 카드 구독 표시용)
-  const subscribedIds = useMemo(
-    () => new Set(subscribedLists.map((l) => l.id)),
-    [subscribedLists]
-  )
-
-  // 내 리스트 가로 카드: 기본 리스트 맨 앞 + 나머지 최근 수정순 (내 리스트 + 구독 혼합)
-  const myCardItems = useMemo(() => {
+  // MY SHELF: 기본 리스트 맨 앞 + 내 리스트·구독 혼합 (updated_at 내림차순)
+  const shelfItems = useMemo(() => {
     const defaultList = myLists.find((l) => l.type === 'default')
     const otherMyLists = myLists.filter((l) => l.type !== 'default')
-
-    // 내 리스트 + 구독 리스트를 updated_at 기준 내림차순 정렬
     const mixed = [
       ...otherMyLists.map((l) => ({ list: l, kind: 'mine' as const })),
       ...subscribedLists.map((l) => ({ list: l, kind: 'subscribed' as const })),
@@ -98,55 +93,75 @@ export default function SaListPage() {
 
     const result: { list: SaList; kind: 'default' | 'mine' | 'subscribed' }[] = []
     if (defaultList) result.push({ list: defaultList, kind: 'default' })
-    result.push(...mixed.slice(0, MY_CARD_LIMIT - (defaultList ? 1 : 0)))
+    result.push(...mixed.slice(0, SHELF_LIMIT - (defaultList ? 1 : 0)))
     return result
   }, [myLists, subscribedLists])
 
-  // 피드는 featured 포함 — 캐러셀과 중복되더라도 인기/최신순 발견 경로 유지
-  const feedLists = publicLists
+  const shelfCount = useMemo(
+    () => myLists.filter((l) => l.type !== 'default').length + subscribedLists.length,
+    [myLists, subscribedLists]
+  )
 
   const refreshMine = useCallback(() => {
     refreshMyLists()
     refreshSubscribed()
   }, [refreshMyLists, refreshSubscribed])
 
+  // 태그 결과 모자이크: 2열 분배 (좌/우 번갈아)
+  const tagMosaicCols = useMemo(() => {
+    const cols: [SaList[], SaList[]] = [[], []]
+    publicLists.forEach((l, i) => cols[i % 2].push(l))
+    return cols
+  }, [publicLists])
+
+  const activeTagCount = activeTag
+    ? popularTags.find((t) => t.tag === activeTag)?.count
+    : undefined
+
   return (
-    <div className="min-h-dvh pb-20 bath-tile-bg flex flex-col">
-      {/* 헤더: SA-LIST + 검색/생성 버튼 (다른 페이지와 동일 p-5 pt-8) */}
-      <header className="p-5 pt-8 flex items-center justify-between flex-shrink-0">
-        <h1 className="text-3xl font-extrabold italic font-heading">
-          SA-LIST
-        </h1>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            className="p-1"
-            aria-label="검색"
-            onClick={() => {
-              setShowSearch((v) => !v)
-              if (!showSearch) setTimeout(() => searchRef.current?.focus(), 100)
-            }}
-          >
-            <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '22px' }}>search</span>
-          </button>
-          <button
-            type="button"
-            className="p-1"
-            aria-label="새 리스트"
-            onClick={() => {
-              if (!requireAuth()) return
-              setShowCreateSheet(true)
-            }}
-          >
-            <span className="material-symbols-outlined text-stone-500" style={{ fontSize: '22px' }}>add</span>
-          </button>
+    <div className="relative min-h-dvh pb-24 bath-tile-bg overflow-hidden flex flex-col">
+      {/* ── 레드 돔 (홈과 동일 곡선 헤더, 높이만 축소) ── */}
+      <CurveHeader color="var(--color-primary)" height={232} />
+
+      {/* ── 헤더 ── */}
+      <header className="relative z-[3] px-6 pt-8 pb-1">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.22em] text-white/85 font-heading">SA-LIST</p>
+            <h1 className="text-[40px] leading-none italic font-heading font-bold text-white mt-1">DISCOVER</h1>
+            <p className="text-white/90 text-sm font-medium mt-2.5">이번 주, 사우나 리스트 둘러보기</p>
+          </div>
+          <div className="flex gap-1.5 mt-1">
+            <button
+              type="button"
+              aria-label="검색"
+              onClick={() => {
+                setShowSearch((v) => !v)
+                if (!showSearch) setTimeout(() => searchRef.current?.focus(), 100)
+              }}
+              className="w-9 h-9 rounded-full bg-white/[0.18] border border-white/35 flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '17px' }}>search</span>
+            </button>
+            <button
+              type="button"
+              aria-label="새 리스트"
+              onClick={() => {
+                if (!requireAuth()) return
+                setShowCreateSheet(true)
+              }}
+              className="w-9 h-9 rounded-full bg-white/[0.18] border border-white/35 flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <span className="material-symbols-outlined text-white" style={{ fontSize: '17px' }}>add</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         {/* ── 검색 바 ── */}
         {showSearch && (
-          <div className="mx-5 mb-2 px-3.5 py-2.5 rounded-[14px] glass-card-light flex items-center gap-2">
+          <div className="relative z-[3] mx-5 mt-2 mb-1 px-3.5 py-2.5 rounded-[14px] bg-white/90 shadow-sm flex items-center gap-2">
             <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>search</span>
             <input
               ref={searchRef}
@@ -164,134 +179,138 @@ export default function SaListPage() {
           </div>
         )}
 
-        {/* Z3: 초기 로딩은 단일 스피너 (검색/피드 재쿼리는 섹션별 처리) */}
-        {!isSearching && initialLoading ? (
+        {!isTextSearching && initialLoading ? (
           <ContentLoader />
         ) : (<>
-        {/* ── SA-PI FEATURED 캐러셀 ── */}
-        {!isSearching && (
-          <FeaturedSaListCarousel
-            lists={featuredLists}
-            subscribedIds={user ? subscribedIds : undefined}
-            onSubscribe={async (list) => {
-              if (!requireAuth() || !user) return
-              const wasSub = subscribedIds.has(list.id)
-              await listsService.toggleSubscription(user.id, list.id)
-              refreshSubscribed()
-              if (wasSub) {
-                showNotice(`${list.title} 구독해지`, async () => {
-                  await listsService.toggleSubscription(user.id, list.id)
-                  refreshSubscribed()
-                })
-              } else {
-                showNotice(`${list.title} 구독완료!`)
-              }
-            }}
-          />
+        {/* ── 이주의 사피픽 — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
+        {!isTextSearching && featuredLists.length > 0 && (
+          <section className="relative z-[5] mt-3">
+            <div className="flex items-baseline gap-2 px-6 pb-2.5">
+              <h2 className="text-[14px] font-bold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
+                이주의 사피픽
+              </h2>
+              <span className="text-[10px] font-semibold text-white/85">FEATURED · {featuredLists.length}</span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pb-3 items-start">
+              {featuredLists.map((list, i) => (
+                <ListCoverCard
+                  key={list.id}
+                  list={list}
+                  variant="pick"
+                  badge={`사피픽 №${i + 1}`}
+                  onClick={() => router.push(`/sa-list/${list.id}`)}
+                  style={{
+                    marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
+                    transform: i === 0 ? 'rotate(-3deg)' : undefined,
+                  }}
+                />
+              ))}
+            </div>
+          </section>
         )}
 
-        {/* ── TRIBE PICKS — 트라이브별 실시간 추천 ── */}
-        {!isSearching && (
-        <section>
-          <div className="px-5 pt-5 pb-2">
-            <h2 className="text-sm font-bold text-stone-600">TRIBE PICKS</h2>
-            <p className="text-[11px] text-stone-400 font-normal mt-0.5">실시간 업데이트 트라이브별 베스트 픽</p>
-          </div>
-          <div className="px-5 pb-1 grid grid-cols-3 gap-2">
-            {Object.values(TRIBES).map((tribe) => (
-              <button
-                key={tribe.id}
-                type="button"
-                onClick={() => router.push(`/sa-list/tribe/${tribe.id}`)}
-                className="aspect-[1.2/1] rounded-[14px] flex flex-col items-center justify-center gap-1.5 active:scale-[0.96] transition-transform shadow-sm"
-                style={{ backgroundColor: tribe.color }}
-              >
-                <span className="text-[30px] leading-none" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' }}>{tribe.emoji}</span>
-                <span className="text-[12px] font-bold font-heading tracking-wide text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.18)' }}>{tribe.persona}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-        )}
-
-        {/* ── 내 리스트 가로 카드 ── */}
-        {!isSearching && user && (
-          <section>
-            <div className="px-5 pt-5 pb-2 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-600">내 사-리스트</h2>
-              <Link href="/sa-list/my" className="text-[11px] font-medium" style={{ color: 'var(--color-primary)' }}>
+        {/* ── MY SHELF — 내 리스트 + 구독 책등 선반 ── */}
+        {!isTextSearching && user && (
+          <section className="mt-7">
+            <div className="px-6 pb-2.5 flex items-end justify-between">
+              <div>
+                <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">MY SHELF</h2>
+                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">저장한 리스트 {shelfCount}</p>
+              </div>
+              <Link href="/sa-list/my" className="text-[11px] font-medium pb-0.5" style={{ color: 'var(--color-primary)' }}>
                 전체보기
               </Link>
             </div>
-            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-5 pb-1">
-              {myCardItems.map(({ list, kind }) => (
-                <MyCardItem
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide px-6 pb-1">
+              {shelfItems.map(({ list, kind }) => (
+                <ShelfSpine
                   key={list.id}
                   list={list}
                   kind={kind}
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                 />
               ))}
-              {/* 새 리스트 카드 */}
+              {/* 새 리스트 spine */}
               <button
                 type="button"
                 onClick={() => {
                   if (!requireAuth()) return
                   setShowCreateSheet(true)
                 }}
-                className="flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
+                className="flex-shrink-0 w-[62px] h-[116px] rounded-[10px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
+                aria-label="새 리스트"
               >
-                <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '20px' }}>add</span>
-                <span className="text-[11px] text-stone-400 font-medium">새 리스트</span>
+                <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>add</span>
               </button>
             </div>
           </section>
         )}
 
-        {/* ── 인기 태그 ── */}
-        {popularTags.length > 0 && (
-          <section>
-            <div className="px-5 pt-5 pb-2">
-              <h2 className="text-sm font-bold text-stone-600">인기 태그</h2>
+        {/* ── BROWSE BY TAG — 태그 타일 → 인라인 결과 ── */}
+        {!isTextSearching && popularTags.length > 0 && (
+          <section className="mt-7">
+            <div className="px-6 pb-2.5">
+              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">BROWSE BY TAG</h2>
+              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그를 고르면 리스트가 펼쳐집니다</p>
             </div>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide px-5 pb-1">
-              <button
-                type="button"
-                onClick={() => { setActiveTag(null); setSearchInput('') }}
-                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  !activeTag
-                    ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                    : 'bg-white/30 text-stone-500 border-stone-200'
-                }`}
-              >
-                전체
-              </button>
-              {popularTags.map(({ tag }) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => { setActiveTag(activeTag === tag ? null : tag); setSearchInput('') }}
-                  className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-                    activeTag === tag
-                      ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                      : 'bg-white/30 text-stone-500 border-stone-200'
-                  }`}
-                >
-                  #{tag}
-                </button>
-              ))}
-            </div>
+
+            {!activeTag ? (
+              /* 기본 상태: 2×2 타일 */
+              <div className="grid grid-cols-2 gap-2.5 px-6">
+                {popularTags.map(({ tag, count }) => (
+                  <TagTile key={tag} tag={tag} count={count} onClick={() => { setActiveTag(tag); setSearchInput('') }} />
+                ))}
+              </div>
+            ) : (
+              /* 선택 상태: 컴팩트 바 + 결과 모자이크 */
+              <>
+                <TagBar
+                  tag={activeTag}
+                  count={activeTagCount}
+                  onClose={() => setActiveTag(null)}
+                />
+                <div className="px-6 pt-3">
+                  <DataState
+                    loading={pubLoading}
+                    error={pubError}
+                    isEmpty={publicLists.length === 0}
+                    emptyIcon="explore"
+                    emptyMessage="이 태그의 리스트가 아직 없어요"
+                  >
+                    <div className="flex gap-2.5 items-start">
+                      {tagMosaicCols.map((col, colIdx) => (
+                        <div key={colIdx} className="flex-1 flex flex-col gap-2.5">
+                          {col.map((list, i) => (
+                            <ListCoverCard
+                              key={list.id}
+                              list={list}
+                              variant="mosaic"
+                              height={MOSAIC_HEIGHTS[(i * 2 + colIdx) % MOSAIC_HEIGHTS.length]}
+                              onClick={() => router.push(`/sa-list/${list.id}`)}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </DataState>
+                </div>
+              </>
+            )}
           </section>
         )}
 
-        {/* ── 인기/최신 피드 (검색/태그 활성 시 결과 섹션으로 전환) ── */}
-        <section>
-          <div className="px-5 pt-5 pb-1">
-            <h2 className="text-sm font-bold text-stone-600">
-              {isSearching ? '검색 결과' : '인기 사-리스트'}
+        {/* ── 전체 피드 (태그 선택 중엔 숨김 — BROWSE 결과와 중복) ── */}
+        {!activeTag && (
+        <section className="mt-7">
+          <div className="px-6 pb-1">
+            <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">
+              {isTextSearching ? '검색 결과' : 'ALL LISTS'}
             </h2>
+            {!isTextSearching && (
+              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">전체 공개 사-리스트</p>
+            )}
           </div>
-          <div className="px-5 pt-1 pb-2 flex gap-3">
+          <div className="px-6 pt-1 pb-2 flex gap-3">
             <button
               type="button"
               onClick={() => setFeedSort('popular')}
@@ -316,16 +335,16 @@ export default function SaListPage() {
             </button>
           </div>
 
-          <div className="px-5 pb-4">
+          <div className="px-6 pb-4">
             <DataState
               loading={pubLoading}
               error={pubError}
-              isEmpty={feedLists.length === 0}
+              isEmpty={publicLists.length === 0}
               emptyIcon="explore"
               emptyMessage="아직 공개 리스트가 없어요"
             >
               <div className="flex flex-col gap-2.5">
-                {feedLists.map((list) =>
+                {publicLists.map((list) =>
                   user && list.owner_id === user.id ? (
                     <SaListFeedRow
                       key={list.id}
@@ -350,6 +369,7 @@ export default function SaListPage() {
             </DataState>
           </div>
         </section>
+        )}
         </>)}
       </main>
 
@@ -381,9 +401,9 @@ export default function SaListPage() {
   )
 }
 
-/* ── 내 리스트 가로 미니카드 (인라인) ── */
+/* ── MY SHELF 책등 카드 (인라인) ── */
 
-function MyCardItem({
+function ShelfSpine({
   list,
   kind,
   onClick,
@@ -393,57 +413,89 @@ function MyCardItem({
   onClick: () => void
 }) {
   const isDefault = kind === 'default'
-  const isSubscribed = kind === 'subscribed'
-  const emoji = isDefault ? '♨️' : list.cover_emoji
-  const thumbBg = isDefault ? '#ffffff' : listBgColor(list.cover_hue)
+  const tones = listToneColors(isDefault ? null : list.cover_hue)
   const title = isDefault ? 'MY SA-LIST' : list.title
-
-  const visibilityBadge = isSubscribed
-    ? { label: '구독 중', cls: 'bg-red-500/10 text-red-600' }
-    : {
-        label: VISIBILITY_LABEL[list.visibility],
-        cls: list.visibility === 'public'
-          ? 'bg-green-500/10 text-green-600'
-          : list.visibility === 'unlisted'
-            ? 'bg-blue-500/10 text-blue-500'
-            : 'bg-stone-500/10 text-stone-500',
-      }
-
-  const meta = isSubscribed
-    ? `${(list.owner_nickname || '').toUpperCase()} · ${list.place_count}곳`
-    : `${list.place_count}곳${list.subscriber_count > 0 ? ` · 구독 ${list.subscriber_count}` : ''}`
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex-shrink-0 w-[140px] min-h-[92px] rounded-[14px] p-3 flex flex-col justify-between gap-1.5 text-left active:scale-[0.96] transition-transform glass-card-light ${
-        isDefault ? 'ring-1 ring-inset ring-red-600/10' : ''
+      className={`flex-shrink-0 w-[62px] h-[116px] rounded-[10px] p-2 flex flex-col justify-between items-start text-left active:scale-[0.96] transition-transform ${
+        isDefault ? 'ring-1 ring-inset ring-red-600/15' : ''
       }`}
+      style={{
+        backgroundColor: isDefault ? '#ffffff' : tones.bg,
+        boxShadow: '0 3px 10px -4px rgba(0,0,0,0.18)',
+      }}
     >
-      <div className="flex items-start justify-between">
-        <div
-          className="w-9 h-9 rounded-[10px] flex items-center justify-center text-xl"
-          style={{ backgroundColor: thumbBg }}
-        >
-          {emoji || <span className="material-symbols-outlined text-white/80" style={{ fontSize: '18px' }}>playlist_play</span>}
-        </div>
-        <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-md mt-0.5 ${visibilityBadge.cls}`}>
-          {visibilityBadge.label}
-        </span>
-      </div>
-      <div>
-        <p className="text-[13px] font-semibold text-stone-800 truncate">{title}</p>
-        <p className="text-[11px] text-stone-400">{meta}</p>
-      </div>
+      {/* 세로쓰기 제목 */}
+      <span
+        className="text-[10.5px] font-extrabold leading-tight text-stone-800 overflow-hidden"
+        style={{ writingMode: 'vertical-rl', maxHeight: '78px', wordBreak: 'keep-all' }}
+      >
+        {title}
+      </span>
+      <span className="text-[9px] font-semibold opacity-60 flex items-center gap-0.5">
+        {kind === 'subscribed' && (
+          <span className="material-symbols-outlined" style={{ fontSize: '10px', fontVariationSettings: "'FILL' 1" }}>bookmark_add</span>
+        )}
+        {isDefault ? `♨️ ${list.place_count}` : `${list.place_count}곳`}
+      </span>
     </button>
   )
 }
 
-const VISIBILITY_LABEL: Record<string, string> = {
-  public: '공개',
-  private: '비공개',
-  unlisted: '링크공유',
+/* ── BROWSE BY TAG 타일 + 컴팩트 바 (인라인) ── */
+
+function TagTile({ tag, count, onClick }: { tag: string; count: number; onClick: () => void }) {
+  const tones = listToneColors(tagHue(tag))
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative overflow-hidden rounded-[14px] h-[70px] p-3 text-left active:scale-[0.97] transition-transform"
+      style={{ backgroundColor: tones.bg }}
+    >
+      {/* '#' 워터마크 — 카드 이모지 워터마크와 동일 문법 */}
+      <span
+        className="absolute pointer-events-none select-none font-extrabold"
+        style={{ fontSize: '64px', lineHeight: 1, opacity: 0.18, right: '2px', bottom: '-16px', color: tones.accent, transform: 'rotate(-8deg)' }}
+        aria-hidden
+      >
+        #
+      </span>
+      <span className="relative z-[1] block text-[14px] font-extrabold text-stone-800 truncate" style={{ wordBreak: 'keep-all' }}>
+        #{tag}
+      </span>
+      <span className="relative z-[1] block text-[10px] font-semibold mt-0.5" style={{ color: tones.accent }}>
+        {count} lists
+      </span>
+    </button>
+  )
+}
+
+function TagBar({ tag, count, onClose }: { tag: string; count?: number; onClose: () => void }) {
+  const tones = listToneColors(tagHue(tag))
+  return (
+    <button
+      type="button"
+      onClick={onClose}
+      className="mx-6 w-[calc(100%-3rem)] rounded-[14px] px-3.5 py-2.5 flex items-center justify-between active:scale-[0.98] transition-transform"
+      style={{ backgroundColor: tones.bg, boxShadow: '0 4px 12px -5px rgba(0,0,0,0.18)' }}
+    >
+      <span className="flex items-baseline gap-2">
+        <span className="text-[14px] font-extrabold text-stone-800">#{tag}</span>
+        {count != null && (
+          <span className="text-[10px] font-semibold" style={{ color: tones.accent }}>
+            {count} lists · 인기순
+          </span>
+        )}
+      </span>
+      <span className="w-[22px] h-[22px] rounded-full bg-stone-800/80 flex items-center justify-center">
+        <span className="material-symbols-outlined text-white" style={{ fontSize: '13px' }}>close</span>
+      </span>
+    </button>
+  )
 }
 
 /* ── 구독 가능한 피드 행 (내부 컴포넌트) ── */
