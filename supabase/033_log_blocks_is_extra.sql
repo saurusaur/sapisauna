@@ -50,6 +50,14 @@ where l.user_id = '23c431c3-9b23-4779-bb27-13472e58090a'
   and t.temp is not null
   and not exists (select 1 from log_blocks b where b.log_id = l.id and b.block_type = t.block_type);
 
+-- 3. 세신 가격 제보 마킹 (2026-06-13 추가 — 전체 재실행해도 안전, 멱등)
+--    점수 평가 없는 기본세신 블록 = 활동이 아니라 가격 정보 → extra
+--    (새 폼도 더자세히 '기본세신 가격' 입력 시 is_extra 세신 블록으로 저장)
+update log_blocks set is_extra = true
+where block_type = 'scrub'
+  and score is null
+  and coalesce(variant, 'basic') = 'basic';
+
 commit;
 
 -- 검증

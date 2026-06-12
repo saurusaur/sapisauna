@@ -122,7 +122,8 @@ export default function LogPage() {
   // 더자세히
   const [detailOpen, setDetailOpen] = useState(false)
   const [facTempOpen, setFacTempOpen] = useState(false)
-  const [facTemps, setFacTemps] = useState<Record<string, number>>({})  // 루틴 외 시설 온도(온도만, temp-only 블록)
+  const [facTemps, setFacTemps] = useState<Record<string, number>>({})  // 루틴 외 시설 온도(온도만, is_extra 블록)
+  const [scrubCostExtra, setScrubCostExtra] = useState('')              // 루틴 외 기본세신 가격 제보(is_extra 세신 블록)
   const [cleanliness, setCleanliness] = useState(0)
   const [companion, setCompanion] = useState<string | null>(null)
   const [crowd, setCrowd] = useState<string | null>(null)
@@ -205,9 +206,11 @@ export default function LogPage() {
       if (log.currency) setCurrency(log.currency)
       if (log.memo) setMemo(log.memo)
       if (log.blocks && log.blocks.length) {
-        // 루틴 블록 → picked / 추가 온도 제보(is_extra) → facTemps 로 분리 복원
+        // 루틴 블록 → picked / 추가 정보(is_extra) → facTemps·기본세신 가격으로 분리 복원
         const routineBlocks = log.blocks.filter(b => !b.is_extra)
         const extraBlocks = log.blocks.filter(b => b.is_extra && b.temp != null)
+        const extraScrub = log.blocks.find(b => b.is_extra && b.block_type === 'scrub')
+        if (extraScrub?.cost != null) setScrubCostExtra(String(extraScrub.cost))
         if (routineBlocks.length) {
           setRoutineDetail(true)
           setPicked(routineBlocks.map(b => {
@@ -249,6 +252,8 @@ export default function LogPage() {
     return i > -1 ? prev.filter((_, idx) => idx !== i) : [...prev, makePicked(catalogId)]
   })
   const isPicked = (catalogId: string) => picked.some(p => p.catalogId === catalogId)
+  // 루틴에 세신(일반/건강) 있는지 — 있으면 더자세히 '기본세신 가격' 행 숨김 (루틴 쪽에서 가격 입력)
+  const scrubInRoutine = isPicked('scrub') || isPicked('scrub-withmassage')
   const seqOf = (catalogId: string) => picked.findIndex(p => p.catalogId === catalogId) + 1
   const updatePicked = (i: number, patch: Partial<Picked>) => setPicked(prev => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
   // 노드 포인터 드래그 = 순서변경(라이브 리오더: 손가락 위 행으로 즉시 이동). 이동 없으면 탭=반복제외. 모바일 터치 지원.
@@ -352,6 +357,10 @@ export default function LogPage() {
         const d = BLOCK_TYPE_MAP[id]
         return { blockType: d.blockType, category: d.category, variant: d.variant ?? null, temp, durationSec: null, score: null, cost: null, memo: null, norepeat: true, isExtra: true }
       })
+    // 기본세신 가격(더자세히): 루틴에 세신 없을 때만 — 가격만 제보하는 is_extra 세신 블록
+    if (!scrubInRoutine && scrubCostExtra) {
+      fac.push({ blockType: 'scrub', category: 'beyond', variant: 'basic', temp: null, durationSec: null, score: null, cost: Number(scrubCostExtra), memo: null, norepeat: true, isExtra: true })
+    }
     return [...main, ...fac]
   }
   const handleSave = async () => {
@@ -371,8 +380,9 @@ export default function LogPage() {
         const bonuses: ('log_routine' | 'log_detail')[] = []
         if (picked.some(p => p.temp != null || p.durationSec != null)) bonuses.push('log_routine')
         const hasFacTemps = Object.keys(facTemps).some(id => BLOCK_TYPE_MAP[id] && !isPicked(id))
+        const hasExtraScrub = !scrubInRoutine && !!scrubCostExtra
         if (session.cleanliness != null || session.crowd != null || session.companion != null
-          || session.cost != null || session.memo != null || hasFacTemps
+          || session.cost != null || session.memo != null || hasFacTemps || hasExtraScrub
           || picked.some(p => p.score != null || p.cost != null || p.memo != null)) bonuses.push('log_detail')
         const reward = await grantReward('log', { tribeId: logType, bonuses })
         if (reward) localStorage.setItem('pendingReward', JSON.stringify(reward))
@@ -694,6 +704,16 @@ export default function LogPage() {
                   <input inputMode="numeric" placeholder="금액" value={cost} onFocus={scrollIntoCenter} onChange={e => setCost(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-1.5 text-sm text-right" style={{ background: T.slot }} />
                 </div>
               </div>
+              {/* 기본세신 가격 (선택) — 루틴에 세신 없을 때만, 가격 제보(is_extra) */}
+              {!scrubInRoutine && (
+                <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
+                  <span className="text-[13px] font-bold text-stone-700">기본세신</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="rounded-lg px-2.5 py-1.5 text-sm font-semibold text-stone-700 shrink-0" style={{ background: T.slot }}>{currency}</span>
+                    <input inputMode="numeric" placeholder="가격" value={scrubCostExtra} onFocus={scrollIntoCenter} onChange={e => setScrubCostExtra(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-1.5 text-sm text-right" style={{ background: T.slot }} />
+                  </div>
+                </div>
+              )}
 
               {/* 시설 온도 (선택) — 루틴에 온도 입력 안 한 시설만, 온도만 기록 */}
               <div className="pt-1" style={{ borderTop: `1px solid ${T.slot}` }}>
