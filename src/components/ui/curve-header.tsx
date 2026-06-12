@@ -10,6 +10,27 @@ interface CurveHeaderProps {
   height: number
 }
 
+/** 곡선 path 원본 (home/page.tsx) — 393×34 기준 */
+export const CURVE_PATH = 'M0,0 H393 V12 C300,30 110,30 0,16 Z'
+
+/**
+ * 플로우용 곡선 에지 — 컬러 존(내용 높이 가변) 바로 아래에 일반 플로우로 붙인다.
+ * 디테일 페이지 v5 "컬러 존 플로우화" 패턴.
+ */
+export function CurveEdge({ color, height = 18 }: { color: string; height?: number }) {
+  return (
+    <svg
+      viewBox="0 0 393 34"
+      preserveAspectRatio="none"
+      className="block w-full -mt-px"
+      style={{ height: `${height}px` }}
+      aria-hidden
+    >
+      <path d={CURVE_PATH} fill={color} />
+    </svg>
+  )
+}
+
 export default function CurveHeader({ color, height }: CurveHeaderProps) {
   return (
     <>
@@ -23,7 +44,7 @@ export default function CurveHeader({ color, height }: CurveHeaderProps) {
         aria-hidden
       >
         <svg viewBox="0 0 393 34" preserveAspectRatio="none" className="block w-full h-[34px]">
-          <path d="M0,0 H393 V12 C300,30 110,30 0,16 Z" fill={color} />
+          <path d={CURVE_PATH} fill={color} />
         </svg>
       </div>
     </>

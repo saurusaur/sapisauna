@@ -20,7 +20,7 @@ import * as listsService from '@/lib/lists-service'
 import DataState from '@/components/ui/data-state'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import BottomNav from '@/components/bottom-nav'
-import CurveHeader from '@/components/ui/curve-header'
+import { CurveEdge } from '@/components/ui/curve-header'
 import { SaveFlow } from '@/components/features/save-flow'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import ConfirmModal from '@/components/ui/confirm-modal'
@@ -32,7 +32,6 @@ import { listToneColors } from '@/lib/utils'
 import type { ListItem } from '@/types'
 
 const MAX_MEMO_LENGTH = 100
-const HEADER_HEIGHT = 252
 
 /** 글래스 칩 공통 클래스 — 구독·공유·공개·SNS 전부 동일 문법 */
 const CHIP_CLS =
@@ -260,9 +259,9 @@ export default function SaListDetailClient() {
     setShowManageSheet(true)
   }, [])
 
-  // 업데이트일 M/D 표기
+  // 업데이트일 "M월 D일" 표기 (owner 메타 줄)
   const updatedLabel = list?.updated_at
-    ? `${new Date(list.updated_at).getMonth() + 1}/${new Date(list.updated_at).getDate()}`
+    ? `${new Date(list.updated_at).getMonth() + 1}월 ${new Date(list.updated_at).getDate()}일`
     : null
 
   return (
@@ -272,18 +271,18 @@ export default function SaListDetailClient() {
       <DataState loading={listLoading} error={listError} isEmpty={!list}>
         {list && (<>
 
-      {/* ── 곡선 헤더 (공용 CurveHeader, fill = cover_hue 파스텔) ── */}
-      <CurveHeader color={headerBg} height={HEADER_HEIGHT} />
+      {/* ── 컬러 존 — 플로우 컨테이너 (내용 높이에 맞춰 늘어나고 곡선이 아래로 따라옴, v5) ── */}
+      <div className="relative" style={{ backgroundColor: headerBg, paddingBottom: '2px' }}>
 
-      {/* 이모지 워터마크 — 우하단, 곡선에 살짝 물림 */}
+      {/* 이모지 워터마크 — 존 우하단, 곡선에 살짝 물림 */}
       <span
-        className="absolute z-[1] pointer-events-none select-none"
+        className="absolute z-0 pointer-events-none select-none"
         style={{
           fontSize: '88px',
           lineHeight: 1,
           opacity: isDefault ? 0.15 : 0.3,
           right: '-6px',
-          top: `${HEADER_HEIGHT - 74}px`,
+          bottom: '-18px',
           transform: 'rotate(-8deg)',
         }}
         aria-hidden
@@ -336,10 +335,10 @@ export default function SaListDetailClient() {
           )}
         </h1>
         {list.description && (
-          <p className="text-xs leading-relaxed text-stone-600 mt-2 max-w-[94%]">{list.description}</p>
+          <p className="text-xs leading-relaxed text-stone-600 mt-2.5 max-w-[94%]">{list.description}</p>
         )}
 
-        {/* 메타 줄 */}
+        {/* 메타 줄 — visitor: @닉 · 구독 · 곳수 / owner: 구독 · 곳수 · 업데이트 (v5) */}
         <div className="flex items-center gap-1.5 mt-2.5 text-[10.5px] font-semibold text-stone-600 flex-wrap">
           <span
             className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] flex-shrink-0 bg-white"
@@ -347,15 +346,15 @@ export default function SaListDetailClient() {
           >
             {list.owner_profile_emoji || '🧖'}
           </span>
-          <span className="truncate max-w-[120px]">@{list.owner_nickname || 'USER'}</span>
-          <span>· 구독 {subscriberCount}</span>
+          {!isMine && <span className="truncate max-w-[120px]">@{list.owner_nickname || 'USER'}</span>}
+          <span>{!isMine ? '· ' : ''}구독 {subscriberCount}</span>
           <span>· {list.place_count}곳</span>
-          {updatedLabel && <span>· 업데이트 {updatedLabel}</span>}
+          {isMine && updatedLabel && <span>· 업데이트 {updatedLabel}</span>}
         </div>
 
         {/* 태그 */}
         {list.tags && list.tags.length > 0 && (
-          <div className="flex gap-1 mt-2 flex-wrap">
+          <div className="flex gap-1 mt-2.5 flex-wrap">
             {list.tags.map((tag) => (
               <span key={tag} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/40" style={{ color: tones.accent }}>
                 #{tag}
@@ -394,8 +393,8 @@ export default function SaListDetailClient() {
           </div>
         )}
 
-        {/* 액션 칩 줄 — 구독 + 공유 (SNS 칩과 동일 문법) */}
-        <div className="flex gap-1.5 mt-3">
+        {/* 액션 칩 줄 — visitor: 구독+공유 / owner: 공유만 (구독자수는 메타 줄, v5) */}
+        <div className="flex gap-1.5 mt-2.5">
           {!isMine && !isDefault && (
             <button
               onClick={handleToggleSubscribe}
@@ -409,12 +408,6 @@ export default function SaListDetailClient() {
               )}
             </button>
           )}
-          {isMine && !isDefault && (
-            <span className={CHIP_CLS}>
-              <span className="material-symbols-outlined" style={{ fontSize: '12px', fontVariationSettings: "'FILL' 1" }}>bookmark_add</span>
-              구독 {subscriberCount}
-            </span>
-          )}
           {list.visibility !== 'private' && (
             <button onClick={handleShare} className={CHIP_CLS}>
               <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>share</span>
@@ -423,10 +416,15 @@ export default function SaListDetailClient() {
           )}
         </div>
       </div>
+      {/* 컬러 존 끝 */}
+      </div>
+
+      {/* 곡선 에지 — 존 아래 플로우 (v5) */}
+      <CurveEdge color={headerBg} />
 
       {/* ── THE LIST — 스크랩북 장소 카드 ── */}
-      <main className="relative z-[2] px-5 pt-6">
-        <div className="flex justify-end pb-2 pr-1 text-[10px] text-stone-400 font-semibold">
+      <main className="relative z-[2] px-5">
+        <div className="flex justify-end pt-3 pb-2 pr-1 text-[10px] text-stone-400 font-semibold">
           {localItems.length}곳 · {isMine ? '잡고 끌어 순서 변경' : '큐레이터 순서'}
         </div>
 
