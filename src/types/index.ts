@@ -117,9 +117,7 @@ export interface LogWithPlace {
   revisit_score: number
   heat_time?: number
   ice_time?: number
-  pause_time?: number
   repeat?: number
-  sauna_temp?: number
   steam_sauna_temp?: number
   primary_sauna_kind?: 'dry' | 'steam'
   cold_bath_temp?: number
@@ -128,7 +126,6 @@ export interface LogWithPlace {
   hot_bath_temp?: number
   rest_quality?: number
   sweat_quality?: number
-  jjim_temp?: number
   bath_gender?: BathGender
   // ── 신규 캐시 컬럼 (블록서 파생, 029) — deep_log 평탄화 ──
   dry_sauna_temp?: number | null

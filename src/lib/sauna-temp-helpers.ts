@@ -24,9 +24,7 @@ export interface PrimarySaunaTemp {
 }
 
 interface SaunaInputs {
-  /** 신규 캐시 컬럼 (029 블록 평탄화). 레거시 sauna_temp는 폴백 */
   dry_sauna_temp?: number | null
-  sauna_temp?: number | null
   steam_sauna_temp?: number | null
   primary_sauna_kind?: SaunaKind | null
 }
@@ -42,8 +40,7 @@ interface SaunaInputs {
  * fallback은 마이그레이션 이전의 레거시 데이터나 사우나 미입력 로그를 안전하게 처리하기 위함.
  */
 export function getPrimarySaunaTemp(log: SaunaInputs): PrimarySaunaTemp | null {
-  // 신규 캐시(dry_sauna_temp) 우선, 레거시(sauna_temp) 폴백
-  const dry = log.dry_sauna_temp ?? log.sauna_temp
+  const dry = log.dry_sauna_temp
   const steam = log.steam_sauna_temp
   const primary = log.primary_sauna_kind
 
