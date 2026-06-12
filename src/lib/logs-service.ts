@@ -51,6 +51,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
       memo: b.memo as string | null,
       variant: b.variant as string | null,
       norepeat: (b.norepeat as boolean) ?? false,
+      is_extra: (b.is_extra as boolean) ?? false,
     }))
 
   return {
@@ -254,6 +255,7 @@ export interface LogBlockInput {
   cost?: number | null
   memo?: string | null
   norepeat?: boolean
+  isExtra?: boolean            // 루틴 외 시설 온도 제보 (더자세히 facTemps)
 }
 
 // 폼이 보내는 세션 메타
@@ -348,6 +350,7 @@ async function insertBlocks(logId: string, blocks: LogBlockInput[]): Promise<voi
     memo: b.memo ?? null,
     variant: b.variant ?? null,
     norepeat: b.norepeat ?? false,
+    is_extra: b.isExtra ?? false,
   }))
   const { error } = await supabase.from('log_blocks').insert(rows)
   if (error) throw error

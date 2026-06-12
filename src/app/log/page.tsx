@@ -205,13 +205,21 @@ export default function LogPage() {
       if (log.currency) setCurrency(log.currency)
       if (log.memo) setMemo(log.memo)
       if (log.blocks && log.blocks.length) {
-        setRoutineDetail(true)
-        setPicked(log.blocks.map(b => {
-          let catalogId = b.block_type
-          if (b.block_type === 'scrub' && b.variant === 'withmassage') catalogId = 'scrub-withmassage'
-          if (!BLOCK_TYPE_MAP[catalogId]) catalogId = b.block_type
-          return { catalogId, temp: b.temp ?? null, durationSec: b.duration_sec ?? null, score: b.score ?? null, cost: b.cost ?? null, memo: b.memo ?? null, norepeat: b.norepeat ?? false }
-        }))
+        // 루틴 블록 → picked / 추가 온도 제보(is_extra) → facTemps 로 분리 복원
+        const routineBlocks = log.blocks.filter(b => !b.is_extra)
+        const extraBlocks = log.blocks.filter(b => b.is_extra && b.temp != null)
+        if (routineBlocks.length) {
+          setRoutineDetail(true)
+          setPicked(routineBlocks.map(b => {
+            let catalogId = b.block_type
+            if (b.block_type === 'scrub' && b.variant === 'withmassage') catalogId = 'scrub-withmassage'
+            if (!BLOCK_TYPE_MAP[catalogId]) catalogId = b.block_type
+            return { catalogId, category: b.block_type === 'other' ? b.category : undefined, temp: b.temp ?? null, durationSec: b.duration_sec ?? null, score: b.score ?? null, cost: b.cost ?? null, memo: b.memo ?? null, norepeat: b.norepeat ?? false }
+          }))
+        }
+        if (extraBlocks.length) {
+          setFacTemps(Object.fromEntries(extraBlocks.map(b => [b.block_type, b.temp as number])))
+        }
       }
     }
   }, [router, primaryTribe])
@@ -335,14 +343,14 @@ export default function LogPage() {
   const buildBlocks = (): LogBlockInput[] => {
     const main = picked.map(p => {
       const d = BLOCK_TYPE_MAP[p.catalogId]
-      return { blockType: d.blockType, category: d.blockType === 'other' ? (p.category ?? 'beyond') : d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat }
+      return { blockType: d.blockType, category: d.blockType === 'other' ? (p.category ?? 'beyond') : d.category, variant: d.variant ?? null, temp: p.temp, durationSec: p.durationSec, score: p.score, cost: p.cost, memo: p.memo, norepeat: p.norepeat, isExtra: false }
     })
-    // 시설 온도(더자세히): 루틴 외 시설을 temp-only·반복제외 블록으로 추가
+    // 시설 온도(더자세히): 루틴 외 시설 온도 제보 = is_extra 블록 (타임라인 제외, 편집 시 facTemps 복원)
     const fac: LogBlockInput[] = Object.entries(facTemps)
       .filter(([id]) => BLOCK_TYPE_MAP[id] && !isPicked(id))
       .map(([id, temp]) => {
         const d = BLOCK_TYPE_MAP[id]
-        return { blockType: d.blockType, category: d.category, variant: d.variant ?? null, temp, durationSec: null, score: null, cost: null, memo: null, norepeat: true }
+        return { blockType: d.blockType, category: d.category, variant: d.variant ?? null, temp, durationSec: null, score: null, cost: null, memo: null, norepeat: true, isExtra: true }
       })
     return [...main, ...fac]
   }
@@ -636,7 +644,11 @@ export default function LogPage() {
           <Slider variant="seal" label="또 갈래요?" value={revisit} min={1} max={5} steps={REVISIT_STEPS} onChange={setRevisit} />
           <div className="grid items-start gap-3 pt-1.5" style={{ gridTemplateColumns: '60px 1fr' }}>
             <span className="text-[13px] font-bold text-stone-700 pt-1">메모</span>
-            <textarea placeholder="오늘 사우나는 어떠셨나요?" value={memo} onFocus={scrollIntoCenter} onChange={e => setMemo(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm h-12 resize-none" style={{ background: T.slot }} />
+            <textarea
+              placeholder="오늘 사우나는 어떠셨나요?" value={memo}
+              onFocus={e => { scrollIntoCenter(e); e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = `${Math.max(e.currentTarget.scrollHeight, 48)}px` }}
+              onChange={e => { setMemo(e.target.value); e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = `${Math.max(e.currentTarget.scrollHeight, 48)}px` }}
+              className="w-full rounded-lg px-3 py-2 text-sm resize-none overflow-hidden" style={{ background: T.slot, minHeight: 48 }} />
           </div>
         </section>
 
