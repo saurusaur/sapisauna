@@ -25,8 +25,6 @@ export interface CurrentLogPayload {
   repeat?: number
   heat_time?: number
   ice_time?: number
-  pause_time?: number
-  sauna_temp?: number
   steam_sauna_temp?: number
   primary_sauna_kind?: 'dry' | 'steam'
   cold_bath_temp?: number
@@ -34,7 +32,6 @@ export interface CurrentLogPayload {
   hot_bath_temp?: number
   water_quality?: number
   sweat_quality?: number
-  jjim_temp?: number
   rest_quality?: number
   cleanliness?: number
   crowd?: string
@@ -75,15 +72,12 @@ function buildBaseCurrentLog(log: LogWithPlace): CurrentLogPayload {
     repeat: log.repeat,
     heat_time: log.heat_time,
     ice_time: log.ice_time,
-    pause_time: log.pause_time,
-    sauna_temp: log.sauna_temp,
     steam_sauna_temp: log.steam_sauna_temp,
     primary_sauna_kind: log.primary_sauna_kind,
     cold_bath_temp: log.cold_bath_temp,
     totono_score: log.totono_score,
     hot_bath_temp: log.hot_bath_temp,
     water_quality: log.water_quality,
-    jjim_temp: log.jjim_temp,
     rest_quality: log.rest_quality,
     cleanliness: log.cleanliness ?? undefined,
     crowd: log.crowd ?? undefined,

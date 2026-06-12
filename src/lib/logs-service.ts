@@ -1,6 +1,6 @@
 /**
  * 로그 서비스 — Supabase logs(평탄 캐시) + log_blocks(정正) 연동
- * deep_logs는 030 DROP 전까지 toLogWithPlace의 레거시 폴백 소스로만 읽음 (쓰기 없음)
+ * 030 cleanup 완료 전제 (구컬럼·deep_logs 참조 없음)
  */
 
 import { supabase } from './supabase'
@@ -23,15 +23,6 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
   const userJoin = row.public_profiles as Record<string, unknown> | null
   const userNickname = (userJoin?.nickname as string) || undefined
   const userTitle = (userJoin?.active_title as string) || undefined
-
-  // deep_logs 조인 (1:1) — 030 DROP 전까지 레거시 폴백 소스로만 사용
-  const deepLogs = row.deep_logs as Array<Record<string, unknown>> | null
-  const dl = deepLogs?.[0]
-
-  // 레거시 세신 분리 규칙 (029 백필과 동일): 둘 다→scrub(withmassage), 세신만→scrub(basic), 마사지만→massage
-  const legacyScrubTypes = (dl?.scrub_types as string[]) || []
-  const legacyHasScrub = legacyScrubTypes.includes('scrub')
-  const legacyHasMassage = legacyScrubTypes.includes('massage')
 
   // log_blocks 조인 (1:N, seq 정렬)
   const blockRows = (row.log_blocks as Array<Record<string, unknown>> | null) || []
@@ -70,9 +61,7 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     revisit_score: (row.revisit_score as number) || 0,
     heat_time: row.heat_time as number | undefined,
     ice_time: row.ice_time as number | undefined,
-    pause_time: row.pause_time as number | undefined,
     repeat: row.repeat as number | undefined,
-    sauna_temp: row.sauna_temp as number | undefined,
     steam_sauna_temp: row.steam_sauna_temp as number | undefined,
     primary_sauna_kind: row.primary_sauna_kind as ('dry' | 'steam' | undefined),
     cold_bath_temp: row.cold_bath_temp as number | undefined,
@@ -81,39 +70,36 @@ function toLogWithPlace(row: Record<string, unknown>): LogWithPlace {
     hot_bath_temp: row.hot_bath_temp as number | undefined,
     rest_quality: row.rest_quality as number | undefined,
     sweat_quality: row.sweat_quality as number | undefined,
-    jjim_temp: row.jjim_temp as number | undefined,
     bath_gender: row.bath_gender as BathGender | undefined,
-    // ── 신규 평탄 캐시 (029, 블록서 파생) ──
-    // 새 캐시 우선 + 레거시(구컬럼·deep_logs) 폴백 — 030 백필·DROP 후 폴백 제거 가능.
-    // 표시면은 전부 이 평탄 필드만 읽는다 (deep_log 직접 참조 금지).
-    dry_sauna_temp: (row.dry_sauna_temp ?? row.sauna_temp) as number | null,
-    bulgama_temp: (row.bulgama_temp ?? row.jjim_temp) as number | null,
-    rest_time: (row.rest_time ?? row.pause_time) as number | null,
-    very_hot_bath_temp: (row.very_hot_bath_temp ?? dl?.very_hot_bath_temp ?? null) as number | null,
-    ice_bath_temp: (row.ice_bath_temp ?? dl?.ice_bath_temp ?? null) as number | null,
+    // ── 평탄 캐시 (029, 블록서 파생) — 표시면은 전부 이 필드만 읽는다 ──
+    dry_sauna_temp: row.dry_sauna_temp as number | null,
+    bulgama_temp: row.bulgama_temp as number | null,
+    rest_time: row.rest_time as number | null,
+    very_hot_bath_temp: row.very_hot_bath_temp as number | null,
+    ice_bath_temp: row.ice_bath_temp as number | null,
     salt_sauna_temp: row.salt_sauna_temp as number | null,
     open_air_bath_temp: row.open_air_bath_temp as number | null,
     ice_room_temp: row.ice_room_temp as number | null,
-    cleanliness: (row.cleanliness ?? dl?.cleanliness ?? null) as number | null,
-    crowd: (row.crowd ?? dl?.crowd ?? null) as string | null,
-    companion: (row.companion ?? dl?.companion ?? null) as string | null,
-    cost: (row.cost ?? dl?.cost ?? null) as number | null,
-    currency: (row.currency ?? dl?.currency ?? null) as string | null,
-    memo: (row.memo ?? dl?.memo ?? null) as string | null,
-    scrub_score: (row.scrub_score ?? (legacyHasScrub ? dl?.scrub_satisfaction : null) ?? null) as number | null,
-    scrub_cost: (row.scrub_cost ?? (legacyHasScrub ? dl?.scrub_cost : null) ?? null) as number | null,
-    scrub_type: (row.scrub_type ?? (legacyHasScrub ? (legacyHasMassage ? 'withmassage' : 'basic') : null)) as string | null,
-    massage_score: (row.massage_score ?? (legacyHasMassage && !legacyHasScrub ? dl?.scrub_satisfaction : null) ?? null) as number | null,
-    massage_cost: (row.massage_cost ?? (legacyHasMassage && !legacyHasScrub ? dl?.scrub_cost : null) ?? null) as number | null,
-    snack_score: (row.snack_score ?? dl?.store_score ?? null) as number | null,
-    snack_memo: (row.snack_memo ?? dl?.store_memo ?? null) as string | null,
+    cleanliness: row.cleanliness as number | null,
+    crowd: row.crowd as string | null,
+    companion: row.companion as string | null,
+    cost: row.cost as number | null,
+    currency: row.currency as string | null,
+    memo: row.memo as string | null,
+    scrub_score: row.scrub_score as number | null,
+    scrub_cost: row.scrub_cost as number | null,
+    scrub_type: row.scrub_type as string | null,
+    massage_score: row.massage_score as number | null,
+    massage_cost: row.massage_cost as number | null,
+    snack_score: row.snack_score as number | null,
+    snack_memo: row.snack_memo as string | null,
     restaurant_score: row.restaurant_score as number | null,
     restaurant_memo: row.restaurant_memo as string | null,
     blocks,
   }
 }
 
-const LOG_SELECT = '*, public_profiles(nickname, active_title), places!inner(*, place_sources(*)), deep_logs(*), log_blocks(*)'
+const LOG_SELECT = '*, public_profiles(nickname, active_title), places!inner(*, place_sources(*)), log_blocks(*)'
 
 // 최근 로그 (전체 공개용 — explore 등, 어드민 제외)
 export async function getRecentLogs(limit = 20): Promise<LogWithPlace[]> {
@@ -225,7 +211,7 @@ export async function getMyLogsByPlace(placeId: string): Promise<LogWithPlace[]>
   return (data || []).map(toLogWithPlace)
 }
 
-// 로그 삭제 — deep_logs는 ON DELETE CASCADE로 자동 삭제
+// 로그 삭제 — log_blocks는 ON DELETE CASCADE로 자동 삭제
 export async function deleteLog(logId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('인증 필요')
