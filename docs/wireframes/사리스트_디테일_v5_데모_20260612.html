@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<!-- ✅ 확정 시안 — 구현 완료 (2026-06-13, preview 커밋 0350540·3c7272c·d89a16f·7042084)
-  - 구현: src/app/sa-list/page.tsx(메인) + src/app/sa-list/[id]/sa-list-detail-client.tsx(디테일)
-    + curve-header(CurveHeader/CurveEdge) + list-cover-card + utils listToneColors/tagHue
-  - v5 차이 반영: 컬러존 플로우化(CurveEdge), 간격 10px, 오너 구독칩 제거
-  - 구현상 의도적 차이: 순서변경은 "길게 누르기"가 아닌 그립(점 6개) 드래그 — iOS touch-action 제약, 로그 페이지 검증 패턴
+<!-- ✅ 확정 시안 — 구현 완료·preview 푸시 (2026-06-14, 671b143..08779a2)
+  - 전체 구현 기록(최종 SSOT=코드): docs/po/사리스트_리디자인_구현완료_20260614.md
+  - 구현: sa-list/page.tsx(메인) + sa-list/[id]/sa-list-detail-client.tsx(디테일)
+    + curve-header(CurveHeader/CurveEdge) + list-cover-card + featured-pick-carousel(홈 공유) + utils listToneColors/tagHue
+  - 시안 이후 추가 반영: 영문헤딩+한글소개, 톤 디파스텔(l.80/c.10), 구독칩 통일(피드=소프트레드), 카드 소개 노출, 라운딩/패딩/갭 정리
+  - 의도적 차이: 순서변경=그립 드래그(iOS touch-action 제약, 로그 패턴)
   - 구버전(v2~v4·컨셉·확정안 데모)은 docs/wireframes/archive/ -->
 
 <html lang="ko">
