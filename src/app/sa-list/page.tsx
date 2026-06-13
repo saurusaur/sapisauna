@@ -31,8 +31,8 @@ import LoginPromptModal from '@/components/ui/login-prompt-modal'
 const SHELF_LIMIT = 10
 /** 사피픽 카드 세로 스태거 오프셋 (홈 캐러셀 문법) */
 const PICK_STAGGER = [0, 16, 6, 20, 10]
-/** 태그 결과 모자이크 높이 패턴 */
-const MOSAIC_HEIGHTS = [150, 122, 118, 146]
+/** 태그 결과 모자이크 높이 패턴 (컴팩트) */
+const MOSAIC_HEIGHTS = [130, 106, 102, 124]
 
 export default function SaListPage() {
   const router = useRouter()
@@ -188,7 +188,6 @@ export default function SaListPage() {
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
                 사-피 추천
               </h2>
-              <p className="text-white/90 text-sm font-medium mt-0.5">사-피 PICK · 주목할 리스트</p>
             </div>
             {/* pt-2 = 1번 카드 회전(-2°) 상단 클립 방지(헤딩↔카드 ≈8px 밀착) / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-5로 균일 */}
             <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-2 pb-2 -mb-2 items-start">

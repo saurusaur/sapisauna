@@ -83,9 +83,9 @@ export default function ListCoverCard({
         {list.title}
       </span>
 
-      {/* 소개 — 리스트 설명 (사-피 추천 카드에만, 제목과 20px 간격으로 가독성 확보) */}
+      {/* 소개 — 리스트 설명 (사-피 추천 카드에만, 제목과 15px 간격으로 가독성 확보) */}
       {isPick && list.description && (
-        <span className="relative z-[1] mt-5 text-[10.5px] leading-snug text-stone-700/75 line-clamp-3" style={{ wordBreak: 'keep-all' }}>
+        <span className="relative z-[1] mt-[15px] text-[10.5px] leading-snug text-stone-700/75 line-clamp-3" style={{ wordBreak: 'keep-all' }}>
           {list.description}
         </span>
       )}
