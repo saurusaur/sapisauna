@@ -274,15 +274,15 @@ export default function SaListDetailClient() {
       {/* ── 컬러 존 — 플로우 컨테이너 (내용 높이에 맞춰 늘어나고 곡선이 아래로 따라옴, v5) ── */}
       <div className="relative" style={{ backgroundColor: headerBg, paddingBottom: '2px' }}>
 
-      {/* 이모지 워터마크 — 존 우하단, 곡선에 살짝 물림 */}
+      {/* 이모지 워터마크 — 존 상단 우측 엠블럼 (존 안에 완전히 포함, 아래로 안 흘러내림) */}
       <span
         className="absolute z-0 pointer-events-none select-none"
         style={{
-          fontSize: '88px',
+          fontSize: '92px',
           lineHeight: 1,
-          opacity: isDefault ? 0.15 : 0.3,
-          right: '-6px',
-          bottom: '-18px',
+          opacity: isDefault ? 0.14 : 0.26,
+          right: '-10px',
+          top: '44px',
           transform: 'rotate(-8deg)',
         }}
         aria-hidden

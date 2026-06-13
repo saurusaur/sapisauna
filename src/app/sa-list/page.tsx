@@ -127,9 +127,8 @@ export default function SaListPage() {
       <header className="relative z-[3] px-6 pt-8 pb-1">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[11px] font-bold tracking-[0.22em] text-white/85 font-heading">SA-LIST</p>
-            <h1 className="text-[40px] leading-none italic font-heading font-bold text-white mt-1">DISCOVER</h1>
-            <p className="text-white/90 text-sm font-medium mt-2.5">이번 주, 사우나 리스트 둘러보기</p>
+            <h1 className="text-[40px] leading-none italic font-heading font-bold text-white">SA-LIST</h1>
+            <p className="text-white/90 text-sm font-medium mt-2.5">고수들의 사우나 리스트 둘러보기</p>
           </div>
           <div className="flex gap-1.5 mt-1">
             <button
@@ -182,14 +181,13 @@ export default function SaListPage() {
         {!isTextSearching && initialLoading ? (
           <ContentLoader />
         ) : (<>
-        {/* ── 이주의 사피픽 — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
+        {/* ── 사-피 PICK — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
         {!isTextSearching && featuredLists.length > 0 && (
           <section className="relative z-[5] mt-3">
             <div className="flex items-baseline gap-2 px-6 pb-2.5">
-              <h2 className="text-[14px] font-bold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
-                이주의 사피픽
+              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
+                사-피 PICK
               </h2>
-              <span className="text-[10px] font-semibold text-white/85">FEATURED · {featuredLists.length}</span>
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pb-3 items-start">
               {featuredLists.map((list, i) => (
@@ -197,7 +195,7 @@ export default function SaListPage() {
                   key={list.id}
                   list={list}
                   variant="pick"
-                  badge={`사피픽 №${i + 1}`}
+                  badge="사-피 PICK"
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                   style={{
                     marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
@@ -246,12 +244,11 @@ export default function SaListPage() {
           </section>
         )}
 
-        {/* ── BROWSE BY TAG — 태그 타일 → 인라인 결과 ── */}
+        {/* ── 인기 태그 — 태그 타일 → 인라인 결과 ── */}
         {!isTextSearching && popularTags.length > 0 && (
           <section className="mt-7">
             <div className="px-6 pb-2.5">
-              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">BROWSE BY TAG</h2>
-              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그를 고르면 리스트가 펼쳐집니다</p>
+              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">인기 태그</h2>
             </div>
 
             {!activeTag ? (
@@ -299,16 +296,13 @@ export default function SaListPage() {
           </section>
         )}
 
-        {/* ── 전체 피드 (태그 선택 중엔 숨김 — BROWSE 결과와 중복) ── */}
+        {/* ── 전체 공개 사-리스트 (태그 선택 중엔 숨김 — 인기 태그 결과와 중복) ── */}
         {!activeTag && (
         <section className="mt-7">
           <div className="px-6 pb-1">
             <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">
-              {isTextSearching ? '검색 결과' : 'ALL LISTS'}
+              {isTextSearching ? '검색 결과' : '전체 공개 사-리스트'}
             </h2>
-            {!isTextSearching && (
-              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">전체 공개 사-리스트</p>
-            )}
           </div>
           <div className="px-6 pt-1 pb-2 flex gap-3">
             <button

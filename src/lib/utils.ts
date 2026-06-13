@@ -184,11 +184,13 @@ export function listBgColor(hue: number | null | undefined): string {
 //   tint: 메모 박스 등 반투명 배경 (rgba)
 // 기존 LIST_COVER_TONE(l .70)은 흰 글자용 진한 커버 — 용도가 다르므로 유지.
 // ============================================
+// 파스텔(밝고 옅음) 회피 — 앱의 따뜻하고 단단한 톤에 맞춰 더 깊고 채도 있게.
+// bg는 어두운 잉크색 제목이 읽히는 한도에서 최대한 낮춘 명도.
 export const LIST_DERIVED_TONES = {
-  bg: { l: 0.88, c: 0.07 },
-  accent: { l: 0.58, c: 0.1 },
-  accentSoft: { l: 0.7, c: 0.07 },
-  tint: { l: 0.85, c: 0.09, alpha: 0.32 },
+  bg: { l: 0.8, c: 0.1 },
+  accent: { l: 0.48, c: 0.13 },
+  accentSoft: { l: 0.62, c: 0.1 },
+  tint: { l: 0.78, c: 0.1, alpha: 0.34 },
 } as const
 
 export interface ListToneColors {
