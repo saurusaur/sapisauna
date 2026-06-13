@@ -103,8 +103,8 @@ export default function SaListFeedRow({
           disabled={subscribing}
           className={`flex-shrink-0 h-7 px-2.5 rounded-full inline-flex items-center gap-1 text-[11px] font-bold border transition-all disabled:opacity-50 ${
             subscribed
-              ? 'bg-white text-[color:var(--color-primary)] border-stone-200'
-              : 'bg-white/60 text-stone-600 border-stone-300'
+              ? 'bg-white text-stone-500 border-stone-200'
+              : 'bg-[var(--color-primary-light)] text-[color:var(--color-primary)] border-transparent'
           }`}
         >
           <span
