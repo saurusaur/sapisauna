@@ -884,8 +884,8 @@ export const MESSAGES = {
     // 섹션 헤딩/서브
     TRIBE_HEADING: "TRIBE PICKS",
     TRIBE_SUBTITLE: "실시간 업데이트 트라이브별 베스트 사우나!",
-    FEATURED_HEADING: "SA-PI FEATURED",
-    FEATURED_SUBTITLE: "고수들의 추천 사우나",
+    FEATURED_HEADING: "FEATURED SA-LIST",
+    FEATURED_SUBTITLE: "고수들의 추천 사우나 구경가기",
   },
   LOG: {
     SELECT_PLACE: "장소 선택",
