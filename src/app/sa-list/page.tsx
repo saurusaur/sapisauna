@@ -183,15 +183,14 @@ export default function SaListPage() {
         ) : (<>
         {/* ── 사-피 추천 — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
         {!isTextSearching && featuredLists.length > 0 && (
-          <section className="relative z-[5] mt-6">
+          <section className="relative z-[5] mt-5">
             <div className="px-6 pb-0">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
-                사-피 추천
+                사-피 PICK · 주목할 리스트
               </h2>
-              <p className="text-white/90 text-sm font-medium mt-0.5">사-피 PICK! 주목할 리스트</p>
             </div>
-            {/* pt-2.5 = 1번 카드 회전(-2.5°) 상단 클립 방지(헤딩↔카드 갭 ≈10px) / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-7로 균일 */}
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-2.5 pb-2 -mb-2 items-start">
+            {/* pt-2 = 1번 카드 회전(-2°) 상단 클립 방지(헤딩↔카드 ≈8px 밀착) / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-5로 균일 */}
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-2 pb-2 -mb-2 items-start">
               {featuredLists.map((list, i) => (
                 <ListCoverCard
                   key={list.id}
@@ -201,7 +200,7 @@ export default function SaListPage() {
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                   style={{
                     marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
-                    transform: i === 0 ? 'rotate(-2.5deg)' : undefined,
+                    transform: i === 0 ? 'rotate(-2deg)' : undefined,
                   }}
                 />
               ))}
@@ -211,11 +210,11 @@ export default function SaListPage() {
 
         {/* ── 내 리스트 — 내 리스트 + 구독 책등 선반 ── */}
         {!isTextSearching && user && (
-          <section className="mt-7">
+          <section className="mt-5">
             <div className="px-6 pb-2.5 flex items-end justify-between">
               <div>
                 <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">내 사-리스트</h2>
-                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">만들거나 구독한 리스트 {shelfCount}</p>
+                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">내가 저장하거나 구독한 리스트 · {shelfCount}</p>
               </div>
               <Link href="/sa-list/my" className="text-[11px] font-medium pb-0.5" style={{ color: 'var(--color-primary)' }}>
                 전체보기
@@ -248,7 +247,7 @@ export default function SaListPage() {
 
         {/* ── 인기 태그 — 태그 타일 → 인라인 결과 ── */}
         {!isTextSearching && popularTags.length > 0 && (
-          <section className="mt-7">
+          <section className="mt-5">
             <div className="px-6 pb-2.5">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">인기 태그</h2>
               <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그를 눌러 관련 리스트 둘러보기</p>
@@ -301,7 +300,7 @@ export default function SaListPage() {
 
         {/* ── 전체 공개 사-리스트 (태그 선택 중엔 숨김 — 인기 태그 결과와 중복) ── */}
         {!activeTag && (
-        <section className="mt-7">
+        <section className="mt-5">
           <div className="px-6 pb-1">
             <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">
               {isTextSearching ? '검색 결과' : '전체 공개 사-리스트'}

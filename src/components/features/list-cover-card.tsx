@@ -83,6 +83,13 @@ export default function ListCoverCard({
         {list.title}
       </span>
 
+      {/* 소개 — 리스트 설명 (있을 때만) */}
+      {list.description && (
+        <span className="relative z-[1] mt-1 text-[10.5px] leading-snug text-stone-700/75 line-clamp-2" style={{ wordBreak: 'keep-all' }}>
+          {list.description}
+        </span>
+      )}
+
       {/* 하단 메타 — 큐레이터 · 구독수 */}
       <span className="relative z-[1] mt-auto text-[10px] font-semibold opacity-65 truncate w-full">
         @{list.owner_nickname || 'SA-PI'}

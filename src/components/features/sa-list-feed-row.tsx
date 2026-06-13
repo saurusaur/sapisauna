@@ -58,12 +58,12 @@ export default function SaListFeedRow({
           onClick()
         }
       }}
-      className="flex items-center gap-3 p-3 rounded-xl active:scale-[0.99] transition-transform cursor-pointer glass-card-light"
+      className="flex items-center gap-3 p-3 rounded-[10px] active:scale-[0.99] transition-transform cursor-pointer glass-card-light"
       style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,0.06)' }}
     >
       {/* 이모지+배경색 썸네일 */}
       <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+        className="w-11 h-11 rounded-[8px] flex items-center justify-center flex-shrink-0"
         style={{ backgroundColor: thumbBg }}
       >
         {isDefault ? (
@@ -95,19 +95,24 @@ export default function SaListFeedRow({
         <p className="text-[11px] text-stone-400 mt-0.5 truncate uppercase tracking-wide">{metaLine}</p>
       </div>
 
-      {/* 구독 버튼 */}
+      {/* 구독 버튼 — 디테일 페이지와 동일 형태(아웃라인 칩 + 아이콘, 레드 박스 X) */}
       {showSubscribe && onSubscribe && (
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onSubscribe() }}
           disabled={subscribing}
-          className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-50"
-          style={
+          className={`flex-shrink-0 h-7 px-2.5 rounded-full inline-flex items-center gap-1 text-[11px] font-bold border transition-all disabled:opacity-50 ${
             subscribed
-              ? { backgroundColor: '#e7e5e4', color: '#57534e' }
-              : { backgroundColor: 'var(--color-primary)', color: '#fff' }
-          }
+              ? 'bg-white text-[color:var(--color-primary)] border-stone-200'
+              : 'bg-white/60 text-stone-600 border-stone-300'
+          }`}
         >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '13px', fontVariationSettings: subscribed ? "'FILL' 1" : "'FILL' 0" }}
+          >
+            {subscribed ? 'check' : 'bookmark_add'}
+          </span>
           {subscribed ? '구독중' : '구독'}
         </button>
       )}
