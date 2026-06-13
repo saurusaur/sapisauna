@@ -451,19 +451,16 @@ export default function SaListDetailClient() {
                     transform: `rotate(${idx % 2 === 0 ? -1.2 : 1}deg)`,
                   }}
                 >
-                  {/* 시설명 + 우측 액션 — 긴 이름은 자연 줄바꿈, 동네는 항상 둘째 줄 */}
-                  <div className="flex items-start gap-2">
+                  {/* 시설명 + 우측 액션 — 같은 라인 정렬, 동네명은 둘째 줄 */}
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => router.push(`/explore/${place.id}`)}
                       className="flex-1 min-w-0 text-left"
                     >
-                      <p className="text-[13.5px] font-extrabold text-stone-800 leading-snug" style={{ wordBreak: 'keep-all' }}>
+                      <span className="block text-[13.5px] font-extrabold text-stone-800 leading-snug" style={{ wordBreak: 'keep-all' }}>
                         {place.name}
-                      </p>
-                      <p className="text-[10px] font-semibold text-stone-400 mt-0.5 truncate">
-                        {place.short_address || place.address}
-                      </p>
+                      </span>
                     </button>
 
                     {isMine ? (
@@ -492,7 +489,7 @@ export default function SaListDetailClient() {
                       /* 방문자: 시설 저장 (비로그인도 아이콘 노출 → 탭 시 로그인 유도) */
                       <button
                         onClick={() => { if (!user) { requireAuth(); return } handleSaveFlowToggle(place.id) }}
-                        className="p-1 flex-shrink-0"
+                        className="p-1 flex-shrink-0 -mr-1"
                         aria-label="시설 저장"
                       >
                         <span
@@ -508,6 +505,16 @@ export default function SaListDetailClient() {
                       </button>
                     )}
                   </div>
+                  {/* 동네 — 둘째 줄 */}
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/explore/${place.id}`)}
+                    className="block text-left w-full"
+                  >
+                    <span className="block text-[10px] font-semibold text-stone-400 mt-0.5 truncate">
+                      {place.short_address || place.address}
+                    </span>
+                  </button>
 
                   {/* 큐레이터 메모 */}
                   {editing ? (
