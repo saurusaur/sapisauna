@@ -30,9 +30,9 @@
 - [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
 
 <!-- 로그 컷오버 후속 (2026-06-13) -->
-- [ ] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** — `supabase/032_food_to_restaurant.sql`(일괄 치환+검증 목록) 유저 수동 실행 → restaurant 태그 장소 훑으며 매점인 곳만 snack으로 | priority: P1 | added: 2026-06-13
+- [x] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** ✅ 2026-06-14 — 일괄 치환은 기적용(food=0). 88건 건별 검증(`docs/po/032_restaurant_snack_검증.md`) REST PATCH 반영: snack 18·둘다(restaurant+snack) 44·restaurant 제거 1(마포365구민센터)·식당 유지 24. 최종 restaurant 69·snack 63·food 0 검산 일치. **잔여: 킹스호텔사우나(0ea2dc6d) 가짜 장소 cascade 삭제 보류** → 친구 테스트 로그 정리(아래)와 함께 처리 | priority: P1 | added: 2026-06-13
 - [ ] [검증] **블록 모델 프로덕션 검증 스위프** — ① 식당(restaurant) 블록: 실데이터 0건인 신규 경로 — 기록→타임라인→히스토리 상세→장소 집계 전 구간 ② 추천메뉴(snack/restaurant memo) 표시 ③ 기본세신 가격 행(저장→편집 복원→장소 세신가격 집계) ④ 시설온도 is_extra 편집 복원 ⑤ 메모 auto-grow — 실기기 | priority: P1 | added: 2026-06-13
-- [ ] [데이터] **친구 테스트 로그 정리** — 6/9 작성 테스트 로그(킹스호텔·쉐레이암반수·아트리·죽전누리 등, 입장료 900만/세신 90만 아웃라이어 포함) 친구가 직접 삭제 예정 — 완료 확인만 | priority: P2 | added: 2026-06-13
+- [ ] [데이터] **친구 테스트 로그 정리 + 킹스호텔 가짜장소 삭제** — 6/9 작성 테스트 로그(킹스호텔·쉐레이암반수·아트리·죽전누리 등, 입장료 900만/세신 90만 아웃라이어 포함) 친구가 직접 삭제 예정 — 완료 확인만. **추가(2026-06-14): 킹스호텔사우나(0ea2dc6d)=친구 확인 가짜 장소 → cascade 삭제 대기** (logs 5+log_blocks/deep_logs, saved_places 4, place_sources 1, places 1). 친구 로그 주인 확인 후 일괄 삭제 | priority: P2 | added: 2026-06-13
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
