@@ -444,7 +444,7 @@ export default function SaListDetailClient() {
                 <div
                   key={item.id}
                   data-srow={idx}
-                  className={`relative rounded-lg p-3.5 transition-opacity ${dragIdx === idx ? 'opacity-40' : ''}`}
+                  className={`relative rounded-lg p-2.5 transition-opacity ${dragIdx === idx ? 'opacity-40' : ''}`}
                   style={{
                     backgroundColor: '#fdfcfa',
                     boxShadow: '0 4px 14px -4px rgba(38,33,33,0.16)',
@@ -489,7 +489,7 @@ export default function SaListDetailClient() {
                       /* 방문자: 시설 저장 (비로그인도 아이콘 노출 → 탭 시 로그인 유도) */
                       <button
                         onClick={() => { if (!user) { requireAuth(); return } handleSaveFlowToggle(place.id) }}
-                        className="p-1 flex-shrink-0 -mr-1"
+                        className="flex-shrink-0"
                         aria-label="시설 저장"
                       >
                         <span

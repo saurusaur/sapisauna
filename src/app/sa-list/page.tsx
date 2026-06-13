@@ -30,7 +30,7 @@ import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 const SHELF_LIMIT = 10
 /** 사피픽 카드 세로 스태거 오프셋 (홈 캐러셀 문법) */
-const PICK_STAGGER = [2, 18, 8, 22, 12]
+const PICK_STAGGER = [0, 16, 6, 20, 10]
 /** 태그 결과 모자이크 높이 패턴 */
 const MOSAIC_HEIGHTS = [150, 122, 118, 146]
 
@@ -183,14 +183,14 @@ export default function SaListPage() {
         ) : (<>
         {/* ── 사-피 추천 — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
         {!isTextSearching && featuredLists.length > 0 && (
-          <section className="relative z-[5] mt-3">
-            <div className="px-6 pb-1">
+          <section className="relative z-[5] mt-6">
+            <div className="px-6 pb-0">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
                 사-피 추천
               </h2>
-              <p className="text-[10.5px] text-white/80 font-medium mt-0.5">사-피가 엄선한 사우나 리스트</p>
+              <p className="text-white/90 text-sm font-medium mt-0.5">사-피 PICK! 주목할 리스트</p>
             </div>
-            {/* pt-2.5 = 1번 카드 회전(-3°) 상단 클립 방지 / pb-2 -mb-2 = 카드 그림자 여유는 두되 섹션 간 갭은 mt-7로 균일 */}
+            {/* pt-2.5 = 1번 카드 회전(-2.5°) 상단 클립 방지(헤딩↔카드 갭 ≈10px) / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-7로 균일 */}
             <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-2.5 pb-2 -mb-2 items-start">
               {featuredLists.map((list, i) => (
                 <ListCoverCard
@@ -201,7 +201,7 @@ export default function SaListPage() {
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                   style={{
                     marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
-                    transform: i === 0 ? 'rotate(-3deg)' : undefined,
+                    transform: i === 0 ? 'rotate(-2.5deg)' : undefined,
                   }}
                 />
               ))}
@@ -214,8 +214,8 @@ export default function SaListPage() {
           <section className="mt-7">
             <div className="px-6 pb-2.5 flex items-end justify-between">
               <div>
-                <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">내 리스트</h2>
-                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">저장한 리스트 {shelfCount}</p>
+                <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">내 사-리스트</h2>
+                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">만들거나 구독한 리스트 {shelfCount}</p>
               </div>
               <Link href="/sa-list/my" className="text-[11px] font-medium pb-0.5" style={{ color: 'var(--color-primary)' }}>
                 전체보기
@@ -251,7 +251,7 @@ export default function SaListPage() {
           <section className="mt-7">
             <div className="px-6 pb-2.5">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">인기 태그</h2>
-              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그로 리스트 둘러보기</p>
+              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그를 눌러 관련 리스트 둘러보기</p>
             </div>
 
             {!activeTag ? (
