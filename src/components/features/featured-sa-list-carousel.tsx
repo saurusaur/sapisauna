@@ -11,9 +11,7 @@ import type { SaList } from '@/types'
 import { listBgColor } from '@/lib/utils'
 import { MESSAGES } from '@/constants/content'
 import FeaturedSaListCard from './featured-sa-list-card'
-
-// home variant 높낮이 스태거 패턴(각도 0·겹침 없음, 높이만 차이 — 재미있게 크게)
-const HOME_STAGGER = [0, 30, 12, 38, 18]
+import FeaturedPickCarousel from './featured-pick-carousel'
 
 interface Props {
   lists: SaList[]
@@ -46,42 +44,17 @@ export default function FeaturedSaListCarousel({
   const router = useRouter()
   if (lists.length === 0) return null
 
-  // ── home variant: 각도 똑바로 + 카드 간 겹침 없음(간격) + 높낮이 차이만 ──
+  // ── home variant: /sa-list FEATURED와 동일한 사-피 PICK 카드(ListCoverCard) 재사용 ──
   if (home) {
     return (
       <section>
         <h2 className="text-[23px] font-extrabold italic font-heading tracking-wide text-[#2a2222]">
           {MESSAGES.HOME.FEATURED_HEADING}
         </h2>
-        <p className="text-xs text-stone-500 font-medium mt-1 mb-4">{MESSAGES.HOME.FEATURED_SUBTITLE}</p>
+        <p className="text-xs text-stone-500 font-medium mt-1 mb-3">{MESSAGES.HOME.FEATURED_SUBTITLE}</p>
 
         {/* -mx-5: 섹션 px-5 상쇄 → 풀블리드 스크롤 */}
-        <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-9 pt-1">
-          {lists.map((list, i) => {
-            const handle = list.owner_nickname ? list.owner_nickname.toUpperCase() : ''
-            return (
-              <button
-                key={list.id}
-                type="button"
-                onClick={() => router.push(`/sa-list/${list.id}`)}
-                className="flex-shrink-0 w-[146px] h-[172px] rounded-[20px] p-4 flex flex-col text-left text-white active:scale-[0.97] transition-transform"
-                style={{
-                  backgroundColor: listBgColor(list.cover_hue),
-                  marginTop: HOME_STAGGER[i % HOME_STAGGER.length],
-                  boxShadow: '0 10px 24px -8px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 1px rgba(255,255,255,0.12)',
-                }}
-              >
-                <p className="text-[19px] font-extrabold leading-[1.2] line-clamp-3 drop-shadow-sm">{list.title}</p>
-                {list.description && (
-                  <p className="text-[12px] leading-relaxed text-white/90 mt-2 line-clamp-3 drop-shadow-sm">{list.description}</p>
-                )}
-                <p className="mt-auto pt-2 text-[11px] text-white/85 uppercase tracking-wide">
-                  {handle}{handle ? ' · ' : ''}{list.place_count}곳
-                </p>
-              </button>
-            )
-          })}
-        </div>
+        <FeaturedPickCarousel lists={lists} className="-mx-5 px-5 pt-2 pb-2" />
       </section>
     )
   }

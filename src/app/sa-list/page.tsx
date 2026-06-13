@@ -23,14 +23,13 @@ import CurveHeader from '@/components/ui/curve-header'
 import CreateListSheet from '@/components/features/create-list-sheet'
 import { ListManageSheet } from '@/components/features/list-manage-sheet'
 import ListCoverCard from '@/components/features/list-cover-card'
+import FeaturedPickCarousel from '@/components/features/featured-pick-carousel'
 import SaListFeedRow from '@/components/features/sa-list-feed-row'
 import type { SaList } from '@/types'
 import { useLoginPrompt } from '@/hooks/use-login-prompt'
 import LoginPromptModal from '@/components/ui/login-prompt-modal'
 
 const SHELF_LIMIT = 10
-/** 사피픽 카드 세로 스태거 오프셋 (홈 캐러셀 문법) */
-const PICK_STAGGER = [0, 16, 6, 20, 10]
 /** 태그 결과 모자이크 높이 패턴 (컴팩트) */
 const MOSAIC_HEIGHTS = [116, 94, 90, 110]
 
@@ -96,11 +95,6 @@ export default function SaListPage() {
     result.push(...mixed.slice(0, SHELF_LIMIT - (defaultList ? 1 : 0)))
     return result
   }, [myLists, subscribedLists])
-
-  const shelfCount = useMemo(
-    () => myLists.filter((l) => l.type !== 'default').length + subscribedLists.length,
-    [myLists, subscribedLists]
-  )
 
   const refreshMine = useCallback(() => {
     refreshMyLists()
@@ -186,26 +180,15 @@ export default function SaListPage() {
           <section className="relative z-[5] mt-5">
             <div className="px-6 pb-0">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
-                SA-PI PICK
+                FEATURED
               </h2>
-              <p className="text-white/90 text-[10.5px] font-medium mt-0.5">사-피가 주목한 사우나 리스트</p>
+              <p className="text-white/90 text-[10.5px] font-medium mt-0.5">사-피 PICK · 주목할 사우나 리스트</p>
             </div>
-            {/* pt-2 = 1번 카드 회전(-2°) 상단 클립 방지(헤딩↔카드 ≈8px 밀착) / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-5로 균일 */}
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-2 pb-2 -mb-2 items-start">
-              {featuredLists.map((list, i) => (
-                <ListCoverCard
-                  key={list.id}
-                  list={list}
-                  variant="pick"
-                  badge={list.featured_note || '사-피 PICK'}
-                  onClick={() => router.push(`/sa-list/${list.id}`)}
-                  style={{
-                    marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
-                    transform: i === 0 ? 'rotate(-2deg)' : undefined,
-                  }}
-                />
-              ))}
-            </div>
+            {/* pt-2 = 1번 카드 회전 상단 클립 방지 / pb-2 -mb-2 = 그림자 여유는 두되 섹션 간 갭은 mt-5로 균일 */}
+            <FeaturedPickCarousel
+              lists={featuredLists}
+              onCardClick={(l) => router.push(`/sa-list/${l.id}`)}
+            />
           </section>
         )}
 
@@ -215,7 +198,7 @@ export default function SaListPage() {
             <div className="px-6 pb-2.5 flex items-end justify-between">
               <div>
                 <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">MY SHELF</h2>
-                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">내가 저장하거나 구독한 리스트 · {shelfCount}</p>
+                <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">내 저장 · 구독 사-리스트</p>
               </div>
               <Link href="/sa-list/my" className="text-[11px] font-medium pb-0.5" style={{ color: 'var(--color-primary)' }}>
                 전체보기
@@ -251,7 +234,7 @@ export default function SaListPage() {
           <section className="mt-5">
             <div className="px-6 pb-2.5">
               <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">POPULAR TAGS</h2>
-              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">태그를 눌러 관련 리스트 둘러보기</p>
+              <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">인기 태그별 리스트 눌러서 둘러보기</p>
             </div>
 
             {!activeTag ? (
@@ -307,7 +290,7 @@ export default function SaListPage() {
               {isTextSearching ? 'SEARCH' : 'ALL LISTS'}
             </h2>
             <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">
-              {isTextSearching ? '검색 결과' : '인기순·최신순으로 모아보기'}
+              {isTextSearching ? '검색 결과' : '공개 사-리스트 전체보기'}
             </p>
           </div>
           <div className="px-6 pt-1 pb-2 flex gap-3">
