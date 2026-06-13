@@ -160,7 +160,7 @@ export default function SaListPage() {
       <main className="flex-1">
         {/* ── 검색 바 ── */}
         {showSearch && (
-          <div className="relative z-[3] mx-5 mt-2 mb-1 px-3.5 py-2.5 rounded-[14px] bg-white/90 shadow-sm flex items-center gap-2">
+          <div className="relative z-[3] mx-5 mt-2 mb-1 px-3.5 py-2.5 rounded-[11px] bg-white/90 shadow-sm flex items-center gap-2">
             <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>search</span>
             <input
               ref={searchRef}
@@ -181,21 +181,22 @@ export default function SaListPage() {
         {!isTextSearching && initialLoading ? (
           <ContentLoader />
         ) : (<>
-        {/* ── 사-피 PICK — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
+        {/* ── 사-피 추천 — 돔 경계에 겹치는 피쳐드 캐러셀 ── */}
         {!isTextSearching && featuredLists.length > 0 && (
           <section className="relative z-[5] mt-3">
             <div className="flex items-baseline gap-2 px-6 pb-2.5">
-              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
-                사-피 PICK
+              <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
+                사-피 추천
               </h2>
             </div>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pb-3 items-start">
+            {/* pt-3 = 1번 카드 회전(-3°)으로 상단 우측이 들리는 만큼 클립 방지 (overflow-x-auto가 y도 클립) */}
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-6 pt-3 pb-3 items-start">
               {featuredLists.map((list, i) => (
                 <ListCoverCard
                   key={list.id}
                   list={list}
                   variant="pick"
-                  badge="사-피 PICK"
+                  badge={list.featured_note || '사-피 PICK'}
                   onClick={() => router.push(`/sa-list/${list.id}`)}
                   style={{
                     marginTop: PICK_STAGGER[i % PICK_STAGGER.length],
@@ -212,7 +213,7 @@ export default function SaListPage() {
           <section className="mt-7">
             <div className="px-6 pb-2.5 flex items-end justify-between">
               <div>
-                <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">MY SHELF</h2>
+                <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">MY SHELF</h2>
                 <p className="text-[10.5px] text-stone-400 font-medium mt-0.5">저장한 리스트 {shelfCount}</p>
               </div>
               <Link href="/sa-list/my" className="text-[11px] font-medium pb-0.5" style={{ color: 'var(--color-primary)' }}>
@@ -235,7 +236,7 @@ export default function SaListPage() {
                   if (!requireAuth()) return
                   setShowCreateSheet(true)
                 }}
-                className="flex-shrink-0 w-[62px] h-[116px] rounded-[10px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
+                className="flex-shrink-0 w-[62px] h-[116px] rounded-[8px] border-[1.5px] border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 active:scale-[0.96] transition-transform"
                 aria-label="새 리스트"
               >
                 <span className="material-symbols-outlined text-stone-400" style={{ fontSize: '18px' }}>add</span>
@@ -248,7 +249,7 @@ export default function SaListPage() {
         {!isTextSearching && popularTags.length > 0 && (
           <section className="mt-7">
             <div className="px-6 pb-2.5">
-              <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">인기 태그</h2>
+              <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">인기 태그</h2>
             </div>
 
             {!activeTag ? (
@@ -300,7 +301,7 @@ export default function SaListPage() {
         {!activeTag && (
         <section className="mt-7">
           <div className="px-6 pb-1">
-            <h2 className="text-[17px] font-bold italic font-heading tracking-wide text-stone-800">
+            <h2 className="text-[19px] font-extrabold italic font-heading tracking-wide text-stone-800">
               {isTextSearching ? '검색 결과' : '전체 공개 사-리스트'}
             </h2>
           </div>
@@ -414,7 +415,7 @@ function ShelfSpine({
     <button
       type="button"
       onClick={onClick}
-      className={`flex-shrink-0 w-[62px] h-[116px] rounded-[10px] p-2 flex flex-col justify-between items-start text-left active:scale-[0.96] transition-transform ${
+      className={`flex-shrink-0 w-[62px] h-[116px] rounded-[8px] p-2 flex flex-col justify-between items-start text-left active:scale-[0.96] transition-transform ${
         isDefault ? 'ring-1 ring-inset ring-red-600/15' : ''
       }`}
       style={{
@@ -447,7 +448,7 @@ function TagTile({ tag, count, onClick }: { tag: string; count: number; onClick:
     <button
       type="button"
       onClick={onClick}
-      className="relative overflow-hidden rounded-[14px] h-[70px] p-3 text-left active:scale-[0.97] transition-transform"
+      className="relative overflow-hidden rounded-[10px] h-[70px] p-3 text-left active:scale-[0.97] transition-transform"
       style={{ backgroundColor: tones.bg }}
     >
       {/* '#' 워터마크 — 카드 이모지 워터마크와 동일 문법 */}
@@ -474,7 +475,7 @@ function TagBar({ tag, count, onClose }: { tag: string; count?: number; onClose:
     <button
       type="button"
       onClick={onClose}
-      className="mx-6 w-[calc(100%-3rem)] rounded-[14px] px-3.5 py-2.5 flex items-center justify-between active:scale-[0.98] transition-transform"
+      className="mx-6 w-[calc(100%-3rem)] rounded-[10px] px-3.5 py-2.5 flex items-center justify-between active:scale-[0.98] transition-transform"
       style={{ backgroundColor: tones.bg, boxShadow: '0 4px 12px -5px rgba(0,0,0,0.18)' }}
     >
       <span className="flex items-baseline gap-2">

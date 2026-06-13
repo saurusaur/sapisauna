@@ -489,21 +489,23 @@ export default function SaListDetailClient() {
                         </span>
                       </div>
                     ) : (
-                      /* 방문자: 시설 저장 (인스타식 save_place, place-card와 동일 문법) */
-                      user && (
-                        <button onClick={() => handleSaveFlowToggle(place.id)} className="p-1 flex-shrink-0" aria-label="시설 저장">
-                          <span
-                            className="material-symbols-outlined"
-                            style={{
-                              fontSize: '19px',
-                              color: isSaved(place.id) ? 'var(--color-primary)' : 'var(--color-icon-inactive)',
-                              fontVariationSettings: isSaved(place.id) ? "'FILL' 1" : "'FILL' 0",
-                            }}
-                          >
-                            bookmark_heart
-                          </span>
-                        </button>
-                      )
+                      /* 방문자: 시설 저장 (비로그인도 아이콘 노출 → 탭 시 로그인 유도) */
+                      <button
+                        onClick={() => { if (!user) { requireAuth(); return } handleSaveFlowToggle(place.id) }}
+                        className="p-1 flex-shrink-0"
+                        aria-label="시설 저장"
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '19px',
+                            color: user && isSaved(place.id) ? 'var(--color-primary)' : 'var(--color-icon-inactive)',
+                            fontVariationSettings: user && isSaved(place.id) ? "'FILL' 1" : "'FILL' 0",
+                          }}
+                        >
+                          bookmark_heart
+                        </span>
+                      </button>
                     )}
                   </div>
 
@@ -566,7 +568,7 @@ export default function SaListDetailClient() {
         {isMine && (
           <button
             onClick={() => setShowAddSheet(true)}
-            className="mt-3 w-full h-11 rounded-xl flex items-center justify-center gap-1 text-[12.5px] font-bold transition-transform active:scale-[0.98]"
+            className="mt-3 w-full h-11 rounded-[10px] flex items-center justify-center gap-1 text-[12.5px] font-bold transition-transform active:scale-[0.98]"
             style={{ backgroundColor: tones.tint, color: tones.accent }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>add_location_alt</span>

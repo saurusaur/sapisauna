@@ -37,7 +37,7 @@ export default function ListCoverCard({
   return (
     <button
       onClick={onClick}
-      className={`relative overflow-hidden rounded-[17px] text-left flex flex-col transition-transform active:scale-[0.97] ${
+      className={`relative overflow-hidden rounded-[11px] text-left flex flex-col transition-transform active:scale-[0.97] ${
         isPick ? 'w-[172px] h-[196px] flex-shrink-0 p-3.5' : 'w-full p-3'
       } ${className}`}
       style={{

@@ -194,6 +194,8 @@ export interface SaList {
   cover_emoji?: string | null
   visibility: ListVisibility
   is_featured: boolean
+  /** 어드민이 추천 설정 시 남기는 한줄 추천 이유 (사-피 추천 카드 배지). 미설정 시 '사-피 PICK' 폴백. DB 컬럼 미구현 — 백로그 참조 */
+  featured_note?: string | null
   is_pinned: boolean
   sort_order: number
   subscriber_count: number
