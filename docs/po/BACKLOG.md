@@ -26,6 +26,10 @@
 - [ ] [기능/인프라] **어드민 페이지 구축** — 현재 place 등록·교정이 스크립트(katalk-*)로만 가능하고 큐레이션 is_featured 관리 UI도 없음 → 어드민 페이지 필요. **①구성·기능 스코핑 먼저(확인 필요)**: 후보 = 장소 등록/편집·병합 리뷰, place_sources/온도/시설 교정, is_featured 큐레이션 리스트 관리, 신고("다른 장소"/"폐업") 큐·폐업 배지, 수동 등록 리뷰 큐, 통계 대시보드. → ②구축. ※기존 "어드민 도구(P2)" 흡수. 큐레이션 시드(P0)·F6 운영의 기반. 스코핑: `docs/plans/PLAN_admin_page_scope.md` | priority: P1 | added: 2026-06-04
 - [ ] [기능] **사-피 추천 한줄 이유 (featured_note)** — 어드민이 is_featured 설정 시 "사-피에서 추천하는 이유" 한줄 입력 → 사-피 추천 카드 배지로 노출. 현재 `SaList.featured_note` 타입만 추가됨(폴백 '사-피 PICK'), DB 컬럼(`lists.featured_note`)+어드민 토글 UI 입력란+`getFeaturedPublicLists` select 반영 필요. ※어드민 페이지 is_featured 관리에 통합 | priority: P2 | added: 2026-06-13
 
+<!-- 사-리스트 리디자인 후속 (2026-06-14, 구현완료 기록: docs/po/사리스트_리디자인_구현완료_20260614.md) -->
+- [ ] [UX/발견] **사-리스트 검색 풀스크린 오버레이** — 현재 `/sa-list` 검색은 헤더 아래 인라인 입력바(정상 작동). 개선안: 🔍 탭 → 풀스크린 검색 화면(최근 검색어 + 인기 해시태그 자동완성 추천). 태그 풀이 더 쌓이면 효용↑ → 그때 진행 | priority: P3 | added: 2026-06-14
+- [ ] [기능/소셜] **구독자 목록 보기** — 리스트 상세에서 "구독 N" 탭 → 누가 구독했는지 명단(프로필). ※진입점이 칩이 맞을지는 미확정(유저 의문) — 별도 진입/메타 영역도 검토. 베타엔 구독자 적어 후순위 | priority: P3 | added: 2026-06-14
+
 - [ ] [데이터] resort-spa 재분류 일괄 검토 — `PHASE_LOG.md` 메모의 워터파크/메가 데이온천 후보 15곳(아쿠아필드 고양/안성/하남·스파랜드류·이천 테르메덴·Therme Erding 등) 중 현재 public-bath/hotel-spa 잔존분을 026 정의에 맞춰 resort-spa로 전환 검토 | priority: P2 | added: 2026-06-04
 - [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
 
