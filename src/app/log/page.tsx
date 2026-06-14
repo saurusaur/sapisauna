@@ -135,6 +135,7 @@ export default function LogPage() {
   const [currencySearch, setCurrencySearch] = useState('')
   const currencyRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
+  const memoRef = useRef<HTMLTextAreaElement>(null)
   const allCurrencies = useMemo(() => {
     const pinned = [...DEEP_LOG.COST.pinnedCurrencies] as string[]
     const rest = Array.from(new Set(Object.values(countryToCurrency as Record<string, string>))).filter(c => !pinned.includes(c)).sort()
@@ -226,6 +227,15 @@ export default function LogPage() {
       }
     }
   }, [router, primaryTribe])
+
+  // 메모 textarea 높이 동기화 — 편집 복원 시(setMemo) 마운트 후 초기 높이 적용
+  // (입력 중엔 onChange가 처리하지만, 복원된 긴 메모는 focus 전까지 잘려 보이던 문제)
+  useEffect(() => {
+    const el = memoRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.max(el.scrollHeight, 48)}px`
+  }, [memo])
 
   // 통화 드롭다운 외부 클릭 닫기
   useEffect(() => {
@@ -655,6 +665,7 @@ export default function LogPage() {
           <div className="grid items-start gap-3 pt-1.5" style={{ gridTemplateColumns: '60px 1fr' }}>
             <span className="text-[13px] font-bold text-stone-700 pt-1">메모</span>
             <textarea
+              ref={memoRef}
               placeholder="오늘 사우나는 어떠셨나요?" value={memo}
               onFocus={e => { scrollIntoCenter(e); e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = `${Math.max(e.currentTarget.scrollHeight, 48)}px` }}
               onChange={e => { setMemo(e.target.value); e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = `${Math.max(e.currentTarget.scrollHeight, 48)}px` }}

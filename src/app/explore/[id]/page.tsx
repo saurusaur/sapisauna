@@ -183,6 +183,9 @@ export default function PlaceDetailPage() {
   // 5-1. 매점 점수 (구 store_* → snack_*)
   const storeScoreVals = userLogs.filter(l => l.snack_score != null).map(l => l.snack_score as number)
   const storeAvg = storeScoreVals.length > 0 ? storeScoreVals.reduce((s, v) => s + v, 0) / storeScoreVals.length : null
+  // 5-1b. 식당 점수 (블록모델 신규 — restaurant_score). 매점과 대칭, 가격 필드는 없어 점수만
+  const restaurantScoreVals = userLogs.filter(l => l.restaurant_score != null).map(l => l.restaurant_score as number)
+  const restaurantAvg = restaurantScoreVals.length > 0 ? restaurantScoreVals.reduce((s, v) => s + v, 0) / restaurantScoreVals.length : null
 
   // 5-2. 추가 정보 메트릭 (청결도, 세신, 매점, 이용료 — 있는 것만)
   // 청결도: 주관적 → userLogs에서만 집계 (어드민 제외)
@@ -217,6 +220,10 @@ export default function PlaceDetailPage() {
   // 매점
   if (storeAvg !== null) {
     additionalMetrics.push({ label: '매점', value: `${Math.round(storeAvg)}/5` })
+  }
+  // 식당
+  if (restaurantAvg !== null) {
+    additionalMetrics.push({ label: '식당', value: `${Math.round(restaurantAvg)}/5` })
   }
   // 세신 만족도
   if (scrubSatVals.length > 0) {
