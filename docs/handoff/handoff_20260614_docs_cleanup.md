@@ -35,10 +35,36 @@ docs/ 전반 정리. **이 문서 = 삭제 항목의 유효 내용이 어디 보
 | heic 비교 3 (converter-comparison·library-deep-comparison·resize-before-decode) | → 결정문서 `RESEARCH_cloudinary_heic.md`(+`cloudinary-vs-cloudflare-deep-comparison`) |
 
 ### 보존(삭제 안 함)
-- 핸드오프 archive 전체(세션 메모리) · plans/archive PLAN_* 23(구현상태 불명 — 추후 BACKLOG/코드 대조 필요)
+- 핸드오프 archive 전체(세션 메모리)
 - research/archive: audit·name/address verification·seed-data·전략리서치(Strava/벤치마크)·tattoo-policy(48·18 둘 다, 고유 데이터)·review-westin(보수적 보존)
 - po/archive 7(최근 완료기록)
 
+## 4. plans/archive PLAN_* 23건 구현상태 대조 (이 커밋) — 19 삭제·4 보존
+마이그레이션·코드·커밋 증거로 구현완료(DONE) 판정 → 삭제. 내용=코드/마이그레이션이 SSOT.
+
+| 삭제(DONE) | 구현 증거(SSOT 보존처) |
+|---|---|
+| PLAN_color_hue_migration | 019·020 마이그 + user-context·profile-icon·utils(coverHex) |
+| PLAN_facility_type_bath_policy_split | 009 마이그 + types(BathPolicy)·explore |
+| PLAN_facility_type_ui_implementation | types/index.ts·constants/content.ts |
+| PLAN_warm_hot_bath_split | 008 마이그 + very_hot_bath_temp(타입·상수·explore) |
+| PLAN_deep_log_bath_temps | BLOCK_TYPES(constants) + history 상세 온도 섹션 |
+| PLAN_steam_sauna_quick_log | 024 마이그 + steam_sauna_temp·primary_sauna_kind(log) |
+| PLAN_wet_sauna_quick_log | 024로 steam 통합 대체(B안 폐기) |
+| PLAN_geocoding_migration | 022 마이그 + api/places/*-geocode·lib/geo |
+| PLAN_ui_db_sync | "적용완료 2026-03-03" + logs-service place_id |
+| PLAN_dashboard_statistics | lib/history-stats.ts + components/features/history-dashboard/ |
+| PLAN_reward_system | constants/rewards·lib/reward-service·reward-engine (커밋 ebd28e0) |
+| PLAN_tribe_picks_card | components/features/tribe-picks-card.tsx (홈 통합) |
+| PLAN_typography_system | tailwind fontFamily.heading + font-heading 적용 |
+| PLAN_tattoo_cover_ui | content.ts(tattoo)·place-facility-editor·explore 필터 |
+| PLAN_error_logging | instrumentation·error.tsx·lib/error-logger (Sentry, 커밋 c6adb35) |
+| PLAN_admin_log_invisible | ADMIN_USER_ID 필터(logs-service·explore) |
+| PLAN_form_flow_consistency_refactor | place-facility-editor·use-confirmable-exit·error-banner |
+| PLAN_log_edit_session_helper | lib/log-edit-session.ts (커밋 00918da) |
+| PLAN_history_dashboard_agent_handoff | history-dashboard/ + history-stats (커밋 3bb4623) |
+
+**보존(4)**: PLAN_sa_list_renewal(§E "구독리스트 지도"=BACKLOG P2 활성 SSOT) · PLAN_seed_data_and_facility_reward(시드 done, 시설기여보상 미구현=어드민 대기) · PLAN_staging_environment(미도입, 참고) · REVIEW_phase3_devils_advocate(학습 기록).
+
 ## 미해결 / 후속
-- plans/archive PLAN_* 23건: 각 PLAN을 BACKLOG·코드와 대조해 구현완료/폐기 판정 후 정리 — 별도 조사 작업
 - WIP·untracked(지도플랜·fromBINIGEONI·코드 content.ts·explore·log)는 본인 작업 흐름에서 처리 (BACKLOG 상단 주석 참조)

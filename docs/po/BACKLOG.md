@@ -18,8 +18,8 @@
 - [ ] [아키텍처/데이터] **로그·스키마 구조 재검토 (최우선)** — F1(블록 탭 기록=누른 순서가 루틴) 등 신규 기록 모델이 현재 `logs`/`deep_logs` 컬럼형 스키마(온도=개별 컬럼)와 맞는지 근본 재검토. 루틴 시퀀스(블록 순서)·세트·트라이브 기본블록을 어떻게 저장할지 결정. **데이터 전체의 기반 — 여기가 흔들리면 전부 흔들림.** F1·F3·F5의 선행조건. 드래프팅 핸드오프: `docs/handoff/handoff_20260604_log_schema_redesign.md` | priority: P0 | added: 2026-06-04
 - [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — ※홈 리디자인은 **출시 완료(2026-06-06, PR #14→main)**, 이건 **유일한 잔여 후속**(카운트 현재 숨김). 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/archive/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
 
-<!-- 🧪 사-피 방향성 (구현스케치 `docs/po/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
-     페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/UX_DIRECTION_page_emphasis_20260604.md` -->
+<!-- 🧪 사-피 방향성 (구현스케치 `docs/research/사피_경쟁분석_제안기획_2026-06/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
+     페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/archive/UX_DIRECTION_page_emphasis_20260604.md` -->
 - [ ] [기능+게임화] **F1 빠른 기록 = 블록 탭** — 누른 순서가 루틴(1건식→2냉탕→3휴식), 온도/세트는 상세 토글로 분리, "어땠어"(별로~최고), 나만의 루틴 저장/불러오기 + 트라이브 추천 루틴("토토노우 입문"). 마찰 0·데이터는 남게. ※"내 루틴 찾아가기(Routine Fit)" ①콜드스타트 흡수. 선행: 로그/스키마 재검토 | priority: P0 | added: 2026-06-04
 - [ ] [UX/발견] **F2 트라이브 픽 필터 + 영업중·24시 토글** — 사우너픽/탕러픽/찜질러픽(트라이브 추천·로그집계) + 영업중·24시, 조합 시 실시간 카운트·핀 갱신. 시설칩 필터는 다음 단계. 수요근거: 사우나 추천=최대 미충족 니즈(질문38%). ※"지도 검색 흐름 개선"과 연계 | priority: P1 | added: 2026-06-04
 - [ ] [기능] **F3 방문지 비교 → 개인 점수·인생 랭킹** — 둘씩 비교로 개인점수(0~10) 자동정렬(Beli식), 비교 누적=내 사우나 랭킹, 공개·비교→한 탭 SA리스트화(큐레이터 전환). 선행: 로그/스키마 재검토 | priority: P2 | added: 2026-06-04
@@ -42,7 +42,7 @@
 <!-- 로그 컷오버 후속 (2026-06-13) -->
 - [x] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** ✅ 2026-06-14 — 일괄 치환은 기적용(food=0). 88건 건별 검증(`docs/po/archive/032_restaurant_snack_검증.md`) REST PATCH 반영: snack 18·둘다(restaurant+snack) 44·restaurant 제거 1(마포365구민센터)·식당 유지 24. 최종 restaurant 69·snack 63·food 0 검산 일치. **잔여: 킹스호텔사우나(0ea2dc6d) 가짜 장소 cascade 삭제 보류** → 친구 테스트 로그 정리(아래)와 함께 처리 | priority: P1 | added: 2026-06-13
 - [ ] [검증] **블록 모델 프로덕션 검증 스위프** — ① 식당(restaurant) 블록: 실데이터 0건인 신규 경로 — 기록→타임라인→히스토리 상세→장소 집계 전 구간 ② 추천메뉴(snack/restaurant memo) 표시 ③ 기본세신 가격 행(저장→편집 복원→장소 세신가격 집계) ④ 시설온도 is_extra 편집 복원 ⑤ 메모 auto-grow — 실기기 | priority: P1 | added: 2026-06-13
-- [ ] [데이터] **친구 테스트 로그 정리 + 킹스호텔 가짜장소 삭제** — 6/9 작성 테스트 로그(킹스호텔·쉐레이암반수·아트리·죽전누리 등, 입장료 900만/세신 90만 아웃라이어 포함) 친구가 직접 삭제 예정 — 완료 확인만. **추가(2026-06-14): 킹스호텔사우나(0ea2dc6d)=친구 확인 가짜 장소 → cascade 삭제 대기** (logs 5+log_blocks/deep_logs, saved_places 4, place_sources 1, places 1). 친구 로그 주인 확인 후 일괄 삭제 | priority: P2 | added: 2026-06-13
+- [x] [데이터] **친구 테스트 로그 + 킹스호텔 가짜장소 삭제** ✅ 2026-06-14 — BINIGEONI(친구, `4de144d7…`) **로그 30건 + log_blocks 145건 전량 삭제**(킹스호텔·쉐레이암반수·아트리·죽전누리, 900만/800만 아웃라이어 포함). 구독 5·리스트 2·프로필은 유지(요청=로그만). **킹스호텔사우나(0ea2dc6d) 가짜 장소 cascade 삭제 완료**: place_sources 1 + places 1 삭제, 잔여 0. (저장=list_items로 구현돼 별도 saved 테이블 없음 — 초기 "saved 4"는 오탐) | priority: P2 | added: 2026-06-13
 
 <!-- P0 — 베타 출시 전 필수 -->
 - [ ] [인프라] Sentry 소스맵 업로드 설정 — 코드+래퍼 구현 완료(c6adb35), DSN 환경변수 설정 완료. 남은 작업: ① sentry.io > Settings > Auth Tokens에서 토큰 생성 → Vercel에 `SENTRY_AUTH_TOKEN` 추가, ② sentry.io > Settings > General의 Organization Slug → Vercel에 `SENTRY_ORG` 추가, ③ sentry.io > Settings > Projects의 프로젝트명 → Vercel에 `SENTRY_PROJECT` 추가. 이 3개 설정하면 빌드 시 소스맵이 Sentry에 업로드되어 에러 스택트레이스에서 원본 코드 라인 확인 가능. 가이드: `docs/guides/SENTRY_GUIDE.md` | priority: P2 | added: 2026-02-28
@@ -56,7 +56,7 @@
 <!-- P2 — 베타 중 개선 -->
 - [ ] [UX] 장소 상세 '시설 정보' 표시 순서 재검토 — 상세 페이지 시설 정보 섹션의 항목 노출 순서가 사용자 정보 우선순위에 맞는지 점검·재배치 (예: 핵심 시설/탕 구분/부대시설 그룹핑·정렬) | priority: P2 | added: 2026-06-04
 - [ ] [UX] 지도 검색 흐름 개선 (대작업) — 현재 지도뷰 검색이 불편: 상단 검색바가 이미 로드된 장소만 이름/주소로 클라이언트 필터링하고 지도는 결과로 이동/줌하지 않음, 지역·주소 검색·자동완성 없음. 개선 방향: ① 장소명/지역/주소 검색 시 지도 자동 센터링+줌 & 결과 마커 강조 ② "이 지역에서 검색"(지도 이동 시 현재 bounds 기준 재조회) 패턴 ③ 검색 자동완성(장소/지역). 기본 뷰가 지도로 바뀌면서(2026-06-03) 검색 진입 빈도↑ → 우선순위 상향 검토 | priority: P2 | added: 2026-06-03
-- [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
+- [ ] [기능] 구독 리스트 지도 통합 보기 — 구독한 리스트 장소를 지도에 표시. Naver Map(국내)/Mapbox(해외) 검토. 마커+클러스터링+바텀시트. 플랜: `docs/plans/archive/PLAN_sa_list_renewal.md` 섹션 E | priority: P2 | added: 2026-04-13
 - [ ] [기능] 어드민 도구 — 병합 리뷰 + 수동 등록 리뷰 큐 + "다른 장소에요"/"폐업했어요" 신고 + 폐업 배지. ⚠️"어드민 페이지 구축"으로 통합 — 거기서 스코핑 | priority: P2 | added: 2026-03-02
 - [ ] [기능] 회원 탈퇴 — 이메일 요청(sapi.sauna@gmail.com). 개인정보처리방침에 명시됨, 법적 대응 필요 | priority: P2 | added: 2026-03-20
 - [ ] [디자인] UI 최종 검증 — Phase 11 | priority: P2 | added: 2026-02-28
