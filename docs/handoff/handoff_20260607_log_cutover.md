@@ -1,11 +1,11 @@
 # 핸드오프: 로그 블록 컷오버 — ✅ 전체 마감 (2026-06-13)
 
 > **마감**: 029~034 마이그레이션 + 코드 컷오버 + 표시면 평탄화 + main 배포(PR #17·18·19) + 030 contract까지 완료.
-> 무손실 검증 = `docs/po/마이그레이션_무손실_대조리포트_20260613.md` (LOSS 0).
+> 무손실 검증 = `docs/po/archive/마이그레이션_무손실_대조리포트_20260613.md` (LOSS 0).
 > 잔여 후속은 BACKLOG 참조 (032 건별검증·식당/메모 프로덕션 검증·루틴 섹션 재설계 P1).
 > 아래 본문은 역사 기록.
 
-작성 2026-06-07 / 최종갱신 2026-06-12 / 브랜치 **preview** (프로덕션 main 미머지) / **상태: 029 + 코드 컷오버 1~4단계 + 입력 폼 디자인 + 5단계 표시면 평탄화 7/7 완료 (2026-06-12, 감사 SSOT `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`). 같은 날: 리워드 분화(log+routine/detail), ice_time=침수만, heat=블록 계산, explore 신규온도 B안. 잔여=§3 #4(고아 정리)·#5(백필 재실행→030→머지)·루틴 섹션 재설계(BACKLOG P1). ✅스토리 연결 완료(2026-06-13, handoff_20260610_story_redesign.md 마감 — 카드 v3.5+Canvas+페이지 크롬 v3.6). ✅추가(2026-06-12): 온도 슬라이더 숫자 좌·라벨 우 스왑 + 평가 씰 좌·코멘트 우 정렬(slider.tsx, 시안 docs/po/archive/로그_루틴_슬라이더정렬_시안). 구버전 프로토타입(v2~v5·interactive·와이어프레임)은 docs/wireframes/archive/ — 디자인 기준은 v6 유일.**
+작성 2026-06-07 / 최종갱신 2026-06-12 / 브랜치 **preview** (프로덕션 main 미머지) / **상태: 029 + 코드 컷오버 1~4단계 + 입력 폼 디자인 + 5단계 표시면 평탄화 7/7 완료 (2026-06-12, 감사 SSOT `docs/po/archive/로그_표시면_평탄화_매핑감사_20260612.md`). 같은 날: 리워드 분화(log+routine/detail), ice_time=침수만, heat=블록 계산, explore 신규온도 B안. 잔여=§3 #4(고아 정리)·#5(백필 재실행→030→머지)·루틴 섹션 재설계(BACKLOG P1). ✅스토리 연결 완료(2026-06-13, handoff_20260610_story_redesign.md 마감 — 카드 v3.5+Canvas+페이지 크롬 v3.6). ✅추가(2026-06-12): 온도 슬라이더 숫자 좌·라벨 우 스왑 + 평가 씰 좌·코멘트 우 정렬(slider.tsx, 시안 docs/po/archive/로그_루틴_슬라이더정렬_시안). 구버전 프로토타입(v2~v5·interactive·와이어프레임)은 docs/wireframes/archive/ — 디자인 기준은 v6 유일.**
 
 > ⭐ **최종 디자인·구현 요약은 맨 아래 §12 참조** (이 세션 다듬기 완료분). 디자인 기준은 메모리 `feedback-ui-spacing-rule`(10/40)·`feedback-typography-scale`.
 
@@ -64,7 +64,7 @@
 ## 3. ⏳ 남은 작업 & 주의
 
 1. **포인터 드래그 실기기 검증** — 모바일 터치로 잡힘/드롭마커/스크롤 안 밀림. 어색하면 임계값(6px)·마커 위치 조정.
-2. ~~**5단계 표시면 평탄화**~~ ✅ **완료(2026-06-12)** — `toLogWithPlace` 한 곳서 "새 캐시 ?? 레거시" coalesce, 표시면 전부 평탄 필드만 읽음. 상세·disjoint 15건 = `docs/po/로그_표시면_평탄화_매핑감사_20260612.md`. 블록 시퀀스 렌더(히스토리 상세 타임라인)는 BACKLOG P1로 분리.
+2. ~~**5단계 표시면 평탄화**~~ ✅ **완료(2026-06-12)** — `toLogWithPlace` 한 곳서 "새 캐시 ?? 레거시" coalesce, 표시면 전부 평탄 필드만 읽음. 상세·disjoint 15건 = `docs/po/archive/로그_표시면_평탄화_매핑감사_20260612.md`. 블록 시퀀스 렌더(히스토리 상세 타임라인)는 BACKLOG P1로 분리.
 3. **기타 시설 온도 토글**(더자세히) — 아직 안 함. 새 모델에선 *루틴 외 시설 온도만 빠르게* 용도, **temp-only 블록**으로 저장 예정(유저 확인 필요). 활동 전체보기로 블록 추가해도 온도 기록은 됨.
 4. ~~**`/log/deep` 페이지 고아**~~ ✅ **삭제 완료(2026-06-12)** — deep 페이지 + 구 `insertLog`/`updateLog`/`saveOrUpdateDeepLog` + `buildDeepEntrySession`/`_deepOnly` + `LogWithPlace.deep_log` 중첩 + 고아 타입(QuickLogData/DeepLogData) 제거. deep_logs는 toLogWithPlace 폴백 읽기 전용으로만 잔존(030서 제거).
 5. **배포(main 머지) 전**: 029 STEP2·5 백필 **재실행**(gap 동기화) → 검증 → `030_cleanup`(구 컬럼 sauna_temp/jjim_temp/pause_time + scrub_types + deep_logs DROP). dual-write 여부 재검토.

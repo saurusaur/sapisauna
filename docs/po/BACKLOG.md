@@ -4,13 +4,19 @@
 > `/po add`, `/po done`, `/po rerank`으로 관리합니다.
 
 ## In Progress
-- [x] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029~034 마이그레이션 + v6 단일폼 + 표시면 평탄화 + is_extra 분리 + 리워드 분화(log/routine/detail) + main 배포(PR #17·18·19) + **030 contract 완료**. 무손실 검증 LOSS 0(8버킷 블라인드, `docs/po/마이그레이션_무손실_대조리포트_20260613.md`). 감사: `docs/po/로그_표시면_평탄화_매핑감사_20260612.md` | done: 2026-06-13 F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
+- [x] [기능/데이터] **로그 입력 폼 컷오버 (블록 단일 폼)** — 029~034 마이그레이션 + v6 단일폼 + 표시면 평탄화 + is_extra 분리 + 리워드 분화(log/routine/detail) + main 배포(PR #17·18·19) + **030 contract 완료**. 무손실 검증 LOSS 0(8버킷 블라인드, `docs/po/archive/마이그레이션_무손실_대조리포트_20260613.md`). 감사: `docs/po/archive/로그_표시면_평탄화_매핑감사_20260612.md` | done: 2026-06-13 F1·스키마 재검토(아래 P0)의 실구현체 | priority: P0 | added: 2026-06-04
 
 ## Backlog
 
+<!-- 📂 문서 정리 후속 (2026-06-14) — 작업 끝나고 같이 처리할 WIP/untracked:
+  · docs/po/지도페이지_리디자인_플랜_20260614.md (untracked) → 완료 시 docs/plans/로 이동
+  · docs/wireframes/fromBINIGEONI/ (친구 비니거니 공유: 사피분석.pptx·카톡사진) → 적절 위치 정리
+  · docs/po/assets/inspo_collection/README.md (삭제 진행 중) · research의 sauna jelly jar example.png (에셋)
+  · src 코드 WIP(content.ts quick-log config 리팩토링·explore/log = 블록모델 후속) → 자체 커밋 -->
+
 <!-- 🎯 P0 최우선 — 모든 기록 기능의 기반 -->
 - [ ] [아키텍처/데이터] **로그·스키마 구조 재검토 (최우선)** — F1(블록 탭 기록=누른 순서가 루틴) 등 신규 기록 모델이 현재 `logs`/`deep_logs` 컬럼형 스키마(온도=개별 컬럼)와 맞는지 근본 재검토. 루틴 시퀀스(블록 순서)·세트·트라이브 기본블록을 어떻게 저장할지 결정. **데이터 전체의 기반 — 여기가 흔들리면 전부 흔들림.** F1·F3·F5의 선행조건. 드래프팅 핸드오프: `docs/handoff/handoff_20260604_log_schema_redesign.md` | priority: P0 | added: 2026-06-04
-- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — ※홈 리디자인은 **출시 완료(2026-06-06, PR #14→main)**, 이건 **유일한 잔여 후속**(카운트 현재 숨김). 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
+- [ ] [기능/데이터] **홈 TRIBE PICKS 카운트 = B2(중앙 RPC SSOT)** — ※홈 리디자인은 **출시 완료(2026-06-06, PR #14→main)**, 이건 **유일한 잔여 후속**(카운트 현재 숨김). 트라이브 카드 "N곳" + tribe 페이지 추천 장소를 단일 RPC로 통일. ⓵ 신규 마이그레이션: `get_tribe_recommended_counts()`→{tribe_id,count}(홈 3행), `get_tribe_recommended_places(p_tribe)`→{place_id,qualified_count,avg_score}(tribe 페이지). 정의=`logs.revisit_score>=4` & `user_id≠ADMIN(23c4…)` & places JOIN(status='active'·merged 처리 검토), tribe_id 그룹. ⓶ 홈 TribePicksCard 카운트 RPC 연결(지금은 카운트 숨김으로 구현됨 — 데이터 붙이면 노출). ⓷ tribe 페이지 recommendedPlaces base를 `useLogs(100)` 클라계산→RPC 전환(+폴백), recent-100 한계 해소. ⚠ supabase CLI/DB커넥션 없어 **Supabase SQL 에디터 수동 실행 필요**. **선행: 진행중인 스키마 정리 마무리 후.** 플랜: `docs/plans/archive/PLAN_home_redesign_impl.md` | priority: P1 | added: 2026-06-05
 
 <!-- 🧪 사-피 방향성 (구현스케치 `docs/po/사피_제안기능_구현스케치.html`, 2026-06-03) — 헤드라인만. 디테일 별도 플랜
      페이지별 강조 기능·UX 재검토·선행→위임 구조: `docs/po/UX_DIRECTION_page_emphasis_20260604.md` -->
@@ -26,7 +32,7 @@
 - [ ] [기능/인프라] **어드민 페이지 구축** — 현재 place 등록·교정이 스크립트(katalk-*)로만 가능하고 큐레이션 is_featured 관리 UI도 없음 → 어드민 페이지 필요. **①구성·기능 스코핑 먼저(확인 필요)**: 후보 = 장소 등록/편집·병합 리뷰, place_sources/온도/시설 교정, is_featured 큐레이션 리스트 관리, 신고("다른 장소"/"폐업") 큐·폐업 배지, 수동 등록 리뷰 큐, 통계 대시보드. → ②구축. ※기존 "어드민 도구(P2)" 흡수. 큐레이션 시드(P0)·F6 운영의 기반. 스코핑: `docs/plans/PLAN_admin_page_scope.md` | priority: P1 | added: 2026-06-04
 - [ ] [기능] **사-피 추천 한줄 이유 (featured_note)** — 어드민이 is_featured 설정 시 "사-피에서 추천하는 이유" 한줄 입력 → 사-피 추천 카드 배지로 노출. 현재 `SaList.featured_note` 타입만 추가됨(폴백 '사-피 PICK'), DB 컬럼(`lists.featured_note`)+어드민 토글 UI 입력란+`getFeaturedPublicLists` select 반영 필요. ※어드민 페이지 is_featured 관리에 통합 | priority: P2 | added: 2026-06-13
 
-<!-- 사-리스트 리디자인 후속 (2026-06-14, 구현완료 기록: docs/po/사리스트_리디자인_구현완료_20260614.md) -->
+<!-- 사-리스트 리디자인 후속 (2026-06-14, 구현완료 기록: docs/po/archive/사리스트_리디자인_구현완료_20260614.md) -->
 - [ ] [UX/발견] **사-리스트 검색 풀스크린 오버레이** — 현재 `/sa-list` 검색은 헤더 아래 인라인 입력바(정상 작동). 개선안: 🔍 탭 → 풀스크린 검색 화면(최근 검색어 + 인기 해시태그 자동완성 추천). 태그 풀이 더 쌓이면 효용↑ → 그때 진행 | priority: P3 | added: 2026-06-14
 - [ ] [기능/소셜] **구독자 목록 보기** — 리스트 상세에서 "구독 N" 탭 → 누가 구독했는지 명단(프로필). ※진입점이 칩이 맞을지는 미확정(유저 의문) — 별도 진입/메타 영역도 검토. 베타엔 구독자 적어 후순위 | priority: P3 | added: 2026-06-14
 
@@ -34,7 +40,7 @@
 - [ ] [데이터] DB 전수 재감사 — `katalk-db-full-audit.mjs` 재실행해 2026-06-01 기준 잔여 플래그(city-missing 114·g-name-mismatch 43·type? 18·ext-id-missing 9) 현재 수치 재확인·정리. 상세: `PHASE_LOG.md` | priority: P2 | added: 2026-06-04
 
 <!-- 로그 컷오버 후속 (2026-06-13) -->
-- [x] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** ✅ 2026-06-14 — 일괄 치환은 기적용(food=0). 88건 건별 검증(`docs/po/032_restaurant_snack_검증.md`) REST PATCH 반영: snack 18·둘다(restaurant+snack) 44·restaurant 제거 1(마포365구민센터)·식당 유지 24. 최종 restaurant 69·snack 63·food 0 검산 일치. **잔여: 킹스호텔사우나(0ea2dc6d) 가짜 장소 cascade 삭제 보류** → 친구 테스트 로그 정리(아래)와 함께 처리 | priority: P1 | added: 2026-06-13
+- [x] [데이터] **032 food→restaurant 실행 + 매점 건별 snack 수정** ✅ 2026-06-14 — 일괄 치환은 기적용(food=0). 88건 건별 검증(`docs/po/archive/032_restaurant_snack_검증.md`) REST PATCH 반영: snack 18·둘다(restaurant+snack) 44·restaurant 제거 1(마포365구민센터)·식당 유지 24. 최종 restaurant 69·snack 63·food 0 검산 일치. **잔여: 킹스호텔사우나(0ea2dc6d) 가짜 장소 cascade 삭제 보류** → 친구 테스트 로그 정리(아래)와 함께 처리 | priority: P1 | added: 2026-06-13
 - [ ] [검증] **블록 모델 프로덕션 검증 스위프** — ① 식당(restaurant) 블록: 실데이터 0건인 신규 경로 — 기록→타임라인→히스토리 상세→장소 집계 전 구간 ② 추천메뉴(snack/restaurant memo) 표시 ③ 기본세신 가격 행(저장→편집 복원→장소 세신가격 집계) ④ 시설온도 is_extra 편집 복원 ⑤ 메모 auto-grow — 실기기 | priority: P1 | added: 2026-06-13
 - [ ] [데이터] **친구 테스트 로그 정리 + 킹스호텔 가짜장소 삭제** — 6/9 작성 테스트 로그(킹스호텔·쉐레이암반수·아트리·죽전누리 등, 입장료 900만/세신 90만 아웃라이어 포함) 친구가 직접 삭제 예정 — 완료 확인만. **추가(2026-06-14): 킹스호텔사우나(0ea2dc6d)=친구 확인 가짜 장소 → cascade 삭제 대기** (logs 5+log_blocks/deep_logs, saved_places 4, place_sources 1, places 1). 친구 로그 주인 확인 후 일괄 삭제 | priority: P2 | added: 2026-06-13
 
@@ -60,7 +66,7 @@
 
 <!-- P3 — 장기 -->
 - [ ] [성능] 지도뷰 마커 명령형화(#3) — 현재 모든 장소가 @vis.gl AdvancedMarker(React 컴포넌트)로 마운트돼 줌아웃(전국 보기)·첫 진입 시 마운트 총량이 큼. 비저장(일반) 핀을 markerclusterer 네이티브 마커(순수 DOM, createClusterElement 방식)로 그리고 선택/저장 등 인터랙티브한 소수만 React 마커로 유지하면 reconcile 대상이 238→수 개로 감소. #1(메모이제이션)·#2(뷰포트 컬링)으로 클릭·팬 비용은 해결됐고, 이건 줌아웃 마운트 총량 근본해결용 | priority: P3 | added: 2026-06-02
-- [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (참고용 한글본: `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md`) / v1 초안 deprecated: `docs/plans/archive/PLAN_sauna_pet.md`. ⚠️리워드(아이템·경품) 획득 경로는 F4 사우나 도장판과 통합 검토 | priority: P3 | added: 2026-05-18
+- [ ] [기능] 사우나 펫(Sauna Pet) — v2.5.1 정식 기획서 기반. 3종 정령(사우나돌/물두꺼비/맥반석란) × L1-L3 진화 + 첫 사-피엔스 베타 통합. **Phase 0 결정 완료 (2026-05-19)**: D1 펫종 자유선택 / D2 기존 XP 그대로 (임계값 L2=200·L3=1200~1500) / D3 칭호=펫배지 통합 / D4 베타 직후 출시 / D5 V1엔 추천인코드만, 로윌리·인앱알림 V1.5 / D6 홈 위젯+풀스크린 / D7 jimi 칭호 "맥반석란" 통일 (마이그레이션 025 완료) / D8 L3 9 variant 풀로드. **V1 예상 ~80-85h / 7-9주 솔로**. 잔여 Phase 0 블로커: 디자인 리소스 결정(15 캐릭터+19 코스튬+4 Lottie). 작업 계획: `docs/plans/PLAN_sauna_pet_v2.md` / 원본 스펙: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (한글본 REF는 SPEC과 중복이라 정리 삭제 2026-06-14) / v1 초안 deprecated: `docs/plans/archive/PLAN_sauna_pet.md`. ⚠️리워드(아이템·경품) 획득 경로는 F4 사우나 도장판과 통합 검토 | priority: P3 | added: 2026-05-18
 - [ ] [기능] 내 루틴 찾아가기 (Routine Fit) — 수요 근거: 먼데이사우나 톡방에서 루틴 화제의 26%가 "스탠다드가 뭐예요?/13도 몇분?" 식 *기준·캘리브레이션 질문*(자랑·공유 아님). 분석: `docs/research/katalk-20260519/topic-analysis.md`. **소셜이 아니라 self-discovery 루프**로 설계. 입력변수(HEAT/ICE/PAUSE/REPEAT)+결과변수(토토노우·만족도·또갈래요)가 이미 스키마에 있음. 단계: ① **콜드스타트**(입문자용 기본 루틴 템플릿, 크로스유저 밀도 불필요 → 지금도 가능, P2) → ② **개인 수렴**(내 로그 기반 "고만족 세션 패턴" 피드백, 내 로그 수십개면 됨 → 중기, P3) → ③ **크로스유저/장소 평균**(유저 수백+ 게이트 → 장기, P3). 진짜 "옵티마이제이션"은 ②③의 개인화 추천 = 기록앱→루틴코치 전환점. ⚠️①콜드스타트(입문 루틴 템플릿)는 F1로 흡수 — 본 항목은 ②개인수렴·③크로스유저만 잔존 | priority: P3 | added: 2026-05-30
 - [ ] [기능] 소셜 — 공유 링크 + 팔로우 + 크로스 소스 매칭(네이버↔구글) | priority: P3 | added: 2026-02-27
 - [ ] [기능] API 카테고리→시설유형 자동매핑 — 유저 인풋 보조. 상세: `PLAN_venue_type_auto_mapping.md` | priority: P3 | added: 2026-03-20
@@ -72,7 +78,7 @@
 ## Done
 
 ### 2026-06-10
-- [x] [브랜딩] 앱 아이콘·이름·OG 이미지 — (1) **아이콘 원형 리뉴얼**: `sapi-logo.svg`→흰 원 96% 합성(sharp), 전 사이즈(파비콘·apple180·PWA192/512·마스커블512) + `src/app/icon.png`/`apple-icon.png` 파일컨벤션 연결 (2) **앱 이름 "사-피"**: manifest `name`/`short_name`("사우나 로그"→사-피)·iOS `appleWebApp.title` (3) **OG 이미지**(`public/og-image.png` 1200×630): 홈 히어로 구조(레드곡선·Oswald Bold "HELLO SA-PIEN"·틸트 네임카드·사피로고) + `openGraph`/`twitter` 메타 + `metadataBase`. Oswald는 resvg가 가변weight 무시 → fonttools static 700 인스턴싱. (4) 홈 게스트카드·OG 카드 문구 통일 "좋은 사우나 방문하고 사우나템 모으기!"(`STAMP_FILL_PROMPT`). 도구 sharp·@resvg/resvg-js devDep. 노트: `docs/po/브랜딩_에셋_노트_20260610.md` | priority: P1 | done: 2026-06-10
+- [x] [브랜딩] 앱 아이콘·이름·OG 이미지 — (1) **아이콘 원형 리뉴얼**: `sapi-logo.svg`→흰 원 96% 합성(sharp), 전 사이즈(파비콘·apple180·PWA192/512·마스커블512) + `src/app/icon.png`/`apple-icon.png` 파일컨벤션 연결 (2) **앱 이름 "사-피"**: manifest `name`/`short_name`("사우나 로그"→사-피)·iOS `appleWebApp.title` (3) **OG 이미지**(`public/og-image.png` 1200×630): 홈 히어로 구조(레드곡선·Oswald Bold "HELLO SA-PIEN"·틸트 네임카드·사피로고) + `openGraph`/`twitter` 메타 + `metadataBase`. Oswald는 resvg가 가변weight 무시 → fonttools static 700 인스턴싱. (4) 홈 게스트카드·OG 카드 문구 통일 "좋은 사우나 방문하고 사우나템 모으기!"(`STAMP_FILL_PROMPT`). 도구 sharp·@resvg/resvg-js devDep. 노트: `docs/plans/브랜딩_에셋_노트_20260610.md` | priority: P1 | done: 2026-06-10
 - [x] [기획/문서] 친구 몰아주기 위임 준비 — 베타 출시용 친구 3명(개발자/UX/빌더) 위임 플랜·DB 스키마 레퍼런스(라이브 introspect 검증)·수집("방문=수집") 컨셉 브리프·어드민 친구용 구현스펙·노션 부탁 문서 작성. 어드민 스코프 §8 베타 재정의(CMS·모더레이션 제외, 5천 2티어운영 추가). `places.data_tier` 마이그레이션(031, 적용대기) + F4/F3 스키마 출발점 초안. 문서: `docs/po/친구_몰아주기_위임플랜_20260606.md` 외 | priority: P0 | done: 2026-06-10
 
 ### 2026-06-04

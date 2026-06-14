@@ -24,7 +24,7 @@
 - **DDL 초안**: `supabase/029_log_blocks_merge.sql` (트랜잭션 1 + 검증쿼리 + 롤백노트)
 - **구동 와이어프레임**: `docs/po/로그_프로토타입_v4_20260604.html` (메인) · `데모_타임라인.html` · `데모_더자세히.html`
 - 메모리 핀: `project_log_schema_redesign.md`
-- **★ 코드 컷오버 체크리스트(작업 전 정독 + 완료 후 검증 필수)**: `docs/po/CHECKLIST_코드컷오버.md`
+- **★ 코드 컷오버 체크리스트(작업 전 정독 + 완료 후 검증 필수)**: `docs/plans/CHECKLIST_코드컷오버.md`
 
 ## 2. 확정된 설계 (변경 금지 — 결정 완료)
 - **스키마**: 단일 `logs`(deep 흡수) + `log_blocks`(정) + `user_routines`.

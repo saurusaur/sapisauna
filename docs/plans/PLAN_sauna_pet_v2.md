@@ -2,7 +2,7 @@
 
 Date: 2026-05-18 (created), 2026-05-19 (D1-D8 결정 반영, jimi 마이그레이션 완료)
 Status: Active — Phase 0 잔여 = 디자인 리소스 결정
-Spec source: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (영문) / `docs/plans/REF_사피_사우나펫_Part2_기획서_v2.5.1.md` (한글 원본 사본, plans 작업 시 참고용)
+Spec source: `docs/plans/SPEC_sauna_pet_v2.5.1.md` (단일 SSOT — 한글본 REF 사본은 중복이라 정리 삭제 2026-06-14)
 Supersedes: `docs/plans/archive/PLAN_sauna_pet.md` (v1 초안)
 
 ## 0. 문서 목적

@@ -46,7 +46,7 @@
 - 장소 정보 수정 기능
 
 ### 활성 plan 파일 (3개)
-- `docs/plans/REVIEW_safeParse_errors.md` — safeParse 대안 A 참조
+- `docs/plans/archive/REVIEW_safeParse_errors.md` — safeParse 대안 A 참조
 - `docs/plans/TODO_place_dedup_remaining.md` — 병합 모달(done), 폐업/어드민 미착수
 - `docs/plans/ANALYSIS_storage_strategy.md` — 참조용
 
