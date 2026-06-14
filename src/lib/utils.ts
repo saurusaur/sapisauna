@@ -261,7 +261,7 @@ export function hslToHex(h: number, s: number, l: number): string {
 // ============================================
 // 점수 관련 유틸
 // ============================================
-import { QUICK_LOG, FACILITY_LABEL_MAP } from '@/constants/content'
+import { QUICK_LOG, FACILITY_LABEL_MAP, BLOCK_TYPE_MAP } from '@/constants/content'
 
 /**
  * steps 배열에서 value 이하인 가장 가까운 라벨을 반환
@@ -359,21 +359,22 @@ export function getFacilityLabel(id: string): string {
 /**
  * 로그 타입별 상세 텍스트 생성 (record-card, history 상세 등에서 공유)
  */
-// 트라이브별 숏로그에 표시할 필드 순서 — shortLabel은 QUICK_LOG SSOT 참조
+// 트라이브별 숏로그에 표시할 필드 순서
+// 온도 시설 라벨 = BLOCK_TYPES(SSOT)의 label, 평가 항목 라벨 = QUICK_LOG
 const DETAIL_FIELDS: Record<string, { field: string; shortLabel: string; unit: string }[]> = {
   saunner: [
     // 사우너의 사우나(건식/습식) 표시는 getDetailText 내부에서 primary 기반으로 처리.
     // 여기에 sauna_temp를 두지 않음 (중복 방지).
-    { field: 'cold_bath_temp', shortLabel: QUICK_LOG.COMMON.COLD_BATH_TEMP.shortLabel, unit: '°' },
+    { field: 'cold_bath_temp', shortLabel: BLOCK_TYPE_MAP['cold-bath'].label, unit: '°' },
     { field: 'totono_score', shortLabel: QUICK_LOG.SAUNER.TOTONO.shortLabel, unit: '/5' },
   ],
   bather: [
-    { field: 'hot_bath_temp', shortLabel: QUICK_LOG.BATHER.HOT_BATH_TEMP.shortLabel, unit: '°' },
-    { field: 'cold_bath_temp', shortLabel: QUICK_LOG.COMMON.COLD_BATH_TEMP.shortLabel, unit: '°' },
+    { field: 'hot_bath_temp', shortLabel: BLOCK_TYPE_MAP['hot-bath'].label, unit: '°' },
+    { field: 'cold_bath_temp', shortLabel: BLOCK_TYPE_MAP['cold-bath'].label, unit: '°' },
     { field: 'water_quality', shortLabel: QUICK_LOG.BATHER.WATER_QUALITY.shortLabel, unit: '/5' },
   ],
   jimi: [
-    { field: 'bulgama_temp', shortLabel: QUICK_LOG.JIMI.JJIM_TEMP.shortLabel, unit: '°' },
+    { field: 'bulgama_temp', shortLabel: BLOCK_TYPE_MAP['bulgama'].label, unit: '°' },
     { field: 'sweat_quality', shortLabel: QUICK_LOG.JIMI.SWEAT_QUALITY.shortLabel, unit: '/5' },
     { field: 'rest_quality', shortLabel: QUICK_LOG.JIMI.REST_QUALITY.shortLabel, unit: '/5' },
   ],
@@ -387,7 +388,7 @@ export function getDetailText(log: { tribe_id: string; dry_sauna_temp?: number |
       || (log.primary_sauna_kind == null && log.dry_sauna_temp == null && log.steam_sauna_temp != null)
     const value = isSteam ? log.steam_sauna_temp : log.dry_sauna_temp
     if (value != null) {
-      const label = isSteam ? '습식' : (QUICK_LOG.SAUNER.SAUNA_TEMP.shortLabel as string)
+      const label = isSteam ? '습식' : BLOCK_TYPE_MAP['dry-sauna'].label
       parts.push(`${label} ${value}°`)
     }
   }

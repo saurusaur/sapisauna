@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ConfirmModal from '@/components/ui/confirm-modal'
-import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS } from '@/constants/content'
+import { TRIBE_EMOJI_MAP, ICONS, DEEP_LOG, QUICK_LOG, COMPUTED_METRICS, BLOCK_TYPE_MAP } from '@/constants/content'
 import { formatDateTime, formatShortDate, getWaterQualityLabel, getRestQualityLabel, getStepLabel, getDetailText, generateShortAddress, hasLogDetail } from '@/lib/utils'
 import { getPrimaryTempDelta, getJimiHeadlineTemp } from '@/lib/sauna-temp-helpers'
 import { useLog, useMyLogsByPlace } from '@/hooks/use-logs'
@@ -188,14 +188,14 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
               {log.tribe_id === 'saunner' && (
                 <>
                   <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">
-                    {saunnerPrimary?.primary.kind === 'steam' ? QUICK_LOG.SAUNER.STEAM_SAUNA_TEMP.labelEn : QUICK_LOG.SAUNER.SAUNA_TEMP.labelEn}
+                    {saunnerPrimary?.primary.kind === 'steam' ? BLOCK_TYPE_MAP['steam-sauna'].labelEn : BLOCK_TYPE_MAP['dry-sauna'].labelEn}
                   </span>
                   <span className="text-base font-bold text-stone-700 font-heading">{saunnerPrimary?.primary.value ?? '—'}°</span>
                 </>
               )}
               {log.tribe_id === 'bather' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{BLOCK_TYPE_MAP['cold-bath'].labelEn}</span>
                   <span className="text-base font-bold text-stone-700 font-heading">{log.cold_bath_temp ?? '—'}°</span>
                 </>
               )}
@@ -220,7 +220,7 @@ export default function HistoryDetail({ params }: { params: { id: string } }) {
             <div className="flex justify-between items-baseline self-center" style={{ borderLeft: '1px solid hsl(30 12% 87% / .4)', paddingLeft: '20px' }}>
               {log.tribe_id === 'saunner' && (
                 <>
-                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{QUICK_LOG.COMMON.COLD_BATH_TEMP.labelEn}</span>
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-400 font-heading">{BLOCK_TYPE_MAP['cold-bath'].labelEn}</span>
                   <span className="text-base font-bold text-stone-700 font-heading">{log.cold_bath_temp ?? '—'}°</span>
                 </>
               )}

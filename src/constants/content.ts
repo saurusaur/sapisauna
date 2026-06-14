@@ -180,21 +180,8 @@ export const ONBOARDING = {
 // Quick Log 입력 항목
 // ============================================
 
-// 공통 냉탕 온도 config (saunner/bather 공유)
-const COLD_BATH_TEMP_CONFIG = {
-  label: "냉탕 온도",
-  shortLabel: "냉탕",
-  min: 0,
-  max: 30,
-  unit: "°C",
-  steps: [
-    { value: 0, label: "냉동" },
-    { value: 5, label: "냉장" },
-    { value: 10, label: "차갑" },
-    { value: 16, label: "시원" },
-    { value: 25, label: "미지근" },
-  ],
-} as const;
+// 온도 시설(건식/습식/온탕/냉탕/한증막 등)의 라벨·range·스텝은 BLOCK_TYPES(SSOT)로 일원화됨.
+// 여기 QUICK_LOG에는 온도가 아닌 평가 항목(또갈래요/수질/토토노우/땀/휴식)·루틴 메타만 둔다.
 
 export const QUICK_LOG = {
   // 공통 항목
@@ -212,8 +199,6 @@ export const QUICK_LOG = {
         { value: 5, label: "꼭 가야해요!" },
       ],
     },
-    // 냉탕 온도 (saunner 필수 / bather 선택)
-    COLD_BATH_TEMP: { ...COLD_BATH_TEMP_CONFIG, labelEn: "COLD BATH" },
     // 루틴 기록 (전 타입 선택 — 탭 시 활성화, 초기화 버튼으로 리셋)
     ROUTINE: {
       HEAT: {
@@ -260,20 +245,6 @@ export const QUICK_LOG = {
 
   // 목욕파 전용
   BATHER: {
-    HOT_BATH_TEMP: {
-      label: "목욕물 온도",
-      shortLabel: "온탕",
-      labelEn: "HOT BATH",
-      min: 30,
-      max: 46,
-      unit: "°C",
-      steps: [
-        { value: 30, label: "미지근" },
-        { value: 35, label: "따뜻" },
-        { value: 39, label: "뜨끈" },
-        { value: 42, label: "펄펄" },
-      ],
-    },
     WATER_QUALITY: {
       label: "수질",
       shortLabel: "수질",
@@ -292,36 +263,6 @@ export const QUICK_LOG = {
 
   // 사우너파 전용
   SAUNER: {
-    SAUNA_TEMP: {
-      label: "건식 사우나 온도",
-      shortLabel: "건식",
-      labelEn: "DRY SAUNA",
-      min: 50,
-      max: 130,
-      unit: "°C",
-      steps: [
-        { value: 50, label: "미지근" },
-        { value: 65, label: "따뜻" },
-        { value: 85, label: "뜨끈" },
-        { value: 100, label: "후끈" },
-        { value: 120, label: "지옥" },
-      ],
-    },
-    STEAM_SAUNA_TEMP: {
-      label: "습식 사우나 온도",
-      shortLabel: "습식",
-      labelEn: "STEAM SAUNA",
-      min: 40,
-      max: 75,
-      unit: "°C",
-      steps: [
-        { value: 40, label: "미지근" },
-        { value: 48, label: "따뜻" },
-        { value: 55, label: "뜨끈" },
-        { value: 62, label: "뜨겁" },
-        { value: 70, label: "찜기" },
-      ],
-    },
     // 주 이용 사우나 안내 (둘 다 입력 시 표시)
     PRIMARY_PROMPT: "주 이용 사우나를 선택해주세요",
     TOGGLE_DRY_LABEL: "건식",
@@ -344,21 +285,6 @@ export const QUICK_LOG = {
 
   // 찜질파 전용
   JIMI: {
-    JJIM_TEMP: {
-      label: "한증막 온도",
-      shortLabel: "한증막",
-      labelEn: "JJIMJIL",
-      min: 70,
-      max: 130,
-      unit: "°C",
-      steps: [
-        { value: 70, label: "따뜻" },
-        { value: 85, label: "뜨끈" },
-        { value: 100, label: "후끈" },
-        { value: 115, label: "지글지글" },
-        { value: 130, label: "용암" },
-      ],
-    },
     SWEAT_QUALITY: {
       label: "땀 만족도",
       shortLabel: "땀",
@@ -624,6 +550,7 @@ export interface BlockTypeDef {
   blockType: string; // log_blocks.block_type 저장값 (보통 = id)
   variant?: string; // log_blocks.variant (건강세신 = 'withmassage')
   label: string;
+  labelEn?: string; // 영문 섹션 라벨(히스토리 상세 등). 온도 시설만 보유
   icon: string;
   category: BlockCategory;
   tempRange?: [number, number]; // heat/ice 온도시설
@@ -636,17 +563,17 @@ export interface BlockTypeDef {
 
 export const BLOCK_TYPES: BlockTypeDef[] = [
   // ── HEAT ──
-  { id: "dry-sauna", blockType: "dry-sauna", label: "건식", icon: "sauna", category: "heat", durUnit: "min", cacheCol: "dry_sauna_temp", tempRange: [50, 130], tempSteps: [ { value: 50, label: "미지근" }, { value: 65, label: "따뜻" }, { value: 85, label: "뜨끈" }, { value: 100, label: "후끈" }, { value: 120, label: "지옥" } ] },
-  { id: "steam-sauna", blockType: "steam-sauna", label: "습식", icon: "water_voc", category: "heat", durUnit: "min", cacheCol: "steam_sauna_temp", tempRange: [40, 80], tempSteps: [ { value: 40, label: "미지근" }, { value: 50, label: "따뜻" }, { value: 60, label: "뜨끈" }, { value: 70, label: "뜨겁" }, { value: 80, label: "찜기" } ] },
-  { id: "salt-sauna", blockType: "salt-sauna", label: "소금", icon: "salinity", category: "heat", durUnit: "min", cacheCol: "salt_sauna_temp", tempRange: [40, 70], tempSteps: [ { value: 40, label: "미온" }, { value: 55, label: "적당" }, { value: 70, label: "뜨끈" } ] },
-  { id: "hot-bath", blockType: "hot-bath", label: "온탕", icon: "heat", category: "heat", durUnit: "min", cacheCol: "hot_bath_temp", tempRange: [35, 43], tempSteps: [ { value: 35, label: "미지근" }, { value: 37, label: "따뜻" }, { value: 39, label: "적당" }, { value: 41, label: "뜨끈" }, { value: 42, label: "뜨겁" } ] },
-  { id: "very-hot-bath", blockType: "very-hot-bath", label: "열탕", icon: "emergency_heat_2", category: "heat", durUnit: "min", cacheCol: "very_hot_bath_temp", tempRange: [38, 46], tempSteps: [ { value: 38, label: "따뜻" }, { value: 40, label: "뜨끈" }, { value: 42, label: "뜨겁" }, { value: 44, label: "극열" }, { value: 46, label: "삶음" } ] },
-  { id: "bulgama", blockType: "bulgama", label: "한증막", icon: "warehouse", category: "heat", durUnit: "min", cacheCol: "bulgama_temp", tempRange: [60, 140], tempSteps: [ { value: 70, label: "따뜻" }, { value: 90, label: "뜨끈" }, { value: 105, label: "후끈" }, { value: 120, label: "지글지글" }, { value: 140, label: "용암" } ] },
-  { id: "open-air-bath", blockType: "open-air-bath", label: "노천탕", icon: "bath_outdoor", category: "heat", durUnit: "min", cacheCol: "open_air_bath_temp", tempRange: [30, 45], tempSteps: [ { value: 30, label: "미지근" }, { value: 35, label: "따뜻" }, { value: 38, label: "적당" }, { value: 42, label: "뜨끈" }, { value: 45, label: "뜨겁" } ] },
+  { id: "dry-sauna", blockType: "dry-sauna", label: "건식", labelEn: "DRY SAUNA", icon: "sauna", category: "heat", durUnit: "min", cacheCol: "dry_sauna_temp", tempRange: [50, 130], tempSteps: [ { value: 50, label: "미지근" }, { value: 65, label: "따뜻" }, { value: 85, label: "뜨끈" }, { value: 100, label: "후끈" }, { value: 120, label: "지옥" } ] },
+  { id: "steam-sauna", blockType: "steam-sauna", label: "습식", labelEn: "STEAM SAUNA", icon: "water_voc", category: "heat", durUnit: "min", cacheCol: "steam_sauna_temp", tempRange: [40, 80], tempSteps: [ { value: 40, label: "미지근" }, { value: 50, label: "따뜻" }, { value: 60, label: "뜨끈" }, { value: 70, label: "뜨겁" }, { value: 80, label: "찜기" } ] },
+  { id: "salt-sauna", blockType: "salt-sauna", label: "소금", labelEn: "SALT SAUNA", icon: "salinity", category: "heat", durUnit: "min", cacheCol: "salt_sauna_temp", tempRange: [40, 70], tempSteps: [ { value: 40, label: "미온" }, { value: 55, label: "적당" }, { value: 70, label: "뜨끈" } ] },
+  { id: "hot-bath", blockType: "hot-bath", label: "온탕", labelEn: "HOT BATH", icon: "heat", category: "heat", durUnit: "min", cacheCol: "hot_bath_temp", tempRange: [30, 43], tempSteps: [ { value: 30, label: "미지근" }, { value: 37, label: "따뜻" }, { value: 39, label: "적당" }, { value: 41, label: "뜨끈" }, { value: 42, label: "뜨겁" } ] },
+  { id: "very-hot-bath", blockType: "very-hot-bath", label: "열탕", labelEn: "VERY HOT BATH", icon: "emergency_heat_2", category: "heat", durUnit: "min", cacheCol: "very_hot_bath_temp", tempRange: [38, 46], tempSteps: [ { value: 38, label: "따뜻" }, { value: 40, label: "뜨끈" }, { value: 42, label: "뜨겁" }, { value: 44, label: "극열" }, { value: 46, label: "삶음" } ] },
+  { id: "bulgama", blockType: "bulgama", label: "한증막", labelEn: "JJIMJIL", icon: "warehouse", category: "heat", durUnit: "min", cacheCol: "bulgama_temp", tempRange: [60, 140], tempSteps: [ { value: 70, label: "따뜻" }, { value: 90, label: "뜨끈" }, { value: 105, label: "후끈" }, { value: 120, label: "지글지글" }, { value: 140, label: "용암" } ] },
+  { id: "open-air-bath", blockType: "open-air-bath", label: "노천탕", labelEn: "OPEN AIR", icon: "bath_outdoor", category: "heat", durUnit: "min", cacheCol: "open_air_bath_temp", tempRange: [30, 45], tempSteps: [ { value: 30, label: "미지근" }, { value: 35, label: "따뜻" }, { value: 38, label: "적당" }, { value: 42, label: "뜨끈" }, { value: 45, label: "뜨겁" } ] },
   // ── ICE ──
-  { id: "cold-bath", blockType: "cold-bath", label: "냉탕", icon: "ac_unit", category: "ice", durUnit: "sec", cacheCol: "cold_bath_temp", tempRange: [5, 30], tempSteps: [ { value: 5, label: "극냉" }, { value: 10, label: "차가움" }, { value: 15, label: "시원" }, { value: 20, label: "미지근" }, { value: 30, label: "미온" } ] },
-  { id: "ice-bath", blockType: "ice-bath", label: "급냉탕", icon: "severe_cold", category: "ice", durUnit: "sec", cacheCol: "ice_bath_temp", tempRange: [0, 15], tempSteps: [ { value: 0, label: "얼음" }, { value: 5, label: "극냉" }, { value: 10, label: "짜릿" }, { value: 15, label: "차갑" } ] },
-  { id: "ice-room", blockType: "ice-room", label: "아이스방", icon: "icecream", category: "ice", durUnit: "min", cacheCol: "ice_room_temp", tempRange: [0, 15], tempSteps: [ { value: 0, label: "얼음" }, { value: 8, label: "쌀쌀" }, { value: 15, label: "시원" } ] },
+  { id: "cold-bath", blockType: "cold-bath", label: "냉탕", labelEn: "COLD BATH", icon: "ac_unit", category: "ice", durUnit: "sec", cacheCol: "cold_bath_temp", tempRange: [5, 30], tempSteps: [ { value: 5, label: "극냉" }, { value: 10, label: "차가움" }, { value: 15, label: "시원" }, { value: 24, label: "미지근" }, { value: 30, label: "미온" } ] },
+  { id: "ice-bath", blockType: "ice-bath", label: "급냉탕", labelEn: "ICE BATH", icon: "severe_cold", category: "ice", durUnit: "sec", cacheCol: "ice_bath_temp", tempRange: [0, 15], tempSteps: [ { value: 0, label: "얼음" }, { value: 5, label: "극냉" }, { value: 10, label: "짜릿" }, { value: 15, label: "차갑" } ] },
+  { id: "ice-room", blockType: "ice-room", label: "아이스방", labelEn: "ICE ROOM", icon: "icecream", category: "ice", durUnit: "min", cacheCol: "ice_room_temp", tempRange: [0, 15], tempSteps: [ { value: 0, label: "얼음" }, { value: 8, label: "쌀쌀" }, { value: 15, label: "시원" } ] },
   // ── PAUSE(rest) ──
   { id: "rest", blockType: "rest", label: "휴식", icon: "self_improvement", category: "rest", durUnit: "min", evalKind: "rest", catalogOnly: true },
   { id: "outdoor-rest", blockType: "outdoor-rest", label: "외기욕", icon: "chair_umbrella", category: "rest", durUnit: "min", evalKind: "rest" },
@@ -733,95 +660,7 @@ export const DEEP_LOG = {
       { value: 5, label: "광이남" },
     ],
   },
-  SAUNA_TEMPS: {
-    label: "사우나 온도",
-    labelEn: "SAUNA TEMPS",
-    toggleLabel: "기록",
-    toggleLabelActive: "기록 중",
-    DRY: {
-      label: "건식",
-      min: 50,
-      max: 130,
-      unit: "°C",
-      steps: [
-        { value: 50, label: "미온" },
-        { value: 70, label: "따뜻" },
-        { value: 85, label: "적당" },
-        { value: 100, label: "뜨거움" },
-        { value: 130, label: "극한" },
-      ],
-    },
-    STEAM: {
-      label: "습식",
-      min: 40,
-      max: 75,
-      unit: "°C",
-      steps: [
-        { value: 40, label: "미지근" },
-        { value: 48, label: "따뜻" },
-        { value: 55, label: "뜨끈" },
-        { value: 62, label: "뜨겁" },
-        { value: 70, label: "찜기" },
-      ],
-    },
-  },
-  BATH_TEMPS: {
-    label: "탕 온도",
-    labelEn: "BATH TEMPS",
-    toggleLabel: "기록",
-    toggleLabelActive: "기록 중",
-    HOT_BATH: {
-      label: "온탕",
-      min: 35,
-      max: 42,
-      unit: "°C",
-      steps: [
-        { value: 35, label: "미지근" },
-        { value: 37, label: "따뜻" },
-        { value: 39, label: "적당" },
-        { value: 41, label: "뜨끈" },
-        { value: 42, label: "뜨겁" },
-      ],
-    },
-    VERY_HOT_BATH: {
-      label: "열탕",
-      min: 38,
-      max: 46,
-      unit: "°C",
-      steps: [
-        { value: 38, label: "따뜻" },
-        { value: 40, label: "뜨끈" },
-        { value: 42, label: "뜨겁" },
-        { value: 44, label: "극열" },
-        { value: 46, label: "삶음" },
-      ],
-    },
-    COLD_BATH: {
-      label: "냉탕",
-      min: 5,
-      max: 30,
-      unit: "°C",
-      steps: [
-        { value: 5, label: "극냉" },
-        { value: 10, label: "차가움" },
-        { value: 15, label: "시원" },
-        { value: 20, label: "미지근" },
-        { value: 30, label: "미온" },
-      ],
-    },
-    ICE_BATH: {
-      label: "급냉탕",
-      min: 0,
-      max: 15,
-      unit: "°C",
-      steps: [
-        { value: 0, label: "얼음" },
-        { value: 5, label: "극냉" },
-        { value: 10, label: "짜릿" },
-        { value: 15, label: "차갑" },
-      ],
-    },
-  },
+  // SAUNA_TEMPS / BATH_TEMPS 는 BLOCK_TYPES(SSOT)로 일원화되며 제거됨 (2026-06-14).
   SCRUB: {
     label: "세신/마사지",
     toggleLabel: "기록",
