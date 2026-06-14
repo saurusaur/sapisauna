@@ -720,7 +720,8 @@ export default function LogPage() {
                 <div className="grid items-center gap-3" style={{ gridTemplateColumns: '60px 1fr' }}>
                   <span className="text-[13px] font-bold text-stone-700">기본세신</span>
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="rounded-lg px-2.5 py-1.5 text-sm font-semibold text-stone-700 shrink-0" style={{ background: T.slot }}>{currency}</span>
+                    {/* currency 변경 불가 — 박스 없이 단위 텍스트만. 입장료 통화 버튼과 동일 폭(투명 아이콘 자리)으로 가격칸 정렬 일치 */}
+                    <span className="px-2.5 py-1.5 flex items-center gap-0.5 text-sm font-semibold text-stone-700 shrink-0">{currency}<span className="material-symbols-outlined invisible" style={{ fontSize: 16 }}>expand_more</span></span>
                     <input inputMode="numeric" placeholder="가격" value={scrubCostExtra} onFocus={scrollIntoCenter} onChange={e => setScrubCostExtra(e.target.value.replace(/[^0-9]/g, ''))} className="flex-1 min-w-0 rounded-lg px-3 py-1.5 text-sm text-right" style={{ background: T.slot }} />
                   </div>
                 </div>
